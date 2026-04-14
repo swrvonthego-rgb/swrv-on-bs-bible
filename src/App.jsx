@@ -310,7 +310,7 @@ export default function App() {
       setAiHistory(prev => [...prev, { role: 'user', text: prompt }, { role: 'ai', text }]);
       return text;
     } catch (err) {
-      const errorMsg = "The AI Scholar is currently unavailable. Please try again later.";
+      const errorMsg = err.message || "The AI Scholar is currently unavailable. Please try again later.";
       setAiHistory(prev => [...prev, { role: 'user', text: prompt }, { role: 'ai', text: errorMsg, isError: true }]);
       return errorMsg;
     } finally {

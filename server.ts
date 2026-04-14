@@ -3,10 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,27 +11,47 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  console.log("Starting server...");
+  console.log("GEMINI_API_KEY present:", !!process.env.GEMINI_API_KEY);
+
   app.use(express.json());
+
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      databaseLoaded: !!CROSS_REFS,
+      envKeys: Object.keys(process.env).filter(k => !k.includes('SECRET') && !k.includes('KEY') && !k.includes('TOKEN')),
+      geminiKeyPrefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) : "none"
+    });
+  });
 
   // Import data for grounding
   // We'll import it dynamically to avoid issues with Vite/TSX
+  console.log("Importing database for grounding...");
   const { CROSS_REFS, SOURCE_META } = await import("./src/data/crossrefs.js");
+  console.log("Database imported successfully. Entries:", Object.keys(CROSS_REFS).length);
 
   // AI Scholar Endpoint
   app.post("/api/scholar", async (req, res) => {
+    console.log("Received Scholar Request:", req.body.prompt);
     const { prompt, systemPrompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
+      console.error("Missing GEMINI_API_KEY");
       return res.status(500).json({ error: "Gemini API Key not configured on server." });
     }
 
     try {
       // 1. Grounding: Find relevant context from CROSS_REFS
+      console.log("Starting grounding search...");
       let context = "";
       const query = prompt.toLowerCase();
       
-      // Simple keyword search
+      if (!CROSS_REFS) {
+        console.error("CROSS_REFS is not loaded");
+        throw new Error("Database not loaded");
+      }
       const relevantEntries = [];
       for (const [key, refs] of Object.entries(CROSS_REFS)) {
         const bookName = key.split('.')[0].toLowerCase();
@@ -66,7 +82,9 @@ async function startServer() {
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash",
-        systemInstruction: systemPrompt
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        }
       });
 
       const fullPrompt = context ? `CONTEXT FROM DATABASE:\n${context}\n\nUSER QUERY: ${prompt}` : prompt;
@@ -82,8 +100,9 @@ async function startServer() {
       const response = await result.response;
       res.json({ text: response.text() });
     } catch (error) {
-      console.error("Scholar API Error:", error);
-      res.status(500).json({ error: "Failed to generate response from AI Scholar." });
+      console.error("Scholar API Error Details:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ error: `Scholar Error: ${message}` });
     }
   });
 
