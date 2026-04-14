@@ -12,292 +12,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { CROSS_REFS, TIMELINE, SOURCE_META, BOOK_NOTES } from './data/crossrefs.js';
 
-// --- STYLES ---
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap');
-
-  :root {
-    --bg: #0d0d0f;
-    --surface: #16161a;
-    --card: #1e1e24;
-    --accent: #c9a84c;
-    --text: #ffffff;
-    --text-dim: rgba(255, 255, 255, 0.6);
-    --border: rgba(255, 255, 255, 0.07);
-    --border-active: rgba(255, 255, 255, 0.12);
-    --safe-top: env(safe-area-inset-top);
-    --safe-bottom: env(safe-area-inset-bottom);
-  }
-
-  [data-theme="light"] {
-    --bg: #f5f5f7;
-    --surface: #ffffff;
-    --card: #ffffff;
-    --accent: #c9a84c;
-    --text: #1d1d1f;
-    --text-dim: rgba(0, 0, 0, 0.5);
-    --border: rgba(0, 0, 0, 0.05);
-    --border-active: rgba(0, 0, 0, 0.1);
-  }
-
-  * {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  h1, h2, h3, .serif {
-    font-family: 'DM Serif Display', serif;
-    font-weight: 400;
-  }
-
-  .app-container {
-    max-width: 500px;
-    margin: 0 auto;
-    min-height: 100vh;
-    padding-bottom: calc(80px + var(--safe-bottom));
-    position: relative;
-    background: var(--bg);
-  }
-
-  .hero-banner {
-    width: 100%;
-    height: 240px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 100%), url('https://res.cloudinary.com/dvyigk3sp/image/upload/v1776104453/IMG_1033_qmkp0q.png');
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 20px;
-  }
-
-  .hero-title {
-    font-size: 36px;
-    color: var(--accent);
-    margin: 0;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-  }
-
-  .screen {
-    padding: 20px;
-    padding-top: calc(40px + var(--safe-top));
-  }
-
-  /* Navigation */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(70px + var(--safe-bottom));
-    background: rgba(22, 22, 26, 0.8);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-bottom: var(--safe-bottom);
-    z-index: 1000;
-  }
-
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-dim);
-    font-size: 10px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex: 1;
-  }
-
-  .nav-item.active {
-    color: var(--accent);
-  }
-
-  /* Cards */
-  .card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid var(--border);
-    margin-bottom: 16px;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  .card:active {
-    transform: scale(0.98);
-    border-color: var(--border-active);
-  }
-
-  /* Badges */
-  .badge {
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: inline-block;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-weight: 700;
-    font-size: 15px;
-    width: 100%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  /* Inputs */
-  .input-group {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .input-group input {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 16px;
-    width: 100%;
-    outline: none;
-  }
-
-  /* Grid */
-  .book-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-
-  .book-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 8px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .book-item span {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  /* AI Scholar */
-  .chat-bubble {
-    padding: 16px;
-    border-radius: 16px;
-    margin-bottom: 16px;
-    line-height: 1.6;
-    font-size: 15px;
-  }
-
-  .chat-user {
-    background: var(--accent);
-    color: #000;
-    align-self: flex-end;
-    margin-left: 40px;
-    border-bottom-right-radius: 4px;
-  }
-
-  .chat-ai {
-    background: var(--surface);
-    color: var(--text);
-    align-self: flex-start;
-    margin-right: 40px;
-    border-bottom-left-radius: 4px;
-    border: 1px solid var(--border);
-  }
-
-  /* Source Tabs */
-  .source-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 12px;
-    scrollbar-width: none;
-  }
-
-  .source-tabs::-webkit-scrollbar { display: none; }
-
-  .source-tab {
-    padding: 8px 16px;
-    border-radius: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    white-space: nowrap;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .source-tab.active {
-    background: var(--accent);
-    color: #000;
-    border-color: var(--accent);
-  }
-
-  /* Timeline */
-  .timeline-item {
-    position: relative;
-    padding-left: 30px;
-    margin-bottom: 30px;
-    border-left: 2px solid var(--border);
-  }
-
-  .timeline-dot {
-    position: absolute;
-    left: -7px;
-    top: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-  }
-`;
-
 // --- DATA HELPERS ---
 const BIBLE_BOOKS = [
   { id: "GEN", name: "Genesis", chapters: 50 },
@@ -368,7 +82,130 @@ const BIBLE_BOOKS = [
   { id: "REV", name: "Revelation", chapters: 22 }
 ];
 
-const SYSTEM_PROMPT = `Scholar treats Bible as historical-literary document. Zero religious framing. Always surfaces original audience understanding. Flags mistranslations, colonial distortions, whitewashing. Reads NT through first-century Second Temple Jewish lens. Cites Josephus. Cross-references Septuagint vs Hebrew MT differences. Covers Watcher tradition, divine council, Nephilim with full Second Temple framework.`;
+const SYSTEM_PROMPT = `You are a Comprehensive Learning Experience Designer. Your job is to create deep, immersive, educational content that helps people understand ANY subject thoroughly—without overwhelming them.
+
+CORE PRINCIPLE:
+Generate complete, primary-source learning experiences organized for understanding. No summarizing. No paraphrasing. Everything is presented with full context, definitions, connections, and resources—but organized so a high school or college student can follow it easily.
+
+WHEN A USER REQUESTS INFORMATION ON [ANY SUBJECT/PERSON/BOOK/CONCEPT/EVENT]:
+
+OUTPUT STRUCTURE (In This Order):
+
+═══════════════════════════════════════════════════════════════
+
+1. MAIN TEXT - CONVERSATIONAL, CLEAR EXPLANATION
+
+- Write in plain English that a high schooler understands immediately
+- Use conversational tone—like you're explaining to a friend
+- Break complex ideas into digestible pieces
+- Every passage or section should tell the story/explain the concept clearly
+- Maintain chronological or logical order (for people: birth → rise → peak → decline → legacy; for concepts: origins → development → peak → modern application; for events: causes → key moments → consequences → legacy)
+- Include all major points/passages/developments—don't skip anything important
+- Use transitions and context sentences to connect ideas smoothly
+
+LENGTH: This should be substantial and complete. Don't rush through it.
+
+═══════════════════════════════════════════════════════════════
+
+2. SIDEBAR CONTENT - WHAT APPEARS AS YOU READ
+
+For major sections/passages, provide sidebar material that appears contextually:
+
+**What's Happening / Why It Matters:**
+- 2-3 sentences explaining the significance of this moment
+- Why this matters in the bigger story
+
+**Connected Ideas / Earlier Context:**
+- What happened before that explains this?
+- Cross-references to earlier parts of the story
+- "This connects to..." format
+
+**Cultural/Historical Context:**
+- What would this have meant in that time?
+- What was normal then that we need to understand?
+- Social customs, political situations, daily life details
+- Use language young people understand
+
+**Key Teaching Moments:**
+- What is this passage teaching?
+- What principle or truth is being shown here?
+- Why should this matter to a reader today?
+
+FORMAT: Present as if these appear in a sidebar automatically as the reader progresses through the main text.
+
+═══════════════════════════════════════════════════════════════
+
+3. WORD DEFINITIONS - CONTEXTUAL ONLY
+
+For important or potentially confusing words/terms/names:
+
+**Format for each definition:**
+
+[WORD] (Original language if applicable)
+- In this context: [What it means HERE, in THIS passage]
+- Why it matters: [How does understanding this word help you understand the passage?]
+- Connection: [How does this connect to other parts of the story/subject?]
+
+CRITICAL RULE: Only define words as they appear in THIS passage.
+
+═══════════════════════════════════════════════════════════════
+
+4. CROSS-REFERENCES & CONNECTIONS
+
+Show how this material connects to other parts of the story/subject:
+
+**Earlier [Subject] that Explains This:**
+- [Reference]: [What it says] - Connection: [How it connects]
+
+**Later [Subject] that Connects to This:**
+- [Reference]: [What it says] - Connection: [How it connects]
+
+═══════════════════════════════════════════════════════════════
+
+5. HISTORICAL & CULTURAL NOTES
+
+Explain the world the reader is entering:
+- What time period is this? What year approximately?
+- What was normal then that isn't now?
+- What social/political/cultural context matters?
+
+═══════════════════════════════════════════════════════════════
+
+RESOURCE PULLING:
+Pull from Primary Sources, Historical Context, Scholarly Commentary, Word Studies, Cross-References, Cultural Notes, and Modern Connection.
+
+For BIBLICAL content specifically, include:
+- Multiple Bible translation perspectives (KJV, ESV, NLT, MSG if relevant)
+- Hebrew/Greek original words
+- Septuagint references (Greek translation)
+- Classical commentaries (Matthew Henry, Jamieson-Fausset-Brown, Barnes' Notes)
+- Strong's Concordance word studies
+- Cross-scripture connections
+
+═══════════════════════════════════════════════════════════════
+
+ORGANIZATION GUIDELINES:
+Follow chronological or logical phases based on the subject type (Historical Figures, Books, Movements, Concepts, Organizations).
+
+DEPTH REQUIREMENTS:
+✓ This is a COMPREHENSIVE learning experience
+✓ Length is not a problem—thoroughness is the goal
+✓ Include major passages/documents in full
+✓ Context is provided for understanding
+✓ Accessible to high school / college level
+
+LANGUAGE & TONE:
+✓ Clear, conversational English
+✓ Engaging but respectful
+✓ Stories and narrative flow
+
+FINAL OUTPUT SPECIFICATION:
+Deliver the entire study as a complete, standalone HTML artifact with embedded CSS for a professional, interactive reading experience. 
+- Use a clean, Apple-inspired design (light theme, Inter font, generous spacing, subtle shadows, rounded corners).
+- Include a progress bar at the top.
+- Include a sticky navigation menu to jump between sections.
+- Add a "Listen to Story" button at the start of the Main Text section that uses the browser's SpeechSynthesis API to read the conversational text aloud.
+- Ensure the layout is mobile-responsive and looks like a premium educational app.`;
 
 // --- COMPONENTS ---
 
@@ -394,34 +231,34 @@ export default function App() {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [bookmarks, setBookmarks] = useState([]);
   const [aiHistory, setAiHistory] = useState([]);
-  const [geminiKey, setGeminiKey] = useState(localStorage.getItem('gemini_key') || '');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [readingChapter, setReadingChapter] = useState(1);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [compareSources, setCompareSources] = useState([]);
+  const [highlights, setHighlights] = useState([]);
 
   useEffect(() => {
-    const styleTag = document.createElement('style');
-    styleTag.innerHTML = STYLES;
-    document.head.appendChild(styleTag);
-    
     const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
     setBookmarks(savedBookmarks);
 
-    document.documentElement.setAttribute('data-theme', theme);
+    const savedHighlights = JSON.parse(localStorage.getItem('highlights') || '[]');
+    setHighlights(savedHighlights);
 
-    return () => document.head.removeChild(styleTag);
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  const toggleHighlight = (id) => {
+    const newHighlights = highlights.includes(id)
+      ? highlights.filter(h => h !== id)
+      : [...highlights, id];
+    setHighlights(newHighlights);
+    localStorage.setItem('highlights', JSON.stringify(newHighlights));
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
-  };
-
-  const saveGeminiKey = (key) => {
-    setGeminiKey(key);
-    localStorage.setItem('gemini_key', key);
   };
 
   const toggleBookmark = (passageId) => {
@@ -449,25 +286,33 @@ export default function App() {
   };
 
   const callGemini = async (prompt) => {
-    if (!geminiKey) return "Please add your Gemini API Key in the About screen.";
     setIsAiLoading(true);
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-      const response = await fetch(url, {
+      const response = await fetch('/api/scholar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+          prompt,
+          systemPrompt: SYSTEM_PROMPT
         })
       });
+      
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status}`);
+      }
+
       const data = await response.json();
-      const text = data.candidates[0].content.parts[0].text;
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const text = data.text;
       setAiHistory(prev => [...prev, { role: 'user', text: prompt }, { role: 'ai', text }]);
       return text;
     } catch (err) {
-      return "Error connecting to AI Scholar. Check your key and connection.";
+      const errorMsg = "The AI Scholar is currently unavailable. Please try again later.";
+      setAiHistory(prev => [...prev, { role: 'user', text: prompt }, { role: 'ai', text: errorMsg, isError: true }]);
+      return errorMsg;
     } finally {
       setIsAiLoading(false);
     }
@@ -477,54 +322,50 @@ export default function App() {
 
   const HomeScreen = () => (
     <ScreenTransition>
-      <div className="hero-banner">
-        <h1 className="hero-title">SWRV Kingdom</h1>
-        <p style={{ color: 'var(--text-dim)', margin: '4px 0 0 0', fontSize: 14 }}>Historical Bible Study Library</p>
+      <div className="hero-banner" style={{ borderRadius: '0 0 32px 32px', overflow: 'hidden', marginBottom: 24, height: 'auto', minHeight: 300 }}>
+        <img src="https://res.cloudinary.com/dvyigk3sp/image/upload/v1776104453/IMG_1033_qmkp0q.png" 
+             alt="Cover" 
+             style={{ width: '100%', height: 'auto', display: 'block' }} 
+             referrerPolicy="no-referrer" />
+        <div style={{ padding: 24, paddingBottom: 32, background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
+          <h1 className="hero-title" style={{ color: 'var(--text)', fontSize: 42, margin: 0 }}>SWRV Kingdom</h1>
+          <p style={{ color: 'var(--text-dim)', margin: '8px 0 0 0', fontSize: 16, fontWeight: 500 }}>Historical Bible Study Library</p>
+        </div>
       </div>
 
-      <div style={{ padding: '0 20px' }}>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 30, marginTop: 20 }}>
-          <button className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setScreen('search')}>
-            <Search size={18} /> Search Notes
+      <div style={{ padding: '0 24px' }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 32 }}>
+          <button className="btn-secondary" style={{ flex: 1, borderRadius: 16, padding: '16px' }} onClick={() => setScreen('search')}>
+            <Search size={20} /> Search
           </button>
-          <button className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setTab('scholar')}>
-            <Sparkles size={18} /> Ask Scholar
+          <button className="btn-primary" style={{ flex: 1, borderRadius: 16, padding: '16px' }} onClick={() => setTab('scholar')}>
+            <Sparkles size={20} /> Ask AI
           </button>
         </div>
 
-        <h2 style={{ fontSize: 20, marginBottom: 16 }}>Featured Passages</h2>
-        {Object.keys(CROSS_REFS).slice(0, 4).map(id => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 22, margin: 0 }}>Featured Study</h2>
+          <span style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 600, cursor: 'pointer' }} onClick={() => setTab('timeline')}>View Timeline</span>
+        </div>
+
+        {Object.keys(CROSS_REFS).slice(0, 3).map(id => (
           <div key={id} className="card" onClick={() => { setSelectedPassage(id); setScreen('passage'); }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 18 }}>{id.replace('.', ' ')}</h3>
-              <span className="badge" style={{ background: 'rgba(201, 168, 76, 0.1)', color: 'var(--accent)' }}>
-                {CROSS_REFS[id].length} Sources
-              </span>
+              <h3 style={{ margin: 0, fontSize: 19 }}>{id.replace('.', ' ')}</h3>
+              <ChevronRight size={20} color="var(--text-dim)" />
             </div>
-            <p style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 8, lineHeight: 1.4 }}>
-              Explore parallel historical contexts from {CROSS_REFS[id].slice(0, 3).map(r => SOURCE_META[r.source].label).join(', ')}...
+            <p style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 10, lineHeight: 1.5 }}>
+              Parallel insights from {CROSS_REFS[id].slice(0, 2).map(r => SOURCE_META[r.source].label).join(' & ')}...
             </p>
           </div>
         ))}
 
-        <h2 style={{ fontSize: 20, marginTop: 30, marginBottom: 16 }}>The 10 Sources</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
-          {Object.entries(SOURCE_META).map(([key, meta]) => (
-            <div key={key} className="card" style={{ marginBottom: 0 }}>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: meta.color }}></div>
-                <h3 style={{ margin: 0, fontSize: 16 }}>{meta.label}</h3>
-              </div>
-              <p style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 8, lineHeight: 1.4 }}>{meta.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ margin: '30px 0', padding: 20, background: 'rgba(201, 168, 76, 0.05)', border: '1px solid rgba(201, 168, 76, 0.15)', borderRadius: 'var(--radius)' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 8 }}>THE FOUNDATIONAL RULE</div>
-          <div style={{ fontSize: 14, color: 'var(--text-dim)', lineHeight: 1.6, fontStyle: 'italic' }}>
-            "You cannot understand what a text means until you understand what it meant. Every text was written by someone, to someone, about something specific."
+        <div style={{ margin: '40px 0', padding: 24, background: 'rgba(0, 122, 255, 0.05)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 24 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 12, textTransform: 'uppercase' }}>The Zion Vision</div>
+          <div style={{ fontSize: 16, color: 'var(--text)', lineHeight: 1.6, fontStyle: 'italic', fontWeight: 500 }}>
+            "You cannot understand what a text means until you understand what it meant."
           </div>
+          <p style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 12, margin: '12px 0 0 0' }}>— Zion Birdsong</p>
         </div>
       </div>
     </ScreenTransition>
@@ -648,6 +489,7 @@ export default function App() {
   const ReadingModeScreen = () => {
     const passageId = `${selectedBook.id}.${readingChapter}`;
     const refs = CROSS_REFS[passageId] || [];
+    const [viewMode, setViewMode] = useState('list'); // list, parallel
 
     return (
       <ScreenTransition>
@@ -656,26 +498,54 @@ export default function App() {
             <ArrowLeft onClick={() => setScreen('book')} style={{ cursor: 'pointer' }} />
             <h1 style={{ fontSize: 24, margin: 0 }}>{selectedBook.name} {readingChapter}</h1>
           </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button 
+              className="btn-secondary" 
+              style={{ padding: '6px 12px', fontSize: 12 }}
+              onClick={() => setViewMode(viewMode === 'list' ? 'parallel' : 'list')}
+            >
+              {viewMode === 'list' ? 'Parallel View' : 'List View'}
+            </button>
+          </div>
         </div>
 
-        <div className="card" style={{ minHeight: '40vh', background: 'var(--surface)', fontSize: 18, lineHeight: 1.8 }}>
-          <p style={{ opacity: 0.5, fontSize: 14 }}>Full text for {selectedBook.name} {readingChapter} is being integrated. Use parallel sources below for historical context.</p>
+        <div className="card" style={{ minHeight: '20vh', background: 'var(--surface)', fontSize: 18, lineHeight: 1.8, borderStyle: 'dashed' }}>
+          <p style={{ opacity: 0.5, fontSize: 14 }}>
+            Full text integration in progress. Tap any source below to highlight it for your study.
+          </p>
         </div>
 
         <h2 style={{ fontSize: 18, marginTop: 30, marginBottom: 16 }}>Parallel Sources</h2>
-        {refs.length > 0 ? refs.map((ref, i) => (
-          <div key={i} className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span className="badge" style={{ background: SOURCE_META[ref.source].color, color: '#000' }}>
-                {SOURCE_META[ref.source].label}
-              </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{ref.ref}</span>
-            </div>
-            <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>{ref.note}</p>
-          </div>
-        )) : (
-          <p style={{ color: 'var(--text-dim)', textAlign: 'center' }}>No parallel sources for this chapter yet.</p>
-        )}
+        
+        <div className={viewMode === 'parallel' ? 'parallel-view' : ''}>
+          {refs.length > 0 ? refs.map((ref, i) => {
+            const highlightId = `${passageId}-${ref.source}-${i}`;
+            const isHighlighted = highlights.includes(highlightId);
+            
+            return (
+              <div 
+                key={i} 
+                className={`card ${isHighlighted ? 'highlighted' : ''}`}
+                onClick={() => toggleHighlight(highlightId)}
+                style={{ 
+                  cursor: 'pointer',
+                  borderLeft: isHighlighted ? '4px solid gold' : '1px solid var(--border)',
+                  background: isHighlighted ? 'rgba(255, 215, 0, 0.05)' : 'var(--card)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span className="badge" style={{ background: SOURCE_META[ref.source].color, color: '#000' }}>
+                    {SOURCE_META[ref.source].label}
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{ref.ref}</span>
+                </div>
+                <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>{ref.note}</p>
+              </div>
+            );
+          }) : (
+            <p style={{ color: 'var(--text-dim)', textAlign: 'center' }}>No parallel sources for this chapter yet.</p>
+          )}
+        </div>
 
         <div style={{ display: 'flex', gap: 12, marginTop: 30 }}>
           <button 
@@ -707,22 +577,57 @@ export default function App() {
         </div>
         <p style={{ color: 'var(--accent)', fontWeight: 700, marginBottom: 30 }}>{era.period}</p>
 
-        {eraPassages.map(p => (
-          <div key={p.id} style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 16 }}>{p.id.replace('.', ' ')}</h2>
-            {p.refs.map((ref, i) => (
-              <div key={i} className="card" style={{ background: 'transparent', padding: '0 0 20px 0', border: 'none', borderBottom: '1px solid var(--border)', borderRadius: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <span className="badge" style={{ background: SOURCE_META[ref.source].color, color: '#000' }}>
-                    {SOURCE_META[ref.source].label}
-                  </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{ref.ref}</span>
-                </div>
-                <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>{ref.note}</p>
+        <div className="parallel-view">
+          {eraPassages.map(p => (
+            <div key={p.id} style={{ marginBottom: 40 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 16 }}>
+                <h2 style={{ fontSize: 20, margin: 0 }}>{p.id.replace('.', ' ')}</h2>
+                <button 
+                  className="btn-secondary" 
+                  style={{ padding: '4px 12px', fontSize: 11 }}
+                  onClick={() => {
+                    const bookId = p.id.split('.')[0];
+                    const chapter = parseInt(p.id.split('.')[1]) || 1;
+                    setSelectedBook(BIBLE_BOOKS.find(b => b.id === bookId));
+                    setReadingChapter(chapter);
+                    setScreen('reading');
+                    setTab('books');
+                  }}
+                >
+                  Full Chapter
+                </button>
               </div>
-            ))}
-          </div>
-        ))}
+              {p.refs.map((ref, i) => {
+                const highlightId = `flow-${p.id}-${ref.source}-${i}`;
+                const isHighlighted = highlights.includes(highlightId);
+
+                return (
+                  <div 
+                    key={i} 
+                    className={`card ${isHighlighted ? 'highlighted' : ''}`} 
+                    onClick={() => toggleHighlight(highlightId)}
+                    style={{ 
+                      background: isHighlighted ? 'rgba(255, 215, 0, 0.05)' : 'transparent', 
+                      padding: '16px', 
+                      border: '1px solid var(--border)', 
+                      borderRadius: '12px',
+                      marginBottom: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <span className="badge" style={{ background: SOURCE_META[ref.source].color, color: '#000' }}>
+                        {SOURCE_META[ref.source].label}
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{ref.ref}</span>
+                    </div>
+                    <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>{ref.note}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </ScreenTransition>
     );
   };
@@ -786,7 +691,7 @@ export default function App() {
             <Bookmark 
               size={22} 
               fill={bookmarks.includes(selectedPassage) ? "var(--accent)" : "none"} 
-              color={bookmarks.includes(selectedPassage) ? "var(--accent)" : "white"}
+              color={bookmarks.includes(selectedPassage) ? "var(--accent)" : "var(--text)"}
               onClick={() => toggleBookmark(selectedPassage)}
               style={{ cursor: 'pointer' }}
             />
@@ -825,12 +730,12 @@ export default function App() {
         </div>
 
         {aiContext && (
-          <div className="card" style={{ background: 'linear-gradient(135deg, #1e1e24 0%, #16161a 100%)', border: '1px solid rgba(201, 168, 76, 0.2)' }}>
+          <div className="card" style={{ background: 'linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%)', border: '1px solid rgba(0, 122, 255, 0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Sparkles size={18} color="var(--accent)" />
               <h3 style={{ margin: 0, fontSize: 16, color: 'var(--accent)' }}>Scholar Context</h3>
             </div>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.8)' }}>{aiContext}</p>
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: 'var(--text)' }}>{aiContext}</p>
           </div>
         )}
       </ScreenTransition>
@@ -869,60 +774,132 @@ export default function App() {
   const AIScreen = () => {
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
+    const [showArtifact, setShowArtifact] = useState(null);
 
-    const handleSend = async () => {
-      if (!input.trim()) return;
-      const q = input;
+    const handleSend = async (customPrompt) => {
+      const q = customPrompt || input;
+      if (!q.trim() || isAiLoading) return;
       setInput('');
-      await callGemini(q);
+      const response = await callGemini(q);
+      if (response && (response.includes('<!DOCTYPE html>') || response.includes('<html'))) {
+        setShowArtifact(response);
+      } else if (response && response.startsWith('Error')) {
+        // Error is already added to history by callGemini in a way, 
+        // but callGemini returns the text. Let's ensure it's visible.
+      }
     };
 
     useEffect(() => {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [aiHistory]);
 
+    const suggestions = [
+      { label: "Life of David", icon: <BookOpen size={16} /> },
+      { label: "The Exodus", icon: <Clock size={16} /> },
+      { label: "Second Temple History", icon: <Info size={16} /> },
+      { label: "The Dead Sea Scrolls", icon: <Search size={16} /> }
+    ];
+
     return (
       <ScreenTransition>
-        <h1 style={{ fontSize: 28, marginBottom: 8 }}>AI Scholar</h1>
-        <p style={{ color: 'var(--text-dim)', marginBottom: 24 }}>Ask about historical context, original languages, or Second Temple traditions.</p>
-
-        <div style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column', paddingBottom: 100 }}>
-          {aiHistory.length === 0 && (
-            <div style={{ marginTop: 'auto', marginBottom: 'auto', textAlign: 'center', opacity: 0.5 }}>
-              <Sparkles size={48} style={{ marginBottom: 16 }} />
-              <p>Try: "What is the divine council in Psalm 82?"</p>
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {showArtifact && <ArrowLeft onClick={() => setShowArtifact(null)} style={{ cursor: 'pointer' }} />}
+            <h1 style={{ fontSize: 28, margin: 0 }}>AI Scholar</h1>
+          </div>
+          {!showArtifact && aiHistory.length > 0 && (
+            <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: 12, borderRadius: 10 }} onClick={() => setAiHistory([])}>
+              Clear
+            </button>
           )}
-          
-          {aiHistory.map((msg, i) => (
-            <div key={i} className={`chat-bubble ${msg.role === 'user' ? 'chat-user' : 'chat-ai'}`}>
-              {msg.text}
-              {msg.role === 'ai' && (
-                <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
-                  <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => navigator.clipboard.writeText(msg.text)}>
-                    <Copy size={12} /> Copy
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-          {isAiLoading && <div className="chat-bubble chat-ai">Scholar is thinking...</div>}
-          <div ref={chatEndRef} />
         </div>
 
-        <div style={{ position: 'fixed', bottom: 90, left: 20, right: 20, maxWidth: 460, margin: '0 auto' }}>
-          <div className="input-group" style={{ marginBottom: 0, background: 'var(--card)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-            <input 
-              placeholder="Ask the Scholar..." 
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+        {showArtifact ? (
+          <div style={{ height: 'calc(100vh - 220px)', border: '1px solid var(--border)', borderRadius: 24, overflow: 'hidden', background: 'var(--surface)', boxShadow: 'var(--shadow)' }}>
+            <iframe 
+              srcDoc={showArtifact} 
+              style={{ width: '100%', height: '100%', border: 'none' }} 
+              title="AI Experience"
             />
-            <div onClick={handleSend} style={{ background: 'var(--accent)', padding: 8, borderRadius: 8, cursor: 'pointer' }}>
-              <ChevronRight size={20} color="#000" />
+          </div>
+        ) : (
+          <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', paddingBottom: 120 }}>
+            {aiHistory.length === 0 ? (
+              <div style={{ marginTop: 20 }}>
+                <div className="card" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, #5856D6 100%)', border: 'none', color: 'white', padding: 24 }}>
+                  <Sparkles size={32} style={{ marginBottom: 16 }} />
+                  <h2 style={{ fontSize: 22, margin: '0 0 8px 0', color: 'white' }}>Welcome to the Library</h2>
+                  <p style={{ fontSize: 15, opacity: 0.9, lineHeight: 1.5, margin: 0 }}>
+                    I can assemble comprehensive, chronological studies on any historical subject. Ask me to "Show me everything on..." a person, event, or concept.
+                  </p>
+                </div>
+
+                <h3 style={{ fontSize: 17, margin: '24px 0 12px 0' }}>Suggested Topics</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {suggestions.map((s, i) => (
+                    <div key={i} className="card" style={{ marginBottom: 0, padding: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }} onClick={() => handleSend(`Show me everything on ${s.label}`)}>
+                      <div style={{ color: 'var(--accent)' }}>{s.icon}</div>
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {aiHistory.map((msg, i) => (
+                  <div key={i} className={`chat-bubble ${msg.role === 'user' ? 'chat-user' : 'chat-ai'}`} style={{ maxWidth: '90%', border: msg.isError ? '1px solid #ff3b30' : 'none' }}>
+                    {msg.text.includes('<html') ? (
+                      <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                        <div style={{ fontSize: 13, marginBottom: 12, opacity: 0.8 }}>Experience Assembled Successfully</div>
+                        <button className="btn-primary" style={{ width: '100%', borderRadius: 12 }} onClick={() => setShowArtifact(msg.text)}>
+                          <ExternalLink size={18} /> Open Study Experience
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 15, lineHeight: 1.5 }}>{msg.text}</div>
+                    )}
+                    {msg.role === 'ai' && !msg.text.includes('<html') && (
+                      <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                        <button className="btn-secondary" style={{ padding: '6px 10px', fontSize: 11, borderRadius: 8 }} onClick={() => navigator.clipboard.writeText(msg.text)}>
+                          <Copy size={12} /> Copy Text
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {isAiLoading && (
+              <div className="chat-bubble chat-ai" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                >
+                  <Sparkles size={18} color="var(--accent)" />
+                </motion.div>
+                <span>Assembling primary sources...</span>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+        )}
+
+        {!showArtifact && (
+          <div style={{ position: 'fixed', bottom: 90, left: 20, right: 20, maxWidth: 460, margin: '0 auto', zIndex: 10 }}>
+            <div className="input-group" style={{ marginBottom: 0, background: 'var(--card)', boxShadow: 'var(--shadow)', borderRadius: 16, padding: '4px 8px 4px 16px' }}>
+              <input 
+                placeholder="Ask for a study (e.g. 'Life of Paul')" 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                style={{ fontSize: 16 }}
+              />
+              <div onClick={() => handleSend()} style={{ background: 'var(--accent)', padding: 10, borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ChevronRight size={20} color="#fff" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </ScreenTransition>
     );
   };
@@ -945,21 +922,6 @@ export default function App() {
         <p style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 4 }}>Historical Bible Study Library</p>
       </div>
       
-      <div className="card">
-        <h3 style={{ margin: '0 0 12px 0' }}>Gemini API Key</h3>
-        <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 16 }}>
-          To use the AI Scholar, enter your free Gemini API key from Google AI Studio.
-        </p>
-        <div className="input-group">
-          <input 
-            type="password" 
-            placeholder="Enter API Key..." 
-            value={geminiKey}
-            onChange={(e) => saveGeminiKey(e.target.value)}
-          />
-        </div>
-      </div>
-
       <div className="card" onClick={() => sharePassage('GENERAL')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h3 style={{ margin: 0 }}>Share SWRV Kingdom</h3>
@@ -976,13 +938,23 @@ export default function App() {
               <div 
                 key={b} 
                 className="badge" 
-                style={{ background: 'var(--surface)', border: '1px solid var(--accent)', color: 'var(--accent)', cursor: 'pointer' }}
+                style={{ background: 'var(--bg)', border: '1px solid var(--accent)', color: 'var(--accent)', cursor: 'pointer' }}
                 onClick={() => { setSelectedPassage(b); setScreen('passage'); setTab('books'); }}
               >
                 {b.replace('.', ' ')}
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {highlights.length > 0 && (
+        <div className="card">
+          <h3 style={{ margin: '0 0 12px 0' }}>Your Highlights</h3>
+          <p style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}>You have {highlights.length} highlighted passages.</p>
+          <button className="btn-secondary" style={{ width: 'auto', padding: '8px 16px', fontSize: 13 }} onClick={() => { setHighlights([]); localStorage.removeItem('highlights'); }}>
+            Clear All Highlights
+          </button>
         </div>
       )}
 

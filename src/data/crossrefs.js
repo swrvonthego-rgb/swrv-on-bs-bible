@@ -16,11 +16,11 @@ export const SOURCE_META = {
 };
 
 export const TIMELINE = [
-  { id: "creation", label: "Creation & Antediluvian", period: "Pre-2500 BC", color: "#8b6fc9", books: ["GEN.1", "GEN.2", "GEN.3", "GEN.4", "GEN.5", "GEN.6"], sources: ["enoch", "josephus"] },
-  { id: "patriarchs", label: "Era of Patriarchs", period: "2100 - 1800 BC", color: "#c9a84c", books: ["GEN.12", "GEN.14", "GEN.15", "GEN.22", "JOB.1"], sources: ["tanakh"] },
-  { id: "exodus", label: "Exodus & Conquest", period: "1450 - 1350 BC", color: "#d4845a", books: ["EXO.3", "EXO.12", "EXO.20", "DEU.6", "DEU.32", "JOS.1"], sources: ["tanakh", "lxx", "josephus"] },
-  { id: "monarchy", label: "United Monarchy", period: "1050 - 930 BC", color: "#5a9ed4", books: ["1SA.16", "2SA.7", "1KI.3", "PSA.2", "PSA.8", "PSA.22", "PSA.45", "PSA.82", "PSA.89", "PSA.110"], sources: ["tanakh", "dss"] },
-  { id: "exile", label: "Prophets & Exile", period: "740 - 530 BC", color: "#b87878", books: ["ISA.7", "ISA.9", "ISA.11", "ISA.14", "ISA.53", "ISA.61", "JER.31", "EZE.1", "EZE.28", "DAN.2", "DAN.7", "DAN.9", "DAN.10", "DAN.12"], sources: ["tanakh", "dss", "lxx"] },
+  { id: "creation", label: "Creation & Antediluvian", period: "Pre-2500 BC", color: "#8b6fc9", books: ["GEN.1", "GEN.2", "GEN.3", "GEN.4", "GEN.5", "GEN.6", "GEN.7", "GEN.8", "GEN.9", "GEN.10", "GEN.11"], sources: ["enoch", "josephus"] },
+  { id: "patriarchs", label: "Era of Patriarchs", period: "2100 - 1800 BC", color: "#c9a84c", books: ["GEN.12", "GEN.14", "GEN.15", "GEN.22", "JOB.1", "JOB.38", "JOB.40", "JOB.41"], sources: ["tanakh"] },
+  { id: "exodus", label: "Exodus & Conquest", period: "1450 - 1350 BC", color: "#d4845a", books: ["EXO.3", "EXO.12", "EXO.20", "EXO.24", "LEV.16", "NUM.22", "DEU.6", "DEU.32", "DEU.33", "JOS.1", "JOS.5"], sources: ["tanakh", "lxx", "josephus"] },
+  { id: "monarchy", label: "United Monarchy", period: "1050 - 930 BC", color: "#5a9ed4", books: ["1SA.16", "1SA.28", "2SA.7", "2SA.22", "1KI.3", "1KI.8", "PSA.2", "PSA.8", "PSA.19", "PSA.22", "PSA.24", "PSA.45", "PSA.68", "PSA.82", "PSA.89", "PSA.104", "PSA.110"], sources: ["tanakh", "dss"] },
+  { id: "exile", label: "Prophets & Exile", period: "740 - 530 BC", color: "#b87878", books: ["ISA.6", "ISA.7", "ISA.9", "ISA.11", "ISA.14", "ISA.53", "ISA.61", "JER.31", "EZE.1", "EZE.10", "EZE.28", "DAN.2", "DAN.7", "DAN.9", "DAN.10", "DAN.12"], sources: ["tanakh", "dss", "lxx"] },
   { id: "second_temple", label: "Second Temple Period", period: "515 BC - 70 AD", color: "#7aaa8a", books: ["EZR.1", "NEH.1", "MAL.3", "1MA.1"], sources: ["dss", "josephus"] },
   { id: "apostolic", label: "Apostolic Age", period: "30 - 100 AD", color: "#d45a7a", books: ["MAT.1", "MAT.5", "MAT.6", "MAT.7", "MAT.24", "JHN.1", "ACT.2", "ROM.1", "ROM.5", "ROM.8", "HEB.1", "HEB.5", "HEB.7", "HEB.11", "REV.1", "REV.4", "REV.12", "REV.20", "REV.22"], sources: ["jewish_nt"] },
   { id: "destruction", label: "Post-70 AD", period: "70 AD - Present", color: "#a0c878", books: [], sources: ["josephus"] }
@@ -54,15 +54,35 @@ export const CROSS_REFS = {
   "GEN.5": [
     { source: "enoch", ref: "Enoch 1:1-9", note: "The 'Seventh from Adam' prophecy regarding the final judgment." },
     { source: "josephus", ref: "Antiquities 1.3.1", note: "Claims the descendants of Seth invented the science of astronomy and recorded it on two pillars." },
-    { source: "dss", ref: "4Q201 (En-a)", note: "Fragments of the Aramaic Book of Enoch containing the antediluvian genealogies." },
-    { source: "philo", ref: "On the Posterity of Cain", note: "Analyzes the names in the genealogy as representing different stages of the soul's development." }
+    { source: "dss", ref: "4Q201 (En-a)", note: "Fragments of the Aramaic Book of Enoch containing the antediluvian genealogies." }
   ],
   "GEN.6": [
     { source: "enoch", ref: "Enoch 6-11", note: "The detailed account of the 200 Watchers led by Semyaza who descended to Mount Hermon." },
     { source: "dss", ref: "1Q20 (Genesis Apocryphon)", note: "A detailed retelling of the birth of Noah and Lamech's suspicion that the child was fathered by a Watcher." },
     { source: "josephus", ref: "Antiquities 1.3.1", note: "Confirms the tradition of 'angels of God' cohabiting with women and producing a race of giants." },
     { source: "zondervan", ref: "Nephilim", note: "The 'fallen ones' or 'mighty ones' (Gibborim) in the context of ANE semi-divine hero myths." },
-    { source: "lxx", ref: "Genesis 6:2", note: "Many manuscripts read 'Angels of God' instead of 'Sons of God'." }
+    { source: "lxx", ref: "Genesis 6:2", note: "Many manuscripts read 'Angels of God' instead of 'Sons of God'." },
+    { source: "amplified", ref: "Genesis 6:4", note: "Emphasizes that the Nephilim were on the earth 'in those days—and also afterward'." }
+  ],
+  "GEN.7": [
+    { source: "enoch", ref: "Enoch 10:1-3", note: "The Most High sends Uriel to Noah to warn him of the coming deluge." },
+    { source: "josephus", ref: "Antiquities 1.3.2", note: "Notes that the flood began in the second month, called Dius by the Macedonians." },
+    { source: "dss", ref: "4Q252", note: "A chronological commentary on the flood, calculating the exact days of the rising and falling waters." }
+  ],
+  "GEN.8": [
+    { source: "josephus", ref: "Antiquities 1.3.5", note: "Claims the ark rested on a mountain in Armenia called 'The Place of Descent'." },
+    { source: "zondervan", ref: "Ararat", note: "The Urartu region in modern-day Turkey/Armenia, consistent with historical geography." },
+    { source: "lxx", ref: "Genesis 8:7", note: "The raven 'did not return' until the water was dried up, unlike some MT interpretations." }
+  ],
+  "GEN.9": [
+    { source: "tanakh", ref: "Genesis 9:13", note: "I have set My bow in the cloud, and it shall be for a token of a covenant between Me and the earth." },
+    { source: "dss", ref: "4Q252", note: "Discusses the curse of Canaan and the blessing of Shem and Japheth." },
+    { source: "josephus", ref: "Antiquities 1.4.1", note: "Explains the Noahic laws as the foundation for human society after the flood." }
+  ],
+  "GEN.10": [
+    { source: "josephus", ref: "Antiquities 1.6.1-4", note: "A massive historical breakdown of the Table of Nations, identifying Gomer as the Galatians, Magog as the Scythians, etc." },
+    { source: "zondervan", ref: "Table of Nations", note: "The ethnography of the 70 nations as understood in the Bronze/Iron Age Near East." },
+    { source: "dss", ref: "4QGen-h", note: "Preserves the lineage of the sons of Noah." }
   ],
   "GEN.11": [
     { source: "josephus", ref: "Antiquities 1.4.1", note: "Identifies Nimrod as the one who incited the people to build the tower as a rebellion against God." },
@@ -129,7 +149,13 @@ export const CROSS_REFS = {
   "ISA.11": [
     { source: "dss", ref: "4Q161 (Pesher Isaiah)", note: "Interprets the 'Shoot of Jesse' as the Messiah who will lead the army of the elect." },
     { source: "jewish_nt", ref: "Romans 15:12", note: "Paul quotes 'The Root of Jesse' as the hope for the Gentiles." },
-    { source: "tanakh", ref: "Isaiah 11:1", note: "And there shall come forth a shoot out of the stock of Jesse, and a twig shall grow forth out of his roots." }
+    { source: "tanakh", ref: "Isaiah 11:1", note: "And there shall come forth a shoot out of the stock of Jesse, and a twig shall grow forth out of his roots." },
+    { source: "lxx", ref: "Isaiah 11:2", note: "Lists the seven-fold Spirit of God: wisdom, understanding, counsel, might, knowledge, godliness, and fear of God." }
+  ],
+  "ISA.14": [
+    { source: "lxx", ref: "Isaiah 14:12", note: "Uses 'Heosphoros' (Light-bringer) for the Hebrew 'Helel' (Shining One)." },
+    { source: "enoch", ref: "Enoch 86", note: "The fall of the stars (angels) from heaven, mirroring the fall of the Day Star." },
+    { source: "zondervan", ref: "King of Babylon", note: "The taunt-song uses ANE mythological language (Mount of Assembly) to describe the pride of the tyrant." }
   ],
   "ISA.53": [
     { source: "dss", ref: "1QIsa-a", note: "The Great Isaiah Scroll confirms the 'Suffering Servant' text was virtually identical to the Masoretic text in 100 BC." },
@@ -143,6 +169,16 @@ export const CROSS_REFS = {
     { source: "dss", ref: "11Q13", note: "Directly links the 'Year of YHWH's favor' to the coming of Melchizedek as the heavenly redeemer." },
     { source: "tanakh", ref: "Isaiah 61:1", note: "The spirit of the Lord GOD is upon me; because YHWH hath anointed me to bring good tidings unto the humble." },
     { source: "lxx", ref: "Isaiah 61:1", note: "Uses 'euangelisasthai' (to preach the gospel) for bringing good tidings." }
+  ],
+  "EZE.1": [
+    { source: "dss", ref: "4Q405", note: "The 'Songs of the Sabbath Sacrifice' draw heavily on Ezekiel's chariot (Merkabah) imagery." },
+    { source: "josephus", ref: "Antiquities 10.5.1", note: "Notes that Ezekiel wrote two books about the destruction of Jerusalem." },
+    { source: "zondervan", ref: "Merkabah", note: "The mobile throne of God, signifying His presence is not limited to the Temple in Jerusalem." }
+  ],
+  "EZE.28": [
+    { source: "lxx", ref: "Ezekiel 28:13-16", note: "Describes the 'anointed cherub' in the Garden of God, covered in precious stones." },
+    { source: "enoch", ref: "Enoch 24-25", note: "Enoch sees the mountain of God and the tree of life, similar to the 'holy mountain' in Ezekiel." },
+    { source: "zondervan", ref: "King of Tyre", note: "The oracle uses the 'Fall of the Primal Man' motif to judge the pride of the Phoenician king." }
   ],
   "DAN.2": [
     { source: "josephus", ref: "Antiquities 10.10.4", note: "Josephus explains the four kingdoms as Babylon, Medo-Persia, Greece, and Rome, but stops before explaining the 'stone'." },
