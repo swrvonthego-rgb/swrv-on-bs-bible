@@ -1380,16 +1380,30 @@ function renderPickerBooks(){
 }
 
 function pickerGoToSource(bookId){
-  // For non-merged sources, just show a notice for now since data not loaded
-  if(CURRENT_SOURCE === 'merged') {
+  closePicker();
+  
+  // For amplified, we have full data - use directly
+  if(CURRENT_SOURCE === 'amplified' && window.AMP_DATA && window.AMP_DATA[bookId]){
     pickerGoTo(bookId);
     return;
   }
   
-  closePicker();
-  // For now, fall back to merged view
-  alert('Reading ' + (BOOK_NAMES[bookId] || bookId) + ' from ' + SOURCE_BOOKS[CURRENT_SOURCE].name + '\n\nFull source text coming soon. Showing merged view.');
-  CURRENT_SOURCE = 'merged';
+  // For enoch, use enoch data
+  if(CURRENT_SOURCE === 'enoch' && window.ENOCH_DATA){
+    alert('Switching to Book of Enoch — ' + (BOOK_NAMES[bookId] || bookId));
+    // TODO: separate enoch viewer
+    pickerGoTo(bookId);
+    return;
+  }
+  
+  // For merged, just navigate
+  if(CURRENT_SOURCE === 'merged'){
+    pickerGoTo(bookId);
+    return;
+  }
+  
+  // Other sources fall back to Tanakh + show notice
+  alert('Reading ' + (BOOK_NAMES[bookId] || bookId) + ' — full text coming for ' + SOURCE_BOOKS[CURRENT_SOURCE].name + '. Showing Tanakh JPS for now.');
   pickerGoTo(bookId);
 }
 
@@ -1575,6 +1589,10 @@ function renderBible(){
   if(keyMap[curBookId])dataKey=keyMap[curBookId];
   
   var rawData=window.BIBLE_DATA&&window.BIBLE_DATA[dataKey]&&window.BIBLE_DATA[dataKey][curChap];
+  // Switch source data based on CURRENT_SOURCE
+  if(typeof CURRENT_SOURCE !== 'undefined' && CURRENT_SOURCE === 'amplified' && window.AMP_DATA && window.AMP_DATA[dataKey] && window.AMP_DATA[dataKey][curChap]){
+    rawData = window.AMP_DATA[dataKey][curChap];
+  }
 
   // Build tagged verse lookup from preTagged array
   var taggedMap={};
@@ -1608,12 +1626,26 @@ function renderBible(){
   var html='<div class="ch-heading">'+bookName.toUpperCase()+' &middot; CHAPTER '+curChap+'</div><div class="fade-in">';
   verses.forEach(function(v){
     var isTagged=!!v.t;
-    var primarySource = (typeof getVerseSource === 'function') ? getVerseSource(curBookId, curChap, v.v) : 'Tanakh JPS 1917';
-    var sourceTag = primarySource ? '<span class="source-tag tanakh">' + (primarySource.split(' ')[0]) + '</span>' : '';
+    
+    // Determine source label
+    var srcLabel = 'TANAKH';
+    if(typeof CURRENT_SOURCE !== 'undefined'){
+      if(CURRENT_SOURCE === 'amplified') srcLabel = 'AMP';
+      else if(CURRENT_SOURCE === 'nkjv') srcLabel = 'NKJV';
+      else if(CURRENT_SOURCE === 'merged') srcLabel = 'TANAKH';
+    }
+    var srcTagClass = (CURRENT_SOURCE === 'amplified') ? 'amplified' : (CURRENT_SOURCE === 'nkjv' ? 'nkjv' : 'tanakh');
+    var sourceTag = '<span class="source-tag ' + srcTagClass + '">' + srcLabel + '</span>';
+    
     html+='<div class="verse-block"><span class="verse-num">'+v.v+'</span><span class="verse-text" onclick="tapWord(event)" style="cursor:text;">'+(isTagged?parseVerse(v.text):v.text)+'</span>' + sourceTag + '</div>';
     
-    // VARIANT READINGS — when in merged mode, show DSS/LXX/Vulgate variants if available
+    // VARIANT READINGS — show alternate sources when in merged mode
     if(typeof CURRENT_SOURCE !== 'undefined' && CURRENT_SOURCE === 'merged'){
+      // Show Amplified
+      if(window.AMP_DATA && window.AMP_DATA[dataKey] && window.AMP_DATA[dataKey][curChap] && window.AMP_DATA[dataKey][curChap][v.v]){
+        html += '<div class="verse-variant"><span class="source-tag amplified">AMP</span> ' + window.AMP_DATA[dataKey][curChap][v.v] + '</div>';
+      }
+      // Show stored variants (DSS, LXX, etc.)
       var variants = (typeof getVariants === 'function') ? getVariants(curBookId, curChap, v.v) : [];
       variants.forEach(function(variant){
         html += '<div class="verse-variant"><span class="source-tag ' + variant.src + '">' + variant.label + '</span> ' + variant.text + '</div>';
@@ -2987,6 +3019,8 @@ function closeThemePicker(e) {
   </div>
 </div>
 
+<script src="amplified.js"></script>
+<script src="enoch.js"></script>
 <script src="bible_ot.js" onload="if(window._bibleReadyCallback){window._bibleReadyCallback();}"></script>
 <script src="bible_nt.js"></script>
 <script>
