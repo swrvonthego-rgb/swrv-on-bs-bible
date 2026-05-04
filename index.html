@@ -589,6 +589,176 @@ body.sepia{--ink:#2C1810;--stone:#3C2820;--stone-mid:#4A3428;--stone-light:#5A42
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--gold-dim);
 }
+
+/* ════════════════════════════════════════════════════════ */
+/* BOOK PICKER OVERLAY */
+/* ════════════════════════════════════════════════════════ */
+.picker-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  background:rgba(0,0,0,0.95);
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+}
+.picker-overlay.open{display:flex}
+
+.picker-header{
+  position:sticky;
+  top:0;
+  height:52px;
+  background:var(--stone);
+  border-bottom:1px solid var(--gold-dim);
+  display:flex;
+  align-items:center;
+  padding:0 1rem;
+  z-index:10001;
+  flex-shrink:0;
+}
+
+.picker-title{
+  font-family:'Cinzel',serif;
+  font-size:0.85rem;
+  letter-spacing:0.15em;
+  color:var(--gold);
+  text-align:center;
+  flex:1;
+}
+
+.picker-close-btn{
+  position:absolute;
+  left:0.85rem;
+  background:none;
+  border:none;
+  color:var(--gold);
+  font-size:1.5rem;
+  cursor:pointer;
+  padding:0;
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.picker-source-row{
+  background:var(--stone-mid);
+  padding:0.75rem 0.5rem;
+  border-bottom:1px solid var(--gold-dim);
+  overflow-x:auto;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+.source-pill{
+  display:inline-block;
+  padding:0.4rem 0.8rem;
+  margin:0 0.25rem;
+  background:var(--stone-light);
+  border:1px solid var(--stone-light);
+  border-radius:20px;
+  color:var(--text-dim);
+  font-size:0.7rem;
+  font-family:'Cinzel',serif;
+  letter-spacing:0.05em;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all 0.2s;
+}
+
+.source-pill.active{
+  background:rgba(201,168,76,0.2);
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+.picker-body{
+  flex:1;
+  overflow-y:auto;
+  padding:1rem;
+}
+
+.picker-section{
+  margin-bottom:1.5rem;
+}
+
+.picker-section-title{
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;
+  letter-spacing:0.2em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:0.5rem;
+  padding-bottom:0.4rem;
+  border-bottom:1px solid var(--gold-dim);
+}
+
+.picker-book-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:0.5rem;
+}
+
+.picker-book-btn{
+  padding:0.7rem 0.6rem;
+  background:var(--stone-mid);
+  border:1px solid var(--stone-light);
+  border-radius:6px;
+  color:var(--text);
+  font-size:0.85rem;
+  cursor:pointer;
+  text-align:left;
+  transition:all 0.2s;
+}
+
+.picker-book-btn:hover, .picker-book-btn.current{
+  background:rgba(201,168,76,0.15);
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+.picker-book-btn .epoch-tag{
+  display:block;
+  font-size:0.6rem;
+  color:var(--gold-dim);
+  margin-top:0.2rem;
+  letter-spacing:0.05em;
+}
+
+/* Source tag in verses */
+.source-tag{
+  display:inline-block;
+  font-size:0.55rem;
+  font-family:'JetBrains Mono',monospace;
+  padding:1px 6px;
+  border-radius:3px;
+  margin-left:0.4rem;
+  vertical-align:middle;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  opacity:0.8;
+}
+
+.source-tag.tanakh{background:rgba(201,168,76,0.2);color:#C9A84C;border:1px solid #C9A84C}
+.source-tag.amplified{background:rgba(135,206,235,0.15);color:#87CEEB;border:1px solid #87CEEB}
+.source-tag.nkjv{background:rgba(180,140,90,0.2);color:#B48C5A;border:1px solid #B48C5A}
+.source-tag.dss{background:rgba(220,130,90,0.2);color:#DC825A;border:1px solid #DC825A}
+.source-tag.enoch{background:rgba(150,120,200,0.2);color:#9678C8;border:1px solid #9678C8}
+.source-tag.lxx{background:rgba(100,180,140,0.2);color:#64B48C;border:1px solid #64B48C}
+.source-tag.vulgate{background:rgba(160,160,180,0.2);color:#A0A0B4;border:1px solid #A0A0B4}
+.source-tag.tyndale{background:rgba(200,150,150,0.2);color:#C89696;border:1px solid #C89696}
+.source-tag.hexapla{background:rgba(140,180,200,0.2);color:#8CB4C8;border:1px solid #8CB4C8}
+
+/* Variant verse stack */
+.verse-variant{
+  margin:0.4rem 0 0.6rem 1rem;
+  padding-left:0.8rem;
+  border-left:2px solid var(--gold-dim);
+  font-size:0.95em;
+  opacity:0.9;
+}
+
 </style>
 </head>
 <body>
@@ -673,8 +843,41 @@ body.sepia{--ink:#2C1810;--stone:#3C2820;--stone-mid:#4A3428;--stone-light:#5A42
   </div>
   <div id="study-mode" class="hidden">
     <div id="studyHome">
+      <!-- Section 1: Study Topics (TOP) -->
       <div class="study-intro"><h2>KINGDOM STUDY</h2><p>Deep dives from the Hebrew and Greek.<br>Tap a topic or search above.</p></div>
       <div class="topic-grid" id="topicGrid"></div>
+      
+      <!-- Section 2: Color Key -->
+      <div class="study-intro" style="margin-top:2rem"><h2>COLOR KEY</h2><p>What the colored words mean as you read.</p></div>
+      <div id="colorKeyGrid" class="topic-grid">
+        <div class="topic-card" style="border-color:#C9A84C">
+          <div class="topic-title" style="color:#C9A84C">GOLD · Hebrew/Greek</div>
+          <div class="topic-desc">Original language word with deeper meaning. Tap for definition + cultural context.</div>
+        </div>
+        <div class="topic-card" style="border-color:#B48C5A">
+          <div class="topic-title" style="color:#B48C5A">COPPER · People & Lineage</div>
+          <div class="topic-desc">Names of people, tribes, bloodlines. Who they were, where they came from.</div>
+        </div>
+        <div class="topic-card" style="border-color:#87CEEB">
+          <div class="topic-title" style="color:#87CEEB">BLUE · Geography</div>
+          <div class="topic-desc">Places, cities, lands, mountains. Physical context of the story.</div>
+        </div>
+        <div class="topic-card" style="border-color:#5EAD9F">
+          <div class="topic-title" style="color:#5EAD9F">TEAL · Kingdom Theme</div>
+          <div class="topic-desc">Kingdom concepts, covenants, authority, divine order.</div>
+        </div>
+        <div class="topic-card" style="border-color:#D4615C">
+          <div class="topic-title" style="color:#D4615C">RED · Translation Loss</div>
+          <div class="topic-desc">Where modern translations lost meaning. The whitewashing flag.</div>
+        </div>
+      </div>
+      
+      <!-- Section 3: Kingdom Protocol & Principles -->
+      <div class="study-intro" style="margin-top:2rem"><h2>KINGDOM PROTOCOL</h2><p>14 rules of how this Bible reads — no whitewashing.</p></div>
+      <div id="protocolList"></div>
+      
+      <div class="study-intro" style="margin-top:2rem"><h2>KINGDOM PRINCIPLES</h2><p>16 principles for reading Scripture through Kingdom eyes.</p></div>
+      <div id="kingdomList"></div>
     </div>
     <div id="studyResult" class="hidden"></div>
   </div>
@@ -691,8 +894,6 @@ body.sepia{--ink:#2C1810;--stone:#3C2820;--stone-mid:#4A3428;--stone-light:#5A42
     <button class="bnav-btn active" id="bnav-read" onclick="setNav('read')"><span class="bnav-icon">&#128214;</span><span class="bnav-label">READ</span></button>
     <button class="bnav-btn" id="bnav-study" onclick="setNav('study')"><span class="bnav-icon">&#9876;&#65039;</span><span class="bnav-label">STUDY</span></button>
     <button class="bnav-btn" id="bnav-sources" onclick="setNav('sources')"><span class="bnav-icon">&#128218;</span><span class="bnav-label">SOURCES</span></button>
-    <button class="bnav-btn" id="bnav-protocol" onclick="setNav('protocol')"><span class="bnav-icon">&#9819;</span><span class="bnav-label">PROTOCOL</span></button>
-    <button class="bnav-btn" id="bnav-kingdom" onclick="setNav('kingdom')"><span class="bnav-icon">&#9813;</span><span class="bnav-label">KINGDOM</span></button>
   </nav>
 </div>
 
@@ -959,6 +1160,241 @@ var CHRONO_BOOKS = [
   {id:"Rev",    label:"Revelation",            epoch:9, chapters:Array.from({length:22},(_,i)=>i+1), loaded:[]}
 ];
 
+// ═══════════════════════════════════════════════════════════
+// VARIANT READINGS - Pulls alternate text from other sources
+// Returns array of {src:'dss'|'lxx'|'vulgate'|etc, label:'DSS', text:'...'}
+// ═══════════════════════════════════════════════════════════
+function getVariants(bookId, chap, verse){
+  if(typeof VARIANT_READINGS === 'undefined') return [];
+  var key = bookId + ':' + chap + ':' + verse;
+  return VARIANT_READINGS[key] || [];
+}
+
+// Seed data with example variants (real data extraction coming next turn)
+var VARIANT_READINGS = {
+  'Gen1:1:1': [
+    {src:'lxx', label:'LXX', text:'Ἐν ἀρχῇ ἐποίησεν ὁ Θεὸς τὸν οὐρανὸν καὶ τὴν γῆν. (In the beginning God made the heaven and the earth.)'},
+    {src:'vulgate', label:'VUL', text:'In principio creavit Deus caelum et terram.'}
+  ],
+  'Gen1:1:2': [
+    {src:'lxx', label:'LXX', text:'And the earth was unformed and void, and darkness was upon the face of the deep, and a wind from God hovered upon the waters.'}
+  ]
+};
+
+
+
+// ═══════════════════════════════════════════════════════════
+// SOURCE SYSTEM - Multi-source Bible architecture
+// ═══════════════════════════════════════════════════════════
+var CURRENT_SOURCE = localStorage.getItem('swrv_source') || 'merged';
+
+// Books available in each source (with chapter counts where applicable)
+var SOURCE_BOOKS = {
+  tanakh: {
+    name: 'Hebrew Bible (Tanakh)',
+    description: 'Jewish Publication Society 1917',
+    sections: [
+      {title:'Torah (Law)', books:['Gen','Exo','Lev','Num','Deu']},
+      {title:'Nevi\'im (Prophets)', books:['Jos','Jdg','1Sa','2Sa','1Ki','2Ki','Isa','Jer','Eze','Hos','Joe','Amo','Oba','Jon','Mic','Nah','Hab','Zep','Hag','Zec','Mal']},
+      {title:'Ketuvim (Writings)', books:['Psa','Pro','Job','Sng','Rut','Lam','Ecc','Est','Dan','Ezr','Neh','1Ch','2Ch']}
+    ]
+  },
+  amplified: {
+    name: 'Amplified Study Bible',
+    description: 'Word-for-word with expanded meanings',
+    sections: [
+      {title:'Old Testament', books:['Gen','Exo','Lev','Num','Deu','Jos','Jdg','Rut','1Sa','2Sa','1Ki','2Ki','1Ch','2Ch','Ezr','Neh','Est','Job','Psa','Pro','Ecc','Sng','Isa','Jer','Lam','Eze','Dan','Hos','Joe','Amo','Oba','Jon','Mic','Nah','Hab','Zep','Hag','Zec','Mal']},
+      {title:'New Testament', books:['Mat','Mar','Luk','Jhn','Act','Rom','1Co','2Co','Gal','Eph','Php','Col','1Th','2Th','1Ti','2Ti','Tit','Phm','Heb','Jam','1Pe','2Pe','1Jn','2Jn','3Jn','Jud','Rev']}
+    ]
+  },
+  nkjv: {
+    name: 'Chronological NKJV',
+    description: 'Events in chronological order',
+    sections: [
+      {title:'Chronological Order', books:['Gen','Job','Exo','Lev','Num','Deu','Jos','Jdg','Rut','1Sa','2Sa','Psa','1Ki','Pro','Ecc','Sng','1Ch','2Ch','Oba','Joe','Jon','Amo','Hos','Mic','Isa','Nah','Zep','Hab','Jer','Lam','2Ki','Eze','Dan','Hag','Zec','Ezr','Est','Neh','Mal','Mat','Mar','Luk','Jhn','Act','Jam','Gal','1Th','2Th','1Co','2Co','Rom','Php','Phm','Col','Eph','1Ti','Tit','2Ti','Heb','1Pe','2Pe','Jud','1Jn','2Jn','3Jn','Rev']}
+    ]
+  },
+  dss: {
+    name: 'Dead Sea Scrolls',
+    description: 'Earliest known Hebrew biblical texts',
+    sections: [
+      {title:'Surviving Books (fragments)', books:['Gen','Exo','Lev','Num','Deu','Isa','Psa','Dan','Job','1Sa','2Sa','Hab']},
+      {title:'Sectarian Texts', books:['1Enoch','Jubilees','Community Rule','War Scroll','Temple Scroll']}
+    ]
+  },
+  enoch: {
+    name: 'Book of Enoch',
+    description: '1 Enoch — Watchers, Parables, Astronomy',
+    sections: [
+      {title:'Sections', books:['Watchers','Parables','Astronomy','Dreams','Epistle']}
+    ]
+  },
+  lxx: {
+    name: 'Septuagint (LXX)',
+    description: 'Greek translation, ~250 BC',
+    sections: [
+      {title:'Pentateuch', books:['Gen','Exo','Lev','Num','Deu']},
+      {title:'Historical', books:['Jos','Jdg','Rut','1Sa','2Sa','1Ki','2Ki','1Ch','2Ch','1Esd','2Esd','Est','Jdt','Tob','1Mac','2Mac','3Mac','4Mac']},
+      {title:'Wisdom', books:['Psa','Pro','Ecc','Sng','Job','Wis','Sir','PsSol']},
+      {title:'Prophets', books:['Hos','Amo','Mic','Joe','Oba','Jon','Nah','Hab','Zep','Hag','Zec','Mal','Isa','Jer','Bar','Lam','EpJer','Eze','Dan','Sus','Bel']}
+    ]
+  },
+  vulgate: {
+    name: 'Latin Vulgate',
+    description: 'Sixto-Clementina 1592',
+    sections: [
+      {title:'Vetus Testamentum', books:['Gen','Exo','Lev','Num','Deu','Jos','Jdg','Rut','1Sa','2Sa','1Ki','2Ki','1Ch','2Ch','Ezr','Neh','Tob','Jdt','Est','Job','Psa','Pro','Ecc','Sng','Wis','Sir','Isa','Jer','Lam','Bar','Eze','Dan','Hos','Joe','Amo','Oba','Jon','Mic','Nah','Hab','Zep','Hag','Zec','Mal','1Mac','2Mac']},
+      {title:'Novum Testamentum', books:['Mat','Mar','Luk','Jhn','Act','Rom','1Co','2Co','Gal','Eph','Php','Col','1Th','2Th','1Ti','2Ti','Tit','Phm','Heb','Jam','1Pe','2Pe','1Jn','2Jn','3Jn','Jud','Rev']}
+    ]
+  },
+  tyndale: {
+    name: 'Tyndale 1526 NT',
+    description: 'First printed English NT',
+    sections: [
+      {title:'New Testament', books:['Mat','Mar','Luk','Jhn','Act','Rom','1Co','2Co','Gal','Eph','Php','Col','1Th','2Th','1Ti','2Ti','Tit','Phm','Heb','Jam','1Pe','2Pe','1Jn','2Jn','3Jn','Jud','Rev']}
+    ]
+  },
+  hexapla: {
+    name: 'English Hexapla',
+    description: '6 English translations side-by-side (1841)',
+    sections: [
+      {title:'Compared Translations', books:['Wycliffe','Tyndale','Cranmer','Geneva','Rheims','KJV']}
+    ]
+  },
+  merged: {
+    name: 'All Sources Merged',
+    description: 'Chronological reading with all variants stacked',
+    sections: []  // Uses CHRONO_BOOKS
+  }
+};
+
+// Friendly book names
+var BOOK_NAMES = {
+  Gen:'Genesis', Exo:'Exodus', Lev:'Leviticus', Num:'Numbers', Deu:'Deuteronomy',
+  Jos:'Joshua', Jdg:'Judges', Rut:'Ruth', '1Sa':'1 Samuel', '2Sa':'2 Samuel',
+  '1Ki':'1 Kings', '2Ki':'2 Kings', '1Ch':'1 Chronicles', '2Ch':'2 Chronicles',
+  Ezr:'Ezra', Neh:'Nehemiah', Est:'Esther', Job:'Job', Psa:'Psalms',
+  Pro:'Proverbs', Ecc:'Ecclesiastes', Sng:'Song of Songs', Isa:'Isaiah',
+  Jer:'Jeremiah', Lam:'Lamentations', Eze:'Ezekiel', Dan:'Daniel',
+  Hos:'Hosea', Joe:'Joel', Amo:'Amos', Oba:'Obadiah', Jon:'Jonah',
+  Mic:'Micah', Nah:'Nahum', Hab:'Habakkuk', Zep:'Zephaniah', Hag:'Haggai',
+  Zec:'Zechariah', Mal:'Malachi',
+  Mat:'Matthew', Mar:'Mark', Luk:'Luke', Jhn:'John', Act:'Acts',
+  Rom:'Romans', '1Co':'1 Corinthians', '2Co':'2 Corinthians', Gal:'Galatians',
+  Eph:'Ephesians', Php:'Philippians', Col:'Colossians',
+  '1Th':'1 Thessalonians', '2Th':'2 Thessalonians',
+  '1Ti':'1 Timothy', '2Ti':'2 Timothy', Tit:'Titus', Phm:'Philemon',
+  Heb:'Hebrews', Jam:'James', '1Pe':'1 Peter', '2Pe':'2 Peter',
+  '1Jn':'1 John', '2Jn':'2 John', '3Jn':'3 John', Jud:'Jude', Rev:'Revelation',
+  // Apocrypha
+  Tob:'Tobit', Jdt:'Judith', Wis:'Wisdom', Sir:'Sirach', Bar:'Baruch',
+  '1Mac':'1 Maccabees', '2Mac':'2 Maccabees', '3Mac':'3 Maccabees', '4Mac':'4 Maccabees',
+  '1Esd':'1 Esdras', '2Esd':'2 Esdras', PsSol:'Psalms of Solomon',
+  EpJer:'Epistle of Jeremiah', Sus:'Susanna', Bel:'Bel and the Dragon',
+  // Enoch sections
+  Watchers:'The Watchers (1-36)', Parables:'Parables (37-71)',
+  Astronomy:'Astronomy (72-82)', Dreams:'Dream Visions (83-90)', Epistle:'Epistle (91-108)',
+  // DSS
+  '1Enoch':'1 Enoch (DSS)', Jubilees:'Jubilees', 'Community Rule':'Community Rule',
+  'War Scroll':'War Scroll', 'Temple Scroll':'Temple Scroll',
+  // Hexapla
+  Wycliffe:'Wycliffe', Cranmer:'Cranmer', Geneva:'Geneva', Rheims:'Rheims', KJV:'King James'
+};
+
+// ═══════════════════════════════════════════════════════════
+// PICKER FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function openPicker(){
+  var picker = document.getElementById('bookPicker');
+  if(!picker) return;
+  picker.style.display = 'flex';
+  picker.classList.add('open');
+  
+  // Highlight current source pill
+  document.querySelectorAll('.source-pill').forEach(function(p){
+    p.classList.toggle('active', p.getAttribute('data-src') === CURRENT_SOURCE);
+  });
+  
+  renderPickerBooks();
+}
+
+function closePicker(){
+  var picker = document.getElementById('bookPicker');
+  if(!picker) return;
+  picker.classList.remove('open');
+  picker.style.display = 'none';
+}
+
+function setSource(srcId){
+  CURRENT_SOURCE = srcId;
+  try { localStorage.setItem('swrv_source', srcId); } catch(e){}
+  
+  // Update active pill
+  document.querySelectorAll('.source-pill').forEach(function(p){
+    p.classList.toggle('active', p.getAttribute('data-src') === srcId);
+  });
+  
+  renderPickerBooks();
+}
+
+function renderPickerBooks(){
+  var body = document.getElementById('pickerBody');
+  if(!body) return;
+  
+  var src = SOURCE_BOOKS[CURRENT_SOURCE];
+  if(!src){ body.innerHTML = '<div style="color:var(--gold-dim);text-align:center;padding:2rem">Source not available yet</div>'; return; }
+  
+  var html = '<div style="text-align:center;margin-bottom:1rem;font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold-dim);letter-spacing:0.1em">' + src.description + '</div>';
+  
+  // For 'merged', use the chronological list
+  if(CURRENT_SOURCE === 'merged' && typeof CHRONO_BOOKS !== 'undefined'){
+    var byEpoch = {};
+    CHRONO_BOOKS.forEach(function(bk){
+      if(!byEpoch[bk.epoch]) byEpoch[bk.epoch] = [];
+      byEpoch[bk.epoch].push(bk);
+    });
+    var epochLabels = {1:'Before the Patriarchs',2:'The Patriarchs',3:'Rise of a Unified People',4:'Kings & Wisdom',5:'Divided Kingdom & Prophets',6:'Exile & Return',8:'The Gospels',9:'The Apostles & Letters'};
+    Object.keys(byEpoch).sort().forEach(function(ep){
+      html += '<div class="picker-section">';
+      html += '<div class="picker-section-title">Epoch ' + ep + ' · ' + (epochLabels[ep] || '') + '</div>';
+      html += '<div class="picker-book-grid">';
+      byEpoch[ep].forEach(function(bk){
+        html += '<button class="picker-book-btn" onclick="pickerGoTo(\'' + bk.id + '\')">' + bk.label + '</button>';
+      });
+      html += '</div></div>';
+    });
+  } else {
+    src.sections.forEach(function(sec){
+      html += '<div class="picker-section">';
+      html += '<div class="picker-section-title">' + sec.title + '</div>';
+      html += '<div class="picker-book-grid">';
+      sec.books.forEach(function(bkId){
+        var name = BOOK_NAMES[bkId] || bkId;
+        html += '<button class="picker-book-btn" onclick="pickerGoToSource(\'' + bkId + '\')">' + name + '</button>';
+      });
+      html += '</div></div>';
+    });
+  }
+  
+  body.innerHTML = html;
+}
+
+function pickerGoToSource(bookId){
+  // For non-merged sources, just show a notice for now since data not loaded
+  if(CURRENT_SOURCE === 'merged') {
+    pickerGoTo(bookId);
+    return;
+  }
+  
+  closePicker();
+  // For now, fall back to merged view
+  alert('Reading ' + (BOOK_NAMES[bookId] || bookId) + ' from ' + SOURCE_BOOKS[CURRENT_SOURCE].name + '\n\nFull source text coming soon. Showing merged view.');
+  CURRENT_SOURCE = 'merged';
+  pickerGoTo(bookId);
+}
+
+
+
 // CONTENT — verses that have been tagged and loaded
 // Key format: bookId + ':' + chapterNum
 var BIBLE_CONTENT = {};
@@ -1052,16 +1488,24 @@ function enterApp(){
 function setNav(n){
   curNav=n;
   ['read','study','sources','protocol','kingdom'].forEach(function(x){
-    document.getElementById('bnav-'+x).classList.toggle('active',x===n);
+    var modeEl = document.getElementById(x+'-mode');
+    if(modeEl) modeEl.classList.toggle('hidden', x!==n);
   });
-  document.getElementById('read-mode').classList.toggle('hidden',n!=='read');
-  document.getElementById('study-mode').classList.toggle('hidden',n!=='study');
-  document.getElementById('sources-mode').classList.toggle('hidden',n!=='sources');
-  document.getElementById('protocol-mode').classList.toggle('hidden',n!=='protocol');
-  document.getElementById('kingdom-mode').classList.toggle('hidden',n!=='kingdom');
-  document.getElementById('searchResults').classList.add('hidden');
-  if(n!=='kingdom'){document.getElementById('readToggle').classList.toggle('active',n==='read');document.getElementById('studyToggle').classList.toggle('active',n==='study');}
-  document.getElementById('searchInput').value='';
+  document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var nb = document.getElementById('bnav-'+n);
+  if(nb) nb.classList.add('active');
+  
+  // When opening study, render all three sections
+  if(n === 'study'){
+    if(typeof renderTopics === 'function') renderTopics();
+    if(typeof renderProtocol === 'function') renderProtocol();
+    if(typeof renderKingdom === 'function') renderKingdom();
+  } else if(n === 'sources'){
+    if(typeof renderSources === 'function') renderSources();
+  }
+  
+  var si = document.getElementById('searchInput');
+  if(si) si.value = '';
 }
 
 function setMode(m){setNav(m==='read'?'read':'study');}
@@ -1164,7 +1608,17 @@ function renderBible(){
   var html='<div class="ch-heading">'+bookName.toUpperCase()+' &middot; CHAPTER '+curChap+'</div><div class="fade-in">';
   verses.forEach(function(v){
     var isTagged=!!v.t;
-    html+='<div class="verse-block"><span class="verse-num">'+v.v+'</span><span class="verse-text" onclick="tapWord(event)" style="cursor:text;">'+(isTagged?parseVerse(v.text):v.text)+'</span></div>';
+    var primarySource = (typeof getVerseSource === 'function') ? getVerseSource(curBookId, curChap, v.v) : 'Tanakh JPS 1917';
+    var sourceTag = primarySource ? '<span class="source-tag tanakh">' + (primarySource.split(' ')[0]) + '</span>' : '';
+    html+='<div class="verse-block"><span class="verse-num">'+v.v+'</span><span class="verse-text" onclick="tapWord(event)" style="cursor:text;">'+(isTagged?parseVerse(v.text):v.text)+'</span>' + sourceTag + '</div>';
+    
+    // VARIANT READINGS — when in merged mode, show DSS/LXX/Vulgate variants if available
+    if(typeof CURRENT_SOURCE !== 'undefined' && CURRENT_SOURCE === 'merged'){
+      var variants = (typeof getVariants === 'function') ? getVariants(curBookId, curChap, v.v) : [];
+      variants.forEach(function(variant){
+        html += '<div class="verse-variant"><span class="source-tag ' + variant.src + '">' + variant.label + '</span> ' + variant.text + '</div>';
+      });
+    }
   });
   html+='</div>';
   el.innerHTML=html;
@@ -1763,52 +2217,8 @@ function updateDemoVerse(){
 // ═══════════════════════════════════════════════════════
 var pickerSelectedBook = null;
 
-function openPicker(){
-  renderPickerBooks();
-  document.getElementById('bookPicker').classList.add('open');
-}
-function closePicker(){ document.getElementById('bookPicker').classList.remove('open'); }
+// (replaced by new openPicker below)
 
-function renderPickerBooks(){
-  var content = document.getElementById('pickerContent');
-  var chDiv = document.getElementById('pickerChapters');
-  chDiv.style.display = 'none';
-  pickerSelectedBook = null;
-  
-  var epochLabels = {
-    1:'EPOCH 1 \u00b7 Before the Patriarchs (Creation\u20132000 BC)',
-    2:'EPOCH 2 \u00b7 The Patriarchs (2000\u20131500 BC)',
-    3:'EPOCH 3 \u00b7 Rise of a Unified People (1500\u20131200 BC)',
-    4:'EPOCH 4 \u00b7 From Tribes to a Nation (1200\u2013930 BC)',
-    5:'EPOCH 5 \u00b7 Fall of Two Nations (930\u2013586 BC)',
-    6:'EPOCH 6 \u00b7 Exile and Return (586\u2013332 BC)',
-    8:'EPOCH 8 \u00b7 The Coming of the Messiah (37 BC\u2013AD 30)',
-    9:'EPOCH 9 \u00b7 The Church Age (AD 30\u2013)',
-  };
-  
-  var html = '';
-  var lastEpoch = 0;
-  CHRONO_BOOKS.forEach(function(bk){
-    if(bk.epoch !== lastEpoch){
-      if(lastEpoch > 0) html += '</div></div>';
-      html += '<div class="picker-epoch"><div class="picker-epoch-label">' + (epochLabels[bk.epoch]||'EPOCH '+bk.epoch) + '</div><div class="picker-books">';
-      lastEpoch = bk.epoch;
-    }
-    var isActive = bk.id === curBookId ? ' active' : '';
-    html += '<div class="picker-book'+isActive+'" data-id="'+bk.id+'" onclick="pickerSelectBook(\''+bk.id+'\')">'
-      + '<span class="picker-book-name">'+bk.label+'</span>'
-      + '<span class="picker-book-info">'+bk.chapters.length+' chapters</span>'
-      + '</div>';
-  });
-  if(lastEpoch > 0) html += '</div></div>';
-  content.innerHTML = html;
-  
-  // Scroll to active book
-  setTimeout(function(){
-    var active = content.querySelector('.picker-book.active');
-    if(active) active.scrollIntoView({behavior:'smooth',block:'center'});
-  }, 100);
-}
 
 function pickerSelectBook(bookId){
   pickerSelectedBook = bookId;
@@ -2700,6 +3110,34 @@ window._bibleReadyCallback = function(){
   <button onclick="addNoteToSelection()">Add Note</button>
   <button onclick="copySelection()">Copy</button>
   <button onclick="closeSelection()">Done</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- BOOK PICKER OVERLAY -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="picker-overlay" id="bookPicker">
+  <div class="picker-header">
+    <button class="picker-close-btn" onclick="closePicker()">✕</button>
+    <div class="picker-title">SELECT BOOK</div>
+  </div>
+  
+  <!-- Source selector at top of picker -->
+  <div class="picker-source-row" id="pickerSourceRow">
+    <button class="source-pill active" data-src="tanakh" onclick="setSource('tanakh')">Hebrew Bible (Tanakh)</button>
+    <button class="source-pill" data-src="amplified" onclick="setSource('amplified')">Amplified</button>
+    <button class="source-pill" data-src="nkjv" onclick="setSource('nkjv')">Chronological NKJV</button>
+    <button class="source-pill" data-src="dss" onclick="setSource('dss')">Dead Sea Scrolls</button>
+    <button class="source-pill" data-src="enoch" onclick="setSource('enoch')">Book of Enoch</button>
+    <button class="source-pill" data-src="lxx" onclick="setSource('lxx')">Septuagint (LXX)</button>
+    <button class="source-pill" data-src="vulgate" onclick="setSource('vulgate')">Latin Vulgate</button>
+    <button class="source-pill" data-src="tyndale" onclick="setSource('tyndale')">Tyndale 1526 NT</button>
+    <button class="source-pill" data-src="hexapla" onclick="setSource('hexapla')">English Hexapla</button>
+    <button class="source-pill" data-src="merged" onclick="setSource('merged')">📚 ALL SOURCES MERGED</button>
+  </div>
+  
+  <!-- Books list - scrollable -->
+  <div class="picker-body" id="pickerBody"></div>
 </div>
 
 </body>
