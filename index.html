@@ -1221,22 +1221,7 @@ women:{title:"WOMEN OF THE WORD",subtitle:"What the Hebrew actually says about t
 
 
 
-function setNav(n){
-  curNav=n;
-  ['read','study','sources','protocol','kingdom'].forEach(function(x){
-    document.getElementById('bnav-'+x).classList.toggle('active',x===n);
-  });
-  document.getElementById('read-mode').classList.toggle('hidden',n!=='read');
-  document.getElementById('study-mode').classList.toggle('hidden',n!=='study');
-  document.getElementById('sources-mode').classList.toggle('hidden',n!=='sources');
-  document.getElementById('protocol-mode').classList.toggle('hidden',n!=='protocol');
-  document.getElementById('kingdom-mode').classList.toggle('hidden',n!=='kingdom');
-  document.getElementById('searchResults').classList.add('hidden');
-  if(n!=='kingdom'){document.getElementById('readToggle').classList.toggle('active',n==='read');document.getElementById('studyToggle').classList.toggle('active',n==='study');}
-  document.getElementById('searchInput').value='';
-}
 
-function setMode(m){setNav(m==='read'?'read':'study');}
 
 
 
@@ -2133,11 +2118,26 @@ function showSelectionMenu(){
 function highlightSelection(color){
   var colorMap = {yellow:'#FFFF00',green:'#00CC00',blue:'#87CEEB',red:'#FF6B6B'};
   if(selectedRange){
-    var span = document.createElement('span');
-    span.style.backgroundColor = colorMap[color];
-    span.style.padding = '2px 4px';
-    selectedRange.surroundContents(span);
-    saveHighlight(selectedText, color);
+    try {
+      var span = document.createElement('span');
+      span.style.backgroundColor = colorMap[color];
+      span.style.padding = '2px 4px';
+      selectedRange.surroundContents(span);
+      saveHighlight(selectedText, color);
+    } catch(e) {
+      // Range crosses element boundaries - extract and rewrap
+      try {
+        var contents = selectedRange.extractContents();
+        var span2 = document.createElement('span');
+        span2.style.backgroundColor = colorMap[color];
+        span2.style.padding = '2px 4px';
+        span2.appendChild(contents);
+        selectedRange.insertNode(span2);
+        saveHighlight(selectedText, color);
+      } catch(e2) {
+        alert('Could not highlight this selection');
+      }
+    }
     closeSelection();
   }
 }
@@ -2145,7 +2145,7 @@ function highlightSelection(color){
 function addNoteToSelection(){
   var note = prompt('Add a note:');
   if(note){
-    saveNote(selectedVerseId, selectedText, note);
+    saveSelectionNote(selectedVerseId, selectedText, note);
     alert('Note saved');
     closeSelection();
   }
@@ -2166,25 +2166,40 @@ function closeSelection(){
 }
 
 function saveHighlight(text, color){
-  var highlights = JSON.parse(localStorage.getItem('swrv_highlights') || '{}');
-  var key = Date.now().toString();
-  highlights[key] = {text:text,color:color,timestamp:new Date().toISOString()};
-  localStorage.setItem('swrv_highlights', JSON.stringify(highlights));
+  try {
+    var raw = localStorage.getItem('swrv_highlights') || '{}';
+    var highlights = JSON.parse(raw);
+    var key = Date.now().toString();
+    highlights[key] = {text:text,color:color,timestamp:new Date().toISOString()};
+    localStorage.setItem('swrv_highlights', JSON.stringify(highlights));
+  } catch(e) {
+    // Storage quota or private browsing - silently fail
+  }
 }
 
-function saveNote(verseId, text, note){
-  var notes = JSON.parse(localStorage.getItem('swrv_notes') || '{}');
-  if(!notes[verseId]) notes[verseId] = [];
-  notes[verseId].push({text:text,note:note,timestamp:new Date().toISOString()});
-  localStorage.setItem('swrv_notes', JSON.stringify(notes));
+function saveSelectionNote(verseId, text, note){
+  try {
+    var raw = localStorage.getItem('swrv_selection_notes') || '{}';
+    var notes = JSON.parse(raw);
+    if(!notes[verseId]) notes[verseId] = [];
+    notes[verseId].push({text:text,note:note,timestamp:new Date().toISOString()});
+    localStorage.setItem('swrv_selection_notes', JSON.stringify(notes));
+  } catch(e) {
+    // Storage failure - silently fail
+  }
 }
 
 function loadHighlights(){
-  var highlights = JSON.parse(localStorage.getItem('swrv_highlights') || '{}');
-  // Reapply highlights to page
-  for(var key in highlights){
-    var h = highlights[key];
-    // Find and highlight matching text in DOM
+  try {
+    var raw = localStorage.getItem('swrv_highlights') || '{}';
+    var highlights = JSON.parse(raw);
+    // Reapply highlights to page
+    for(var key in highlights){
+      var h = highlights[key];
+      // Find and highlight matching text in DOM (deferred - page must be rendered)
+    }
+  } catch(e) {
+    // Storage failure - skip
   }
 }
 
@@ -2378,9 +2393,6 @@ function applyFontSize(size) {
   renderThemeGrid();
 }
 
-function changeFontSize(dir) {
-  applyFontSize(curFontSize + (dir * 0.1));
-}
 
 function renderThemeGrid() {
   var grid = document.getElementById('themeGrid');
