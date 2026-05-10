@@ -37,6 +37,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import AUTO_GENESIS_DATA from './data/genesis-data.js';
 
 // ============================================================
 // SOURCE METADATA — colors, display names, license notes
@@ -95,7 +96,7 @@ const TEXT_SIZES = {
 //   variants   : key differences worth flagging (shown in Variants panel header)
 // ============================================================
 
-const GENESIS_DATA = {
+const CURATED_OVERRIDES = {
   1: {
     chapter: 1,
     title: "Genesis 1 — The Beginning",
@@ -243,8 +244,23 @@ const GENESIS_DATA = {
 };
 
 // ============================================================
-// WORD DEFINITIONS — Strong's + Hebrew + cross-refs
+// GENESIS_DATA — auto-generated for all 50 chapters, with rich
+// curated overrides spliced in for Gen 1:1-3 (full source variants)
 // ============================================================
+const GENESIS_DATA = (() => {
+  const merged = JSON.parse(JSON.stringify(AUTO_GENESIS_DATA));
+  for (const chKey of Object.keys(CURATED_OVERRIDES)) {
+    const ch = CURATED_OVERRIDES[chKey];
+    if (!merged[chKey]) merged[chKey] = ch;
+    else {
+      merged[chKey].title = ch.title || merged[chKey].title;
+      for (const vKey of Object.keys(ch.verses || {})) {
+        merged[chKey].verses[vKey] = ch.verses[vKey];
+      }
+    }
+  }
+  return merged;
+})();
 const DEFINITIONS = {
   "beginning": {
     word: "beginning", wordType: "noun",
@@ -521,7 +537,8 @@ export default function GenesisBibleReaderMultiSource() {
 
   // Keyboard navigation
   useEffect(() => {
-    const verseKeys = Object.keys(chapter.verses).map(Number);
+    const verseKeys = Object.keys(chapter.verses).map(Number).sort((a,b)=>a-b);
+    const chapterKeys = Object.keys(GENESIS_DATA).map(Number).sort((a,b)=>a-b);
     const onKey = (e) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
       const k = e.key;
@@ -532,24 +549,51 @@ export default function GenesisBibleReaderMultiSource() {
         setReadingMode(m => m === "VERSE" ? "CHAPTER" : "VERSE");
         return;
       }
-      if (readingMode === "VERSE") {
-        if (k === "ArrowUp" || k === "ArrowLeft") {
-          e.preventDefault();
+      // Up/Down = verse navigation (within current chapter)
+      if (k === "ArrowUp") {
+        e.preventDefault();
+        if (readingMode === "VERSE") {
           const idx = verseKeys.indexOf(currentVerse);
           if (idx > 0) setCurrentVerse(verseKeys[idx - 1]);
-        } else if (k === "ArrowDown" || k === "ArrowRight") {
-          e.preventDefault();
+        }
+        return;
+      }
+      if (k === "ArrowDown") {
+        e.preventDefault();
+        if (readingMode === "VERSE") {
           const idx = verseKeys.indexOf(currentVerse);
           if (idx < verseKeys.length - 1) setCurrentVerse(verseKeys[idx + 1]);
-        } else if (["1","2","3","4","5","6","7","8","9"].includes(k)) {
-          const target = Number(k);
-          if (verseKeys.includes(target)) setCurrentVerse(target);
         }
+        return;
+      }
+      // Left/Right = chapter navigation (jumps across chapters)
+      if (k === "ArrowLeft") {
+        e.preventDefault();
+        const idx = chapterKeys.indexOf(currentChapter);
+        if (idx > 0) {
+          setCurrentChapter(chapterKeys[idx - 1]);
+          setCurrentVerse(1);
+        }
+        return;
+      }
+      if (k === "ArrowRight") {
+        e.preventDefault();
+        const idx = chapterKeys.indexOf(currentChapter);
+        if (idx < chapterKeys.length - 1) {
+          setCurrentChapter(chapterKeys[idx + 1]);
+          setCurrentVerse(1);
+        }
+        return;
+      }
+      // Number keys: jump to verse (handle multi-digit by waiting briefly)
+      if (readingMode === "VERSE" && /^[0-9]$/.test(k)) {
+        const target = Number(k);
+        if (verseKeys.includes(target)) setCurrentVerse(target);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentVerse, readingMode, chapter]);
+  }, [currentVerse, currentChapter, readingMode, chapter]);
 
   // Word click
   const handleWordClick = (word, idx) => {
@@ -989,8 +1033,51 @@ export default function GenesisBibleReaderMultiSource() {
 
           {/* Keyboard hints */}
           <div style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: T.muted, fontStyle: "italic" }}>
-            ↑↓ ← → arrows · 1·2·3 jump to verse · C chapter mode · F focus · M music · Esc close
+            ↑↓ verse · ←→ chapter · 1-9 jump · C chapter mode · F focus · M music · Esc close
           </div>
+        </div>
+
+        {/* CHAPTER SELECTOR */}
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "0.85rem", color: T.muted, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            Chapter
+          </span>
+          <select
+            value={currentChapter}
+            onChange={(e) => { setCurrentChapter(Number(e.target.value)); setCurrentVerse(1); }}
+            style={{
+              padding: "0.4rem 0.7rem", fontSize: "0.95rem",
+              backgroundColor: T.selectBg, color: T.text,
+              border: `1px solid ${T.border}`, borderRadius: "6px",
+              cursor: "pointer", fontFamily: "Georgia, serif",
+              fontWeight: 700
+            }}
+          >
+            {Object.keys(GENESIS_DATA).sort((a,b)=>Number(a)-Number(b)).map(c => (
+              <option key={c} value={c}>Genesis {c}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              const keys = Object.keys(GENESIS_DATA).map(Number).sort((a,b)=>a-b);
+              const idx = keys.indexOf(currentChapter);
+              if (idx > 0) { setCurrentChapter(keys[idx-1]); setCurrentVerse(1); }
+            }}
+            disabled={currentChapter <= 1}
+            style={{ ...btnSmall(T), opacity: currentChapter <= 1 ? 0.4 : 1 }}
+          >← Prev</button>
+          <button
+            onClick={() => {
+              const keys = Object.keys(GENESIS_DATA).map(Number).sort((a,b)=>a-b);
+              const idx = keys.indexOf(currentChapter);
+              if (idx < keys.length - 1) { setCurrentChapter(keys[idx+1]); setCurrentVerse(1); }
+            }}
+            disabled={currentChapter >= 50}
+            style={{ ...btnSmall(T), opacity: currentChapter >= 50 ? 0.4 : 1 }}
+          >Next →</button>
+          <span style={{ fontSize: "0.8rem", color: T.muted, marginLeft: "auto" }}>
+            {Object.keys(chapter.verses).length} verses
+          </span>
         </div>
 
         {/* VERSE NAV */}
@@ -1114,7 +1201,7 @@ export default function GenesisBibleReaderMultiSource() {
               </div>
 
               {/* Hidden Audio Element */}
-              <audio ref={audioRef} src={MUSIC_TRACKS[currentTrack].url} crossOrigin="anonymous" />
+              <audio ref={audioRef} src={MUSIC_TRACKS[currentTrack].url} preload="auto" />
 
               <p style={{ color: T.muted, fontSize: "0.8rem", fontStyle: "italic", margin: "0.5rem 0 0" }}>
                 Press M to toggle. Esc to close. 🎧
