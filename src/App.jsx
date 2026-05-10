@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CROSS_REFS, TIMELINE, SOURCE_META, BOOK_NOTES } from './data/crossrefs.js';
+import GenesisBibleReaderMultiSource from './GenesisBibleReader_MULTISOURCE.jsx';
 
 // --- DATA HELPERS ---
 const BIBLE_BOOKS = [
@@ -1006,6 +1007,7 @@ export default function App() {
           <PassageScreen key="passage" />
         )}
         {tab === 'scholar' && <AIScreen key="scholar" />}
+        {tab === 'reader' && <GenesisBibleReaderMultiSource key="reader" />}
         {tab === 'about' && <AboutScreen key="about" />}
       </AnimatePresence>
 
@@ -1025,6 +1027,10 @@ export default function App() {
         <div className={`nav-item ${tab === 'scholar' ? 'active' : ''}`} onClick={() => { setTab('scholar'); setScreen('main'); }}>
           <Sparkles size={24} />
           <span>Scholar</span>
+        </div>
+        <div className={`nav-item ${tab === 'reader' ? 'active' : ''}`} onClick={() => { setTab('reader'); setScreen('main'); }}>
+          <BookOpen size={24} />
+          <span>Reader</span>
         </div>
         <div className={`nav-item ${tab === 'about' ? 'active' : ''}`} onClick={() => { setTab('about'); setScreen('main'); }}>
           <Info size={24} />
