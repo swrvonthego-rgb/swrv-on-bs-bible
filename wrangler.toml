@@ -1,0 +1,21 @@
+name = "swrv-on-bs-bible"
+main = "worker.js"
+compatibility_date = "2026-05-10"
+
+# Static assets — your Bible tool, lexicons, sources
+[assets]
+directory = "."
+binding = "ASSETS"
+
+# Don't serve worker.js or wrangler.toml as public files
+[[assets.exclude]]
+pattern = "worker.js"
+
+[[assets.exclude]]
+pattern = "wrangler.toml"
+
+[[assets.exclude]]
+pattern = ".git/**"
+
+[[assets.exclude]]
+pattern = "node_modules/**"
