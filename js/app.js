@@ -3,6 +3,22 @@
 // Bootstraps with loadChapter() at the end of the file.
 
 
+
+// === SWRV KINGDOM BIBLE SPLASH ===
+function dismissSplash(){
+  const splash = document.getElementById('splashCover');
+  if(!splash) return;
+  splash.classList.add('dismissed');
+  document.body.classList.remove('splash-active');
+  setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
+}
+// Lock body scroll while splash is up
+(function(){
+  if(document.getElementById('splashCover')){
+    document.body.classList.add('splash-active');
+  }
+})();
+
 const TRACKS = [
   {name:"Peaceful Nature",url:"https://res.cloudinary.com/ddzyvfolr/video/upload/v1778186909/ROADMAP_APP_-_PEACEFUL_NATURE_suii2m.mp3"},
   {name:"Lofi Ocean Pier",url:"https://res.cloudinary.com/ddzyvfolr/video/upload/v1778186908/ROADMAP_APP_-_LOFI_OCEAN_PIER_ndlqu8.mp3"},

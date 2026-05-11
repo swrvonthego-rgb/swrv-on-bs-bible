@@ -974,3 +974,102 @@ small, .small { font-family: var(--apple-font); font-size: 11px; letter-spacing:
   .chapter-title { font-size: 26px; }
   header.app-header { padding: 10px 14px; }
 }
+
+
+/* === SWRV KINGDOM BIBLE SPLASH COVER === */
+.splash-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(ellipse at center, #2a1810 0%, #0a0604 70%, #000 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+  animation: splashFadeIn 500ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1)) both;
+}
+.splash-cover-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  max-height: 100%;
+  width: 100%;
+}
+.splash-cover-img {
+  max-width: 100%;
+  max-height: calc(100vh - 160px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.85),
+    0 10px 30px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: splashCoverIn 700ms var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  animation-delay: 80ms;
+}
+.splash-enter-btn {
+  font-family: var(--apple-font, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  background: linear-gradient(180deg, #d4af37, #8a6d2e);
+  color: #0e0a06;
+  border: none;
+  padding: 15px 56px;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow:
+    0 12px 32px rgba(0,0,0,0.55),
+    0 4px 12px rgba(212,175,55,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform 200ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1)),
+              box-shadow 200ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1)),
+              filter 200ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1));
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  animation: splashBtnIn 600ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1)) both;
+  animation-delay: 400ms;
+}
+.splash-enter-btn:hover {
+  filter: brightness(1.1);
+  box-shadow:
+    0 16px 40px rgba(0,0,0,0.65),
+    0 6px 16px rgba(212,175,55,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.splash-enter-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.splash-cover.dismissed {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms var(--ease-apple, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+.splash-cover.dismissed .splash-cover-img { transform: scale(1.04); }
+.splash-cover.dismissed .splash-enter-btn { opacity: 0; }
+body.splash-active { overflow: hidden; }
+
+@keyframes splashFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes splashCoverIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes splashBtnIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .splash-cover-img { max-height: calc(100vh - 130px); border-radius: 10px; }
+  .splash-enter-btn { padding: 13px 44px; font-size: 14px; letter-spacing: 0.18em; }
+}
