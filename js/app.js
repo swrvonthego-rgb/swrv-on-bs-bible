@@ -544,9 +544,73 @@ function goRandomVerse(){
   });
 }
 
+
+// === CHRONOLOGICAL BIBLE READING ORDER (item 5) ===
+// Order books per Chronological Study Bible (Thomas Nelson) approximate composition/event order.
+// Job placed in patriarchal era; prophets interleaved with historical books they wrote during.
+window.BIBLE_CHRONO_ORDER = [
+  'Job',
+  'Genesis','Exodus','Leviticus','Numbers','Deuteronomy',
+  'Joshua','Judges','Ruth',
+  '1Samuel','2Samuel',
+  '1Kings',
+  'SongofSolomon','Proverbs','Ecclesiastes',
+  '2Kings',
+  '1Chronicles','2Chronicles',
+  'Joel','Jonah','Amos','Hosea',
+  'Isaiah','Micah',
+  'Nahum','Zephaniah','Habakkuk',
+  'Jeremiah','Lamentations','Obadiah',
+  'Ezekiel','Daniel',
+  'Ezra','Haggai','Zechariah','Esther','Nehemiah','Malachi',
+  'Psalms',
+  'Matthew','Mark','Luke','John',
+  'Acts',
+  'James',
+  'Galatians','1Thessalonians','2Thessalonians',
+  '1Corinthians','2Corinthians','Romans',
+  'Ephesians','Philippians','Colossians','Philemon',
+  '1Timothy','Titus','2Timothy',
+  'Hebrews','1Peter','2Peter','Jude',
+  '1John','2John','3John',
+  'Revelation'
+];
+
+// Persisted reading mode: 'canonical' (default) or 'chronological'
+window._readingOrder = (function(){
+  try { return localStorage.getItem('swrv_reading_order') || 'canonical'; } catch(e){ return 'canonical'; }
+})();
+
+function toggleReadingOrder(){
+  window._readingOrder = (window._readingOrder === 'chronological') ? 'canonical' : 'chronological';
+  try { localStorage.setItem('swrv_reading_order', window._readingOrder); } catch(e){}
+  populateBookSelect();
+  const btn = document.getElementById('readingOrderBtn');
+  if(btn) btn.textContent = (window._readingOrder === 'chronological') ? '🕐 Chronological' : '📖 Canonical';
+}
+
 function populateBookSelect(){
   if(!bookSelect||!window.BIBLE_INDEX)return;
   bookSelect.innerHTML='';
+  // Honor chronological reading order if toggled on
+  if(window._readingOrder === 'chronological' && window.BIBLE_CHRONO_ORDER){
+    const bySlug = {};
+    for(const b of window.BIBLE_INDEX) bySlug[b.slug] = b;
+    const grp = document.createElement('optgroup');
+    grp.label = 'Chronological Order';
+    bookSelect.appendChild(grp);
+    for(const slug of window.BIBLE_CHRONO_ORDER){
+      const b = bySlug[slug];
+      if(!b) continue;
+      const opt = document.createElement('option');
+      opt.value = b.slug;
+      opt.textContent = b.display + (b.isDeep?' (deep)':'');
+      if(b.slug === currentBook) opt.selected = true;
+      grp.appendChild(opt);
+    }
+    return;
+  }
+  // Canonical order (default)
   let lastTestament='';
   let currentGroup=null;
   for(const b of window.BIBLE_INDEX){
@@ -590,6 +654,16 @@ function populateChapterSelect(){
 
 populateBookSelect();
 populateChapterSelect();
+
+// Initialize chronological-order button label from saved preference (item 5)
+(function(){
+  const btn = document.getElementById('readingOrderBtn');
+  if(btn && window._readingOrder === 'chronological'){
+    btn.textContent = '🕐 Chronological';
+    populateBookSelect();
+  }
+})();
+
 
 function loadBook(slug){
   if(!slug||slug===currentBook&&_getCurrentBookData())return;
@@ -1493,6 +1567,74 @@ function _libraryBackBtn(){
 }
 
 // 1 Enoch reader
+
+// === CHRONOLOGICAL MASTER READER ===
+// Renders the full library — Bible + 1 Enoch + Josephus — in narrative chronological order.
+// Each entry tappable: jumps to the Bible chapter, Enoch section, or Josephus passage.
+function openChronologicalReader(filterPeriod){
+  if(!window.CHRONO_MAP){ alert('Chronological map not loaded'); return; }
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  title.textContent = 'Chronological Master — All Sources';
+  let h = _libraryBackBtn();
+  h += '<p style="font-size:13px;color:var(--fg-mute);margin-bottom:14px;">Every approved source in narrative order. Bible passages, 1 Enoch sections, and Josephus excerpts interleaved as the events unfolded. Reference: Chronological Study Bible (Thomas Nelson). Tap any entry to read that source at the matching point.</p>';
+  
+  // Period filter buttons
+  const periods = [];
+  for(const e of window.CHRONO_MAP){ if(!periods.includes(e.period)) periods.push(e.period); }
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:10px;background:var(--surface-elevated);border:0.5px solid var(--hairline);border-radius:10px;">';
+  h += '<button class="icon-btn" style="font-size:11px;padding:5px 10px;'+(!filterPeriod?'background:var(--gold);color:#0e0a06;':'')+'" onclick="openChronologicalReader()">All</button>';
+  for(const p of periods){
+    h += '<button class="icon-btn" style="font-size:11px;padding:5px 10px;'+(filterPeriod===p?'background:var(--gold);color:#0e0a06;':'')+'" onclick="openChronologicalReader(\''+p.replace(/'/g,"\\'")+'\')">' + escapeHtml(p) + '</button>';
+  }
+  h += '</div>';
+  
+  // Render entries — group by period
+  let currentPeriod = null;
+  const entries = filterPeriod ? window.CHRONO_MAP.filter(e => e.period === filterPeriod) : window.CHRONO_MAP;
+  for(const e of entries){
+    if(e.period !== currentPeriod){
+      currentPeriod = e.period;
+      h += '<div style="margin-top:22px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--hairline);">';
+      h += '<span style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;">' + escapeHtml(e.period) + '</span>';
+      h += '</div>';
+    }
+    // Source icon + color
+    let icon = '📖', sourceColor = 'var(--gold)';
+    if(e.source === 'enoch'){ icon = '📜'; sourceColor = 'var(--gold)'; }
+    else if(e.source === 'josephus'){ icon = '🏛️'; sourceColor = 'var(--enoch)'; }
+    // Build the click handler based on anchor type
+    let clickHandler = '';
+    if(e.anchor){
+      const a = e.anchor;
+      if(a.type === 'bible-chapter'){
+        clickHandler = 'closeModal();currentBook=\''+escapeJs(a.book)+'\';loadBook(currentBook.replace(/\\s+/g,\'\'));setTimeout(function(){if(typeof loadChapter===\'function\')loadChapter('+a.chapter+');},120);';
+      } else if(a.type === 'enoch'){
+        clickHandler = 'openEnochReader(\''+a.section+'\','+(a.chapter||1)+');';
+      } else if(a.type === 'source'){
+        const search = (a.search || '').replace(/'/g, "\\'");
+        clickHandler = 'window._SRC_MODE=window._SRC_MODE||{};window._SRC_MODE[\''+a.key+'\']=\'search\';openSourceReader(\''+a.key+'\');setTimeout(function(){var i=document.getElementById(\'sourceQuery\');if(i){i.value=\''+search+'\';if(typeof searchSource===\'function\')searchSource();}},900);';
+      }
+    }
+    h += '<div class="people-card" style="border-left-color:'+sourceColor+';margin-bottom:8px;cursor:pointer;" onclick="'+clickHandler+'">';
+    h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
+    h += '<span style="font-size:16px;">'+icon+'</span>';
+    h += '<span style="color:var(--fg);font-weight:600;font-size:14px;flex:1;">'+escapeHtml(e.label)+'</span>';
+    h += '<span style="font-size:10px;color:var(--fg-dim);font-weight:600;letter-spacing:0.04em;">'+escapeHtml(e.time||'')+'</span>';
+    h += '</div>';
+    h += '<div style="font-size:11px;color:var(--fg-mute);margin-top:4px;font-style:italic;">'+escapeHtml(e.ref)+'</div>';
+    h += '</div>';
+  }
+  h += '<div style="margin-top:24px;padding-top:14px;border-top:0.5px solid var(--hairline);font-size:11px;color:var(--fg-dim);">'+window.CHRONO_MAP.length+' chronological waypoints. Bible chapter dates follow standard scholarly conventions. Job placed in the patriarchal era. Prophets dated alongside the historical books they wrote during.</div>';
+  body.innerHTML = h;
+}
+
+// Helper: safe JS string escape for embedding
+function escapeJs(s){
+  if(s == null) return '';
+  return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
 function openEnochReader(section, chapter){
   if(!window.ENOCH){alert('1 Enoch data not loaded');return;}
   const title=document.getElementById('modalTitle');
@@ -2021,6 +2163,15 @@ function showModal(type){
   }else if(type==='library'){
     title.textContent='📚 Sources Library — Read Each Source Separately';
     let h='<p style="font-size:13px;color:var(--fg-mute);margin-bottom:14px;">Every approved source is browsable here. Tap any to open the reader. All texts public domain or CC-licensed.</p>';
+    // === Chronological Master entry — at the top, prominent ===
+    h+='<h4 style="color:var(--gold);margin-top:12px;">⏳ Chronological Master</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    h+='<div class="people-card" style="border-left-color:var(--gold);background:linear-gradient(180deg,rgba(212,175,55,0.08),var(--surface-elevated));" onclick="openChronologicalReader()">';
+    h+='<div class="people-card-name" style="color:var(--gold);">⏳ Read All Sources in Chronological Order</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">100 waypoints from Pre-Creation through Revelation</div>';
+    h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Bible + 1 Enoch + Josephus interleaved as events unfolded. Tap any waypoint to jump directly into that source. Reference: Chronological Study Bible (Thomas Nelson).</div>';
+    h+='</div>';
+    h+='</div>';
     h+='<h4 style="color:var(--gold);margin-top:12px;">📖 Bible Texts & Apocryphal Books</h4>';
     h+='<div style="display:grid;gap:8px;">';
     h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openEnochReader()">';
