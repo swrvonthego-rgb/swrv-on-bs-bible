@@ -158,7 +158,10 @@ function loadTrack(autoPlay){
 // === PREMIUM MUSIC PLAYER ===
 // Modes: 'audio' (HTML5 audio playlist) and 'embed' (iframe Spotify/YouTube/Apple Music)
 
-let _audioPlaylist = [];  // array of { name, url, isBlob }
+// Initialize playlist with the 3 Cloudinary defaults (user can still upload their own — additive)
+let _audioPlaylist = (typeof TRACKS !== 'undefined' && Array.isArray(TRACKS))
+  ? TRACKS.map(t => ({ name: t.name, url: t.url, isBlob: false, isDefault: true }))
+  : [];
 let _audioCurrentIdx = 0;
 let _audioLoopMode = 'off';  // 'off' | 'one' | 'all'
 let _audioShuffle = false;
@@ -253,6 +256,21 @@ function audioClearPlaylist(){
   _renderPlaylist();
   _updateProgress();
 }
+
+function audioRestoreDefaults(){
+  // Restore the three Cloudinary defaults at the head of the playlist (additive)
+  if(typeof TRACKS === 'undefined' || !Array.isArray(TRACKS)) return;
+  // Remove any existing default-marked tracks to avoid duplicates
+  _audioPlaylist = _audioPlaylist.filter(t => !t.isDefault);
+  // Prepend defaults
+  const defaults = TRACKS.map(t => ({ name: t.name, url: t.url, isBlob: false, isDefault: true }));
+  _audioPlaylist = defaults.concat(_audioPlaylist);
+  if(!audio.src && _audioPlaylist.length){
+    _loadPlaylistItem(0, false);
+  }
+  _renderPlaylist();
+}
+
 
 function _loadPlaylistItem(idx, autoplay){
   if(idx < 0 || idx >= _audioPlaylist.length) return;
@@ -1175,119 +1193,176 @@ function _populateSuggestionChips(){
 }
 
 function strongsSmartLookup(){
-  const q=document.getElementById('strongsInput').value.trim();
-  const out=document.getElementById('strongsLookupResult');
-  if(!q){out.innerHTML='';return;}
-  window._strongsHistory=[];
-  // Number? route to direct lookup (G or H)
-  const grkMatch=q.match(/^[Gg](\d{1,4})$/);
-  const hebMatch=q.match(/^[Hh](\d{1,4})$/);
-  const bareNum=q.match(/^(\d{1,4})$/);
-  if(grkMatch){document.getElementById('strongsInput').value='G'+grkMatch[1];renderStrongsEntry('G',grkMatch[1]);return;}
-  if(hebMatch){document.getElementById('strongsInput').value=hebMatch[1];strongsLookup();return;}
-  if(bareNum){document.getElementById('strongsInput').value=bareNum[1];strongsLookup();return;}
-  // Word search across Hebrew + Greek + Deep Definitions
-  const word=q.toLowerCase();
-  const results=[];
-  const wordRe=new RegExp('\\b'+word.replace(/[.*+?^$()|[\]\\]/g,'\\$&')+'\\b','i');
-  // Search Hebrew Strong's
-  if(window.STRONGS_HEB){
-    for(const num in window.STRONGS_HEB){
-      const e=window.STRONGS_HEB[num];
-      const def=(e.def||'').toLowerCase();
-      const xlit=(e.xlit||'').toLowerCase();
-      if(def.includes(word)||xlit.includes(word)){
-        let score=10;
-        if(wordRe.test(e.def||''))score=100;
-        else if(def.split(/[\s,;]+/).some(function(t){return t.startsWith(word);}))score=50;
-        if(xlit===word)score+=200;
-        else if(xlit.startsWith(word))score+=100;
-        results.push({lang:'H',num:num,e:e,score:score});
-      }
-    }
-  }
-  // Search Greek Strong's
-  if(window.STRONGS_GRK){
-    for(const num in window.STRONGS_GRK){
-      const e=window.STRONGS_GRK[num];
-      const def=(e.def||'').toLowerCase();
-      const kjv=(e.kjv_def||'').toLowerCase();
-      const xlit=(e.xlit||'').toLowerCase();
-      if(def.includes(word)||xlit.includes(word)||kjv.includes(word)){
-        let score=10;
-        if(wordRe.test(e.def||'')||wordRe.test(e.kjv_def||''))score=100;
-        else if(def.split(/[\s,;]+/).some(function(t){return t.startsWith(word);}))score=50;
-        if(xlit===word)score+=200;
-        else if(xlit.startsWith(word))score+=100;
-        results.push({lang:'G',num:num,e:e,score:score});
-      }
-    }
-  }
-  // Search deep DEFINITIONS (user's curated entries)
+  const q = document.getElementById('strongsInput').value.trim();
+  const out = document.getElementById('strongsLookupResult');
+  if(!q){ out.innerHTML=''; return; }
+  window._strongsHistory = [];
+  
+  // Number routing (G/H prefix or bare)
+  const grkMatch = q.match(/^[Gg](\d{1,4})$/);
+  const hebMatch = q.match(/^[Hh](\d{1,4})$/);
+  const bareNum = q.match(/^(\d{1,4})$/);
+  if(grkMatch){ document.getElementById('strongsInput').value='G'+grkMatch[1]; renderStrongsEntry('G',grkMatch[1]); return; }
+  if(hebMatch){ document.getElementById('strongsInput').value=hebMatch[1]; strongsLookup(); return; }
+  if(bareNum){ document.getElementById('strongsInput').value=bareNum[1]; strongsLookup(); return; }
+  
+  // === UNIFIED DICTIONARY SEARCH ===
+  // Searches all 4 dictionaries in parallel:
+  //   1. SWRV Deep Definitions (curated, theological)
+  //   2. Strong's Hebrew (~8,674 entries)
+  //   3. Strong's Greek (~5,523 entries)
+  //   4. BDB Hebrew (~9,345 entries)
+  // Returns: Hebrew/Greek script + English pronunciation + definitions
+  const word = q.toLowerCase();
+  const wordRe = new RegExp('\\b' + word.replace(/[.*+?^$()|[\]\\]/g, '\\$&') + '\\b', 'i');
+  const results = [];
+  
+  // 1) SWRV Deep Definitions (highest priority for matches — author's curated)
   if(window.DEFINITIONS){
     for(const key in window.DEFINITIONS){
-      const d=window.DEFINITIONS[key];
-      if(!d||typeof d!=='object')continue;
-      const blob=(key+' '+(d.translit||'')+' '+(d.senses?d.senses.join(' '):'')+' '+(d.theology||'')+' '+(d.visual||'')+' '+(d.kingdom||'')).toLowerCase();
+      const d = window.DEFINITIONS[key];
+      if(!d || typeof d !== 'object') continue;
+      const blob = (key + ' ' + (d.translit||'') + ' ' + (d.senses?d.senses.join(' '):'') + ' ' + (d.theology||'') + ' ' + (d.visual||'') + ' ' + (d.kingdom||'')).toLowerCase();
       if(blob.includes(word)){
-        let score=30;
-        if(key.toLowerCase()===word)score=300;
-        else if(key.toLowerCase().startsWith(word))score=150;
-        else if(d.translit&&d.translit.toLowerCase()===word)score=250;
-        results.push({lang:'D',key:key,e:d,score:score});
+        let score = 30;
+        if(key.toLowerCase()===word) score = 350;
+        else if(key.toLowerCase().startsWith(word)) score = 180;
+        else if(d.translit && d.translit.toLowerCase()===word) score = 280;
+        results.push({lang:'D', key, e:d, score});
       }
     }
   }
-  results.sort(function(a,b){return b.score-a.score;});
-  if(results.length===0){
-    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try one of the suggested words above — they\'re all in the dictionary.</p>';
+  
+  // 2) Strong's Hebrew — search lemma, xlit, pron, strongs_def, kjv_def
+  if(window.STRONGS_HEB){
+    for(const num in window.STRONGS_HEB){
+      const e = window.STRONGS_HEB[num];
+      const xlit = (e.xlit||'').toLowerCase();
+      const pron = (e.pron||'').toLowerCase();
+      const sdef = (e.strongs_def||e.def||'').toLowerCase();
+      const kdef = (e.kjv_def||'').toLowerCase();
+      const blob = sdef + ' ' + kdef + ' ' + xlit + ' ' + pron;
+      if(blob.includes(word)){
+        let score = 10;
+        if(wordRe.test(e.strongs_def||e.def||'') || wordRe.test(e.kjv_def||'')) score = 90;
+        if(xlit === word) score += 200;
+        else if(xlit.startsWith(word)) score += 90;
+        if(pron === word) score += 150;
+        else if(pron.startsWith(word)) score += 60;
+        results.push({lang:'H', num, e, score});
+      }
+    }
+  }
+  
+  // 3) Strong's Greek
+  if(window.STRONGS_GRK){
+    for(const num in window.STRONGS_GRK){
+      const e = window.STRONGS_GRK[num];
+      const xlit = (e.xlit||'').toLowerCase();
+      const pron = (e.pron||'').toLowerCase();
+      const def = (e.def||'').toLowerCase();
+      const kjv = (e.kjv_def||'').toLowerCase();
+      const blob = def + ' ' + kjv + ' ' + xlit + ' ' + pron;
+      if(blob.includes(word)){
+        let score = 10;
+        if(wordRe.test(e.def||'') || wordRe.test(e.kjv_def||'')) score = 90;
+        if(xlit === word) score += 200;
+        else if(xlit.startsWith(word)) score += 90;
+        if(pron === word) score += 150;
+        else if(pron.startsWith(word)) score += 60;
+        results.push({lang:'G', num, e, score});
+      }
+    }
+  }
+  
+  // 4) BDB Hebrew — gloss, xlit, def
+  if(window.BDB_HEB){
+    for(const key in window.BDB_HEB){
+      const e = window.BDB_HEB[key];
+      if(!e || typeof e !== 'object') continue;
+      const xlit = (e.xlit||'').toLowerCase();
+      const gloss = (e.gloss||'').toLowerCase();
+      const def = (e.def||'').toLowerCase();
+      const blob = gloss + ' ' + def + ' ' + xlit;
+      if(blob.includes(word)){
+        let score = 5;
+        if(gloss === word) score = 80;
+        else if(gloss.startsWith(word)) score = 50;
+        if(xlit === word) score += 100;
+        results.push({lang:'B', key, e, score});
+      }
+    }
+  }
+  
+  results.sort((a,b) => b.score - a.score);
+  
+  if(results.length === 0){
+    out.innerHTML = '<p style="color:var(--fg-mute);padding:14px;">No matches for "' + escapeHtml(q) + '" in any dictionary. Try a different word, or browse the full library.</p>';
     return;
   }
-  let h='<p style="font-size:12px;color:var(--fg-dim);margin:8px 0;">'+results.length+' match'+(results.length===1?'':'es')+' for "<b>'+escapeHtml(q)+'</b>" - click any to see full entry</p>';
-  const top=results.slice(0,30);
+  
+  // Stats by source
+  const counts = {D:0, H:0, G:0, B:0};
+  for(const r of results) counts[r.lang]++;
+  
+  let h = '<div style="font-size:12px;color:var(--fg-dim);margin:8px 0 12px;display:flex;flex-wrap:wrap;gap:8px;">';
+  h += '<b>' + results.length + ' match' + (results.length===1?'':'es') + '</b> for "' + escapeHtml(q) + '"';
+  if(counts.D) h += ' <span class="source-tab">SWRV Deep: ' + counts.D + '</span>';
+  if(counts.H) h += ' <span class="source-tab">Strong\'s Heb: ' + counts.H + '</span>';
+  if(counts.G) h += ' <span class="source-tab">Strong\'s Grk: ' + counts.G + '</span>';
+  if(counts.B) h += ' <span class="source-tab">BDB: ' + counts.B + '</span>';
+  h += '</div>';
+  
+  const top = results.slice(0, 40);
   for(const r of top){
-    if(r.lang==='D'){
-      // Deep definition
-      h+='<div class="strongs-result strongs-clickable" data-deep="'+escapeHtml(r.key)+'" style="border-left-color:var(--gold);">';
-      h+='<div style="display:flex;align-items:baseline;gap:10px;">';
-      if(r.e.hebrew)h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+r.e.hebrew+'</span>';
-      h+='<span style="color:var(--fg);font-weight:700;">'+escapeHtml(r.key)+'</span>';
-      if(r.e.translit&&r.e.translit!==r.key)h+='<span style="color:var(--fg-mute);font-style:italic;">('+escapeHtml(r.e.translit)+')</span>';
-      h+='<span style="margin-left:auto;font-size:11px;color:var(--gold);font-weight:600;">DEEP ENTRY</span>';
-      h+='</div>';
-      if(r.e.senses&&r.e.senses.length)h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(r.e.senses[0])+'</div>';
-      h+='</div>';
-    }else{
-      h+='<div class="strongs-result strongs-clickable" data-lang="'+r.lang+'" data-num="'+r.num+'">';
-      h+='<div style="display:flex;align-items:baseline;gap:10px;">';
-      const origLetter=r.lang==='G'?'grk':'heb';
-      const original=r.e[origLetter]||r.e.heb||r.e.grk||'';
-      h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+original+'</span>';
-      h+='<span style="color:var(--fg-mute);font-style:italic;">'+(r.e.xlit||'')+'</span>';
-      const langLabel=r.lang==='G'?'GREEK':'HEBREW';
-      h+='<span style="margin-left:auto;font-size:11px;color:var(--strongs);font-weight:600;">'+r.lang+r.num+' '+langLabel+'</span>';
-      h+='</div>';
-      const showDef=r.e.def||r.e.kjv_def||'';
-      h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(showDef)+'</div>';
-      h+='</div>';
+    if(r.lang === 'D'){
+      // SWRV Deep entry
+      h += '<div class="strongs-result strongs-clickable" data-deep="' + escapeHtml(r.key) + '" style="border-left-color:var(--gold);">';
+      h += '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">';
+      if(r.e.hebrew) h += '<span style="font-size:22px;color:var(--gold);font-weight:600;">' + r.e.hebrew + '</span>';
+      h += '<span style="color:var(--fg);font-weight:700;font-size:15px;">' + escapeHtml(r.key) + '</span>';
+      if(r.e.translit && r.e.translit !== r.key) h += '<span style="color:var(--fg-mute);font-style:italic;">' + escapeHtml(r.e.translit) + '</span>';
+      h += '<span style="margin-left:auto;font-size:10px;color:var(--gold);font-weight:700;letter-spacing:0.05em;background:rgba(212,175,55,0.12);padding:2px 8px;border-radius:8px;">SWRV DEEP</span>';
+      h += '</div>';
+      if(r.e.senses && r.e.senses.length) h += '<div style="color:var(--fg);margin-top:6px;font-size:14px;">' + escapeHtml(r.e.senses[0]) + '</div>';
+      h += '</div>';
+    } else if(r.lang === 'H' || r.lang === 'G'){
+      // Strong's H or G
+      h += '<div class="strongs-result strongs-clickable" data-lang="' + r.lang + '" data-num="' + r.num + '">';
+      h += '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">';
+      const original = r.lang === 'G' ? (r.e.grk || '') : (r.e.lemma || r.e.heb || '');
+      h += '<span style="font-size:22px;color:var(--gold);font-weight:600;font-family:serif;">' + original + '</span>';
+      if(r.e.xlit) h += '<span style="color:var(--fg);font-weight:600;font-style:italic;">' + escapeHtml(r.e.xlit) + '</span>';
+      if(r.e.pron) h += '<span style="color:var(--fg-mute);font-size:12px;">/' + escapeHtml(r.e.pron) + '/</span>';
+      const langLabel = r.lang === 'G' ? "STRONG'S GRK" : "STRONG'S HEB";
+      h += '<span style="margin-left:auto;font-size:10px;color:var(--strongs);font-weight:700;letter-spacing:0.05em;background:rgba(155,135,210,0.12);padding:2px 8px;border-radius:8px;">' + r.lang + r.num + ' · ' + langLabel + '</span>';
+      h += '</div>';
+      const def = r.e.strongs_def || r.e.def || '';
+      if(def) h += '<div style="color:var(--fg);margin-top:6px;font-size:14px;line-height:1.5;">' + escapeHtml(def) + '</div>';
+      if(r.e.kjv_def) h += '<div style="color:var(--fg-mute);margin-top:4px;font-size:12px;"><b>KJV:</b> ' + escapeHtml(r.e.kjv_def) + '</div>';
+      h += '</div>';
+    } else if(r.lang === 'B'){
+      // BDB entry
+      h += '<div class="strongs-result strongs-clickable" data-bdb="' + escapeHtml(r.key) + '" style="border-left-color:var(--enoch);">';
+      h += '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">';
+      if(r.e.lemma) h += '<span style="font-size:22px;color:var(--gold);font-weight:600;font-family:serif;">' + r.e.lemma + '</span>';
+      if(r.e.xlit) h += '<span style="color:var(--fg);font-weight:600;font-style:italic;">' + escapeHtml(r.e.xlit) + '</span>';
+      if(r.e.gloss) h += '<span style="color:var(--fg-mute);font-size:12px;">"' + escapeHtml(r.e.gloss) + '"</span>';
+      h += '<span style="margin-left:auto;font-size:10px;color:var(--enoch);font-weight:700;letter-spacing:0.05em;background:rgba(0,170,200,0.12);padding:2px 8px;border-radius:8px;">' + r.key + ' · BDB</span>';
+      h += '</div>';
+      if(r.e.def){
+        const cleaned = r.e.def.replace(/<BR>.*$/s, '').replace(/<[^>]*>/g, '').replace(/\s*\|\s*/g, ' • ');
+        h += '<div style="color:var(--fg);margin-top:6px;font-size:14px;line-height:1.5;">' + escapeHtml(cleaned.substring(0, 320)) + (cleaned.length > 320 ? '...' : '') + '</div>';
+      }
+      h += '</div>';
     }
   }
-  if(results.length>30)h+='<p style="color:var(--fg-dim);font-size:12px;padding:8px;text-align:center;">Showing top 30 of '+results.length+'. Refine your search.</p>';
-  out.innerHTML=h;
-  // Bind clicks
-  out.querySelectorAll('.strongs-clickable').forEach(function(el){
-    el.addEventListener('click',function(){
-      if(el.dataset.deep){
-        // Open deep word popover
-        showDef(el.dataset.deep);
-      }else if(el.dataset.lang==='G'){
-        renderStrongsEntry('G',el.dataset.num);
-      }else{
-        document.getElementById('strongsInput').value=el.dataset.num;
-        strongsLookup();
-      }
-    });
-  });
+  
+  if(results.length > 40){
+    h += '<div style="text-align:center;color:var(--fg-dim);font-size:12px;padding:14px;">Showing top 40 of ' + results.length + ' matches. Refine your search for more.</div>';
+  }
+  
+  out.innerHTML = h;
 }
 
 function renderStrongsEntry(lang,num){
@@ -1907,11 +1982,11 @@ function showModal(type){
       body.innerHTML = _renderBookOverview(book);
     }
   }else if(type==='strongs'){
-    title.textContent='Word Search';
+    title.textContent='SWRV Deep Dictionary';
     window._strongsHistory=[];
     let h='<div class="howto-box">';
     h+='<div class="howto-label">HOW TO USE</div>';
-    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Just type any English word.</b> Searches Hebrew, Greek, and deep word entries across the whole Bible. Click any result to see the full meaning. Use <b>Back</b> to return.</div>';
+    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Type any English word.</b> Searches the whole library at once: <b>SWRV Deep</b> (curated theological dictionary), <b>Strong\'s Hebrew</b> (8,674 entries), <b>Strong\'s Greek</b> (5,523 entries), and <b>BDB Hebrew Lexicon</b> (~9,345 entries). Each result shows the Hebrew/Greek script, English pronunciation, and definitions. Click any result to see the full meaning. Use <b>Back</b> to return.</div>';
     h+='<div id="suggestionChips" style="margin-top:8px;font-size:12px;color:var(--fg-dim);"></div>';
     h+='<input type="text" id="strongsInput" placeholder="Type a word (love, covenant) or number (7287)" onkeydown="if(event.key===\'Enter\')strongsSmartLookup()">';
     h+='<button onclick="strongsSmartLookup()">Search</button>';

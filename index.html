@@ -27,7 +27,7 @@
     </div>
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
     <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
-    <button class="icon-btn" onclick="showModal('strongs')">🔤 Word Search</button>
+    <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button class="icon-btn" onclick="showModal('peoples')">👥 Peoples</button>
     <button class="icon-btn" onclick="showModal('rules')">📜 Rules</button>
     <button class="icon-btn" onclick="showModal('library')">📚 Library</button>
@@ -104,6 +104,7 @@
       <button class="icon-btn" onclick="document.getElementById('audioUpload').click()" style="font-size:12px;">📁 Add files</button>
       <input type="file" id="audioUpload" multiple accept="audio/*" onchange="audioAddFiles(this)" style="display:none;">
       <button class="icon-btn" onclick="audioClearPlaylist()" style="font-size:12px;">🗑 Clear</button>
+      <button class="icon-btn" onclick="audioRestoreDefaults()" style="font-size:12px;" title="Restore the 3 default tracks">🔁 Defaults</button>
     </div>
     <div id="playlistContainer" style="margin-top:10px;"></div>
   </div>
