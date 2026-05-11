@@ -84,7 +84,7 @@ function nextTrack(){trackIdx=(trackIdx+1)%TRACKS.length;loadTrack(true);}
 
 audio.addEventListener('ended',nextTrack);
 
-const THEMES=['parchment','stone','hicon'];
+const THEMES=['vintage','luxe','cyberpunk','earth','sonic'];
 let themeIdx=0;
 function cycleTheme(){themeIdx=(themeIdx+1)%THEMES.length;document.body.dataset.theme=THEMES[themeIdx];localStorage.setItem('swrv_theme',THEMES[themeIdx])}
 const savedTheme=localStorage.getItem('swrv_theme');
@@ -106,8 +106,8 @@ for(let i=1;i<=50;i++){
   if(i===currentChapter)opt.selected=true;
   chapterSelect.appendChild(opt);
 }
-function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1);}}
-function nextChapter(){if(currentChapter<50){loadChapter(currentChapter+1);}}
+function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1,-1);}}
+function nextChapter(){if(currentChapter<50){loadChapter(currentChapter+1,1);}}
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
@@ -209,7 +209,23 @@ function setMode(m){
   loadChapter(currentChapter);
 }
 
-function loadChapter(n){
+function loadChapter(n, direction){
+  if(direction && window._chapterAnimEnabled!==false){
+    const main=document.getElementById('mainContent');
+    if(main && !main.classList.contains('flipping-left') && !main.classList.contains('flipping-right')){
+      main.classList.add(direction>0?'flipping-left':'flipping-right');
+      setTimeout(function(){
+        main.classList.remove('flipping-left','flipping-right');
+        _loadChapterCore(n);
+        main.classList.add('appearing');
+        setTimeout(function(){main.classList.remove('appearing');},500);
+      },550);
+      return;
+    }
+  }
+  _loadChapterCore(n);
+}
+function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;localStorage.setItem('swrv_chapter',n);
   const ch=window.GENESIS[n];if(!ch)return;
@@ -438,50 +454,240 @@ function closeDef(){
   document.getElementById('defOverlay').classList.remove('show');
 }
 
+const STORY_SECTIONS = {
+  who: {
+    title: 'Who Were These People?',
+    body: '<div class="story-section">'+
+'<p class="story-intro"><b>Before we read one verse, we need to see the people clearly.</b> The folks in Genesis were not European. They were not white. They lived between Africa and Asia — what scholars call the <i>Afro-Asiatic</i> world. Their skin was brown. Their language was Semitic. Their faces, their food, their music — closer to a Yemeni, Bedouin, or East African elder today than to any image you have seen in a stained-glass window.</p>'+
+'<h4>Where exactly did Genesis happen?</h4>'+
+'<p>The map runs from <b>Mesopotamia</b> (modern Iraq) through <b>Canaan</b> (Israel/Palestine/Lebanon/Jordan/Syria) down into <b>Egypt</b> and <b>Cush</b> (Sudan/Ethiopia). Every person in Genesis is from this region. There are no Europeans in this book. None.</p>'+
+'<h4>What did they look like?</h4>'+
+'<p>Modern scholarship (genetic, archaeological, and the Bible\'s own descriptions) consistently shows the ancient Israelites and surrounding peoples — Canaanites, Edomites, Moabites, Egyptians, Cushites, Midianites — as <b>Afro-Asiatic Semitic peoples with brown skin</b>, dark eyes, dark hair. The Egyptians depicted Semitic neighbors in tomb paintings with the same skin tones as their own — varying shades of brown, with Cushites painted darker still.</p>'+
+'<p>The Hebrew word <b>אדם (adam)</b> — translated "man" — comes from <b>אדמה (adamah)</b>, "red earth / ruddy ground." It is literally a description of skin pulled from the soil. <i>Adam means earth-colored.</i></p>'+
+'<h4>What language did they speak?</h4>'+
+'<p>Genesis was written in <b>Biblical Hebrew</b>, a Semitic language in the same family as Arabic, Aramaic, Amharic (Ethiopian), and ancient Akkadian. The script reads right-to-left. The words have triliteral roots (three-consonant cores). When you hear Hebrew chanted today, you are hearing something close to how the patriarchs actually spoke — not Latin, not Greek, not English.</p>'+
+'<h4>Why does this matter?</h4>'+
+'<p>For two thousand years, European Christians painted these stories with European faces. White Jesus. White Moses. White Adam and Eve. <b>That was an imagination, not a reading.</b> When the actual text says "Adam," it does not picture a Renaissance Italian. It pictures a brown-skinned person standing in red Middle Eastern dirt.</p>'+
+'<p>If you are a young reader of color picking up the Bible — the people in this book look like you. That is not a metaphor. That is the historical record.</p>'+
+'<p class="story-source"><b>Sources:</b> Genesis 2:7 (adam from adamah); Egyptian tomb paintings of Semites at Beni Hasan (~1900 BCE); modern population genetics of Levantine and East African populations; standard ANE archaeology. <i>Per Rule 05 (No Whitewashing) and Rule 12 (Read Through ANE Eyes).</i></p>'+
+'</div>'
+  },
+  editors: {
+    title: 'Who Edited This Bible?',
+    body: '<div class="story-section">'+
+'<p class="story-intro"><b>The Bible you hold did not fall out of the sky in English.</b> Every translation is a chain of choices made by specific people in specific places with specific agendas. You should know who handled the text before it reached you.</p>'+
+'<h4>The original writers — Semitic Hebrew scribes</h4>'+
+'<p>Genesis was written down in Hebrew by <b>Israelite scribes</b> — Semitic people from the Levant. The earliest manuscripts we have are the <b>Dead Sea Scrolls</b> (~250 BCE - 70 CE), copied by Jewish communities in the Judean desert. These are the people closest to the source. They were brown-skinned, Hebrew-speaking, Middle Eastern.</p>'+
+'<h4>The Septuagint (LXX) — Hellenistic Jews in Egypt</h4>'+
+'<p>Around <b>250 BCE in Alexandria, Egypt</b>, a community of Greek-speaking Jews translated the Hebrew into Greek. This is the LXX. The translators were Jews living in a major African city — Mediterranean, Egyptian, mixed populations. Many early Christians used the LXX, not the Hebrew.</p>'+
+'<h4>The Masoretic Text (MT) — Medieval Jewish scribes</h4>'+
+'<p>From about <b>500 to 1000 CE</b>, Jewish scribes in Babylon and the Galilee called the <b>Masoretes</b> standardized the Hebrew text and added vowel marks (Hebrew was originally consonants only). The Masoretic Text is the basis of almost every modern Hebrew Bible.</p>'+
+'<h4>The Latin Vulgate — Jerome, 4th century</h4>'+
+'<p><b>Jerome</b> translated the Bible into Latin around 400 CE. For the next 1,000+ years, the Catholic Church used this Latin version. Most European Christians never read Hebrew or Greek — they read Latin filtered through Jerome.</p>'+
+'<h4>The KJV (1611) — 47 English Anglican scholars</h4>'+
+'<p>The King James Version was produced by <b>47 English Protestant scholars</b> commissioned by King James I in 1604-1611. They were Oxford and Cambridge churchmen — entirely white, entirely English, working under royal authority. They translated brilliantly but they brought their world with them: monarchy, Anglican theology, English class structure. When they wrote "Lord," they pictured an English lord.</p>'+
+'<h4>What got softened in translation?</h4>'+
+'<ul>'+
+'<li><b>Adam\'s "rib"</b> — Hebrew <i>tsela</i> means "side" everywhere else in the Bible. "Rib" is a Western tradition, not the strongest reading.</li>'+
+'<li><b>"Helper" (ezer)</b> — used elsewhere for God as warrior-rescuer. English "helper" makes it sound like an assistant. The Hebrew is closer to "strong counterpart."</li>'+
+'<li><b>"Soul" (nephesh)</b> — Hebrew nephesh = throat, neck, breath, life, whole self. Greek "psyche" introduced the idea of a detachable soul. English "soul" carries the Greek lens.</li>'+
+'<li><b>"Lord"</b> — covers Adonai (master), YHWH (the name), El (deity). Three different Hebrew words flattened into one English word.</li>'+
+'</ul>'+
+'<p class="story-source"><b>Sources:</b> Tov, <i>Textual Criticism of the Hebrew Bible</i>; Masoretic tradition documented in BHS; Dead Sea Scrolls (Garcia Martinez); LXX history (Brenton 1851 introduction); KJV translator records (Norton). <i>Per Rule 11 (Flag Translation Loss) and Rule 13 (Source or Silence).</i></p>'+
+'</div>'
+  },
+  arc: {
+    title: 'The Genesis Story Arc — For Modern Readers',
+    body: '<div class="story-section">'+
+'<p class="story-intro">Genesis is not a science book and not a fairy tale. It is a <b>founding story</b> — the kind every ancient people had — but with one massive twist: instead of starting with gods fighting each other, it starts with one God making humans into rulers. Here is the whole 50-chapter arc, in plain American English.</p>'+
+'<h4>Part 1 — The Creation Week (Genesis 1-2)</h4>'+
+'<p>One God speaks the world into order. Light, sky, sea, land, plants, animals — six days. On the sixth day, He makes humans <b>male and female together</b>, calls them His <i>image</i>, and hands them the planet to rule. On the seventh day, He rests. Then a second, closer-up account: a garden in Eden, a man formed from red earth, a woman built from his side. They are naked, unashamed, married, in charge.</p>'+
+'<p><b>Why it matters:</b> In every other ANE creation myth, humans were made as <i>slaves to the gods</i>. Genesis flips it. Humans are <i>royal vice-regents</i>. That is a radical claim about your worth.</p>'+
+'<h4>Part 2 — The Break (Genesis 3-5)</h4>'+
+'<p>A serpent gets the woman to doubt the one rule. The man is right there with her. They eat. Shame enters the world. They get exiled from Eden. Their first son <b>Cain</b> murders his brother <b>Abel</b>. Humanity multiplies, and so does violence. By chapter 6, the planet is full of corruption.</p>'+
+'<h4>Part 3 — The Flood and Reset (Genesis 6-11)</h4>'+
+'<p><b>Noah</b>, one righteous man, builds an ark. God floods the earth and starts over with Noah\'s family. After the flood, God makes a <i>covenant</i> — a binding promise — never to flood again. The rainbow is the receipt.</p>'+
+'<p>Humanity spreads out. At <b>Babel</b>, they try to build a tower to make a name for themselves. God scatters them and confuses their language. From this point, the human family branches into the nations of the ancient world — including the African and Asian peoples descended from <b>Ham, Shem, and Japheth</b>. <i>Note: Cush, ancestor of Nubian and Ethiopian peoples, is Ham\'s son. Mizraim, ancestor of Egypt, is also Ham\'s son. The Bible names Africa\'s foundational peoples in the family tree.</i></p>'+
+'<h4>Part 4 — Abraham, the Promise Begins (Genesis 12-25)</h4>'+
+'<p>God calls <b>Abram</b> (later renamed <b>Abraham</b>), a Semitic man from <b>Ur</b> (modern Iraq), and promises to make him a great nation. Abraham migrates to <b>Canaan</b>. He and his wife <b>Sarah</b> are old and childless. God promises a son. They wait 25 years. Sarah finally has <b>Isaac</b>.</p>'+
+'<p>Along the way: <b>Hagar</b>, an Egyptian woman, bears Abraham\'s first son <b>Ishmael</b> — ancestor of many Arab peoples. God blesses Ishmael too. Abraham circumcises every male in his household as the sign of covenant. He nearly sacrifices Isaac at God\'s word — then God stops him and provides a ram. Sarah dies. Abraham buys a burial plot — the first piece of the Promised Land he actually owns.</p>'+
+'<h4>Part 5 — Isaac, Jacob, and the Twelve Sons (Genesis 25-36)</h4>'+
+'<p>Isaac\'s twin sons <b>Esau and Jacob</b> wrestle even in the womb. <b>Jacob</b> tricks his older brother out of the birthright and his blessing. He runs away, works 14 years for his uncle <b>Laban</b>, marries two sisters (<b>Leah</b> and <b>Rachel</b>), and has 12 sons and a daughter by four different women. On his way home, he wrestles with God all night and gets renamed <b>Israel</b> — "wrestles with God."</p>'+
+'<p>Those twelve sons become the <b>twelve tribes of Israel</b>.</p>'+
+'<h4>Part 6 — Joseph in Egypt (Genesis 37-50)</h4>'+
+'<p>Jacob\'s favorite son <b>Joseph</b> gets sold into slavery by his jealous brothers. He ends up in <b>Egypt</b>, falsely accused, thrown in prison, then raised to second-in-command of all Egypt because he interprets Pharaoh\'s dreams. When famine hits, his brothers come to Egypt looking for food. Joseph reveals himself, forgives them, and the whole family moves to Egypt to survive.</p>'+
+'<p>Genesis ends with Israel\'s family — 70 people — living in Egypt under Joseph\'s protection. <i>This is the setup for Exodus, where their descendants become a nation of slaves and God raises up Moses to bring them out.</i></p>'+
+'<p class="story-source"><i>Plain-English narrative summary per Rule 09 (Define) and Rule 04 (No Opinions — facts of the storyline only). For verse-by-verse study, return to the chapter view.</i></p>'+
+'</div>'
+  },
+  life: {
+    title: 'Daily Life in Genesis',
+    body: '<div class="story-section">'+
+'<p class="story-intro">What did normal Tuesday look like for Abraham? What were people wearing? What did they eat? What music did they hear? Here is the texture of daily life in the world of Genesis.</p>'+
+'<h4>Clothing</h4>'+
+'<p>Long tunics of <b>wool, linen, or goat hair</b>, often white or undyed. Belted at the waist with a leather or fabric sash. Outer cloak (Hebrew <i>simlah</i>) doubled as a blanket at night — Israelite law later forbade keeping a poor man\'s cloak overnight as collateral, because he needed it to sleep. Head wrap or veil for sun protection. <b>Sandals</b> of leather, slipped off when entering a house or sacred ground. Wealthy men wore embroidered robes; Joseph\'s "coat of many colors" was a long-sleeved princely tunic, not a rainbow.</p>'+
+'<h4>Food</h4>'+
+'<p>Bread — <b>flat round loaves</b> baked on hot stones or in clay ovens. Cheese, yogurt (called <i>leben</i>), curds, milk from goats and sheep. Lentils, beans, chickpeas (Esau sold his birthright for <b>lentil stew</b> — Gen 25:34). Olives and olive oil. Dates, figs, pomegranates, grapes (fresh and as wine). Honey from wild bees. Meat was special-occasion — a guest arriving meant slaughtering a young goat or calf (Abraham did this for the three visitors in Gen 18). Fish in Egypt. Locusts were eaten by some peoples in the region.</p>'+
+'<h4>Work</h4>'+
+'<p>The patriarchs were <b>semi-nomadic pastoralists</b> — they moved with their herds of sheep, goats, donkeys, and camels between seasonal pastures and wells. Abraham was wealthy in livestock, silver, and gold (Gen 13:2). Jacob worked 14 years tending Laban\'s flocks. Joseph rose to administer Egypt\'s grain reserves. Other peoples in the region were settled farmers (wheat, barley), city-dwellers (Sodom, Ur, Egyptian cities), or specialists — Tubal-Cain forged bronze and iron (Gen 4:22), Jubal "was the father of all who play the lyre and pipe" (Gen 4:21).</p>'+
+'<h4>Music and Worship</h4>'+
+'<p>Genesis names two instruments by chapter 4: the <b>kinnor</b> (a small lyre or harp) and the <b>ugab</b> (a wind instrument — flute or pipe). Singing was woven into daily life, work, celebration, and worship. Lamech composed a song in Gen 4:23-24. Laban complained that Jacob slipped away "with songs and tambourines and lyre" (Gen 31:27). Worship in Genesis was simple — building stone altars, offering animals or grain, calling on the name of YHWH. There was no temple yet, no priesthood, no synagogue. Each patriarch was his own priest for his household.</p>'+
+'<h4>Family Structure</h4>'+
+'<p>Extended clan, not nuclear family. Multiple generations, multiple wives sometimes, servants, herders, all under one patriarch. Inheritance went to the firstborn son (<b>bekor</b>) — which is why so much drama in Genesis is about <i>who gets the birthright</i>. Women had limited public power but enormous influence inside the family — Sarah, Rebekah, Rachel, and Leah all shape the storyline decisively.</p>'+
+'<h4>Religion of the Neighbors</h4>'+
+'<p>Most peoples around Israel were <b>polytheists</b>. Egypt had Ra, Osiris, Isis. Canaan had El (the high god), Baal (storm god), Asherah (mother goddess). Mesopotamia had Marduk, Inanna, and dozens more. <b>Genesis is a deliberate counter-story:</b> there is one God, not many; humans are royal, not slaves; the universe is good, not a battlefield of gods. Every Genesis claim is a quiet polemic against the surrounding mythology.</p>'+
+'<p class="story-source"><b>Sources:</b> Edersheim, <i>Sketches of Jewish Social Life</i>; archaeological record of Late Bronze Age Levantine settlements; Zondervan Bible Dictionary entries on clothing, food, music, daily life; specific Genesis verses cited inline. <i>Per Rule 10 (ANE Context) and Rule 13 (Source or Silence).</i></p>'+
+'</div>'
+  },
+  peoples: {
+    title: 'The Peoples of Genesis — Full Profiles',
+    body: '<div class="story-section">'+
+'<p class="story-intro">Here are the major peoples named in Genesis, with their actual ancestry, language family, and likely appearance. The Bible tracks the human family tree carefully in chapter 10 (the <b>Table of Nations</b>). Most of these people were shades of brown.</p>'+
+'<div class="people-grid">'+
+'<div class="people-box"><h4>Hebrews / Israelites</h4><p><b>Ancestor:</b> Abraham &rarr; Isaac &rarr; Jacob (Israel)<br><b>Region:</b> Canaan, originally Ur in Mesopotamia<br><b>Language:</b> Biblical Hebrew (Semitic)<br><b>Skin:</b> Brown / olive — Afro-Asiatic Semitic, similar to modern Yemeni Jews, Mizrahi Jews, and Bedouins<br><b>Worship:</b> Monotheist — YHWH alone, no images</p></div>'+
+'<div class="people-box"><h4>Egyptians (Mizraim)</h4><p><b>Ancestor:</b> Mizraim, son of Ham (Gen 10:6)<br><b>Region:</b> Nile Valley (Egypt and Sudan)<br><b>Language:</b> Ancient Egyptian (Afro-Asiatic)<br><b>Skin:</b> Brown — varied from lighter in the Nile Delta to darker in Upper Egypt. Egyptian art depicted themselves clearly as a brown-skinned African people.<br><b>Worship:</b> Polytheist — Ra, Osiris, Isis</p></div>'+
+'<div class="people-box"><h4>Cushites (Sons of Cush)</h4><p><b>Ancestor:</b> Cush, son of Ham (Gen 10:6-8)<br><b>Region:</b> Modern Sudan, Ethiopia, Eritrea<br><b>Language:</b> Cushitic languages (Afro-Asiatic)<br><b>Skin:</b> Black — consistently described and depicted as the darkest-skinned peoples of the ancient world. Jeremiah uses "Can the Cushite change his skin?" (Jer 13:23).<br><b>Famous descendants:</b> Nimrod the great hunter; Queen of Sheba; Tirhakah the Cushite pharaoh; the Ethiopian eunuch in Acts 8<br><i>Cush is named before any European nation. Black African peoples are foundational, not peripheral.</i></p></div>'+
+'<div class="people-box"><h4>Canaanites</h4><p><b>Ancestor:</b> Canaan, son of Ham (Gen 10:6)<br><b>Region:</b> Modern Israel/Palestine, Lebanon, parts of Syria/Jordan<br><b>Language:</b> Canaanite (Semitic) — close to Hebrew<br><b>Skin:</b> Brown — same Levantine phenotype as the Israelites who later displaced them<br><b>Worship:</b> Polytheist — El, Baal, Asherah, Mot, Anat</p></div>'+
+'<div class="people-box"><h4>Ishmaelites / Arabs</h4><p><b>Ancestor:</b> Ishmael, son of Abraham and Hagar the Egyptian<br><b>Region:</b> Northern Arabian Peninsula<br><b>Language:</b> Early Arabic dialects (Semitic)<br><b>Skin:</b> Brown — mixed Semitic-Egyptian heritage<br><b>Twelve sons</b> listed in Gen 25:13-15 — became the twelve Arab tribes</p></div>'+
+'<div class="people-box"><h4>Edomites</h4><p><b>Ancestor:</b> Esau (renamed Edom, meaning "red")<br><b>Region:</b> South of the Dead Sea (modern southern Jordan)<br><b>Language:</b> Edomite (Semitic, close to Hebrew)<br><b>Skin:</b> Brown / ruddy — Esau was red-haired and hairy at birth (Gen 25:25)<br><b>Note:</b> Esau and Jacob were twin brothers. Edomites and Israelites are cousins.</p></div>'+
+'<div class="people-box"><h4>Moabites and Ammonites</h4><p><b>Ancestor:</b> Moab and Ben-Ammi, sons of Lot<br><b>Region:</b> East of the Dead Sea (modern central Jordan)<br><b>Language:</b> Moabite, Ammonite (Semitic)<br><b>Skin:</b> Brown — Levantine phenotype<br><b>Famous descendant:</b> Ruth the Moabitess — great-grandmother of King David</p></div>'+
+'<div class="people-box"><h4>Mesopotamians</h4><p><b>Ancestors:</b> Sons of Shem and Ham<br><b>Region:</b> Modern Iraq, parts of Syria and Iran<br><b>Languages:</b> Akkadian, Sumerian, Aramaic<br><b>Skin:</b> Brown — Middle Eastern phenotype<br><b>Note:</b> Abraham was born in Ur of the Chaldeans — he was Mesopotamian by birth before becoming the father of the Hebrews.</p></div>'+
+'</div>'+
+'<p class="story-source"><b>Sources:</b> Genesis 10 (Table of Nations); Genesis 25:13-18 (sons of Ishmael); Zondervan Bible Dictionary entries on each people; modern population genetics; Egyptian and Mesopotamian art and inscriptions. <i>Per Rule 05 (No Whitewashing), Rule 12 (ANE Eyes), and Rule 13 (Source or Silence).</i></p>'+
+'</div>'
+  }
+};
+
+function showStorySection(btn, key){
+  document.querySelectorAll('.story-tab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  const sec=STORY_SECTIONS[key];
+  if(!sec)return;
+  document.getElementById('storyContent').innerHTML='<h3 style="color:var(--gold);margin-top:0;font-size:22px;font-family:var(--font-display,inherit);">'+sec.title+'</h3>'+sec.body;
+}
+
 function strongsLookup(){
   const input=document.getElementById('strongsInput');
   const query=input.value.trim().toUpperCase();
   const result=document.getElementById('strongsLookupResult');
+  if(!query){result.innerHTML='';return;}
+  // Push current to history before drilling in
+  if(!window._strongsHistory)window._strongsHistory=[];
+  if(result.innerHTML.trim() && !result.innerHTML.includes('strongs-back-btn-marker')){
+    window._strongsHistory.push({input:input.value,html:result.innerHTML});
+  }
   let id=query.startsWith('H')?query:'H'+query;
   if(!/^H\d+$/.test(id)){
-    result.innerHTML='<div style="color:var(--warning);">Enter a number (e.g., 7287) or H-number (e.g., H7287).</div>';
+    result.innerHTML=renderStrongsBackButton()+'<div style="color:var(--warning);">Enter a number (e.g., 7287) or H-number (e.g., H7287). Or use the word search above.</div>';
     return;
   }
-  const entry=window.STRONGS_HEB[id];
-  const bdbResults=lookupBDB(id);
-  if(!entry&&bdbResults.length===0){
-    result.innerHTML='<div style="color:var(--warning);">'+id+' not found.</div>';
+  const num=id.slice(1);
+  const heb=window.STRONGS_HEB&&window.STRONGS_HEB[num];
+  const bdb=window.BDB_HEB&&window.BDB_HEB[num];
+  if(!heb&&!bdb){
+    result.innerHTML=renderStrongsBackButton()+'<div style="color:var(--warning);">No entry found for '+id+'.</div>';
     return;
   }
-  let html='<div class="strongs-result">';
-  html+='<div class="strongs-result-id">'+id+(bdbResults.length>1?' — '+bdbResults.length+' senses':'')+'</div>';
-  const lemma=(bdbResults[0]?.entry?.lemma)||entry?.lemma;
-  if(lemma)html+='<div class="strongs-result-lemma">'+lemma+'</div>';
-  const xlit=entry?.xlit||bdbResults[0]?.entry?.xlit;
-  if(xlit)html+='<div class="strongs-result-xlit">'+escapeHtml(xlit)+(entry?.pron?' — '+escapeHtml(entry.pron):'')+'</div>';
-  if(bdbResults.length>0){
-    html+='<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line);">';
-    html+='<div style="color:var(--strongs);font-weight:700;font-size:11px;font-family:-apple-system,sans-serif;letter-spacing:0.8px;margin-bottom:6px;">📖 BDB HEBREW LEXICON</div>';
-    for(const r of bdbResults){
-      if(bdbResults.length>1)html+='<div style="color:var(--gold);font-weight:700;font-size:12px;margin-top:6px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>';
-      else if(r.entry.gloss)html+='<div style="color:var(--gold);font-weight:600;font-size:13px;">"'+escapeHtml(r.entry.gloss)+'"</div>';
-      if(r.entry.def){
-        const def=r.entry.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,'<br>');
-        html+='<div class="strongs-result-def" style="margin-top:4px;">'+def+'</div>';
-      }
+  let h=renderStrongsBackButton();
+  h+='<div class="strongs-result" style="border-left-width:4px;">';
+  if(heb){
+    h+='<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">';
+    h+='<span style="font-size:32px;color:var(--gold);font-weight:600;">'+(heb.heb||'')+'</span>';
+    h+='<span style="font-size:18px;color:var(--fg-mute);font-style:italic;">'+(heb.xlit||'')+'</span>';
+    h+='<span style="margin-left:auto;font-size:13px;color:var(--strongs);font-weight:600;">'+id+'</span>';
+    h+='</div>';
+    if(heb.pron)h+='<div style="color:var(--fg-dim);font-size:13px;margin-top:4px;">pronunciation: '+heb.pron+'</div>';
+    if(heb.def)h+='<div style="color:var(--fg);margin-top:10px;line-height:1.6;">'+escapeHtml(heb.def)+'</div>';
+  }
+  if(bdb){
+    h+='<div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);">';
+    h+='<div style="font-weight:700;color:var(--strongs);font-size:12px;letter-spacing:0.05em;margin-bottom:6px;">BDB LEXICON</div>';
+    if(bdb.def){
+      const cleaned=bdb.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,' • ');
+      h+='<div style="color:var(--fg);line-height:1.65;font-size:14px;">'+escapeHtml(cleaned)+'</div>';
     }
-    html+='</div>';
+    h+='</div>';
   }
-  if(entry){
-    html+='<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line);">';
-    html+='<div style="color:var(--strongs);font-weight:700;font-size:11px;font-family:-apple-system,sans-serif;letter-spacing:0.8px;margin-bottom:6px;">📚 STRONG\'S CONCISE</div>';
-    if(entry.derivation)html+='<div class="strongs-result-def"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>';
-    if(entry.strongs_def)html+='<div class="strongs-result-def" style="margin-top:4px;">'+escapeHtml(entry.strongs_def)+'</div>';
-    if(entry.kjv_def)html+='<div class="strongs-result-kjv"><b>KJV:</b> '+escapeHtml(entry.kjv_def)+'</div>';
-    html+='</div>';
+  h+='</div>';
+  result.innerHTML=h;
+}
+
+function strongsSmartLookup(){
+  const q=document.getElementById('strongsInput').value.trim();
+  const out=document.getElementById('strongsLookupResult');
+  if(!q){out.innerHTML='';return;}
+  // Reset history on new search
+  window._strongsHistory=[];
+  // If it's a number, route to strongsLookup
+  const numMatch=q.match(/^[Hh]?(\d{1,4})$/);
+  if(numMatch){
+    document.getElementById('strongsInput').value=numMatch[1];
+    strongsLookup();
+    return;
   }
-  html+='</div>';
-  result.innerHTML=html;
+  // Word search across STRONGS_HEB definitions
+  const word=q.toLowerCase();
+  const results=[];
+  for(const num in window.STRONGS_HEB){
+    const e=window.STRONGS_HEB[num];
+    const def=(e.def||'').toLowerCase();
+    const xlit=(e.xlit||'').toLowerCase();
+    if(def.includes(word)||xlit.includes(word)){
+      let score=0;
+      // exact word match in definition (boundary)
+      const wordRe=new RegExp('\\b'+word.replace(/[.*+?^$()|[\]\\]/g,'\\$&')+'\\b');
+      if(wordRe.test(def))score=100;
+      else if(def.split(/[\s,;]+/).some(t=>t.startsWith(word)))score=50;
+      else score=10;
+      if(xlit===word)score+=200;
+      else if(xlit.startsWith(word))score+=100;
+      results.push({num:num,e:e,score:score});
+    }
+  }
+  results.sort(function(a,b){return b.score-a.score;});
+  if(results.length===0){
+    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try a different word (e.g., love, covenant, light, holy, heart, spirit).</p>';
+    return;
+  }
+  let h='<p style="font-size:12px;color:var(--fg-dim);margin:8px 0;">'+results.length+' match'+(results.length===1?'':'es')+' for "<b>'+escapeHtml(q)+'</b>" - click any to see full entry</p>';
+  const top=results.slice(0,25);
+  for(const r of top){
+    h+='<div class="strongs-result strongs-clickable" data-num="'+r.num+'">';
+    h+='<div style="display:flex;align-items:baseline;gap:10px;">';
+    h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+(r.e.heb||'')+'</span>';
+    h+='<span style="color:var(--fg-mute);font-style:italic;">'+(r.e.xlit||'')+'</span>';
+    h+='<span style="margin-left:auto;font-size:11px;color:var(--strongs);font-weight:600;">H'+r.num+'</span>';
+    h+='</div>';
+    h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(r.e.def||'')+'</div>';
+    h+='</div>';
+  }
+  if(results.length>25)h+='<p style="color:var(--fg-dim);font-size:12px;padding:8px;text-align:center;">Showing top 25 of '+results.length+'. Refine your search for fewer results.</p>';
+  out.innerHTML=h;
+  // Bind clicks
+  out.querySelectorAll('.strongs-clickable').forEach(function(el){
+    el.addEventListener('click',function(){
+      document.getElementById('strongsInput').value=el.dataset.num;
+      strongsLookup();
+    });
+  });
+}
+
+function renderStrongsBackButton(){
+  if(!window._strongsHistory||window._strongsHistory.length===0)return '<span style="display:none;" class="strongs-back-btn-marker"></span>';
+  return '<button class="strongs-back-btn strongs-back-btn-marker" onclick="strongsBack()">← Back to previous results</button>';
+}
+
+function strongsBack(){
+  if(!window._strongsHistory||window._strongsHistory.length===0)return;
+  const prev=window._strongsHistory.pop();
+  document.getElementById('strongsInput').value=prev.input||'';
+  document.getElementById('strongsLookupResult').innerHTML=prev.html;
+  document.querySelectorAll('.strongs-clickable').forEach(function(el){
+    el.addEventListener('click',function(){
+      document.getElementById('strongsInput').value=el.dataset.num;
+      strongsLookup();
+    });
+  });
 }
 
 // Source search state
@@ -578,13 +784,29 @@ function showModal(type){
     h+='<div class="ph-rule-note" style="margin-top:24px;">'+ph.footer_note+'</div>';
     h+='</div>';
     body.innerHTML=h;
+  }else if(type==='story'){
+    title.textContent='The Story Behind The Story';
+    let h='<div class="story-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">';
+    h+='<button class="story-tab active" onclick="showStorySection(this, \'who\')">Who Were They?</button>';
+    h+='<button class="story-tab" onclick="showStorySection(this, \'editors\')">Who Edited This Bible?</button>';
+    h+='<button class="story-tab" onclick="showStorySection(this, \'arc\')">Genesis Story Arc</button>';
+    h+='<button class="story-tab" onclick="showStorySection(this, \'life\')">Daily Life</button>';
+    h+='<button class="story-tab" onclick="showStorySection(this, \'peoples\')">The Peoples</button>';
+    h+='</div>';
+    h+='<div id="storyContent"></div>';
+    body.innerHTML=h;
+    showStorySection(document.querySelector('.story-tab'), 'who');
   }else if(type==='strongs'){
-    title.textContent='Strong\'s Hebrew Lexicon';
-    let h='<p>Look up any Hebrew word by Strong\'s number. <b>BDB + Strong\'s combined.</b> Range: H1 – H8674.</p>';
-    h+='<p style="font-size:12px;color:var(--fg-dim);">Try: 7287 (radah, two senses!), 6754 (tselem), 5731 (Eden), 1254 (bara, two senses!), 2145 (zakar), 5347 (neqebah). BDB shows multiple senses where the same Hebrew root has multiple meanings.</p>';
+    title.textContent='Hebrew Dictionary';
+    window._strongsHistory=[];
+    let h='<div class="howto-box">';
+    h+='<div class="howto-label">HOW TO USE</div>';
+    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Type an English word</b> (love, covenant, light, heart) to find the Hebrew word behind it. <b>Or type a number</b> (7287, 6754) to look up Strong\'s directly. Click any result for the full entry with BDB lexicon. Use the <b>Back</b> button to return.</div>';
+    h+='</div>';
+    h+='<p style="font-size:12px;color:var(--fg-dim);margin-top:6px;">Try: <b>love, covenant, light, fear, holy, glory, image, blessing, sin, life, heart, spirit, soul</b></p>';
     h+='<div class="strongs-search">';
-    h+='<input type="text" id="strongsInput" placeholder="Enter number (e.g., 7287)" onkeydown="if(event.key===\'Enter\')strongsLookup()">';
-    h+='<button onclick="strongsLookup()">Look Up</button>';
+    h+='<input type="text" id="strongsInput" placeholder="Type a word (love, covenant) or number (7287)" onkeydown="if(event.key===\'Enter\')strongsSmartLookup()">';
+    h+='<button onclick="strongsSmartLookup()">Search</button>';
     h+='</div>';
     h+='<div id="strongsLookupResult"></div>';
     h+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--fg-dim);">';
@@ -660,3 +882,45 @@ if(mode==='verse'){
 }
 
 loadChapter(currentChapter);
+
+
+// ============================================================
+// Touch swipe navigation + keyboard arrows
+// ============================================================
+(function(){
+  let touchStartX=0,touchStartY=0,touchStartT=0;
+  const main=document.getElementById('mainContent');
+  if(!main)return;
+  main.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1)return;
+    touchStartX=e.touches[0].clientX;
+    touchStartY=e.touches[0].clientY;
+    touchStartT=Date.now();
+  },{passive:true});
+  main.addEventListener('touchend',function(e){
+    if(!touchStartT)return;
+    const t=e.changedTouches[0];
+    const dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;
+    const dt=Date.now()-touchStartT;
+    touchStartT=0;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||dt>500)return;
+    if(dx<0)nextChapter();else prevChapter();
+  },{passive:true});
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    if(document.querySelector('.modal.show'))return;
+    if(e.key==='ArrowLeft'&&currentChapter>1){prevChapter();e.preventDefault();}
+    if(e.key==='ArrowRight'&&currentChapter<50){nextChapter();e.preventDefault();}
+  });
+  if('ontouchstart' in window){
+    setTimeout(function(){
+      const hint=document.createElement('div');
+      hint.className='swipe-hint';
+      hint.textContent='← Swipe to turn the page →';
+      document.body.appendChild(hint);
+      setTimeout(function(){hint.classList.add('show');},100);
+      setTimeout(function(){hint.classList.remove('show');},3500);
+      setTimeout(function(){hint.remove();},4000);
+    },1500);
+  }
+})();
