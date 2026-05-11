@@ -182,7 +182,8 @@ function renderGen14Enrichments(ch, verseNum){
     AMP_DATA         = window.EXODUS_AMP_STYLE;
     deepRange = {min:1, max:40};
   } else {
-    return ''; // No deep layer yet for other books
+    // No deep layer for this book — still try cross-refs
+    return renderCrossRefs(book, ch, verseNum);
   }
   if(ch > deepRange.max || ch < deepRange.min) return '';
   
@@ -257,6 +258,57 @@ function renderGen14Enrichments(ch, verseNum){
     h += '</div>';
   }
   
+  return h + renderCrossRefs(book, ch, verseNum);
+  }
+
+
+
+// === CROSS-SOURCE CHRONOLOGICAL WEAVE ===
+// Renders parallel passages from approved sources (1 Enoch, Josephus, etc.)
+// at the appropriate Bible verse.
+function renderCrossRefs(book, ch, verseNum){
+  if(!window.CROSS_REFS) return '';
+  const refs = window.CROSS_REFS;
+  let h = '';
+  // Check both exact-verse and range keys
+  // Range keys look like "Genesis 6:1-4" — we match if verseNum is the LAST verse in the range
+  for(const key in refs){
+    const m = key.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
+    if(!m) continue;
+    const refBook = m[1], refCh = parseInt(m[2]), refStart = parseInt(m[3]), refEnd = m[4] ? parseInt(m[4]) : refStart;
+    if(refBook !== book) continue;
+    if(refCh !== ch) continue;
+    // Render at the LAST verse of the range
+    if(verseNum !== refEnd) continue;
+    const parallels = refs[key];
+    if(!parallels || !parallels.length) continue;
+    h += '<div class="cross-refs-panel" style="margin:14px 0;padding:14px;background:rgba(212,175,55,0.07);border-left:3px solid var(--gold);border-radius:5px;">';
+    h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin-bottom:10px;">📜 CROSS-SOURCE PARALLELS — '+key+'</div>';
+    for(const p of parallels){
+      h += '<div style="margin-bottom:12px;padding:10px;background:rgba(0,0,0,0.18);border-radius:4px;">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:start;gap:8px;flex-wrap:wrap;">';
+      h += '<div style="font-weight:700;color:var(--gold);font-size:13px;">'+_escapeHtmlSafe(p.source)+'</div>';
+      h += '<div style="font-size:11px;color:var(--fg-mute);">'+_escapeHtmlSafe(p.location||'')+'</div>';
+      h += '</div>';
+      h += '<div style="font-size:13px;line-height:1.55;margin-top:8px;font-style:italic;color:var(--fg);">"'+_escapeHtmlSafe(p.excerpt)+'"</div>';
+      if(p.action){
+        const a = p.action;
+        let click = '';
+        if(a.type === 'enoch') click = 'openEnochReader(\''+a.section+'\','+(a.chapter||'')+')';
+        else if(a.type === 'source') click = 'window._SRC_MODE[\''+a.key+'\']=\'search\';openSourceReader(\''+a.key+'\');setTimeout(function(){var i=document.getElementById(\'sourceQuery\');if(i){i.value='+JSON.stringify(a.search||'')+';searchSource();}},800)';
+        if(click){
+          h += '<div style="margin-top:8px;"><button class="icon-btn" style="font-size:11px;padding:4px 10px;" onclick="'+click+'">Open full passage →</button></div>';
+        }
+      }
+      h += '</div>';
+    }
+    h += '</div>';
+  }
   return h;
 }
 
+// Local escape helper (sibling of any global escapeHtml)
+function _escapeHtmlSafe(s){
+  if(s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
