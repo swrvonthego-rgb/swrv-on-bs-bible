@@ -48,6 +48,23 @@ audio.addEventListener('canplay',function(){
 audio.addEventListener('playing',function(){playBtn.textContent='❚❚';});
 audio.addEventListener('pause',function(){playBtn.textContent='▶';});
 
+// Modal body-scroll-lock helpers (mobile-safe)
+function _lockBodyScroll(){
+  if(document.body.classList.contains('modal-open'))return;
+  const y = window.scrollY || window.pageYOffset;
+  document.body.dataset.scrollY = String(y);
+  document.body.style.top = -y + 'px';
+  document.body.classList.add('modal-open');
+}
+function _unlockBodyScroll(){
+  if(!document.body.classList.contains('modal-open'))return;
+  const y = parseInt(document.body.dataset.scrollY||'0',10);
+  document.body.classList.remove('modal-open');
+  document.body.style.top = '';
+  delete document.body.dataset.scrollY;
+  window.scrollTo(0, y);
+}
+
 function loadTrack(autoPlay){
   if(!TRACKS[trackIdx])return;
   _wantPlay=!!autoPlay;
@@ -398,6 +415,7 @@ function toggleSource(btn){
 function toggleXref(id){const el=document.getElementById(id);if(el)el.classList.toggle('show')}
 
 function showDef(word){
+  _lockBodyScroll();
   let def=window.DEFINITIONS[word]||window.DEFINITIONS[word.toLowerCase()];
   if(!def)return;
   if(def.see&&window.DEFINITIONS[def.see])def=window.DEFINITIONS[def.see];
@@ -457,7 +475,7 @@ function showDef(word){
   if(def.cross)html.push('<div class="def-section"><div class="def-section-label">Cross-References</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
-  document.getElementById('defOverlay').classList.add('show');
+  _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
 
 function showPerson(name){
@@ -477,7 +495,7 @@ function showPerson(name){
   if(p.sources)html.push('<div class="def-section"><div class="def-section-label">Sources (Rule 13)</div><div class="def-section-text"><i>'+escapeHtml(p.sources)+'</i></div></div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
-  document.getElementById('defOverlay').classList.add('show');
+  _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
 
 function lookupBDB(id){
@@ -532,10 +550,11 @@ function showStrongs(id){
   html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Brown-Driver-Briggs Hebrew-English Lexicon (1906) via STEPBible/Tyndale House (CC BY 4.0). Strong\'s Concise Dictionary of the Hebrew Bible (1894) via openscriptures.org. Both public domain.</i></div></div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
-  document.getElementById('defOverlay').classList.add('show');
+  _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
 
 function closeDef(){
+  _unlockBodyScroll();
   document.getElementById('defPopup').classList.remove('show','people','strongs');
   document.getElementById('defOverlay').classList.remove('show');
 }
@@ -698,6 +717,41 @@ function strongsLookup(){
   result.innerHTML=h;
 }
 
+
+function _populateSuggestionChips(){
+  const el = document.getElementById('suggestionChips');
+  if(!el || !window.DEFINITIONS) return;
+  // Curated list of keys we want to feature IF they exist. We then verify each is present.
+  // Plus we add random keys from window.DEFINITIONS to fill out the list.
+  const wanted = ['love','light','covenant','holy','image','heart','spirit','peace','life','glory','grace','truth','chesed','shalom','yeshuah','ruach','kavod','tzelem','YHWH','agape','logos','tevah','ehyeh asher ehyeh','dam ha-brit','rachum','mishkan','kapporet','olah','korban','aseret hadibrot','segulah','manna','sabbath','shabbat'];
+  const allKeys = Object.keys(window.DEFINITIONS).filter(k => k && typeof window.DEFINITIONS[k] === 'object');
+  const lower = {};
+  allKeys.forEach(k => { lower[k.toLowerCase()] = k; });
+  // Curated keys that actually exist
+  const verified = [];
+  for(const w of wanted){
+    const key = lower[w.toLowerCase()];
+    if(key && !verified.includes(key)) verified.push(key);
+    if(verified.length >= 14) break;
+  }
+  // If we have fewer than 14, fill with random keys from the dictionary
+  if(verified.length < 14){
+    const shuffled = allKeys.slice().sort(() => Math.random() - 0.5);
+    for(const k of shuffled){
+      if(verified.length >= 14) break;
+      if(!verified.includes(k)) verified.push(k);
+    }
+  }
+  let html = '<div style="font-weight:600;color:var(--fg);margin-bottom:6px;">Try a suggested word:</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+  for(const k of verified){
+    const escaped = k.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    html += '<button class="suggestion-chip" onclick="document.getElementById(\'strongsInput\').value=\''+escaped+'\';strongsSmartLookup()" style="background:var(--bg-3);border:1px solid var(--line);color:var(--fg);padding:4px 10px;border-radius:14px;cursor:pointer;font-size:11px;font-family:inherit;">'+escapeHtml(k)+'</button>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
 function strongsSmartLookup(){
   const q=document.getElementById('strongsInput').value.trim();
   const out=document.getElementById('strongsLookupResult');
@@ -764,7 +818,7 @@ function strongsSmartLookup(){
   }
   results.sort(function(a,b){return b.score-a.score;});
   if(results.length===0){
-    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try: love, light, covenant, holy, image, heart, spirit, Zion, peace, life.</p>';
+    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try one of the suggested words above — they\'re all in the dictionary.</p>';
     return;
   }
   let h='<p style="font-size:12px;color:var(--fg-dim);margin:8px 0;">'+results.length+' match'+(results.length===1?'':'es')+' for "<b>'+escapeHtml(q)+'</b>" - click any to see full entry</p>';
@@ -934,6 +988,7 @@ function searchSource(){
 }
 
 function showModal(type){
+  _lockBodyScroll();
   const title=document.getElementById('modalTitle');
   const body=document.getElementById('modalBody');
   if(type==='prehistory'){
@@ -978,10 +1033,8 @@ function showModal(type){
     window._strongsHistory=[];
     let h='<div class="howto-box">';
     h+='<div class="howto-label">HOW TO USE</div>';
-    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Just type any English word</b> (love, Zion, covenant, light, heart). Searches Hebrew, Greek, and deep word entries across the whole Bible. Click any result to see the full meaning. Use <b>Back</b> to return.</div>';
-    h+='</div>';
-    h+='<p style="font-size:12px;color:var(--fg-dim);margin-top:6px;">Try: <b>love · Zion · covenant · light · holy · heart · spirit · life · peace · image · glory · grace</b></p>';
-    h+='<div class="strongs-search">';
+    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Just type any English word.</b> Searches Hebrew, Greek, and deep word entries across the whole Bible. Click any result to see the full meaning. Use <b>Back</b> to return.</div>';
+    h+='<div id="suggestionChips" style="margin-top:8px;font-size:12px;color:var(--fg-dim);"></div>';
     h+='<input type="text" id="strongsInput" placeholder="Type a word (love, covenant) or number (7287)" onkeydown="if(event.key===\'Enter\')strongsSmartLookup()">';
     h+='<button onclick="strongsSmartLookup()">Search</button>';
     h+='</div>';
@@ -1038,8 +1091,10 @@ function showModal(type){
     body.innerHTML=auditHtml;
   }
   document.getElementById('modal').classList.add('show');
+  setTimeout(_populateSuggestionChips, 0);
 }
-function closeModal(){document.getElementById('modal').classList.remove('show')}
+function closeModal(){
+  _unlockBodyScroll();document.getElementById('modal').classList.remove('show')}
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeDef();closeModal()}

@@ -346,3 +346,27 @@ footer{background:var(--bg-2);border-top:1px solid var(--line);padding:22px 24px
 .swipe-hint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-3);color:var(--fg-mute);padding:8px 16px;border-radius:20px;font-size:12px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:60;border:1px solid var(--line)}
 .swipe-hint.show{opacity:0.9}
 
+
+
+/* === MODAL SCROLL LOCK (mobile-safe) === */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  /* preserve scroll position via inline style set in JS */
+}
+.modal {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.modal-inner {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.def-popup {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
