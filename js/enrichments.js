@@ -21,6 +21,14 @@
     }
     console.log('Exodus 1-2 deep build: '+Object.keys(window.EXODUS_DEFINITIONS).length+' new deep definitions added');
   }
+  // Merge Leviticus 1-7 deep definitions
+  if(window.DEFINITIONS && window.LEVITICUS_DEFINITIONS){
+    for(const k in window.LEVITICUS_DEFINITIONS){
+      window.DEFINITIONS[k] = window.LEVITICUS_DEFINITIONS[k];
+      window.DEFINITIONS[k.toLowerCase()] = window.LEVITICUS_DEFINITIONS[k];
+    }
+    console.log('Leviticus 1-7 deep build: '+Object.keys(window.LEVITICUS_DEFINITIONS).length+' new deep definitions added');
+  }
   // Merge Exodus 3-4 deep build into Exodus structures
   if(window.EXODUS_PLOT_PANELS && window.EXODUS34_PLOT_PANELS){
     for(const k in window.EXODUS34_PLOT_PANELS) window.EXODUS_PLOT_PANELS[k] = window.EXODUS34_PLOT_PANELS[k];
@@ -181,6 +189,13 @@ function renderGen14Enrichments(ch, verseNum){
     CULTURE_DATA     = window.EXODUS_CULTURE_BOXES;
     AMP_DATA         = window.EXODUS_AMP_STYLE;
     deepRange = {min:1, max:40};
+  } else if(book === 'Leviticus'){
+    PRE_HISTORY_DATA = window.LEVITICUS_PRE_HISTORY;
+    PLOT_PANELS_DATA = window.LEVITICUS_PLOT_PANELS;
+    HEARTBEAT_DATA   = window.LEVITICUS_HEARTBEAT_CALLOUTS;
+    CULTURE_DATA     = window.LEVITICUS_CULTURE_BOXES;
+    AMP_DATA         = window.LEVITICUS_AMP_STYLE;
+    deepRange = {min:1, max:7};
   } else {
     // No deep layer for this book — still try cross-refs
     return renderCrossRefs(book, ch, verseNum);
