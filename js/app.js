@@ -94,6 +94,7 @@ let currentChapter=parseInt(localStorage.getItem('swrv_chapter'))||1;
 let currentVerse=parseInt(localStorage.getItem('swrv_verse'))||1;
 let mode=localStorage.getItem('swrv_mode')||'chapter';
 let currentBook=localStorage.getItem('swrv_book')||'Genesis';
+window.currentBook = currentBook; // expose for enrichments
 const _bookScriptLoaded={Genesis:true}; // Genesis is bundled in genesis.js
 function _getCurrentBookData(){
   if(currentBook==='Genesis')return window.GENESIS;
@@ -115,22 +116,38 @@ function _loadBookScript(slug, cb){
 const chapterSelect=document.getElementById('chapterSelect');
 const bookSelect=document.getElementById('bookSelect');
 
+
+function goRandomVerse(){
+  if(!window.BIBLE_INDEX)return;
+  const books=window.BIBLE_INDEX;
+  const book=books[Math.floor(Math.random()*books.length)];
+  _loadBookScript(book.slug,function(){
+    const ch=Math.floor(Math.random()*book.chapters)+1;
+    currentBook=book.slug;window.currentBook=book.slug;localStorage.setItem('swrv_book',book.slug);
+    if(bookSelect)bookSelect.value=book.slug;
+    populateChapterSelect();
+    _loadChapterCore(ch);
+  });
+}
+
 function populateBookSelect(){
   if(!bookSelect||!window.BIBLE_INDEX)return;
   bookSelect.innerHTML='';
   let lastTestament='';
+  let currentGroup=null;
   for(const b of window.BIBLE_INDEX){
     if(b.testament!==lastTestament){
-      const og=document.createElement('optgroup');
-      og.label=b.testament==='OT'?'Old Testament':'New Testament';
-      bookSelect.appendChild(og);
+      currentGroup=document.createElement('optgroup');
+      currentGroup.label=b.testament==='OT'?'Old Testament':'New Testament';
+      bookSelect.appendChild(currentGroup);
       lastTestament=b.testament;
     }
     const opt=document.createElement('option');
     opt.value=b.slug;
-    opt.textContent=b.display+(b.isDeep?' ★':'');
+    opt.textContent=b.display+(b.isDeep?' (deep)':'');
     if(b.slug===currentBook)opt.selected=true;
-    bookSelect.lastElementChild.appendChild(opt);
+    if(currentGroup)currentGroup.appendChild(opt);
+    else bookSelect.appendChild(opt);
   }
 }
 
@@ -163,7 +180,7 @@ populateChapterSelect();
 function loadBook(slug){
   if(!slug||slug===currentBook&&_getCurrentBookData())return;
   _loadBookScript(slug,function(){
-    currentBook=slug;
+    currentBook=slug;window.currentBook=slug;
     localStorage.setItem('swrv_book',slug);
     currentChapter=1;
     localStorage.setItem('swrv_chapter',1);
@@ -174,14 +191,14 @@ function loadBook(slug){
 function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1);}else{
   // Jump to previous book's last chapter
   const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
+  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;window.currentBook=prev.slug;localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
 }}
 function nextChapter(){
   const info=_getBookInfo(currentBook);
   const max=info?info.chapters:50;
   if(currentChapter<max){loadChapter(currentChapter+1);}else{
     const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
+    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
   }
 }
 
@@ -920,8 +937,15 @@ function showModal(type){
   const title=document.getElementById('modalTitle');
   const body=document.getElementById('modalBody');
   if(type==='prehistory'){
-    title.textContent='Before Genesis Begins';
-    const ph=window.PRE_HISTORY;
+    const book = window.currentBook || 'Genesis';
+    let ph = window.PRE_HISTORY;
+    if(book === 'Exodus') ph = window.EXODUS_PRE_HISTORY;
+    if(!ph){
+      title.textContent='Backstory';
+      body.innerHTML='<p style="padding:20px;color:var(--fg-mute);">No backstory primer available for '+book+' yet. Pre-history primers exist for Genesis (Watcher backstory) and Exodus (the 400-year gap). More books coming.</p>';
+      return;
+    }
+    title.textContent=ph.title||'Before '+book+' Begins';
     let h='<div class="pre-history-modal">';
     h+='<p style="font-size:16px;line-height:1.6;color:var(--fg);font-style:italic;margin-bottom:18px;">'+ph.subtitle+'</p>';
     for(const sec of ph.sections){

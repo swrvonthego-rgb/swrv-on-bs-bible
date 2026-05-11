@@ -9,85 +9,114 @@
   if(window.DEFINITIONS){
     for(const k in NEW_DEFS){
       window.DEFINITIONS[k] = NEW_DEFS[k];
-      // Also lowercase alias
       window.DEFINITIONS[k.toLowerCase()] = NEW_DEFS[k];
     }
     console.log('Genesis 1-4 deep build: '+Object.keys(NEW_DEFS).length+' new deep definitions added');
   }
+  // Merge Exodus 1-2 deep definitions
+  if(window.DEFINITIONS && window.EXODUS_DEFINITIONS){
+    for(const k in window.EXODUS_DEFINITIONS){
+      window.DEFINITIONS[k] = window.EXODUS_DEFINITIONS[k];
+      window.DEFINITIONS[k.toLowerCase()] = window.EXODUS_DEFINITIONS[k];
+    }
+    console.log('Exodus 1-2 deep build: '+Object.keys(window.EXODUS_DEFINITIONS).length+' new deep definitions added');
+  }
 })();
 
 function renderGen14Enrichments(ch, verseNum){
-  if(ch>4||ch<1)return '';
+  const book = window.currentBook || 'Genesis';
+  // Pick data sources by book
+  let PRE_HISTORY_DATA, PLOT_PANELS_DATA, HEARTBEAT_DATA, CULTURE_DATA, AMP_DATA, deepRange;
+  if(book === 'Genesis'){
+    PRE_HISTORY_DATA = window.PRE_HISTORY;
+    PLOT_PANELS_DATA = window.PLOT_PANELS;
+    HEARTBEAT_DATA   = window.HEARTBEAT_CALLOUTS;
+    CULTURE_DATA     = window.CULTURE_BOXES_DEEP;
+    AMP_DATA         = window.AMP_STYLE;
+    deepRange = {min:1, max:4};
+  } else if(book === 'Exodus'){
+    PRE_HISTORY_DATA = window.EXODUS_PRE_HISTORY;
+    PLOT_PANELS_DATA = window.EXODUS_PLOT_PANELS;
+    HEARTBEAT_DATA   = window.EXODUS_HEARTBEAT_CALLOUTS;
+    CULTURE_DATA     = window.EXODUS_CULTURE_BOXES;
+    AMP_DATA         = window.EXODUS_AMP_STYLE;
+    deepRange = {min:1, max:2};
+  } else {
+    return ''; // No deep layer yet for other books
+  }
+  if(ch > deepRange.max || ch < deepRange.min) return '';
+  
   let h='';
+  
   // Check for AMP-style text
-  const ampKey=ch+':'+verseNum;
-  const ampRanges=Object.keys(window.AMP_STYLE||{}).filter(k=>{
-    const m=k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
-    if(!m||parseInt(m[1])!==ch)return false;
-    const lo=parseInt(m[2]),hi=m[3]?parseInt(m[3]):lo;
-    return verseNum>=lo&&verseNum<=hi;
+  const ampRanges = Object.keys(AMP_DATA || {}).filter(k => {
+    const m = k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+    if(!m || parseInt(m[1]) !== ch) return false;
+    const lo = parseInt(m[2]), hi = m[3] ? parseInt(m[3]) : lo;
+    return verseNum >= lo && verseNum <= hi;
   });
   for(const k of ampRanges){
-    const a=window.AMP_STYLE[k];
-    // Only render on the first verse of the range
-    const m=k.match(/^(\d+):(\d+)/);
-    if(parseInt(m[2])!==verseNum)continue;
-    h+='<div class="amp-text">';
-    h+='<div style="font-size:11px;color:var(--strongs);font-weight:700;letter-spacing:0.05em;margin-bottom:8px;">AMP-STYLE — HEBREW-AUDITED RENDERING ('+k+')</div>';
-    // Highlight bracketed amplifications
-    const text=a.text.replace(/\[([^\]]+)\]/g,'<span style="color:var(--gold);font-style:italic;font-size:13px;">[$1]</span>');
-    h+='<div class="amp-text-content">'+text+'</div>';
-    if(a.audit)h+='<div class="amp-audit"><b>Audit:</b> '+a.audit+'</div>';
-    h+='</div>';
+    const a = AMP_DATA[k];
+    const m = k.match(/^(\d+):(\d+)/);
+    if(parseInt(m[2]) !== verseNum) continue;
+    h += '<div class="amp-text">';
+    h += '<div style="font-size:11px;color:var(--strongs);font-weight:700;letter-spacing:0.05em;margin-bottom:8px;">AMP-STYLE — HEBREW-AUDITED RENDERING ('+book+' '+k+')</div>';
+    const text = a.text.replace(/\[([^\]]+)\]/g, '<span style="color:var(--gold);font-style:italic;font-size:13px;">[$1]</span>');
+    h += '<div class="amp-text-content">'+text+'</div>';
+    if(a.audit) h += '<div class="amp-audit"><b>Audit:</b> '+a.audit+'</div>';
+    h += '</div>';
   }
-  // Plot panels - keyed by scene range
-  const plotKeys=Object.keys(window.PLOT_PANELS||{}).filter(k=>{
-    const m=k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
-    if(!m||parseInt(m[1])!==ch)return false;
-    const lo=parseInt(m[2]),hi=m[3]?parseInt(m[3]):lo;
-    return verseNum===hi; // Render at END of scene
+  
+  // Plot panels — render at end of scene
+  const plotKeys = Object.keys(PLOT_PANELS_DATA || {}).filter(k => {
+    const m = k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+    if(!m || parseInt(m[1]) !== ch) return false;
+    const lo = parseInt(m[2]), hi = m[3] ? parseInt(m[3]) : lo;
+    return verseNum === hi;
   });
   for(const k of plotKeys){
-    const p=window.PLOT_PANELS[k];
-    h+='<div class="plot-panel">';
-    h+='<h4>'+p.scene+' ('+k+')</h4>';
-    h+='<div class="plot-plain">'+p.plain+'</div>';
-    if(p.why_it_matters)h+='<div class="plot-why">'+p.why_it_matters+'</div>';
-    h+='</div>';
+    const p = PLOT_PANELS_DATA[k];
+    h += '<div class="plot-panel">';
+    h += '<h4>'+p.scene+' ('+k+')</h4>';
+    h += '<div class="plot-plain">'+p.plain+'</div>';
+    if(p.why_it_matters) h += '<div class="plot-why">'+p.why_it_matters+'</div>';
+    h += '</div>';
   }
-  // Heartbeat - keyed by exact verse
-  const hbKey=ch+':'+verseNum;
-  const hbKeys=Object.keys(window.HEARTBEAT_CALLOUTS||{}).filter(k=>{
-    const m=k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
-    if(!m||parseInt(m[1])!==ch)return false;
-    const lo=parseInt(m[2]),hi=m[3]?parseInt(m[3]):lo;
-    return verseNum>=lo&&verseNum<=hi&&verseNum===hi;
+  
+  // Heartbeat
+  const hbKeys = Object.keys(HEARTBEAT_DATA || {}).filter(k => {
+    const m = k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+    if(!m || parseInt(m[1]) !== ch) return false;
+    const lo = parseInt(m[2]), hi = m[3] ? parseInt(m[3]) : lo;
+    return verseNum >= lo && verseNum <= hi && verseNum === hi;
   });
   for(const k of hbKeys){
-    const hb=window.HEARTBEAT_CALLOUTS[k];
-    h+='<div class="heartbeat-callout">';
-    h+='<h4>♥ '+hb.title+'</h4>';
-    h+='<div class="heartbeat-body">'+hb.body+'</div>';
-    if(hb.rule)h+='<div class="heartbeat-rule">'+hb.rule+'</div>';
-    h+='</div>';
+    const hb = HEARTBEAT_DATA[k];
+    h += '<div class="heartbeat-callout">';
+    h += '<h4>♥ '+hb.title+'</h4>';
+    h += '<div class="heartbeat-body">'+hb.body+'</div>';
+    if(hb.rule) h += '<div class="heartbeat-rule">'+hb.rule+'</div>';
+    h += '</div>';
   }
-  // Culture box (deep) - if any culture box's verse range matches end
-  const cbKeys=Object.keys(window.CULTURE_BOXES_DEEP||{}).filter(k=>{
-    const cb=window.CULTURE_BOXES_DEEP[k];
-    if(cb.chapter!==ch)return false;
-    const m=cb.verses.match(/^(\d+)(?:-(\d+))?$/);
-    if(!m)return false;
-    const hi=m[2]?parseInt(m[2]):parseInt(m[1]);
-    return verseNum===hi;
+  
+  // Culture boxes
+  const cbKeys = Object.keys(CULTURE_DATA || {}).filter(k => {
+    const cb = CULTURE_DATA[k];
+    if(cb.chapter !== ch) return false;
+    const m = cb.verses.match(/^(\d+)(?:-(\d+))?$/);
+    if(!m) return false;
+    const hi = m[2] ? parseInt(m[2]) : parseInt(m[1]);
+    return verseNum === hi;
   });
   for(const k of cbKeys){
-    const cb=window.CULTURE_BOXES_DEEP[k];
-    h+='<div class="culture-box-deep">';
-    h+='<h4>✎ CULTURE: '+cb.title+'</h4>';
-    h+='<div class="culture-body">'+cb.body+'</div>';
-    if(cb.sources)h+='<div class="culture-sources"><b>Sources:</b> '+cb.sources+'</div>';
-    h+='</div>';
+    const cb = CULTURE_DATA[k];
+    h += '<div class="culture-box-deep">';
+    h += '<h4>✎ CULTURE: '+cb.title+'</h4>';
+    h += '<div class="culture-body">'+cb.body+'</div>';
+    if(cb.sources) h += '<div class="culture-sources"><b>Sources:</b> '+cb.sources+'</div>';
+    h += '</div>';
   }
+  
   return h;
 }
 
