@@ -2007,19 +2007,9 @@ function showModal(type){
     }
     body.innerHTML=h;
   }else if(type==='sources'){
-    title.textContent='Approved Sources — Search & Browse';
-    let h='<p>Search across the full prose source library. All texts are public domain.</p>';
-    h+='<div style="display:grid;gap:10px;margin-top:14px;">';
-    for(const [key,m] of Object.entries(window.SOURCES_MANIFEST)){
-      h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openSourceSearch(\'\'+key+\'\')">';
-      h+='<div class="people-card-name" style="color:var(--gold);">📖 '+escapeHtml(m.title)+'</div>';
-      h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">'+escapeHtml(m.author)+' · '+escapeHtml(m.year)+'</div>';
-      h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:6px;">'+escapeHtml(m.description)+'</div>';
-      h+='</div>';
-    }
-    h+='</div>';
-    h+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--fg-dim);">All sources hosted in /sources/ folder. Cached offline by service worker after first load.</div>';
-    body.innerHTML=h;
+    // Sources has been merged into Library (v26). Redirect.
+    setTimeout(function(){showModal('library');}, 0);
+    return;
   }else if(type==='audit'){
     const book = window.currentBook || 'Genesis';
     const meta = (window.BIBLE_INDEX||[]).find(b=>b.slug===book);
