@@ -41,6 +41,26 @@
     }
     console.log('Exodus 3-4 deep build: '+Object.keys(window.EXODUS34_DEFINITIONS).length+' new deep definitions added');
   }
+  // Merge Exodus 5-7 deep build
+  if(window.EXODUS_PLOT_PANELS && window.EXODUS57_PLOT_PANELS){
+    for(const k in window.EXODUS57_PLOT_PANELS) window.EXODUS_PLOT_PANELS[k] = window.EXODUS57_PLOT_PANELS[k];
+  }
+  if(window.EXODUS_HEARTBEAT_CALLOUTS && window.EXODUS57_HEARTBEAT){
+    for(const k in window.EXODUS57_HEARTBEAT) window.EXODUS_HEARTBEAT_CALLOUTS[k] = window.EXODUS57_HEARTBEAT[k];
+  }
+  if(window.EXODUS_CULTURE_BOXES && window.EXODUS57_CULTURE){
+    for(const k in window.EXODUS57_CULTURE) window.EXODUS_CULTURE_BOXES[k] = window.EXODUS57_CULTURE[k];
+  }
+  if(window.EXODUS_AMP_STYLE && window.EXODUS57_AMP_STYLE){
+    for(const k in window.EXODUS57_AMP_STYLE) window.EXODUS_AMP_STYLE[k] = window.EXODUS57_AMP_STYLE[k];
+  }
+  if(window.DEFINITIONS && window.EXODUS57_DEFINITIONS){
+    for(const k in window.EXODUS57_DEFINITIONS){
+      window.DEFINITIONS[k] = window.EXODUS57_DEFINITIONS[k];
+      window.DEFINITIONS[k.toLowerCase()] = window.EXODUS57_DEFINITIONS[k];
+    }
+    console.log('Exodus 5-7 deep build: '+Object.keys(window.EXODUS57_DEFINITIONS).length+' new deep definitions added');
+  }
 })();
 
 function renderGen14Enrichments(ch, verseNum){
@@ -60,7 +80,7 @@ function renderGen14Enrichments(ch, verseNum){
     HEARTBEAT_DATA   = window.EXODUS_HEARTBEAT_CALLOUTS;
     CULTURE_DATA     = window.EXODUS_CULTURE_BOXES;
     AMP_DATA         = window.EXODUS_AMP_STYLE;
-    deepRange = {min:1, max:4};
+    deepRange = {min:1, max:7};
   } else {
     return ''; // No deep layer yet for other books
   }
