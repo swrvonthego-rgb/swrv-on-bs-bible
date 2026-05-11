@@ -1,13 +1,30 @@
-node_modules/
-build/
-dist/
-coverage/
+# OS / editor cruft
 .DS_Store
-*.log
-.env*
-!.env.example
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
 
-# wrangler files
-.wrangler
-.dev.vars*
-!.dev.vars.example
+# Node (if you ever add tooling later)
+node_modules/
+npm-debug.log*
+yarn-error.log
+.npm/
+
+# Logs / temp
+*.log
+.cache/
+.tmp/
+
+# Build output (if you add a bundler later)
+dist/
+build/
+
+# Local env / secrets — NEVER commit
+.env
+.env.*
+*.pem
+*.key
+secrets.json
