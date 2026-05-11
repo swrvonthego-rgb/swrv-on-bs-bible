@@ -25,8 +25,8 @@
       <button id="modeChapterBtn" class="active" onclick="setMode('chapter')">Chapter</button>
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
-    <button class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
-    <button class="icon-btn" onclick="showModal('story')">📜 Story</button>
+    <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
+    <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
     <button class="icon-btn" onclick="goRandomVerse()" title="Random verse from anywhere in the Bible">🎲 Random</button>
     <button class="icon-btn" onclick="showModal('strongs')">🔤 Word Search</button>
     <button class="icon-btn" onclick="showModal('sources')">📖 Sources</button>
@@ -34,7 +34,7 @@
     <button class="icon-btn" onclick="showModal('rules')">📜 Rules</button>
     <button class="icon-btn" onclick="showModal('library')">📚 Library</button>
     <button class="icon-btn" onclick="showModal('glossary')" title="What does ANE mean? KJV? LXX? Tap to find out.">📖 Glossary</button>
-    <button class="icon-btn" onclick="showModal('audit')">🔍 Audit</button>
+    <button id="auditBtn" class="icon-btn" onclick="showModal('audit')">🔍 Audit</button>
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
   </div>
 </header>

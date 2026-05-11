@@ -108,6 +108,34 @@ function _unlockBodyScroll(){
   window.scrollTo(0, y);
 }
 
+// === BOOK-AWARE UI ===
+// Updates header labels, button visibility, and other UI elements based on currentBook.
+function _updateBookContext(){
+  const book = window.currentBook || 'Genesis';
+  // Header button: prehistory
+  const phBtn = document.getElementById('prehistoryBtn');
+  if(phBtn){
+    // Different books get different button labels — and the button hides entirely for books with no primer
+    const hasPrimer = (book==='Genesis' && window.PRE_HISTORY) || (book==='Exodus' && window.EXODUS_PRE_HISTORY);
+    if(hasPrimer){
+      phBtn.style.display = '';
+      phBtn.textContent = '📜 Before '+book;
+    } else {
+      phBtn.style.display = 'none';
+    }
+  }
+  // Header button: story
+  const sBtn = document.getElementById('storyBtn');
+  if(sBtn){
+    sBtn.textContent = '📜 '+book+' Story';
+  }
+  // Header button: audit — Genesis only for now (the audit data is Genesis-specific)
+  const aBtn = document.getElementById('auditBtn');
+  if(aBtn){
+    aBtn.style.display = (book==='Genesis') ? '' : 'none';
+  }
+}
+
 function loadTrack(autoPlay){
   if(!TRACKS[trackIdx])return;
   _wantPlay=!!autoPlay;
@@ -154,7 +182,7 @@ let currentChapter=parseInt(localStorage.getItem('swrv_chapter'))||1;
 let currentVerse=parseInt(localStorage.getItem('swrv_verse'))||1;
 let mode=localStorage.getItem('swrv_mode')||'chapter';
 let currentBook=localStorage.getItem('swrv_book')||'Genesis';
-window.currentBook = currentBook; // expose for enrichments
+window.currentBook = currentBook;_updateBookContext(); // expose for enrichments
 const _bookScriptLoaded={Genesis:true}; // Genesis is bundled in genesis.js
 function _getCurrentBookData(){
   if(currentBook==='Genesis')return window.GENESIS;
@@ -183,7 +211,7 @@ function goRandomVerse(){
   const book=books[Math.floor(Math.random()*books.length)];
   _loadBookScript(book.slug,function(){
     const ch=Math.floor(Math.random()*book.chapters)+1;
-    currentBook=book.slug;window.currentBook=book.slug;localStorage.setItem('swrv_book',book.slug);
+    currentBook=book.slug;window.currentBook=book.slug;_updateBookContext();localStorage.setItem('swrv_book',book.slug);
     if(bookSelect)bookSelect.value=book.slug;
     populateChapterSelect();
     _loadChapterCore(ch);
@@ -240,7 +268,7 @@ populateChapterSelect();
 function loadBook(slug){
   if(!slug||slug===currentBook&&_getCurrentBookData())return;
   _loadBookScript(slug,function(){
-    currentBook=slug;window.currentBook=slug;
+    currentBook=slug;window.currentBook=slug;_updateBookContext();
     localStorage.setItem('swrv_book',slug);
     currentChapter=1;
     localStorage.setItem('swrv_chapter',1);
@@ -251,14 +279,14 @@ function loadBook(slug){
 function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1);}else{
   // Jump to previous book's last chapter
   const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;window.currentBook=prev.slug;localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
+  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;window.currentBook=prev.slug;_updateBookContext();localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
 }}
 function nextChapter(){
   const info=_getBookInfo(currentBook);
   const max=info?info.chapters:50;
   if(currentChapter<max){loadChapter(currentChapter+1);}else{
     const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
+    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;_updateBookContext();localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
   }
 }
 
@@ -1509,17 +1537,24 @@ function showModal(type){
     h+='</div>';
     body.innerHTML=h;
   }else if(type==='story'){
-    title.textContent='The Story Behind The Story';
-    let h='<div class="story-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">';
-    h+='<button class="story-tab active" onclick="showStorySection(this, \'who\')">Who Were They?</button>';
-    h+='<button class="story-tab" onclick="showStorySection(this, \'editors\')">Who Edited This Bible?</button>';
-    h+='<button class="story-tab" onclick="showStorySection(this, \'arc\')">Genesis Story Arc</button>';
-    h+='<button class="story-tab" onclick="showStorySection(this, \'life\')">Daily Life</button>';
-    h+='<button class="story-tab" onclick="showStorySection(this, \'peoples\')">The Peoples</button>';
-    h+='</div>';
-    h+='<div id="storyContent"></div>';
-    body.innerHTML=h;
-    showStorySection(document.querySelector('.story-tab'), 'who');
+    const book = window.currentBook || 'Genesis';
+    title.textContent = book+' — The Story Behind The Story';
+    if(book === 'Genesis'){
+      // Genesis has the full curated story sections
+      let h='<div class="story-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">';
+      h+='<button class="story-tab active" onclick="showStorySection(this, \'who\')">Who Were They?</button>';
+      h+='<button class="story-tab" onclick="showStorySection(this, \'editors\')">Who Edited This Bible?</button>';
+      h+='<button class="story-tab" onclick="showStorySection(this, \'arc\')">Genesis Story Arc</button>';
+      h+='<button class="story-tab" onclick="showStorySection(this, \'life\')">Daily Life</button>';
+      h+='<button class="story-tab" onclick="showStorySection(this, \'peoples\')">The Peoples</button>';
+      h+='</div>';
+      h+='<div id="storyContent"></div>';
+      body.innerHTML=h;
+      showStorySection(document.querySelector('.story-tab'), 'who');
+    } else {
+      // Other books — render the per-book overview from BIBLE_INDEX + deep build metadata
+      body.innerHTML = _renderBookOverview(book);
+    }
   }else if(type==='strongs'){
     title.textContent='Word Search';
     window._strongsHistory=[];
@@ -1635,7 +1670,10 @@ function showModal(type){
     h+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--fg-dim);">All sources hosted in /sources/ folder. Cached offline by service worker after first load.</div>';
     body.innerHTML=h;
   }else if(type==='audit'){
-    title.textContent='Verse Audit — All 50 Chapters';
+    const book = window.currentBook || 'Genesis';
+    const meta = (window.BIBLE_INDEX||[]).find(b=>b.slug===book);
+    const chCount = meta ? meta.chapters : 50;
+    title.textContent='Verse Audit — '+book+' (all '+chCount+' chapters)';
     let auditHtml='<p><b>Total verses present:</b> '+window.AUDIT_TOTAL+' (full Hebrew Genesis)</p>';
     auditHtml+='<p style="font-size:12px;color:var(--fg-dim);">JPS follows Hebrew Masoretic numbering. Christian Bible Genesis 31:55 = our Genesis 32:1.</p>';
     auditHtml+='<table><thead><tr><th>Ch</th><th>Verses</th><th>Title</th></tr></thead><tbody>';
@@ -1712,4 +1750,36 @@ function _renderGlossList(){
     h += '</div>';
   }
   target.innerHTML = h;
+}
+
+function _renderBookOverview(book){
+  const meta = (window.BIBLE_INDEX||[]).find(b=>b.slug===book);
+  if(!meta) return '<p>Book metadata not found.</p>';
+  let h = '<div style="line-height:1.65;">';
+  h += '<div style="font-size:13px;color:var(--fg-mute);margin-bottom:14px;">'+escapeHtml(meta.testament==='OT'?'Old Testament':'New Testament')+' · '+meta.chapters+' chapter'+(meta.chapters===1?'':'s')+'</div>';
+  
+  // Per-book overview text — short curated where available, generic where not
+  const overviews = {
+    'Exodus': "Exodus picks up the day after Genesis ends. Joseph's body lies in Egypt. The 70 souls of his family have multiplied into a nation under a new pharaoh who didn't know Joseph. The book covers four hundred years of bondage, the rise of Moses, the ten plagues against Egypt's pantheon, the Passover lamb, the parting of the Red Sea, the giving of the Ten Commandments at Sinai, the golden calf, and the building of the tabernacle. By the last chapter, God's glory fills the tent. He has come down to live with His people. The story of God dwelling with humans, from this point forward, will be the story the rest of the Bible tells.",
+    'Leviticus': "Leviticus is the priest's manual. It opens the day after Exodus ends. The tabernacle is built. God's glory has filled it. Now the people need to know how to approach Him without dying. The five offerings (burnt, grain, peace, sin, trespass), the consecration of Aaron's priesthood, the laws of clean and unclean, the climactic Day of Atonement (Yom Kippur), the Holiness Code, the feasts, the Sabbath year, the Year of Jubilee, the blessings and curses. Hebrews 9-10 reads the whole book as a shadow of Christ's once-for-all sacrifice. The word 'kadosh' (holy) appears in Leviticus more than any other book.",
+    'Numbers': "Numbers covers Israel's forty years in the wilderness between Sinai and the borders of the promised land. The book is named for the two military censuses (numbering) of the people that bookend it. In between: the daily march, the manna, the murmuring, the rebellions, the bronze serpent, Balaam's blessing instead of curse, and the slow generational replacement of the unbelieving wilderness generation by the children who will actually enter the land. Hebrews 3-4 reads Numbers as a warning against unbelief.",
+    'Deuteronomy': "Deuteronomy is Moses' farewell sermon to the next generation — the children of the wilderness generation, about to cross the Jordan into the land. Moses reviews the law, retells the history, restates the Ten Commandments, gives the Shema ('Hear, O Israel — YHWH our God, YHWH is one'), lays out the blessings of obedience and the curses of disobedience, sees the land from Mount Nebo, and dies. The most quoted Old Testament book in the New Testament. Jesus quotes Deuteronomy three times against Satan in the wilderness temptation."
+  };
+  
+  if(overviews[book]){
+    h += '<p style="margin-bottom:14px;">'+overviews[book]+'</p>';
+  } else {
+    h += '<p style="margin-bottom:14px;color:var(--fg-mute);">A curated story overview for '+escapeHtml(book)+' is queued for the build. For now, this book is fully readable verse-by-verse. Use the chapter selector or book selector to navigate.</p>';
+  }
+  
+  // List chapters
+  h += '<h4 style="color:var(--gold);margin-top:18px;">Chapters in '+escapeHtml(book)+'</h4>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
+  for(let i=1; i<=meta.chapters; i++){
+    h += '<button class="icon-btn" style="min-width:50px;font-size:12px;" onclick="closeModal();_loadBookScript(\''+book+'\',function(){loadChapter('+i+');})">Ch '+i+'</button>';
+  }
+  h += '</div>';
+  
+  h += '</div>';
+  return h;
 }
