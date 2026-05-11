@@ -48,6 +48,49 @@ audio.addEventListener('canplay',function(){
 audio.addEventListener('playing',function(){playBtn.textContent='❚❚';});
 audio.addEventListener('pause',function(){playBtn.textContent='▶';});
 
+
+// === GLOSSARY — terms and abbreviations used throughout the app ===
+window.GLOSSARY = {
+  "ANE": {
+    term: "Ancient Near East",
+    body: "The geographic and cultural region where the Bible was written and originally read: ancient Mesopotamia (modern Iraq, Syria), Canaan (Israel/Palestine/Lebanon), Egypt, Cush (Sudan/Ethiopia), Arabia, and Anatolia (modern Turkey). The Bible's stories, laws, language, and theology all assume this regional context. Reading the Bible 'through ANE eyes' means understanding it the way its original Afro-Asiatic Semitic audience would have."
+  },
+  "KJV": {term:"King James Version",body:"The 1611 English translation of the Bible commissioned by King James I of England. Public domain. Used throughout this app as the base English text because it is faithful, public-domain, and widely familiar."},
+  "LXX": {term:"Septuagint",body:"The Greek translation of the Hebrew Old Testament, produced approximately 250-100 BC by 70 (Latin: septuaginta) Jewish scholars in Alexandria. Used by the writers of the New Testament — most quotations of the OT in the NT match the LXX wording, not the Hebrew. Brenton's 1851 English of the LXX is in the public domain and is the version this app references."},
+  "BDB": {term:"Brown-Driver-Briggs Hebrew Lexicon",body:"The 1906 unabridged Hebrew lexicon by Francis Brown, S.R. Driver, and Charles Briggs. ~9,345 entries with full etymology, comparative Semitic linguistics, and biblical citation. Standard scholarly Hebrew reference in the Christian and Jewish academic world. Public domain."},
+  "TNK": {term:"Tanakh",body:"The Jewish three-part name for what Christians call the Old Testament: Torah (Law), Nevi'im (Prophets), Ketuvim (Writings). T-N-K = TaNaKh. This app uses the 1917 JPS (Jewish Publication Society) Tanakh as one of its primary reference translations."},
+  "DSS": {term:"Dead Sea Scrolls",body:"Ancient Jewish manuscripts discovered between 1947 and 1956 in caves near Qumran by the Dead Sea. Date from roughly 250 BC to 70 AD. Include the oldest known biblical manuscripts — over 1,000 years older than any complete Masoretic Hebrew text. Translations by García Martínez and others are referenced in this app's approved library."},
+  "AMP": {term:"Amplified Bible",body:"Modern translation by The Lockman Foundation (1965+) that expands key Hebrew and Greek words into their full meaning-range in English. NOTE: This app's AMP-style verses are NOT the Lockman AMP — they are ORIGINAL Hebrew-audited paraphrases written for this study, marked clearly as such."},
+  "NT": {term:"New Testament",body:"The 27 books of the Christian Bible written in Greek between ~50 AD and ~100 AD: the four Gospels, Acts, 21 letters (epistles), and Revelation."},
+  "OT": {term:"Old Testament",body:"The 39 books of the Christian Bible (same content as the Jewish Tanakh, different book divisions and order): the Torah, the historical books, the wisdom literature, and the prophets. Written in Hebrew (with small Aramaic sections) roughly 1400 BC to 400 BC."},
+  "BC / BCE": {term:"Before Christ / Before Common Era",body:"BC ('Before Christ') and BCE ('Before Common Era') refer to the same period — the time before the traditional birth-year of Jesus. BCE is the religiously-neutral form. Used identically in scholarly literature."},
+  "AD / CE": {term:"Anno Domini / Common Era",body:"AD ('Anno Domini' = 'in the year of the Lord') and CE ('Common Era') refer to the time from the traditional birth-year of Jesus forward. CE is the religiously-neutral form."},
+  "theophany": {term:"Theophany",body:"A physical appearance of God to a human being. Examples: the burning bush (Exodus 3), Sinai (Exodus 19-20), the man who wrestles with Jacob (Genesis 32), the seraphim of Isaiah 6, the chariot vision of Ezekiel 1. Theophanies are always partial — no one sees God's face and lives (Exodus 33:20)."},
+  "typology": {term:"Typology",body:"Reading Old Testament events, people, and rituals as foreshadowings (types) of New Testament realities (antitypes). For example: the Passover lamb (Exodus 12) is a type; Christ the Lamb of God is the antitype. Hebrews 8-10 explicitly works through Old Testament typology and its fulfillment in Christ."},
+  "polemic": {term:"Polemic",body:"A piece of writing or speech that argues forcefully against an opposing position. The ten plagues of Exodus are a polemic against Egyptian polytheism — each plague targets a specific named Egyptian god to publicly demonstrate that YHWH alone is God."},
+  "suzerain-vassal treaty": {term:"Suzerain-Vassal Treaty",body:"A formal ancient Near Eastern treaty structure between a great king (suzerain) and a lesser king (vassal). Has six parts: preamble, historical prologue, stipulations, witnesses, blessings/curses, and storage provision. The Sinai covenant (Exodus 20-24, Deuteronomy) follows this exact structure — confirming Hebrew faith is built on covenant, not philosophy."},
+  "chiasm": {term:"Chiasm / Chiastic Structure",body:"A literary pattern in which the second half mirrors the first in reverse order — A-B-C-B'-A'. Common in Hebrew poetry and narrative. Often used to highlight the central element as the key point of the passage."},
+  "inclusio": {term:"Inclusio",body:"A literary technique where a passage begins and ends with the same word, phrase, or theme — framing the material in between. Common in Hebrew prose and the Psalms."},
+  "hapax legomenon": {term:"Hapax Legomenon",body:"Greek for 'spoken once.' A word that appears only once in a given body of text. The Hebrew Bible has hundreds of these — they are difficult to translate precisely because their meaning has to be inferred from context and comparative Semitic languages."},
+  "Watchers": {term:"The Watchers",body:"Hebrew 'irin' / Aramaic 'in'. A class of angelic beings mentioned in Daniel 4 and described in detail in 1 Enoch and the Dead Sea Scrolls. In 1 Enoch's narrative, 200 Watchers led by Semjaza descended on Mount Hermon in the days of Jared (Genesis 5:18), took human wives, and fathered the giants of Genesis 6:1-4. Their leader Azazel taught humanity weapons, cosmetics, and forbidden arts. The Watchers tradition is the standard early Jewish reading of Genesis 6:1-4."},
+  "Tetragrammaton": {term:"The Tetragrammaton",body:"Greek for 'four letters.' The four Hebrew letters יהוה (YHWH) that form God's personal covenant name (Exodus 3:15, 6:3). Pronunciation likely 'Yahweh' (scholars debate). Jewish tradition reads 'Adonai' (Lord) instead of pronouncing the Name out of reverence. Most English Bibles render it 'LORD' in small caps."},
+  "Yom Kippur": {term:"Yom Kippur — Day of Atonement",body:"The annual climactic Levitical ritual (Leviticus 16). The high priest enters the holy of holies once a year with the blood of atoning sacrifices, atoning for the sins of the whole nation. The scapegoat carries Israel's sins into the wilderness. Christ's death is read in the New Testament as the fulfillment of Yom Kippur (Hebrews 9-10)."},
+  "Passover / Pesach": {term:"Passover / Pesach",body:"The annual Jewish feast (Exodus 12) commemorating the night God 'passed over' (pasach) Israelite households whose doorposts were marked with the blood of a sacrificed lamb, while striking the firstborn of Egypt. The original founding event of the Jewish faith. Christ called 'our Passover' in 1 Corinthians 5:7."},
+  "Shema": {term:"The Shema",body:"Hebrew 'shema Yisrael — Hear, O Israel.' Israel's central confession of faith, Deuteronomy 6:4-9. Recited every morning and evening by observant Jews to this day. Begins: 'Hear, O Israel — YHWH our God, YHWH is one.'"},
+  "covenant": {term:"Covenant",body:"Hebrew 'brit.' A formal, blood-sealed, irrevocable relationship between God and people. The Bible has several major covenants: Noahic (Genesis 9), Abrahamic (Genesis 15, 17), Mosaic (Exodus 19-24), Davidic (2 Samuel 7), and the New Covenant (Jeremiah 31:31-34 / Luke 22:20). 'Covenant' is the Bible's central theological framework."},
+  "ephod / breastplate": {term:"Ephod / Breastplate",body:"Garments of the Israelite High Priest (Exodus 28). The ephod is a shoulder-vestment; the breastplate is a square cloth pouch fastened over the chest, holding twelve precious stones (one for each tribe) and the Urim and Thummim — the means of discerning God's will. The high priest entered God's presence bearing the names of all twelve tribes ON HIS SHOULDERS and OVER HIS HEART."},
+  "Urim and Thummim": {term:"Urim and Thummim",body:"Hebrew approximately 'Lights and Perfections.' Objects kept in the high priest's breastplate (Exodus 28:30) used to discern God's will on specific matters. Mentioned in Numbers 27:21, 1 Samuel 28:6, Ezra 2:63. The exact form is debated — possibly two stones, possibly engraved tablets — but they functioned as a yes/no oracle."},
+  "Sheol": {term:"Sheol",body:"Hebrew for the realm of the dead — both righteous and unrighteous. The grave, the underworld, the place of the departed. NOT 'hell' in the later New Testament sense — Sheol is morally neutral. Greek Bible (LXX) translates it as 'Hades.' Jesus uses Hades language similarly in Luke 16. Distinct from Gehenna (the final place of judgment)."},
+  "Gehenna": {term:"Gehenna",body:"From Hebrew 'Gei-Hinnom' — the Valley of Hinnom outside Jerusalem. In Old Testament times, used for child sacrifice to Moloch (2 Kings 23:10, Jeremiah 7:31). By Jesus' day, the valley was used as Jerusalem's trash dump, where fires burned continually. Jesus uses 'Gehenna' as the picture of final judgment (Matthew 5:22, 5:29-30, 10:28). Distinct from Sheol/Hades."},
+  "Hesed / Chesed": {term:"Hesed (Chesed) — Covenant Love",body:"Hebrew word for steadfast love, covenant loyalty, faithful kindness — the love that doesn't quit because of relationship. The MOST important word in the Old Testament's love vocabulary. Used 245 times. Appears 26 times in Psalm 136 as the refrain 'His chesed endures forever.' Often paired with emet (truth/faithfulness)."},
+  "shekinah": {term:"Shekinah",body:"Rabbinic Hebrew for 'the Dwelling.' Used in Jewish tradition for the visible, manifest presence of God among His people — the cloud filling the tabernacle (Exodus 40:34), the glory at Solomon's temple dedication (1 Kings 8:11), the glory departing in Ezekiel 10. Although the word itself does not appear in the Hebrew Bible, the concept is biblical throughout."},
+  "Aaronic blessing": {term:"Aaronic Blessing / Priestly Blessing",body:"Numbers 6:24-26 — the blessing God commanded Aaron and his sons to pronounce over Israel: 'YHWH bless you and keep you; YHWH make His face shine upon you and be gracious to you; YHWH lift up His countenance upon you and give you peace.' Recited at the end of every synagogue service still today."}
+};
+
+function showGlossary(){
+  showModal('glossary');
+}
+
 // Modal body-scroll-lock helpers (mobile-safe)
 function _lockBodyScroll(){
   if(document.body.classList.contains('modal-open'))return;
@@ -1066,32 +1109,52 @@ function openEnochReader(section, chapter){
   body.innerHTML = h;
 }
 
-// Strong's Hebrew/Greek reader (paginated)
-window._STRONGS_PAGE = {H:0, G:0};
-window._STRONGS_FILTER = {H:'', G:''};
+
+// === STRONG'S READER (rebuilt — input stable, list updates independently) ===
+window._STRONGS_PAGE = window._STRONGS_PAGE || {H:0, G:0};
+window._STRONGS_FILTER = window._STRONGS_FILTER || {H:'', G:''};
 function openStrongsReader(lang, page){
   const data = lang==='H' ? window.STRONGS_HEB : window.STRONGS_GRK;
-  if(!data){alert('Strong\'s data not loaded');return;}
+  if(!data){alert("Strong's data not loaded");return;}
   if(page !== undefined) window._STRONGS_PAGE[lang] = page;
   const title=document.getElementById('modalTitle');
   const body=document.getElementById('modalBody');
   title.textContent = lang==='H' ? "🔤 Strong's Hebrew Dictionary" : "🔤 Strong's Greek Dictionary";
   let h = _libraryBackBtn();
-  
-  // Filter input
-  const filter = window._STRONGS_FILTER[lang];
   h += '<div style="margin-bottom:10px;">';
-  h += '<input type="text" id="strongsLibFilter" placeholder="Filter by translit or definition..." value="'+escapeHtml(filter)+'" oninput="window._STRONGS_FILTER[\''+lang+'\']=this.value;window._STRONGS_PAGE[\''+lang+'\']=0;openStrongsReader(\''+lang+'\')" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '<input type="text" id="strongsLibFilter_'+lang+'" placeholder="Filter — type any English word, transliteration, or number..." value="'+escapeHtml(window._STRONGS_FILTER[lang]||'')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" style="width:100%;padding:10px 12px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;font-size:14px;">';
   h += '</div>';
-  
-  // Get sorted entries, filtered
+  h += '<div id="strongsList_'+lang+'"></div>';
+  body.innerHTML = h;
+  const input = document.getElementById('strongsLibFilter_'+lang);
+  // Debounced filter — runs render after the typing settles
+  let _t = null;
+  input.addEventListener('input', function(){
+    window._STRONGS_FILTER[lang] = input.value;
+    window._STRONGS_PAGE[lang] = 0;
+    if(_t) clearTimeout(_t);
+    _t = setTimeout(function(){ _renderStrongsList(lang); }, 80);
+  });
+  // Render once now (initial state)
+  _renderStrongsList(lang);
+  // restore focus and caret to end (in case of re-entry)
+  setTimeout(function(){
+    input.focus();
+    const v = input.value;
+    try{input.setSelectionRange(v.length, v.length);}catch(e){}
+  }, 0);
+}
+function _renderStrongsList(lang){
+  const data = lang==='H' ? window.STRONGS_HEB : window.STRONGS_GRK;
+  const target = document.getElementById('strongsList_'+lang);
+  if(!data || !target) return;
+  const filter = (window._STRONGS_FILTER[lang]||'').toLowerCase().trim();
   let keys = Object.keys(data).sort((a,b)=>parseInt(a)-parseInt(b));
   if(filter){
-    const f = filter.toLowerCase();
     keys = keys.filter(k=>{
       const e = data[k];
-      const blob = ((e.xlit||'')+' '+(e.def||'')+' '+(e.kjv_def||'')+' '+k).toLowerCase();
-      return blob.includes(f);
+      const blob = ((e.xlit||'')+' '+(e.def||'')+' '+(e.kjv_def||'')+' '+k+' '+(e.lemma||'')).toLowerCase();
+      return blob.includes(filter);
     });
   }
   const perPage = 30;
@@ -1099,30 +1162,49 @@ function openStrongsReader(lang, page){
   const p = Math.min(window._STRONGS_PAGE[lang], totalPages-1);
   const start = p*perPage;
   const slice = keys.slice(start, start+perPage);
-  
-  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries'+(filter?' (filtered)':'')+'.</div>';
-  
+  let h = '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">';
+  if(filter){
+    h += 'Found <b>'+keys.length+'</b> match'+(keys.length===1?'':'es')+' for "<b>'+escapeHtml(filter)+'</b>"';
+  } else {
+    h += 'Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries';
+  }
+  h += '</div>';
+  if(keys.length === 0){
+    h += '<div style="padding:14px;color:var(--fg-mute);background:var(--bg-3);border-radius:5px;text-align:center;">No matches. Try a different word or clear the filter.</div>';
+    target.innerHTML = h;
+    return;
+  }
   for(const k of slice){
     const e = data[k];
     h += '<div style="margin-bottom:10px;padding:10px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
-    h += '<div style="font-weight:700;color:var(--gold);">'+lang+k+' · '+escapeHtml(e.xlit||'(no translit)')+(e.lemma?' · <span style="color:var(--fg-mute);">'+escapeHtml(e.lemma)+'</span>':'')+'</div>';
+    // Header row: Strong's number · Hebrew/Greek lemma · Transliteration · English short-gloss
+    h += '<div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;">';
+    h += '<span style="font-weight:700;color:var(--gold);font-size:13px;">'+lang+k+'</span>';
+    if(e.lemma) h += '<span style="font-size:16px;color:var(--fg);font-weight:600;">'+escapeHtml(e.lemma)+'</span>';
+    if(e.xlit) h += '<span style="font-size:13px;color:var(--fg-mute);font-style:italic;">'+escapeHtml(e.xlit)+'</span>';
+    // English short gloss — first words of kjv_def
+    const eng = e.kjv_def || '';
+    if(eng){
+      const short = eng.length > 60 ? eng.substring(0,60)+'…' : eng;
+      h += '<span style="font-size:13px;color:var(--gold);font-weight:600;">→ '+escapeHtml(short)+'</span>';
+    }
+    h += '</div>';
     if(e.def) h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">'+escapeHtml(e.def)+'</div>';
-    if(e.kjv_def) h += '<div style="font-size:12px;margin-top:4px;color:var(--fg-mute);"><b>KJV:</b> '+escapeHtml(e.kjv_def)+'</div>';
+    if(e.kjv_def) h += '<div style="font-size:12px;margin-top:6px;color:var(--fg-mute);"><b>KJV uses:</b> '+escapeHtml(e.kjv_def)+'</div>';
     h += '</div>';
   }
-  
-  // Pagination controls
+  // Pagination
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
-  if(p>0) h += '<button class="icon-btn" onclick="openStrongsReader(\''+lang+'\','+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  if(p>0) h += '<button class="icon-btn" onclick="window._STRONGS_PAGE[\''+lang+'\']='+(p-1)+';_renderStrongsList(\''+lang+'\')">← Prev</button>'; else h+='<span></span>';
   h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
-  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openStrongsReader(\''+lang+'\','+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="window._STRONGS_PAGE[\''+lang+'\']='+(p+1)+';_renderStrongsList(\''+lang+'\')">Next →</button>'; else h+='<span></span>';
   h += '</div>';
-  body.innerHTML = h;
+  target.innerHTML = h;
 }
 
-// BDB Hebrew Lexicon reader (paginated)
-window._BDB_PAGE = 0;
-window._BDB_FILTER = '';
+// === BDB READER (rebuilt — same stable-input pattern) ===
+window._BDB_PAGE = window._BDB_PAGE || 0;
+window._BDB_FILTER = window._BDB_FILTER || '';
 function openBDBReader(page){
   if(!window.BDB_HEB){alert('BDB data not loaded');return;}
   if(page !== undefined) window._BDB_PAGE = page;
@@ -1130,39 +1212,82 @@ function openBDBReader(page){
   const body=document.getElementById('modalBody');
   title.textContent='📚 Brown-Driver-Briggs Hebrew Lexicon';
   let h = _libraryBackBtn();
-  
   h += '<div style="margin-bottom:10px;">';
-  h += '<input type="text" id="bdbFilter" placeholder="Filter by translit or definition..." value="'+escapeHtml(window._BDB_FILTER)+'" oninput="window._BDB_FILTER=this.value;window._BDB_PAGE=0;openBDBReader()" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '<input type="text" id="bdbFilter" placeholder="Filter — type any English word or root..." value="'+escapeHtml(window._BDB_FILTER||'')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" style="width:100%;padding:10px 12px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;font-size:14px;">';
   h += '</div>';
-  
+  h += '<div id="bdbList"></div>';
+  body.innerHTML = h;
+  const input = document.getElementById('bdbFilter');
+  let _t = null;
+  input.addEventListener('input', function(){
+    window._BDB_FILTER = input.value;
+    window._BDB_PAGE = 0;
+    if(_t) clearTimeout(_t);
+    _t = setTimeout(function(){ _renderBDBList(); }, 80);
+  });
+  _renderBDBList();
+  setTimeout(function(){
+    input.focus();
+    const v = input.value;
+    try{input.setSelectionRange(v.length, v.length);}catch(e){}
+  }, 0);
+}
+function _renderBDBList(){
+  if(!window.BDB_HEB) return;
+  const target = document.getElementById('bdbList');
+  if(!target) return;
+  const filter = (window._BDB_FILTER||'').toLowerCase().trim();
   let keys = Object.keys(window.BDB_HEB).sort();
-  if(window._BDB_FILTER){
-    const f = window._BDB_FILTER.toLowerCase();
+  if(filter){
     keys = keys.filter(k=>{
       const e = window.BDB_HEB[k];
-      const blob = (k+' '+(e&&typeof e==='object'?JSON.stringify(e):'')).toLowerCase();
-      return blob.includes(f);
+      const blob = (k+' '+(e&&typeof e==='object'?JSON.stringify(e):String(e||''))).toLowerCase();
+      return blob.includes(filter);
     });
   }
-  
   const perPage = 25;
   const totalPages = Math.max(1, Math.ceil(keys.length/perPage));
   const p = Math.min(window._BDB_PAGE, totalPages-1);
   const start = p*perPage;
   const slice = keys.slice(start, start+perPage);
-  
-  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries'+(window._BDB_FILTER?' (filtered)':'')+'.</div>';
-  
+  let h = '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">';
+  if(filter){
+    h += 'Found <b>'+keys.length+'</b> match'+(keys.length===1?'':'es')+' for "<b>'+escapeHtml(filter)+'</b>"';
+  } else {
+    h += 'Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries';
+  }
+  h += '</div>';
+  if(keys.length === 0){
+    h += '<div style="padding:14px;color:var(--fg-mute);background:var(--bg-3);border-radius:5px;text-align:center;">No matches.</div>';
+    target.innerHTML = h;
+    return;
+  }
   for(const k of slice){
     const e = window.BDB_HEB[k];
     h += '<div style="margin-bottom:10px;padding:10px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
-    h += '<div style="font-weight:700;color:var(--gold);">'+escapeHtml(k)+'</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;">';
+    h += '<span style="font-weight:700;color:var(--gold);">'+escapeHtml(k)+'</span>';
     if(e && typeof e === 'object'){
-      if(e.lemma || e.translit) h += '<div style="font-size:12px;color:var(--fg-mute);margin-top:4px;">'+escapeHtml(e.lemma||'')+(e.translit?' · '+escapeHtml(e.translit):'')+'</div>';
+      if(e.lemma) h += '<span style="font-size:16px;color:var(--fg);font-weight:600;">'+escapeHtml(e.lemma)+'</span>';
+      if(e.translit||e.xlit) h += '<span style="font-size:13px;color:var(--fg-mute);font-style:italic;">'+escapeHtml(e.translit||e.xlit)+'</span>';
+      // English gloss
+      let eng = '';
+      if(e.gloss) eng = e.gloss;
+      else if(Array.isArray(e.senses) && e.senses.length){
+        eng = typeof e.senses[0] === 'string' ? e.senses[0] : (e.senses[0].def || e.senses[0].sense || '');
+      } else if(e.def) eng = e.def;
+      if(eng){
+        const short = eng.length > 80 ? eng.substring(0,80)+'…' : eng;
+        h += '<span style="font-size:13px;color:var(--gold);font-weight:600;">→ '+escapeHtml(short)+'</span>';
+      }
+    }
+    h += '</div>';
+    if(e && typeof e === 'object'){
       const defs = e.senses || e.definitions || (e.def?[e.def]:[]) || [];
       if(Array.isArray(defs)){
-        for(const d of defs.slice(0,5)){
-          h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">• '+escapeHtml(typeof d==='string'?d:JSON.stringify(d))+'</div>';
+        for(const d of defs.slice(0,4)){
+          const txt = typeof d==='string' ? d : (d.def || d.sense || JSON.stringify(d));
+          h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">• '+escapeHtml(txt)+'</div>';
         }
       } else if(typeof defs === 'string'){
         h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">'+escapeHtml(defs)+'</div>';
@@ -1172,18 +1297,17 @@ function openBDBReader(page){
     }
     h += '</div>';
   }
-  
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
-  if(p>0) h += '<button class="icon-btn" onclick="openBDBReader('+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  if(p>0) h += '<button class="icon-btn" onclick="window._BDB_PAGE='+(p-1)+';_renderBDBList()">← Prev</button>'; else h+='<span></span>';
   h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
-  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openBDBReader('+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="window._BDB_PAGE='+(p+1)+';_renderBDBList()">Next →</button>'; else h+='<span></span>';
   h += '</div>';
-  body.innerHTML = h;
+  target.innerHTML = h;
 }
 
-// Deep Definitions reader (curated SWRV dictionary)
-window._DEFS_PAGE = 0;
-window._DEFS_FILTER = '';
+// === DEEP DEFINITIONS READER (rebuilt — same stable-input pattern) ===
+window._DEFS_PAGE = window._DEFS_PAGE || 0;
+window._DEFS_FILTER = window._DEFS_FILTER || '';
 function openDeepDefinitionsReader(page){
   if(!window.DEFINITIONS){alert('Deep definitions not loaded');return;}
   if(page !== undefined) window._DEFS_PAGE = page;
@@ -1191,16 +1315,35 @@ function openDeepDefinitionsReader(page){
   const body=document.getElementById('modalBody');
   title.textContent='✍️ SWRV Deep Definitions Dictionary';
   let h = _libraryBackBtn();
-  
   h += '<div style="margin-bottom:10px;">';
-  h += '<input type="text" id="defsFilter" placeholder="Filter by word, translit, or definition..." value="'+escapeHtml(window._DEFS_FILTER)+'" oninput="window._DEFS_FILTER=this.value;window._DEFS_PAGE=0;openDeepDefinitionsReader()" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '<input type="text" id="defsFilter" placeholder="Filter — type any word, transliteration, or theme..." value="'+escapeHtml(window._DEFS_FILTER||'')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" style="width:100%;padding:10px 12px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;font-size:14px;">';
   h += '</div>';
-  
+  h += '<div id="defsList"></div>';
+  body.innerHTML = h;
+  const input = document.getElementById('defsFilter');
+  let _t = null;
+  input.addEventListener('input', function(){
+    window._DEFS_FILTER = input.value;
+    window._DEFS_PAGE = 0;
+    if(_t) clearTimeout(_t);
+    _t = setTimeout(function(){ _renderDefsList(); }, 80);
+  });
+  _renderDefsList();
+  setTimeout(function(){
+    input.focus();
+    const v = input.value;
+    try{input.setSelectionRange(v.length, v.length);}catch(e){}
+  }, 0);
+}
+function _renderDefsList(){
+  if(!window.DEFINITIONS) return;
+  const target = document.getElementById('defsList');
+  if(!target) return;
+  const filter = (window._DEFS_FILTER||'').toLowerCase().trim();
   let keys = Object.keys(window.DEFINITIONS).filter(k=>{
     const d=window.DEFINITIONS[k];
     return d && typeof d==='object' && !Array.isArray(d);
   }).sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
-  // De-duplicate lowercase aliases
   const seen=new Set();
   keys = keys.filter(k=>{
     const lk=k.toLowerCase();
@@ -1208,29 +1351,33 @@ function openDeepDefinitionsReader(page){
     seen.add(lk);
     return true;
   });
-  
-  if(window._DEFS_FILTER){
-    const f = window._DEFS_FILTER.toLowerCase();
+  if(filter){
     keys = keys.filter(k=>{
       const d = window.DEFINITIONS[k];
       const blob = (k+' '+(d.translit||'')+' '+(d.hebrew||'')+' '+(d.theology||'')+' '+(d.visual||'')+' '+(d.senses?d.senses.join(' '):'')).toLowerCase();
-      return blob.includes(f);
+      return blob.includes(filter);
     });
   }
-  
   const perPage = 20;
   const totalPages = Math.max(1, Math.ceil(keys.length/perPage));
   const p = Math.min(window._DEFS_PAGE, totalPages-1);
   const start = p*perPage;
   const slice = keys.slice(start, start+perPage);
-  
-  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">'+keys.length+' entries'+(window._DEFS_FILTER?' (filtered)':'')+' · Page '+(p+1)+' of '+totalPages+'</div>';
-  
+  let h = '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">'+keys.length+' entries'+(filter?' (filtered)':'')+' · Page '+(p+1)+' of '+totalPages+'</div>';
+  if(keys.length === 0){
+    h += '<div style="padding:14px;color:var(--fg-mute);background:var(--bg-3);border-radius:5px;text-align:center;">No matches.</div>';
+    target.innerHTML = h;
+    return;
+  }
   for(const k of slice){
     const d = window.DEFINITIONS[k];
     h += '<div style="margin-bottom:12px;padding:12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
-    h += '<div style="font-weight:700;color:var(--gold);font-size:15px;">'+escapeHtml(k)+(d.hebrew?' <span style="font-weight:400;color:var(--fg);">'+escapeHtml(d.hebrew)+'</span>':'')+'</div>';
-    if(d.translit) h += '<div style="font-size:12px;color:var(--fg-mute);margin-top:2px;">'+escapeHtml(d.translit)+(d.strongs?' · '+escapeHtml(d.strongs):'')+'</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;">';
+    h += '<span style="font-weight:700;color:var(--gold);font-size:15px;">'+escapeHtml(k)+'</span>';
+    if(d.hebrew) h += '<span style="font-size:17px;color:var(--fg);font-weight:600;">'+escapeHtml(d.hebrew)+'</span>';
+    if(d.translit) h += '<span style="font-size:12px;color:var(--fg-mute);font-style:italic;">'+escapeHtml(d.translit)+'</span>';
+    if(d.strongs) h += '<span style="font-size:11px;color:var(--fg-mute);">'+escapeHtml(d.strongs)+'</span>';
+    h += '</div>';
     if(d.root) h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;"><b>Root:</b> '+escapeHtml(d.root)+'</div>';
     if(d.senses && d.senses.length){
       h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;"><b>Senses:</b>';
@@ -1242,13 +1389,12 @@ function openDeepDefinitionsReader(page){
     if(d.cross && d.cross.length) h += '<div style="font-size:11px;color:var(--fg-dim);margin-top:6px;"><b>Cross-refs:</b> '+escapeHtml(d.cross.join(' · '))+'</div>';
     h += '</div>';
   }
-  
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
-  if(p>0) h += '<button class="icon-btn" onclick="openDeepDefinitionsReader('+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  if(p>0) h += '<button class="icon-btn" onclick="window._DEFS_PAGE='+(p-1)+';_renderDefsList()">← Prev</button>'; else h+='<span></span>';
   h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
-  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openDeepDefinitionsReader('+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="window._DEFS_PAGE='+(p+1)+';_renderDefsList()">Next →</button>'; else h+='<span></span>';
   h += '</div>';
-  body.innerHTML = h;
+  target.innerHTML = h;
 }
 
 // Source text reader (Josephus, Edersheim, etc.) — read OR search
@@ -1391,6 +1537,23 @@ function showModal(type){
     h+='</div>';
     body.innerHTML=h;
     setTimeout(()=>document.getElementById('strongsInput')?.focus(),100);
+  }else if(type==='glossary'){
+    title.textContent='📖 Glossary — Acronyms and Terms';
+    let h='<p style="font-size:13px;color:var(--fg-mute);margin-bottom:14px;">Anytime you see one of these in the app, this is what it means.</p>';
+    h+='<div style="margin-bottom:10px;"><input type="text" id="glossFilter" placeholder="Filter — type a term..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" style="width:100%;padding:10px 12px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;font-size:14px;"></div>';
+    h+='<div id="glossList"></div>';
+    body.innerHTML=h;
+    setTimeout(function(){
+      const inp = document.getElementById('glossFilter');
+      if(!inp) return;
+      let _t=null;
+      inp.addEventListener('input',function(){
+        if(_t)clearTimeout(_t);
+        _t=setTimeout(_renderGlossList,80);
+      });
+      _renderGlossList();
+      inp.focus();
+    },0);
   }else if(type==='rules'){
     title.textContent='The 13 Rules — SWRV Kingdom Study Protocol';
     body.innerHTML='<p>This study tool operates under 13 absolute rules.</p><h4>RULE 01 — THE TEXT IS THE AUTHORITY</h4><p>Every answer comes directly from the source texts.</p><h4>RULE 02 — NOTHING ADDED. NOTHING REMOVED.</h4><p>Report exactly what the text says.</p><h4>RULE 03 — REPORT WHAT IS WRITTEN. NOT WHAT IS POPULAR.</h4><p>Mainstream consensus is not a source.</p><h4>RULE 04 — NO OPINIONS. ZERO.</h4><p>Report. Do not interpret beyond the text.</p><h4>RULE 05 — NO WHITEWASHING.</h4><p>Report cultural realities — including the regional appearance of biblical peoples — as documented by the library.</p><h4>RULE 06 — NO OUTSIDE SOURCES. THE LIBRARY IS CLOSED.</h4><p>Only the Approved Library may be cited.</p><h4>RULE 07 — NO GREEK PHILOSOPHY. NO PLATONISM.</h4><p>No Platonic body/soul dualism on Hebrew/Greek texts.</p><h4>RULE 08 — NO CHERRY-PICKING.</h4><p>Report the full pattern.</p><h4>RULE 09 — ALWAYS DEFINE THE ORIGINAL WORD.</h4><p>Tap any underlined word.</p><h4>RULE 10 — ALWAYS PROVIDE CULTURAL AND HISTORICAL CONTEXT.</h4><p>Cultural Context (green) and People Profiles (orange) panels apply this throughout.</p><h4>RULE 11 — FLAG EVERY TRANSLATION LOSS.</h4><p>Red boxes throughout.</p><h4>RULE 12 — READ THROUGH ANCIENT NEAR EASTERN EYES.</h4><p>Kingdom Lens (gold) and People Profiles apply this.</p><h4>RULE 13 — IF IT CANNOT BE SOURCED, IT CANNOT BE SAID.</h4><p>Every claim traceable to the Approved Library.</p>';
@@ -1521,3 +1684,32 @@ loadChapter(currentChapter);
     if(e.key==='ArrowRight'){nextChapter();e.preventDefault();}
   });
 })();
+
+function _renderGlossList(){
+  if(!window.GLOSSARY) return;
+  const target = document.getElementById('glossList');
+  if(!target) return;
+  const inp = document.getElementById('glossFilter');
+  const filter = (inp?inp.value:'').toLowerCase().trim();
+  const keys = Object.keys(window.GLOSSARY).sort();
+  const filtered = filter
+    ? keys.filter(k=>{
+        const g = window.GLOSSARY[k];
+        return (k+' '+(g.term||'')+' '+(g.body||'')).toLowerCase().includes(filter);
+      })
+    : keys;
+  let h = '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">'+filtered.length+' term'+(filtered.length===1?'':'s')+(filter?' (filtered)':'')+'</div>';
+  if(filtered.length===0){
+    h += '<div style="padding:14px;color:var(--fg-mute);background:var(--bg-3);border-radius:5px;text-align:center;">No matches.</div>';
+    target.innerHTML = h;
+    return;
+  }
+  for(const k of filtered){
+    const g = window.GLOSSARY[k];
+    h += '<div style="margin-bottom:12px;padding:12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<div style="font-weight:700;color:var(--gold);font-size:14px;">'+escapeHtml(k)+(g.term && g.term!==k?' — '+escapeHtml(g.term):'')+'</div>';
+    if(g.body) h += '<div style="font-size:13px;margin-top:6px;line-height:1.55;">'+escapeHtml(g.body)+'</div>';
+    h += '</div>';
+  }
+  target.innerHTML = h;
+}
