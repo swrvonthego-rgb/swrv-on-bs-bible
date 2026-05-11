@@ -987,6 +987,352 @@ function searchSource(){
   document.getElementById('sourceResults').innerHTML=resultHtml;
 }
 
+
+// === SOURCES LIBRARY READERS ===
+
+// Universal back button to library
+function _libraryBackBtn(){
+  return '<div style="margin-bottom:12px;"><button class="icon-btn" onclick="showModal(\'library\')">← Back to Library</button></div>';
+}
+
+// 1 Enoch reader
+function openEnochReader(section, chapter){
+  if(!window.ENOCH){alert('1 Enoch data not loaded');return;}
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  title.textContent='📜 1 Enoch — Book of Enoch';
+  let h = _libraryBackBtn();
+  
+  if(!section){
+    // Section selector
+    h += '<div style="font-size:13px;color:var(--fg-mute);margin-bottom:12px;">Translated by R.H. Charles (1917). Public Domain. Quoted in Jude 14-15; parallels Genesis 5-6.</div>';
+    h += '<div style="display:grid;gap:10px;">';
+    const sections = {
+      'Watchers':{icon:'👁️',blurb:'The fall of the Watchers and the giants. Parallels Gen 6:1-4.'},
+      'Parables':{icon:'📚',blurb:'Visions of the Messiah, judgment, and the righteous.'},
+      'Astronomy':{icon:'🌌',blurb:'The luminaries: sun, moon, stars, winds, calendar.'},
+      'Dreams':{icon:'💭',blurb:'Symbolic visions of history — animals representing nations.'},
+      'Epistle':{icon:'📜',blurb:'Final letter — woes against the wicked, hope for the righteous.'}
+    };
+    for(const sec in window.ENOCH){
+      const meta = sections[sec] || {icon:'📖',blurb:''};
+      const chCount = Object.keys(window.ENOCH[sec]).length;
+      h += '<div class="people-card" style="border-left-color:var(--gold);cursor:pointer;" onclick="openEnochReader(\''+sec+'\')">';
+      h += '<div class="people-card-name" style="color:var(--gold);">'+meta.icon+' '+escapeHtml(sec)+' — '+chCount+' chapter'+(chCount===1?'':'s')+'</div>';
+      h += '<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">'+escapeHtml(meta.blurb)+'</div>';
+      h += '</div>';
+    }
+    h += '</div>';
+    body.innerHTML = h;
+    return;
+  }
+  
+  const secData = window.ENOCH[section];
+  if(!secData){body.innerHTML = _libraryBackBtn()+'<p>Section not found.</p>';return;}
+  
+  if(!chapter){
+    // Chapter list
+    h += '<div style="margin-bottom:12px;"><button class="icon-btn" onclick="openEnochReader()">← All Sections</button></div>';
+    h += '<h3 style="color:var(--gold);">📜 '+escapeHtml(section)+'</h3>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">';
+    for(const ch of Object.keys(secData)){
+      h += '<button class="icon-btn" style="min-width:54px;" onclick="openEnochReader(\''+section+'\','+ch+')">Ch '+ch+'</button>';
+    }
+    h += '</div>';
+    body.innerHTML = h;
+    return;
+  }
+  
+  // Chapter view
+  const chData = secData[chapter];
+  if(!chData){body.innerHTML = _libraryBackBtn()+'<p>Chapter not found.</p>';return;}
+  h += '<div style="margin-bottom:8px;"><button class="icon-btn" onclick="openEnochReader(\''+section+'\')">← '+escapeHtml(section)+'</button></div>';
+  h += '<h3 style="color:var(--gold);">1 Enoch · '+escapeHtml(section)+' · Chapter '+chapter+'</h3>';
+  const verses = Object.keys(chData).map(n=>parseInt(n)).sort((a,b)=>a-b);
+  for(const v of verses){
+    h += '<div style="margin-bottom:14px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">v.'+v+'</span>';
+    h += '<span style="line-height:1.6;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '</div>';
+  }
+  // prev/next chapter nav
+  const idx = verses.length;
+  const chKeys = Object.keys(secData).map(n=>parseInt(n)).sort((a,b)=>a-b);
+  const ci = chKeys.indexOf(parseInt(chapter));
+  h += '<div style="display:flex;justify-content:space-between;margin-top:16px;">';
+  if(ci > 0) h += '<button class="icon-btn" onclick="openEnochReader(\''+section+'\','+chKeys[ci-1]+')">← Ch '+chKeys[ci-1]+'</button>'; else h+='<span></span>';
+  if(ci < chKeys.length-1) h += '<button class="icon-btn" onclick="openEnochReader(\''+section+'\','+chKeys[ci+1]+')">Ch '+chKeys[ci+1]+' →</button>';
+  h += '</div>';
+  body.innerHTML = h;
+}
+
+// Strong's Hebrew/Greek reader (paginated)
+window._STRONGS_PAGE = {H:0, G:0};
+window._STRONGS_FILTER = {H:'', G:''};
+function openStrongsReader(lang, page){
+  const data = lang==='H' ? window.STRONGS_HEB : window.STRONGS_GRK;
+  if(!data){alert('Strong\'s data not loaded');return;}
+  if(page !== undefined) window._STRONGS_PAGE[lang] = page;
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  title.textContent = lang==='H' ? "🔤 Strong's Hebrew Dictionary" : "🔤 Strong's Greek Dictionary";
+  let h = _libraryBackBtn();
+  
+  // Filter input
+  const filter = window._STRONGS_FILTER[lang];
+  h += '<div style="margin-bottom:10px;">';
+  h += '<input type="text" id="strongsLibFilter" placeholder="Filter by translit or definition..." value="'+escapeHtml(filter)+'" oninput="window._STRONGS_FILTER[\''+lang+'\']=this.value;window._STRONGS_PAGE[\''+lang+'\']=0;openStrongsReader(\''+lang+'\')" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '</div>';
+  
+  // Get sorted entries, filtered
+  let keys = Object.keys(data).sort((a,b)=>parseInt(a)-parseInt(b));
+  if(filter){
+    const f = filter.toLowerCase();
+    keys = keys.filter(k=>{
+      const e = data[k];
+      const blob = ((e.xlit||'')+' '+(e.def||'')+' '+(e.kjv_def||'')+' '+k).toLowerCase();
+      return blob.includes(f);
+    });
+  }
+  const perPage = 30;
+  const totalPages = Math.max(1, Math.ceil(keys.length/perPage));
+  const p = Math.min(window._STRONGS_PAGE[lang], totalPages-1);
+  const start = p*perPage;
+  const slice = keys.slice(start, start+perPage);
+  
+  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries'+(filter?' (filtered)':'')+'.</div>';
+  
+  for(const k of slice){
+    const e = data[k];
+    h += '<div style="margin-bottom:10px;padding:10px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<div style="font-weight:700;color:var(--gold);">'+lang+k+' · '+escapeHtml(e.xlit||'(no translit)')+(e.lemma?' · <span style="color:var(--fg-mute);">'+escapeHtml(e.lemma)+'</span>':'')+'</div>';
+    if(e.def) h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">'+escapeHtml(e.def)+'</div>';
+    if(e.kjv_def) h += '<div style="font-size:12px;margin-top:4px;color:var(--fg-mute);"><b>KJV:</b> '+escapeHtml(e.kjv_def)+'</div>';
+    h += '</div>';
+  }
+  
+  // Pagination controls
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
+  if(p>0) h += '<button class="icon-btn" onclick="openStrongsReader(\''+lang+'\','+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openStrongsReader(\''+lang+'\','+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  h += '</div>';
+  body.innerHTML = h;
+}
+
+// BDB Hebrew Lexicon reader (paginated)
+window._BDB_PAGE = 0;
+window._BDB_FILTER = '';
+function openBDBReader(page){
+  if(!window.BDB_HEB){alert('BDB data not loaded');return;}
+  if(page !== undefined) window._BDB_PAGE = page;
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  title.textContent='📚 Brown-Driver-Briggs Hebrew Lexicon';
+  let h = _libraryBackBtn();
+  
+  h += '<div style="margin-bottom:10px;">';
+  h += '<input type="text" id="bdbFilter" placeholder="Filter by translit or definition..." value="'+escapeHtml(window._BDB_FILTER)+'" oninput="window._BDB_FILTER=this.value;window._BDB_PAGE=0;openBDBReader()" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '</div>';
+  
+  let keys = Object.keys(window.BDB_HEB).sort();
+  if(window._BDB_FILTER){
+    const f = window._BDB_FILTER.toLowerCase();
+    keys = keys.filter(k=>{
+      const e = window.BDB_HEB[k];
+      const blob = (k+' '+(e&&typeof e==='object'?JSON.stringify(e):'')).toLowerCase();
+      return blob.includes(f);
+    });
+  }
+  
+  const perPage = 25;
+  const totalPages = Math.max(1, Math.ceil(keys.length/perPage));
+  const p = Math.min(window._BDB_PAGE, totalPages-1);
+  const start = p*perPage;
+  const slice = keys.slice(start, start+perPage);
+  
+  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">Showing '+(start+1)+'-'+Math.min(start+perPage,keys.length)+' of '+keys.length+' entries'+(window._BDB_FILTER?' (filtered)':'')+'.</div>';
+  
+  for(const k of slice){
+    const e = window.BDB_HEB[k];
+    h += '<div style="margin-bottom:10px;padding:10px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<div style="font-weight:700;color:var(--gold);">'+escapeHtml(k)+'</div>';
+    if(e && typeof e === 'object'){
+      if(e.lemma || e.translit) h += '<div style="font-size:12px;color:var(--fg-mute);margin-top:4px;">'+escapeHtml(e.lemma||'')+(e.translit?' · '+escapeHtml(e.translit):'')+'</div>';
+      const defs = e.senses || e.definitions || (e.def?[e.def]:[]) || [];
+      if(Array.isArray(defs)){
+        for(const d of defs.slice(0,5)){
+          h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">• '+escapeHtml(typeof d==='string'?d:JSON.stringify(d))+'</div>';
+        }
+      } else if(typeof defs === 'string'){
+        h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">'+escapeHtml(defs)+'</div>';
+      }
+    } else if(typeof e === 'string'){
+      h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;">'+escapeHtml(e)+'</div>';
+    }
+    h += '</div>';
+  }
+  
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
+  if(p>0) h += '<button class="icon-btn" onclick="openBDBReader('+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openBDBReader('+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  h += '</div>';
+  body.innerHTML = h;
+}
+
+// Deep Definitions reader (curated SWRV dictionary)
+window._DEFS_PAGE = 0;
+window._DEFS_FILTER = '';
+function openDeepDefinitionsReader(page){
+  if(!window.DEFINITIONS){alert('Deep definitions not loaded');return;}
+  if(page !== undefined) window._DEFS_PAGE = page;
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  title.textContent='✍️ SWRV Deep Definitions Dictionary';
+  let h = _libraryBackBtn();
+  
+  h += '<div style="margin-bottom:10px;">';
+  h += '<input type="text" id="defsFilter" placeholder="Filter by word, translit, or definition..." value="'+escapeHtml(window._DEFS_FILTER)+'" oninput="window._DEFS_FILTER=this.value;window._DEFS_PAGE=0;openDeepDefinitionsReader()" style="width:100%;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;">';
+  h += '</div>';
+  
+  let keys = Object.keys(window.DEFINITIONS).filter(k=>{
+    const d=window.DEFINITIONS[k];
+    return d && typeof d==='object' && !Array.isArray(d);
+  }).sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
+  // De-duplicate lowercase aliases
+  const seen=new Set();
+  keys = keys.filter(k=>{
+    const lk=k.toLowerCase();
+    if(seen.has(lk))return false;
+    seen.add(lk);
+    return true;
+  });
+  
+  if(window._DEFS_FILTER){
+    const f = window._DEFS_FILTER.toLowerCase();
+    keys = keys.filter(k=>{
+      const d = window.DEFINITIONS[k];
+      const blob = (k+' '+(d.translit||'')+' '+(d.hebrew||'')+' '+(d.theology||'')+' '+(d.visual||'')+' '+(d.senses?d.senses.join(' '):'')).toLowerCase();
+      return blob.includes(f);
+    });
+  }
+  
+  const perPage = 20;
+  const totalPages = Math.max(1, Math.ceil(keys.length/perPage));
+  const p = Math.min(window._DEFS_PAGE, totalPages-1);
+  const start = p*perPage;
+  const slice = keys.slice(start, start+perPage);
+  
+  h += '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:10px;">'+keys.length+' entries'+(window._DEFS_FILTER?' (filtered)':'')+' · Page '+(p+1)+' of '+totalPages+'</div>';
+  
+  for(const k of slice){
+    const d = window.DEFINITIONS[k];
+    h += '<div style="margin-bottom:12px;padding:12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<div style="font-weight:700;color:var(--gold);font-size:15px;">'+escapeHtml(k)+(d.hebrew?' <span style="font-weight:400;color:var(--fg);">'+escapeHtml(d.hebrew)+'</span>':'')+'</div>';
+    if(d.translit) h += '<div style="font-size:12px;color:var(--fg-mute);margin-top:2px;">'+escapeHtml(d.translit)+(d.strongs?' · '+escapeHtml(d.strongs):'')+'</div>';
+    if(d.root) h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;"><b>Root:</b> '+escapeHtml(d.root)+'</div>';
+    if(d.senses && d.senses.length){
+      h += '<div style="font-size:13px;margin-top:6px;line-height:1.5;"><b>Senses:</b>';
+      h += '<ul style="margin:4px 0 0 16px;padding:0;">';
+      for(const s of d.senses) h += '<li style="margin-top:2px;">'+escapeHtml(s)+'</li>';
+      h += '</ul></div>';
+    }
+    if(d.theology) h += '<div style="font-size:13px;margin-top:8px;line-height:1.5;padding:8px;background:var(--bg-2);border-radius:4px;"><b>Theology:</b> '+escapeHtml(d.theology)+'</div>';
+    if(d.cross && d.cross.length) h += '<div style="font-size:11px;color:var(--fg-dim);margin-top:6px;"><b>Cross-refs:</b> '+escapeHtml(d.cross.join(' · '))+'</div>';
+    h += '</div>';
+  }
+  
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;">';
+  if(p>0) h += '<button class="icon-btn" onclick="openDeepDefinitionsReader('+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  h += '<span style="font-size:12px;color:var(--fg-mute);">Page '+(p+1)+' / '+totalPages+'</span>';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="openDeepDefinitionsReader('+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  h += '</div>';
+  body.innerHTML = h;
+}
+
+// Source text reader (Josephus, Edersheim, etc.) — read OR search
+window._SRC_PAGE = {};
+window._SRC_MODE = {};  // 'read' or 'search'
+async function openSourceReader(key){
+  const m = window.SOURCES_MANIFEST && window.SOURCES_MANIFEST[key];
+  if(!m){alert('Source not registered: '+key);return;}
+  CURRENT_SOURCE = key;
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  title.textContent='📖 '+m.title;
+  let h = _libraryBackBtn();
+  h += '<div style="font-size:12px;color:var(--fg-dim);margin-bottom:12px;">'+escapeHtml(m.author)+' · '+escapeHtml(m.year)+' · '+escapeHtml(m.license||'Public Domain')+'</div>';
+  
+  // Mode tabs: Read | Search
+  const mode = window._SRC_MODE[key] || 'read';
+  h += '<div style="display:flex;gap:6px;margin-bottom:10px;">';
+  h += '<button class="icon-btn"'+(mode==='read'?' style="background:var(--gold);color:#000;"':'')+' onclick="window._SRC_MODE[\''+key+'\']=\'read\';openSourceReader(\''+key+'\')">📖 Read</button>';
+  h += '<button class="icon-btn"'+(mode==='search'?' style="background:var(--gold);color:#000;"':'')+' onclick="window._SRC_MODE[\''+key+'\']=\'search\';openSourceReader(\''+key+'\')">🔍 Search</button>';
+  h += '</div>';
+  
+  if(mode === 'search'){
+    h += '<div class="strongs-search" style="display:flex;gap:6px;margin-bottom:10px;">';
+    h += '<input type="text" id="sourceQuery" placeholder="Search this source..." style="flex:1;padding:8px 10px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);border-radius:5px;font-family:inherit;" onkeydown="if(event.key===\'Enter\')searchSource()">';
+    h += '<button class="icon-btn" onclick="searchSource()">Search</button>';
+    h += '</div>';
+    h += '<div id="sourceResults"><div style="color:var(--fg-dim);padding:20px;text-align:center;">Loading source...</div></div>';
+    body.innerHTML = h;
+    setTimeout(()=>document.getElementById('sourceQuery')?.focus(),100);
+  } else {
+    // Read mode — paginated by character chunks
+    h += '<div id="sourceReadPane"><div style="color:var(--fg-dim);padding:20px;text-align:center;">Loading source text...</div></div>';
+    body.innerHTML = h;
+  }
+  
+  // Load source if not cached
+  if(!SOURCE_CACHE[key]){
+    try{
+      const resp = await fetch(m.file);
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      SOURCE_CACHE[key] = await resp.text();
+    } catch(err){
+      const target = mode==='search' ? 'sourceResults' : 'sourceReadPane';
+      document.getElementById(target).innerHTML = '<div style="color:var(--warning);padding:14px;background:rgba(255,100,100,0.1);border-radius:6px;">Could not load /'+escapeHtml(m.file)+'. Error: '+escapeHtml(err.message)+'</div>';
+      return;
+    }
+  }
+  
+  if(mode === 'read'){
+    _renderSourceReadPage(key);
+  } else {
+    // search mode — show ready message
+    const sizeKB = Math.round(SOURCE_CACHE[key].length/1024);
+    document.getElementById('sourceResults').innerHTML = '<div style="color:var(--fg-mute);padding:14px;background:var(--bg-3);border-radius:6px;font-size:13px;">✓ Loaded '+sizeKB.toLocaleString()+' KB. Type a search term above.</div>';
+  }
+}
+
+function _renderSourceReadPage(key, page){
+  const text = SOURCE_CACHE[key];
+  if(!text) return;
+  if(page !== undefined) window._SRC_PAGE[key] = page;
+  const pageSize = 6000; // chars per page, ~1.5 screens
+  const totalPages = Math.max(1, Math.ceil(text.length/pageSize));
+  const p = Math.min(window._SRC_PAGE[key]||0, totalPages-1);
+  const start = p*pageSize;
+  // try to break at a paragraph boundary
+  let end = Math.min(start+pageSize, text.length);
+  if(end < text.length){
+    const nb = text.indexOf('\n\n', end);
+    if(nb !== -1 && nb < end+1000) end = nb;
+  }
+  const chunk = text.substring(start, end);
+  let h = '<div style="font-size:11px;color:var(--fg-dim);margin-bottom:8px;">Page '+(p+1)+' / '+totalPages+' · '+(Math.round(text.length/1024)).toLocaleString()+' KB total</div>';
+  h += '<div style="white-space:pre-wrap;font-family:Georgia,serif;line-height:1.65;font-size:14px;background:var(--bg-3);padding:14px;border-radius:6px;border-left:3px solid var(--gold);">'+escapeHtml(chunk)+'</div>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px;">';
+  if(p>0) h += '<button class="icon-btn" onclick="_renderSourceReadPage(\''+key+'\','+(p-1)+')">← Prev</button>'; else h+='<span></span>';
+  h += '<input type="number" min="1" max="'+totalPages+'" value="'+(p+1)+'" style="width:70px;padding:4px 6px;background:var(--bg-3);border:1px solid var(--line);color:var(--fg);text-align:center;border-radius:4px;" onchange="_renderSourceReadPage(\''+key+'\',parseInt(this.value)-1)">';
+  if(p<totalPages-1) h += '<button class="icon-btn" onclick="_renderSourceReadPage(\''+key+'\','+(p+1)+')">Next →</button>'; else h+='<span></span>';
+  h += '</div>';
+  document.getElementById('sourceReadPane').innerHTML = h;
+}
+
+
 function showModal(type){
   _lockBodyScroll();
   const title=document.getElementById('modalTitle');
@@ -1049,8 +1395,56 @@ function showModal(type){
     title.textContent='The 13 Rules — SWRV Kingdom Study Protocol';
     body.innerHTML='<p>This study tool operates under 13 absolute rules.</p><h4>RULE 01 — THE TEXT IS THE AUTHORITY</h4><p>Every answer comes directly from the source texts.</p><h4>RULE 02 — NOTHING ADDED. NOTHING REMOVED.</h4><p>Report exactly what the text says.</p><h4>RULE 03 — REPORT WHAT IS WRITTEN. NOT WHAT IS POPULAR.</h4><p>Mainstream consensus is not a source.</p><h4>RULE 04 — NO OPINIONS. ZERO.</h4><p>Report. Do not interpret beyond the text.</p><h4>RULE 05 — NO WHITEWASHING.</h4><p>Report cultural realities — including the regional appearance of biblical peoples — as documented by the library.</p><h4>RULE 06 — NO OUTSIDE SOURCES. THE LIBRARY IS CLOSED.</h4><p>Only the Approved Library may be cited.</p><h4>RULE 07 — NO GREEK PHILOSOPHY. NO PLATONISM.</h4><p>No Platonic body/soul dualism on Hebrew/Greek texts.</p><h4>RULE 08 — NO CHERRY-PICKING.</h4><p>Report the full pattern.</p><h4>RULE 09 — ALWAYS DEFINE THE ORIGINAL WORD.</h4><p>Tap any underlined word.</p><h4>RULE 10 — ALWAYS PROVIDE CULTURAL AND HISTORICAL CONTEXT.</h4><p>Cultural Context (green) and People Profiles (orange) panels apply this throughout.</p><h4>RULE 11 — FLAG EVERY TRANSLATION LOSS.</h4><p>Red boxes throughout.</p><h4>RULE 12 — READ THROUGH ANCIENT NEAR EASTERN EYES.</h4><p>Kingdom Lens (gold) and People Profiles apply this.</p><h4>RULE 13 — IF IT CANNOT BE SOURCED, IT CANNOT BE SAID.</h4><p>Every claim traceable to the Approved Library.</p>';
   }else if(type==='library'){
-    title.textContent='Approved Library — Rule 06 / Rule 13';
-    body.innerHTML='<p>Under Rule 06 and Rule 13, only these sources may be cited. All public domain or CC-licensed.</p><h4>📜 Primary Bible Texts</h4><p><b>Tanakh JPS 1917</b> · Primary Hebrew Bible text in English.<br><b>Hebrew Masoretic Text</b> · Original Hebrew.<br><b>King James Version 1611</b> · Foundational English translation.<br><b>Septuagint (LXX) Brenton 1851</b> · Greek translation from ~250 BC.<br><b>Amplified Bible — Zondervan</b> · Word-range expansion translation.</p><h4>🔤 Hebrew & Greek Lexicons (structured, integrated)</h4><p><b>Brown-Driver-Briggs (BDB), 1906</b> · 9,345 entries with multi-sense disambiguation. Via STEPBible (CC BY 4.0).<br><b>Strong\'s Hebrew Dictionary, 1894</b> · 8,674 entries.<br><b>Strong\'s Greek Dictionary, 1890</b> · 5,523 entries.</p><h4>📖 Reference Works (searchable text in /sources/)</h4><p><b>Thayer\'s Greek-English Lexicon, 1889</b> · J.H. Thayer unabridged.<br><b>Edersheim — Sketches of Jewish Social Life, 1876</b> · Cultural background.<br><b>Edersheim — The Temple, 1874</b> · Temple structure, priesthood, festivals.<br><b>Josephus — Antiquities of the Jews</b> (Whiston tr.) · Books I-II cover Genesis.<br><b>Book of Enoch (1 Enoch)</b> · Genesis 6 parallel.</p><h4>📚 Reference Aids</h4><p><b>Zondervan Bible Dictionary</b> · ANE context.</p>';
+    title.textContent='📚 Sources Library — Read Each Source Separately';
+    let h='<p style="font-size:13px;color:var(--fg-mute);margin-bottom:14px;">Every approved source is browsable here. Tap any to open the reader. All texts public domain or CC-licensed.</p>';
+    h+='<h4 style="color:var(--gold);margin-top:12px;">📖 Bible Texts & Apocryphal Books</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openEnochReader()">';
+    h+='<div class="people-card-name" style="color:var(--gold);">📜 1 Enoch — Book of Enoch</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">tr. R.H. Charles (1917) · Public Domain</div>';
+    h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Watchers · Parables · Astronomy · Dreams · Epistle. Parallel to Genesis 5-6; quoted in Jude 14-15.</div>';
+    h+='</div>';
+    h+='</div>';
+    h+='<h4 style="color:var(--gold);margin-top:18px;">🔤 Hebrew & Greek Lexicons (integrated)</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openStrongsReader(\'H\')">';
+    h+='<div class="people-card-name" style="color:var(--gold);">🔤 Strong\'s Hebrew Dictionary</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">James Strong (1890) · 8,674 entries · Public Domain</div>';
+    h+='</div>';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openStrongsReader(\'G\')">';
+    h+='<div class="people-card-name" style="color:var(--gold);">🔤 Strong\'s Greek Dictionary</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">James Strong (1890) · 5,523 entries · Public Domain</div>';
+    h+='</div>';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openBDBReader()">';
+    h+='<div class="people-card-name" style="color:var(--gold);">📚 Brown-Driver-Briggs Hebrew Lexicon</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">Brown · Driver · Briggs (1906) · ~9,345 entries · Public Domain · via STEPBible CC BY 4.0</div>';
+    h+='</div>';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openDeepDefinitionsReader()">';
+    h+='<div class="people-card-name" style="color:var(--gold);">✍️ SWRV Deep Definitions Dictionary</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">Curated theological dictionary built for this study</div>';
+    h+='</div>';
+    h+='</div>';
+    h+='<h4 style="color:var(--gold);margin-top:18px;">📖 Reference Works (full text, in /sources/)</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    if(window.SOURCES_MANIFEST){
+      for(const [key,m] of Object.entries(window.SOURCES_MANIFEST)){
+        h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openSourceReader(\''+key+'\')">';
+        h+='<div class="people-card-name" style="color:var(--gold);">📖 '+escapeHtml(m.title)+'</div>';
+        h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">'+escapeHtml(m.author)+' · '+escapeHtml(m.year)+' · '+escapeHtml(m.license||'Public Domain')+'</div>';
+        h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:6px;">'+escapeHtml(m.description||'')+'</div>';
+        h+='</div>';
+      }
+    }
+    h+='</div>';
+    h+='<h4 style="color:var(--gold);margin-top:18px;">👥 People & Places</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="showModal(\'peoples\')">';
+    h+='<div class="people-card-name" style="color:var(--gold);">👤 Peoples Profiles</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">Origins, regions, appearance of biblical peoples</div>';
+    h+='</div>';
+    h+='</div>';
+    h+='<div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--fg-dim);">All sources live in this app. Rule 06 (closed library) and Rule 13 (sourced claims only) apply.</div>';
+    body.innerHTML=h;
   }else if(type==='peoples'){
     title.textContent='Peoples of Genesis — Origins, Regions, Appearance';
     let h='<p style="color:var(--people);font-weight:600;">RULE 05 (NO WHITEWASHING) + RULE 12 (ANE EYES). Tap any name for the full profile.</p>';
