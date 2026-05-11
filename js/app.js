@@ -93,21 +93,97 @@ if(savedTheme){themeIdx=THEMES.indexOf(savedTheme);document.body.dataset.theme=s
 let currentChapter=parseInt(localStorage.getItem('swrv_chapter'))||1;
 let currentVerse=parseInt(localStorage.getItem('swrv_verse'))||1;
 let mode=localStorage.getItem('swrv_mode')||'chapter';
+let currentBook=localStorage.getItem('swrv_book')||'Genesis';
+const _bookScriptLoaded={Genesis:true}; // Genesis is bundled in genesis.js
+function _getCurrentBookData(){
+  if(currentBook==='Genesis')return window.GENESIS;
+  return (window.BIBLE&&window.BIBLE[currentBook])||null;
+}
+function _getBookInfo(slug){
+  if(!window.BIBLE_INDEX)return null;
+  return window.BIBLE_INDEX.find(function(b){return b.slug===slug;});
+}
+function _loadBookScript(slug, cb){
+  if(_bookScriptLoaded[slug]||(window.BIBLE&&window.BIBLE[slug])){cb();return;}
+  const s=document.createElement('script');
+  s.src='data/bible/'+slug+'.js';
+  s.onload=function(){_bookScriptLoaded[slug]=true;cb();};
+  s.onerror=function(){console.warn('Failed to load '+slug);cb();};
+  document.head.appendChild(s);
+}
 
 const chapterSelect=document.getElementById('chapterSelect');
-for(let i=1;i<=50;i++){
-  const ch=window.GENESIS[i];
-  if(!ch)continue;
-  const opt=document.createElement('option');
-  opt.value=i;
-  const title=ch.title.replace(/^Genesis \d+ — /,'');
-  const verseCount=window.AUDIT[i]||0;
-  opt.textContent='Genesis '+i+' — '+title+' ('+verseCount+' verses)';
-  if(i===currentChapter)opt.selected=true;
-  chapterSelect.appendChild(opt);
+const bookSelect=document.getElementById('bookSelect');
+
+function populateBookSelect(){
+  if(!bookSelect||!window.BIBLE_INDEX)return;
+  bookSelect.innerHTML='';
+  let lastTestament='';
+  for(const b of window.BIBLE_INDEX){
+    if(b.testament!==lastTestament){
+      const og=document.createElement('optgroup');
+      og.label=b.testament==='OT'?'Old Testament':'New Testament';
+      bookSelect.appendChild(og);
+      lastTestament=b.testament;
+    }
+    const opt=document.createElement('option');
+    opt.value=b.slug;
+    opt.textContent=b.display+(b.isDeep?' ★':'');
+    if(b.slug===currentBook)opt.selected=true;
+    bookSelect.lastElementChild.appendChild(opt);
+  }
 }
-function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1,-1);}}
-function nextChapter(){if(currentChapter<50){loadChapter(currentChapter+1,1);}}
+
+function populateChapterSelect(){
+  if(!chapterSelect)return;
+  chapterSelect.innerHTML='';
+  const info=_getBookInfo(currentBook);
+  const count=info?info.chapters:50;
+  const bookData=_getCurrentBookData();
+  for(let i=1;i<=count;i++){
+    const opt=document.createElement('option');
+    opt.value=i;
+    let label='Chapter '+i;
+    if(bookData&&bookData[i]){
+      const t=(bookData[i].title||'').replace(new RegExp('^'+(info?info.display:currentBook)+' '+i+'\\s*[—-]?\\s*','i'),'');
+      if(t)label='Ch '+i+' — '+t;
+      else label=(info?info.display:currentBook)+' '+i;
+    }else{
+      label=(info?info.display:currentBook)+' '+i;
+    }
+    if(i===currentChapter)opt.selected=true;
+    opt.textContent=label;
+    chapterSelect.appendChild(opt);
+  }
+}
+
+populateBookSelect();
+populateChapterSelect();
+
+function loadBook(slug){
+  if(!slug||slug===currentBook&&_getCurrentBookData())return;
+  _loadBookScript(slug,function(){
+    currentBook=slug;
+    localStorage.setItem('swrv_book',slug);
+    currentChapter=1;
+    localStorage.setItem('swrv_chapter',1);
+    populateChapterSelect();
+    _loadChapterCore(1);
+  });
+}
+function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1);}else{
+  // Jump to previous book's last chapter
+  const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
+  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
+}}
+function nextChapter(){
+  const info=_getBookInfo(currentBook);
+  const max=info?info.chapters:50;
+  if(currentChapter<max){loadChapter(currentChapter+1);}else{
+    const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
+    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
+  }
+}
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
@@ -210,25 +286,18 @@ function setMode(m){
 }
 
 function loadChapter(n, direction){
-  if(direction && window._chapterAnimEnabled!==false){
-    const main=document.getElementById('mainContent');
-    if(main && !main.classList.contains('flipping-left') && !main.classList.contains('flipping-right')){
-      main.classList.add(direction>0?'flipping-left':'flipping-right');
-      setTimeout(function(){
-        main.classList.remove('flipping-left','flipping-right');
-        _loadChapterCore(n);
-        main.classList.add('appearing');
-        setTimeout(function(){main.classList.remove('appearing');},500);
-      },550);
-      return;
-    }
-  }
   _loadChapterCore(n);
 }
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;localStorage.setItem('swrv_chapter',n);
-  const ch=window.GENESIS[n];if(!ch)return;
+  const bookData=_getCurrentBookData();
+  const ch=bookData&&bookData[n];
+  if(!ch){
+    const main=document.getElementById('mainContent');
+    if(main)main.innerHTML='<p style="padding:30px;color:var(--fg-mute);">Loading '+currentBook+' '+n+'...</p>';
+    return;
+  }
   document.querySelectorAll('.ch-link').forEach((el,i)=>{el.classList.toggle('active',i+1===n)});
   const main=document.getElementById('mainContent');
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
@@ -616,60 +685,144 @@ function strongsSmartLookup(){
   const q=document.getElementById('strongsInput').value.trim();
   const out=document.getElementById('strongsLookupResult');
   if(!q){out.innerHTML='';return;}
-  // Reset history on new search
   window._strongsHistory=[];
-  // If it's a number, route to strongsLookup
-  const numMatch=q.match(/^[Hh]?(\d{1,4})$/);
-  if(numMatch){
-    document.getElementById('strongsInput').value=numMatch[1];
-    strongsLookup();
-    return;
-  }
-  // Word search across STRONGS_HEB definitions
+  // Number? route to direct lookup (G or H)
+  const grkMatch=q.match(/^[Gg](\d{1,4})$/);
+  const hebMatch=q.match(/^[Hh](\d{1,4})$/);
+  const bareNum=q.match(/^(\d{1,4})$/);
+  if(grkMatch){document.getElementById('strongsInput').value='G'+grkMatch[1];renderStrongsEntry('G',grkMatch[1]);return;}
+  if(hebMatch){document.getElementById('strongsInput').value=hebMatch[1];strongsLookup();return;}
+  if(bareNum){document.getElementById('strongsInput').value=bareNum[1];strongsLookup();return;}
+  // Word search across Hebrew + Greek + Deep Definitions
   const word=q.toLowerCase();
   const results=[];
-  for(const num in window.STRONGS_HEB){
-    const e=window.STRONGS_HEB[num];
-    const def=(e.def||'').toLowerCase();
-    const xlit=(e.xlit||'').toLowerCase();
-    if(def.includes(word)||xlit.includes(word)){
-      let score=0;
-      // exact word match in definition (boundary)
-      const wordRe=new RegExp('\\b'+word.replace(/[.*+?^$()|[\]\\]/g,'\\$&')+'\\b');
-      if(wordRe.test(def))score=100;
-      else if(def.split(/[\s,;]+/).some(t=>t.startsWith(word)))score=50;
-      else score=10;
-      if(xlit===word)score+=200;
-      else if(xlit.startsWith(word))score+=100;
-      results.push({num:num,e:e,score:score});
+  const wordRe=new RegExp('\\b'+word.replace(/[.*+?^$()|[\]\\]/g,'\\$&')+'\\b','i');
+  // Search Hebrew Strong's
+  if(window.STRONGS_HEB){
+    for(const num in window.STRONGS_HEB){
+      const e=window.STRONGS_HEB[num];
+      const def=(e.def||'').toLowerCase();
+      const xlit=(e.xlit||'').toLowerCase();
+      if(def.includes(word)||xlit.includes(word)){
+        let score=10;
+        if(wordRe.test(e.def||''))score=100;
+        else if(def.split(/[\s,;]+/).some(function(t){return t.startsWith(word);}))score=50;
+        if(xlit===word)score+=200;
+        else if(xlit.startsWith(word))score+=100;
+        results.push({lang:'H',num:num,e:e,score:score});
+      }
+    }
+  }
+  // Search Greek Strong's
+  if(window.STRONGS_GRK){
+    for(const num in window.STRONGS_GRK){
+      const e=window.STRONGS_GRK[num];
+      const def=(e.def||'').toLowerCase();
+      const kjv=(e.kjv_def||'').toLowerCase();
+      const xlit=(e.xlit||'').toLowerCase();
+      if(def.includes(word)||xlit.includes(word)||kjv.includes(word)){
+        let score=10;
+        if(wordRe.test(e.def||'')||wordRe.test(e.kjv_def||''))score=100;
+        else if(def.split(/[\s,;]+/).some(function(t){return t.startsWith(word);}))score=50;
+        if(xlit===word)score+=200;
+        else if(xlit.startsWith(word))score+=100;
+        results.push({lang:'G',num:num,e:e,score:score});
+      }
+    }
+  }
+  // Search deep DEFINITIONS (user's curated entries)
+  if(window.DEFINITIONS){
+    for(const key in window.DEFINITIONS){
+      const d=window.DEFINITIONS[key];
+      if(!d||typeof d!=='object')continue;
+      const blob=(key+' '+(d.translit||'')+' '+(d.senses?d.senses.join(' '):'')+' '+(d.theology||'')+' '+(d.visual||'')+' '+(d.kingdom||'')).toLowerCase();
+      if(blob.includes(word)){
+        let score=30;
+        if(key.toLowerCase()===word)score=300;
+        else if(key.toLowerCase().startsWith(word))score=150;
+        else if(d.translit&&d.translit.toLowerCase()===word)score=250;
+        results.push({lang:'D',key:key,e:d,score:score});
+      }
     }
   }
   results.sort(function(a,b){return b.score-a.score;});
   if(results.length===0){
-    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try a different word (e.g., love, covenant, light, holy, heart, spirit).</p>';
+    out.innerHTML='<p style="color:var(--fg-mute);padding:14px;">No matches for "'+escapeHtml(q)+'". Try: love, light, covenant, holy, image, heart, spirit, Zion, peace, life.</p>';
     return;
   }
   let h='<p style="font-size:12px;color:var(--fg-dim);margin:8px 0;">'+results.length+' match'+(results.length===1?'':'es')+' for "<b>'+escapeHtml(q)+'</b>" - click any to see full entry</p>';
-  const top=results.slice(0,25);
+  const top=results.slice(0,30);
   for(const r of top){
-    h+='<div class="strongs-result strongs-clickable" data-num="'+r.num+'">';
-    h+='<div style="display:flex;align-items:baseline;gap:10px;">';
-    h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+(r.e.heb||'')+'</span>';
-    h+='<span style="color:var(--fg-mute);font-style:italic;">'+(r.e.xlit||'')+'</span>';
-    h+='<span style="margin-left:auto;font-size:11px;color:var(--strongs);font-weight:600;">H'+r.num+'</span>';
-    h+='</div>';
-    h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(r.e.def||'')+'</div>';
-    h+='</div>';
+    if(r.lang==='D'){
+      // Deep definition
+      h+='<div class="strongs-result strongs-clickable" data-deep="'+escapeHtml(r.key)+'" style="border-left-color:var(--gold);">';
+      h+='<div style="display:flex;align-items:baseline;gap:10px;">';
+      if(r.e.hebrew)h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+r.e.hebrew+'</span>';
+      h+='<span style="color:var(--fg);font-weight:700;">'+escapeHtml(r.key)+'</span>';
+      if(r.e.translit&&r.e.translit!==r.key)h+='<span style="color:var(--fg-mute);font-style:italic;">('+escapeHtml(r.e.translit)+')</span>';
+      h+='<span style="margin-left:auto;font-size:11px;color:var(--gold);font-weight:600;">DEEP ENTRY</span>';
+      h+='</div>';
+      if(r.e.senses&&r.e.senses.length)h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(r.e.senses[0])+'</div>';
+      h+='</div>';
+    }else{
+      h+='<div class="strongs-result strongs-clickable" data-lang="'+r.lang+'" data-num="'+r.num+'">';
+      h+='<div style="display:flex;align-items:baseline;gap:10px;">';
+      const origLetter=r.lang==='G'?'grk':'heb';
+      const original=r.e[origLetter]||r.e.heb||r.e.grk||'';
+      h+='<span style="font-size:20px;color:var(--gold);font-weight:600;">'+original+'</span>';
+      h+='<span style="color:var(--fg-mute);font-style:italic;">'+(r.e.xlit||'')+'</span>';
+      const langLabel=r.lang==='G'?'GREEK':'HEBREW';
+      h+='<span style="margin-left:auto;font-size:11px;color:var(--strongs);font-weight:600;">'+r.lang+r.num+' '+langLabel+'</span>';
+      h+='</div>';
+      const showDef=r.e.def||r.e.kjv_def||'';
+      h+='<div style="color:var(--fg);margin-top:4px;font-size:14px;">'+escapeHtml(showDef)+'</div>';
+      h+='</div>';
+    }
   }
-  if(results.length>25)h+='<p style="color:var(--fg-dim);font-size:12px;padding:8px;text-align:center;">Showing top 25 of '+results.length+'. Refine your search for fewer results.</p>';
+  if(results.length>30)h+='<p style="color:var(--fg-dim);font-size:12px;padding:8px;text-align:center;">Showing top 30 of '+results.length+'. Refine your search.</p>';
   out.innerHTML=h;
   // Bind clicks
   out.querySelectorAll('.strongs-clickable').forEach(function(el){
     el.addEventListener('click',function(){
-      document.getElementById('strongsInput').value=el.dataset.num;
-      strongsLookup();
+      if(el.dataset.deep){
+        // Open deep word popover
+        showDef(el.dataset.deep);
+      }else if(el.dataset.lang==='G'){
+        renderStrongsEntry('G',el.dataset.num);
+      }else{
+        document.getElementById('strongsInput').value=el.dataset.num;
+        strongsLookup();
+      }
     });
   });
+}
+
+function renderStrongsEntry(lang,num){
+  const result=document.getElementById('strongsLookupResult');
+  if(!window._strongsHistory)window._strongsHistory=[];
+  if(result.innerHTML.trim()&&!result.innerHTML.includes('strongs-back-btn-marker')){
+    window._strongsHistory.push({input:document.getElementById('strongsInput').value,html:result.innerHTML});
+  }
+  if(lang==='G'){
+    const e=window.STRONGS_GRK&&window.STRONGS_GRK[num];
+    if(!e){result.innerHTML=renderStrongsBackButton()+'<div style="color:var(--warning);">No Greek entry for G'+num+'.</div>';return;}
+    let h=renderStrongsBackButton();
+    h+='<div class="strongs-result" style="border-left-width:4px;">';
+    h+='<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">';
+    h+='<span style="font-size:32px;color:var(--gold);font-weight:600;">'+(e.grk||'')+'</span>';
+    h+='<span style="font-size:18px;color:var(--fg-mute);font-style:italic;">'+(e.xlit||'')+'</span>';
+    h+='<span style="margin-left:auto;font-size:13px;color:var(--strongs);font-weight:600;">G'+num+' GREEK</span>';
+    h+='</div>';
+    if(e.pron)h+='<div style="color:var(--fg-dim);font-size:13px;margin-top:4px;">pronunciation: '+e.pron+'</div>';
+    if(e.def)h+='<div style="color:var(--fg);margin-top:10px;line-height:1.6;"><b>Strong\'s definition:</b> '+escapeHtml(e.def)+'</div>';
+    if(e.kjv_def)h+='<div style="color:var(--fg);margin-top:8px;line-height:1.6;"><b>KJV usage:</b> '+escapeHtml(e.kjv_def)+'</div>';
+    if(e.derivation)h+='<div style="color:var(--fg-mute);margin-top:8px;font-size:13px;"><i>Derivation:</i> '+escapeHtml(e.derivation)+'</div>';
+    h+='</div>';
+    result.innerHTML=h;
+  }else{
+    document.getElementById('strongsInput').value=num;
+    strongsLookup();
+  }
 }
 
 function renderStrongsBackButton(){
@@ -797,13 +950,13 @@ function showModal(type){
     body.innerHTML=h;
     showStorySection(document.querySelector('.story-tab'), 'who');
   }else if(type==='strongs'){
-    title.textContent='Hebrew Dictionary';
+    title.textContent='Word Search';
     window._strongsHistory=[];
     let h='<div class="howto-box">';
     h+='<div class="howto-label">HOW TO USE</div>';
-    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Type an English word</b> (love, covenant, light, heart) to find the Hebrew word behind it. <b>Or type a number</b> (7287, 6754) to look up Strong\'s directly. Click any result for the full entry with BDB lexicon. Use the <b>Back</b> button to return.</div>';
+    h+='<div style="font-size:13px;color:var(--fg);line-height:1.5;"><b>Just type any English word</b> (love, Zion, covenant, light, heart). Searches Hebrew, Greek, and deep word entries across the whole Bible. Click any result to see the full meaning. Use <b>Back</b> to return.</div>';
     h+='</div>';
-    h+='<p style="font-size:12px;color:var(--fg-dim);margin-top:6px;">Try: <b>love, covenant, light, fear, holy, glory, image, blessing, sin, life, heart, spirit, soul</b></p>';
+    h+='<p style="font-size:12px;color:var(--fg-dim);margin-top:6px;">Try: <b>love · Zion · covenant · light · holy · heart · spirit · life · peace · image · glory · grace</b></p>';
     h+='<div class="strongs-search">';
     h+='<input type="text" id="strongsInput" placeholder="Type a word (love, covenant) or number (7287)" onkeydown="if(event.key===\'Enter\')strongsSmartLookup()">';
     h+='<button onclick="strongsSmartLookup()">Search</button>';
@@ -885,42 +1038,13 @@ loadChapter(currentChapter);
 
 
 // ============================================================
-// Touch swipe navigation + keyboard arrows
-// ============================================================
+// Keyboard arrow navigation only (swipe removed - vertical scroll preserved)
 (function(){
-  let touchStartX=0,touchStartY=0,touchStartT=0;
-  const main=document.getElementById('mainContent');
-  if(!main)return;
-  main.addEventListener('touchstart',function(e){
-    if(e.touches.length!==1)return;
-    touchStartX=e.touches[0].clientX;
-    touchStartY=e.touches[0].clientY;
-    touchStartT=Date.now();
-  },{passive:true});
-  main.addEventListener('touchend',function(e){
-    if(!touchStartT)return;
-    const t=e.changedTouches[0];
-    const dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;
-    const dt=Date.now()-touchStartT;
-    touchStartT=0;
-    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||dt>500)return;
-    if(dx<0)nextChapter();else prevChapter();
-  },{passive:true});
   document.addEventListener('keydown',function(e){
     if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-    if(document.querySelector('.modal.show'))return;
-    if(e.key==='ArrowLeft'&&currentChapter>1){prevChapter();e.preventDefault();}
-    if(e.key==='ArrowRight'&&currentChapter<50){nextChapter();e.preventDefault();}
+    const modal=document.getElementById('modal');
+    if(modal && modal.classList.contains('show'))return;
+    if(e.key==='ArrowLeft'){prevChapter();e.preventDefault();}
+    if(e.key==='ArrowRight'){nextChapter();e.preventDefault();}
   });
-  if('ontouchstart' in window){
-    setTimeout(function(){
-      const hint=document.createElement('div');
-      hint.className='swipe-hint';
-      hint.textContent='← Swipe to turn the page →';
-      document.body.appendChild(hint);
-      setTimeout(function(){hint.classList.add('show');},100);
-      setTimeout(function(){hint.classList.remove('show');},3500);
-      setTimeout(function(){hint.remove();},4000);
-    },1500);
-  }
 })();

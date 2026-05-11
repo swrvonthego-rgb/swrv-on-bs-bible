@@ -54,6 +54,7 @@
   
 
   <div class="ch-picker-bar">
+  <select id="bookSelect" class="ch-select" onchange="loadBook(this.value)"></select>
   <select id="chapterSelect" class="ch-select" onchange="loadChapter(parseInt(this.value))"></select>
   <button class="ch-nav-btn" onclick="prevChapter()" title="Previous chapter">←</button>
   <button class="ch-nav-btn" onclick="nextChapter()" title="Next chapter">→</button>
@@ -111,6 +112,8 @@
 <script src="data/strongs-hebrew.js"></script>
 <script src="data/bdb-hebrew.js"></script>
 <script src="data/enoch.js"></script>
+<script src="data/strongs-greek.js"></script>
+<script src="data/bible-index.js"></script>
 
 <!-- ============ GENESIS 1-4 DEEP BUILD v8 DATA ============ -->
 <script src="data/pre-history.js"></script>
