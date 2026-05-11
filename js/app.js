@@ -98,6 +98,14 @@ function _lockBodyScroll(){
   document.body.dataset.scrollY = String(y);
   document.body.style.top = -y + 'px';
   document.body.classList.add('modal-open');
+  if(!window._mb_listener){
+    window._mb_listener = function(ev){
+      const inner = ev.target.closest && ev.target.closest('.modal-inner');
+      const modal = ev.target.closest && ev.target.closest('.modal');
+      if(modal && !inner){ ev.preventDefault(); }
+    };
+    document.addEventListener('touchmove', window._mb_listener, {passive:false});
+  }
 }
 function _unlockBodyScroll(){
   if(!document.body.classList.contains('modal-open'))return;
@@ -709,6 +717,7 @@ function _loadChapterCore(n){
   if(mode==='chapter'){
     const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
+    html.push(renderCompanionPassages(currentBook, currentChapter));
     main.innerHTML=html.join('');
   }else{
     if(!verseNums.includes(currentVerse))currentVerse=verseNums[0]||1;
@@ -733,6 +742,7 @@ function renderVerseMode(ch,verseNums){
   html.push('<button class="nav-btn" onclick="nextVerse()" '+(idx===verseNums.length-1&&currentChapter===50?'disabled':'')+'>Next →</button>');
   html.push('</div>');
   html.push(renderVerse(v));
+  html.push(renderCompanionPassages(currentBook, currentChapter));
   html.push('<div class="verse-mode-controls" style="margin-top:30px;">');
   html.push('<button class="nav-btn" onclick="prevVerse()" '+(idx===0&&currentChapter===1?'disabled':'')+'>← Prev</button>');
   html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span></div>');
@@ -1089,37 +1099,78 @@ function strongsLookup(){
 }
 
 
+
+function renderCompanionPassages(book, chapter){
+  if(!window.CROSS_SOURCE_MAP) return '';
+  const bookData = window.CROSS_SOURCE_MAP[book];
+  if(!bookData) return '';
+  const chData = bookData[String(chapter)];
+  if(!chData || !chData.length) return '';
+  let h = '<div class="companion-panel" style="margin-top:18px;padding:14px 16px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:6px;">';
+  h += '<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">COMPANION PASSAGES (Approved Library)</div>';
+  h += '<div style="font-size:12px;color:var(--fg-mute);margin-bottom:10px;">While reading '+escapeHtml(book)+' '+chapter+', these passages from approved external sources speak to the same period or event:</div>';
+  for(const ref of chData){
+    const src = ref.source;
+    h += '<div style="margin:6px 0;padding:8px 10px;background:var(--bg-2);border-radius:4px;line-height:1.55;">';
+    if(src === 'enoch'){
+      const chListStr = (ref.chapters||[]).join(', ');
+      const firstCh = (ref.chapters||[])[0];
+      h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
+      h += '<span style="color:var(--gold);font-weight:700;font-size:12px;">1 Enoch &middot; '+escapeHtml(ref.section)+' '+escapeHtml(chListStr)+'</span>';
+      if(firstCh){
+        h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'library\');setTimeout(function(){openEnochReader(\''+ref.section+'\','+firstCh+');},80);">Open</button>';
+      }
+      h += '</div>';
+      if(ref.verses) h += '<div style="color:var(--fg-dim);font-size:11px;margin-top:3px;">verses '+escapeHtml(ref.verses)+'</div>';
+    } else if(src === 'josephus'){
+      h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
+      h += '<span style="color:var(--gold);font-weight:700;font-size:12px;">Josephus &middot; '+escapeHtml(ref.refs||'')+'</span>';
+      h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'library\');setTimeout(function(){openSourceReader(\'josephus\');},80);">Open</button>';
+      h += '</div>';
+    } else if(src === 'peoples'){
+      h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
+      h += '<span style="color:var(--people);font-weight:700;font-size:12px;">Peoples of '+escapeHtml(book)+' '+chapter+'</span>';
+      h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'peoples\')">Open</button>';
+      h += '</div>';
+    }
+    if(ref.note) h += '<div style="color:var(--fg);font-size:13px;margin-top:5px;">'+escapeHtml(ref.note)+'</div>';
+    h += '</div>';
+  }
+  h += '<div style="font-size:10px;color:var(--fg-dim);margin-top:8px;font-style:italic;">Sources: 1 Enoch (Charles 1917) &middot; Josephus Antiquities (Whiston 1737) &middot; both public domain.</div>';
+  h += '</div>';
+  return h;
+}
+
 function _populateSuggestionChips(){
   const el = document.getElementById('suggestionChips');
   if(!el || !window.DEFINITIONS) return;
-  // Curated list of keys we want to feature IF they exist. We then verify each is present.
-  // Plus we add random keys from window.DEFINITIONS to fill out the list.
-  const wanted = ['love','light','covenant','holy','image','heart','spirit','peace','life','glory','grace','truth','chesed','shalom','yeshuah','ruach','kavod','tzelem','YHWH','agape','logos','tevah','ehyeh asher ehyeh','dam ha-brit','rachum','mishkan','kapporet','olah','korban','aseret hadibrot','segulah','manna','sabbath','shabbat'];
+  const wanted = ['love','light','covenant','holy','heart','spirit','peace','life','glory','grace','truth','image','kingdom','sabbath','manna','YHWH','chesed','shalom','yeshuah','ruach','kavod','tzelem','tevah','rachum','mishkan','kapporet','olah','korban','segulah','shabbat','dabar','brit','pasach','matzah','ehyeh asher ehyeh','dam ha-brit','aseret hadibrot','el shaddai','yhwh-nissi'];
   const allKeys = Object.keys(window.DEFINITIONS).filter(k => k && typeof window.DEFINITIONS[k] === 'object');
   const lower = {};
   allKeys.forEach(k => { lower[k.toLowerCase()] = k; });
-  // Curated keys that actually exist
   const verified = [];
   for(const w of wanted){
     const key = lower[w.toLowerCase()];
     if(key && !verified.includes(key)) verified.push(key);
-    if(verified.length >= 14) break;
   }
-  // If we have fewer than 14, fill with random keys from the dictionary
   if(verified.length < 14){
-    const shuffled = allKeys.slice().sort(() => Math.random() - 0.5);
-    for(const k of shuffled){
+    for(const k of allKeys){
       if(verified.length >= 14) break;
-      if(!verified.includes(k)) verified.push(k);
+      if(verified.includes(k)) continue;
+      const d = window.DEFINITIONS[k];
+      if(d && (d.senses || d.theology || d.def || d.hebrew || d.greek)){
+        verified.push(k);
+      }
     }
   }
-  let html = '<div style="font-weight:600;color:var(--fg);margin-bottom:6px;">Try a suggested word:</div>';
+  let html = '<div style="font-weight:600;color:var(--fg);margin-bottom:6px;">Try a suggested word (every one is in this dictionary):</div>';
   html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
   for(const k of verified){
     const escaped = k.replace(/'/g,"\\'").replace(/"/g,'&quot;');
     html += '<button class="suggestion-chip" onclick="document.getElementById(\'strongsInput\').value=\''+escaped+'\';strongsSmartLookup()" style="background:var(--bg-3);border:1px solid var(--line);color:var(--fg);padding:4px 10px;border-radius:14px;cursor:pointer;font-size:11px;font-family:inherit;">'+escapeHtml(k)+'</button>';
   }
   html += '</div>';
+  html += '<div style="margin-top:10px;font-size:11px;color:var(--fg-dim);">Or <a href="#" onclick="event.preventDefault();closeModal();showModal(\'library\');" style="color:var(--gold);text-decoration:underline;">browse the full library</a> ('+allKeys.length+' deep entries plus Strong\'s + BDB + Enoch + Josephus).</div>';
   el.innerHTML = html;
 }
 
