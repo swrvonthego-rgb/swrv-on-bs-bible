@@ -1226,14 +1226,14 @@ function renderCompanionPassages(book, chapter){
       h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
       h += '<span style="color:var(--gold);font-weight:700;font-size:12px;">1 Enoch &middot; '+escapeHtml(ref.section)+' '+escapeHtml(chListStr)+'</span>';
       if(firstCh){
-        h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'library\');setTimeout(function(){openEnochReader(\''+ref.section+'\','+firstCh+');},80);">Open</button>';
+        h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="openEnochDirect(\''+ref.section+'\','+firstCh+');">Open</button>';
       }
       h += '</div>';
       if(ref.verses) h += '<div style="color:var(--fg-dim);font-size:11px;margin-top:3px;">verses '+escapeHtml(ref.verses)+'</div>';
     } else if(src === 'josephus'){
       h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
       h += '<span style="color:var(--gold);font-weight:700;font-size:12px;">Josephus &middot; '+escapeHtml(ref.refs||'')+'</span>';
-      h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'library\');setTimeout(function(){openSourceReader(\'josephus\');},80);">Open</button>';
+      h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="openJosephusToPassage(\''+escapeHtml(ref.refs||'')+'\');">Open</button>';
       h += '</div>';
     } else if(src === 'peoples'){
       h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
@@ -2012,6 +2012,72 @@ function _renderDefsList(){
 // Source text reader (Josephus, Edersheim, etc.) — read OR search
 window._SRC_PAGE = {};
 window._SRC_MODE = {};  // 'read' or 'search'
+
+// ── Josephus page map ─────────────────────────────────────────────────────────
+// Maps each cross-source-map ref string to the correct paginated page index
+// (page size = 6000 chars; calculated from josephus-antiquities-full.txt).
+// Genesis = Book I, Exodus = Books II-III of Antiquities.
+const JOSEPHUS_PAGE_MAP = {
+  // Genesis
+  'Antiquities I.1.1':    37,
+  'Antiquities I.1.2-3':  37,
+  'Antiquities I.1.4':    38,
+  'Antiquities I.2.1':    39,
+  'Antiquities I.2.2':    40,
+  'Antiquities I.3.1':    40,
+  'Antiquities I.3.2-3':  40,
+  'Antiquities I.3.5-6':  41,
+  'Antiquities I.3.7-8':  42,
+  'Antiquities I.4':      43,
+  'Antiquities I.6':      44,
+  // Exodus
+  'Antiquities II.9.1-2': 75,
+  'Antiquities II.9.3-11':77,
+  'Antiquities II.12':    81,
+  'Antiquities II.13':    82,
+  'Antiquities II.14':    85,
+  'Antiquities II.15-16': 85,
+  'Antiquities III.5':    80,
+  'Antiquities III.5.5-8':95,
+  'Antiquities III.5.7':  95,
+  'Antiquities III.6':    94,
+  'Antiquities III.8':    94,
+  // Leviticus
+  'Antiquities III.9':    102,
+  'Antiquities III.9.1':  102,
+  'Antiquities III.9.2':  102,
+  'Antiquities III.9.3':  102,
+  'Antiquities III.9.4':  102,
+  'Antiquities III.8.7':  94,
+};
+
+/**
+ * openJosephusToPassage(refs)
+ * Opens the Josephus source reader and jumps directly to the page containing
+ * the specified passage reference (e.g. "Antiquities I.1.1").
+ * Falls back to page 37 (Book I, Chapter I) when the ref is unrecognised.
+ */
+async function openJosephusToPassage(refs) {
+  _lockBodyScroll();
+  document.getElementById('modal').classList.add('show');
+  // Determine target page
+  const page = JOSEPHUS_PAGE_MAP[refs] || JOSEPHUS_PAGE_MAP['Antiquities ' + refs] || 37;
+  window._SRC_MODE['josephus'] = 'read';
+  window._SRC_PAGE['josephus'] = page;
+  await openSourceReader('josephus');
+}
+
+/**
+ * openEnochDirect(section, chapter)
+ * Opens the modal and jumps straight to the specified Enoch section + chapter,
+ * without the fragile showModal('library') + setTimeout pattern.
+ */
+function openEnochDirect(section, chapter) {
+  _lockBodyScroll();
+  document.getElementById('modal').classList.add('show');
+  openEnochReader(section, chapter);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 async function openSourceReader(key){
   const m = window.SOURCES_MANIFEST && window.SOURCES_MANIFEST[key];
   if(!m){alert('Source not registered: '+key);return;}
