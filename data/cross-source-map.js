@@ -1,11 +1,5 @@
-// Cross-Source Map — chronological intertwining of approved external sources with the biblical narrative.
-// Per Rule 06 (closed library): only approved sources are mapped.
-// Sources: 1 Enoch (Charles 1917, PD); Josephus Antiquities (Whiston 1737, PD).
-//
-// ENOCH CHAPTER KEY — the app's Enoch data uses section-relative numbering:
-//   Watchers ch 1-7  |  Parables ch 1-3  |  Astronomy ch 1-4  |  Dreams ch 1-5  |  Epistle ch 1-6,11
-//
-// All Enoch chapter references have been validated against actual enoch.js data.
+// SWRV Cross-Source Map — companion passages from approved library (Rule 06)
+// Auto-generated. Each entry can be: enoch, josephus, or peoples.
 window.CROSS_SOURCE_MAP = {
   "Genesis": {
     "1": [
@@ -384,6 +378,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities II.9.3-11",
         "note": "Josephus on Moses' birth, rescue by Pharaoh's daughter (whom he names Thermuthis), and upbringing. Adds Moses led a military campaign against Ethiopia as an Egyptian general before his exile — a tradition from Jewish sources."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Moses",
+          "Miriam"
+        ],
+        "note": "The birth of Moses and his sister Miriam at the Nile."
       }
     ],
     "3": [
@@ -391,6 +393,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities II.12",
         "note": "Josephus on the burning bush and Moses' commission. Adds Moses saw a flame rising from a bush not consumed, and heard a voice command him to remove his sandals — confirming the sacred ground tradition of Exod 3:5."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Moses"
+        ],
+        "note": "The burning bush and the call of Moses."
       }
     ],
     "7": [
@@ -398,6 +407,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities II.13",
         "note": "Josephus on the plagues — defends their historicity against Greco-Roman skeptics. Notes the Egyptian magicians replicated the first plagues but could not match the later ones. Provides first-century eyewitness perspective on the plagues' order."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Moses",
+          "Aaron"
+        ],
+        "note": "Moses and Aaron stand before Pharaoh — the ten plagues begin."
       }
     ],
     "12": [
@@ -454,6 +471,16 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities III.8",
         "note": "Josephus on the consecration of the tabernacle and the descent of the divine cloud. Confirms the glory-cloud tradition as the visible marker of YHWH's presence taking residence in the wilderness sanctuary."
+      }
+    ],
+    "15": [
+      {
+        "source": "peoples",
+        "people": [
+          "Moses",
+          "Miriam"
+        ],
+        "note": "The Song of the Sea — Miriam leads Israel's women in dance after the Red Sea crossing."
       }
     ]
   },
@@ -536,6 +563,15 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities III.14",
         "note": "Josephus on the twelve spies sent to Canaan. Names Caleb specifically as the lone dissenter (alongside Joshua) who urged Israel to take the land. Notes the majority report caused Israel to 'sit down and weep,' leading to the 40-year wilderness judgment."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Moses",
+          "Joshua",
+          "Caleb"
+        ],
+        "note": "The twelve spies sent into Canaan. Only Joshua and Caleb bring back a faithful report."
       }
     ],
     "16": [
@@ -557,6 +593,17 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities IV.6",
         "note": "Josephus on the Baal Peor apostasy — adds that Balaam counseled Balak to use Midianite women to seduce Israel into idolatry (a tradition also in Num 31:16). Notes Phinehas' act ended the plague and was remembered as an act of zeal for 1,000 years in Second Temple tradition."
+      }
+    ],
+    "12": [
+      {
+        "source": "peoples",
+        "people": [
+          "Moses",
+          "Aaron",
+          "Miriam"
+        ],
+        "note": "Miriam and Aaron speak against Moses — Miriam is struck with leprosy. Moses described as 'meek above all men' (v.3)."
       }
     ]
   },
@@ -604,6 +651,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.1",
         "note": "Josephus on Joshua's commission after Moses' death — confirms the divine command to 'be strong and courageous' and the preparation to cross the Jordan. His account of the spies sent to Jericho (Josh 2) adds the detail that Rahab hid them under flax stalks."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Joshua"
+        ],
+        "note": "Joshua commissioned as Moses' successor — 'Be strong and of a good courage' (v.6,9)."
       }
     ],
     "3": [
@@ -618,6 +672,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.1",
         "note": "Josephus on the fall of Jericho — confirms the seven-day march, the trumpets, and the collapse of the walls. Notes Rahab and her family alone were spared, and that Joshua pronounced a curse on anyone who would rebuild Jericho (fulfilled in 1 Kgs 16:34)."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Joshua",
+          "Rahab"
+        ],
+        "note": "The walls of Jericho fall. Rahab and her family are saved."
       }
     ],
     "10": [
@@ -632,6 +694,26 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.1",
         "note": "Josephus on Joshua's farewell at Shechem — notes Joshua's assembly of all Israel to renew the covenant, and Joshua's declaration 'as for me and my house, we will serve the LORD.' Josephus records Joshua's death at age 110 and his burial at Timnath-Serah."
+      }
+    ],
+    "2": [
+      {
+        "source": "peoples",
+        "people": [
+          "Joshua",
+          "Rahab"
+        ],
+        "note": "Rahab the Canaanite prostitute hides Israel's spies in Jericho — and becomes ancestor of Jesus."
+      }
+    ],
+    "14": [
+      {
+        "source": "peoples",
+        "people": [
+          "Joshua",
+          "Caleb"
+        ],
+        "note": "Caleb at 85: 'Give me this mountain' — the great example of finishing strong."
       }
     ]
   },
@@ -678,6 +760,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.9",
         "note": "Josephus on Ruth and Naomi — confirms the account of the Moabite woman who returned with Naomi to Bethlehem. Notes Ruth was 'a woman of excellent character' and that her devotion to Naomi was extraordinary by any cultural standard."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Ruth"
+        ],
+        "note": "'Whither thou goest, I will go' — the most famous declaration of loyalty in the OT."
       }
     ],
     "4": [
@@ -689,6 +778,15 @@ window.CROSS_SOURCE_MAP = {
       {
         "source": "peoples",
         "note": "Tap Moab in the text for the Peoples profile on Moab — a nation descended from Lot, often in conflict with Israel, yet Ruth the Moabite becomes Israel's most celebrated foreign daughter and a royal ancestor."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Ruth",
+          "Boaz",
+          "David"
+        ],
+        "note": "Ruth marries Boaz; they become great-grandparents of King David — and ancestors of Jesus (Matt 1:5)."
       }
     ]
   },
@@ -698,6 +796,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.10",
         "note": "Josephus on Hannah's prayer and Samuel's birth — notes that Eli the priest initially mistook Hannah's silent prayer for drunkenness, and that she vowed to dedicate the child to the LORD before he was conceived. Josephus confirms the miraculous conception in the context of Hannah's barrenness."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Samuel"
+        ],
+        "note": "Hannah's prayer for a son; the birth and dedication of Samuel."
       }
     ],
     "3": [
@@ -705,6 +810,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities V.10",
         "note": "Josephus on Samuel's call — confirms that Samuel heard the voice of God three times before understanding it was divine, and that Eli instructed him to answer 'Speak, LORD; for thy servant heareth.' Samuel is identified as a prophet of the highest order — the last judge and first of the prophets."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Samuel"
+        ],
+        "note": "The boy Samuel hears God's voice for the first time — 'Speak; for thy servant heareth.'"
       }
     ],
     "8": [
@@ -719,6 +831,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VI.8",
         "note": "Josephus on Samuel's anointing of David — notes that God directed Samuel to anoint the youngest son of Jesse while his older brothers were passed over. Josephus adds that David was 'fair in appearance' and that the Spirit of God came upon him from that day forward, while departing from Saul."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Samuel",
+          "David"
+        ],
+        "note": "Samuel anoints David — 'the LORD looketh on the heart.'"
       }
     ],
     "17": [
@@ -726,6 +846,36 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VI.9",
         "note": "Josephus on David and Goliath — gives Goliath's height as 'four cubits and a span' (about 6'9\" by some calculations) and describes Goliath's armor in detail. Notes David's faith: 'The LORD who delivered me from the paw of the lion and from the paw of the bear will deliver me from the hand of this Philistine.'"
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Saul",
+          "Jonathan"
+        ],
+        "note": "David and Goliath. After the victory Jonathan's soul is 'knit to the soul of David.'"
+      }
+    ],
+    "10": [
+      {
+        "source": "peoples",
+        "people": [
+          "Samuel",
+          "Saul"
+        ],
+        "note": "Samuel anoints Saul as Israel's first king."
+      }
+    ],
+    "18": [
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Saul",
+          "Jonathan"
+        ],
+        "note": "The covenant of friendship between David and Jonathan."
       }
     ]
   },
@@ -742,6 +892,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VII.4",
         "note": "Josephus on the Davidic covenant — the promise to David that his throne would be established forever (2 Sam 7:12-16). Notes that Nathan's oracle was a 'comfort to the king' and that it became the foundation of messianic expectation for all subsequent Jewish history."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "David"
+        ],
+        "note": "The Davidic covenant: God promises David an everlasting throne — fulfilled in Christ."
       }
     ],
     "11": [
@@ -749,6 +906,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VII.7",
         "note": "Josephus on David and Bathsheba — acknowledges the sin directly and notes that God was 'displeased' with David. Josephus is unusually direct about David's moral failure here, noting that the sin involved both adultery and effectively engineering Uriah's death."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Bathsheba"
+        ],
+        "note": "David and Bathsheba — the great moral failure that shadows the rest of his reign."
       }
     ],
     "12": [
@@ -756,6 +921,25 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VII.7",
         "note": "Josephus on Nathan's parable and David's repentance — confirms the 'thou art the man' confrontation and notes that David immediately confessed 'I have sinned against the LORD.' Josephus adds that David fasted and prayed for the child for seven days before the death."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Bathsheba"
+        ],
+        "note": "Nathan confronts David: 'Thou art the man.' David's repentance — read alongside Psalm 51."
+      }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Saul",
+          "Jonathan"
+        ],
+        "note": "David's lament over Saul and Jonathan: 'How are the mighty fallen.'"
       }
     ]
   },
@@ -765,6 +949,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VIII.2",
         "note": "Josephus on Solomon's request for wisdom at Gibeon — notes that Solomon could have asked for wealth, long life, or victory over enemies, but asked instead for wisdom. Josephus emphasizes that God gave him all three anyway. The account of the two mothers and the living baby follows immediately."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Solomon"
+        ],
+        "note": "Solomon's prayer for wisdom — 'a hearing heart.' God grants wisdom plus riches and honor."
       }
     ],
     "6": [
@@ -786,6 +977,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VIII.13",
         "note": "Josephus on Elijah and the drought — confirms the three and a half year drought, Elijah's hiding by the brook Cherith, and the widow of Zarephath whose oil and flour did not run out. A key first-century confirmation of 1 Kgs 17."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah"
+        ],
+        "note": "Elijah appears suddenly in the narrative — 'Tishbite of Gilead.' Fed by ravens. Multiplies the widow's meal and oil."
       }
     ],
     "18": [
@@ -793,6 +991,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VIII.13",
         "note": "Josephus on Mount Carmel — describes Elijah's contest with the 450 prophets of Baal, the fire from heaven, the prophets' slaughter at the brook Kishon, and Elijah's prayer for rain. Josephus emphasizes this as the most dramatic demonstration of YHWH's superiority over Baal in Israel's history."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah"
+        ],
+        "note": "Mount Carmel: Elijah versus the 450 prophets of Baal. Fire falls from heaven."
       }
     ],
     "22": [
@@ -800,6 +1005,37 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VIII.15",
         "note": "Josephus on Ahab's death at Ramoth-Gilead — confirms the disguise, the random arrow that found the gap in Ahab's armor, and Ahab's propping himself in his chariot until evening. Notes dogs licked his blood where Naboth had been killed, fulfilling Elijah's prophecy (1 Kgs 21:19)."
+      }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Solomon",
+          "Bathsheba"
+        ],
+        "note": "Solomon's accession to the throne with Bathsheba's intervention."
+      }
+    ],
+    "8": [
+      {
+        "source": "peoples",
+        "people": [
+          "Solomon",
+          "David"
+        ],
+        "note": "The Temple dedication. The Shekinah glory fills the house. Solomon's great prayer."
+      }
+    ],
+    "19": [
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah",
+          "Elisha"
+        ],
+        "note": "Elijah at Horeb — the still small voice. Calls Elisha as successor."
       }
     ]
   },
@@ -809,6 +1045,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities IX.2",
         "note": "Josephus on Elijah's translation to heaven — notes that Elisha and fifty sons of the prophets witnessed Elijah ascend in a whirlwind with a fiery chariot and horses. Josephus confirms the double portion request and Elisha's reception of the mantle — the succession of the prophetic office."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah",
+          "Elisha"
+        ],
+        "note": "Elijah is taken up in a whirlwind. Elisha receives the double portion of his spirit."
       }
     ],
     "5": [
@@ -816,6 +1060,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities IX.4",
         "note": "Josephus on Naaman the Syrian — confirms the account of the Israelite servant girl, the dipping in the Jordan seven times, and Naaman's healing from leprosy. Notes that Naaman's request to take two mule-loads of Israelite soil home reflects ancient religious practice of worshipping a god on that god's native earth."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Elisha"
+        ],
+        "note": "Naaman the Syrian leper healed in the Jordan. Jesus cites this story in Luke 4:27."
       }
     ],
     "18": [
@@ -983,6 +1234,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities VII.7",
         "note": "Psalm 51 is the penitential psalm of David after Nathan's confrontation (2 Sam 12). Josephus' account of David's immediate confession — 'I have sinned against the LORD' — provides first-century corroboration of the psalm's historical setting."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "David",
+          "Bathsheba"
+        ],
+        "note": "David's psalm of repentance after Nathan confronted him over Bathsheba and Uriah."
       }
     ],
     "82": [
@@ -1014,6 +1273,15 @@ window.CROSS_SOURCE_MAP = {
           2
         ],
         "note": "Psalm 148 calls the heavens, angels, sun, moon, stars, and all creation to praise YHWH. Enoch's opening chapters show the same cosmic choir — the heavenly luminaries, the winds, the dew, all fulfilling YHWH's word. Both texts present creation's praise as the constant background reality of the universe."
+      }
+    ],
+    "23": [
+      {
+        "source": "peoples",
+        "people": [
+          "David"
+        ],
+        "note": "The Shepherd Psalm — David, who was a shepherd, knows what it means to BE a sheep."
       }
     ]
   },
@@ -1082,6 +1350,13 @@ window.CROSS_SOURCE_MAP = {
           6
         ],
         "note": "Isaiah's throne vision (Isa 6:1-8) — seraphim, the smoking temple, the holy cry — parallels Enoch's heavenly throne vision in Watchers ch 5-6. Both prophets are overwhelmed by YHWH's holiness, both are commissioned to speak to a generation that will not hear. The seraphim and Enoch's fiery angelic figures inhabit the same heavenly geography."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Isaiah"
+        ],
+        "note": "Isaiah's throne vision. John 12:41 says Isaiah saw Christ's glory."
       }
     ],
     "14": [
@@ -1111,6 +1386,14 @@ window.CROSS_SOURCE_MAP = {
           3
         ],
         "note": "Isaiah 53's Suffering Servant who is 'despised and rejected...wounded for our transgressions' parallels Enoch's Son of Man in the Parables — the righteous one who is rejected by kings and mighty ones but who sits on the throne of judgment. Isaiah 53 and Enoch's Parables are the two primary pre-Christian texts describing the fate and vindication of the righteous servant."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Isaiah",
+          "Jesus"
+        ],
+        "note": "The Suffering Servant prophecy. The Dead Sea Scrolls preserve this chapter in a manuscript predating Christ."
       }
     ],
     "65": [
@@ -1122,6 +1405,15 @@ window.CROSS_SOURCE_MAP = {
         ],
         "note": "Isaiah 65's vision of the new creation — 'the former things shall not be remembered' — parallels Enoch's vision in Epistle ch 3 of the transformed world where the righteous inherit light and sinners perish. Both texts promise cosmic renewal after cosmic judgment."
       }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "Isaiah"
+        ],
+        "note": "Isaiah's opening vision — naming the kings of Judah he served under."
+      }
     ]
   },
   "Jeremiah": {
@@ -1130,6 +1422,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities X.5",
         "note": "Josephus on Jeremiah — notes he was a priest from Anathoth who prophesied from the 13th year of Josiah through the destruction of Jerusalem. Josephus calls him 'a divine man' who predicted the 70-year captivity. A key first-century account of the great prophet."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Jeremiah"
+        ],
+        "note": "Jeremiah's call — 'Before I formed thee in the belly I knew thee.'"
       }
     ],
     "7": [
@@ -1151,6 +1450,15 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities X.8",
         "note": "Josephus on the fall of Jerusalem — parallel to Jeremiah 52 and 2 Kings 25. Josephus provides the most detailed ancient account of the siege, the famine, Zedekiah's capture, and the burning of the temple. As a first-century Jew who himself experienced Jerusalem's fall in 70 AD, Josephus writes with unique authority."
+      }
+    ],
+    "31": [
+      {
+        "source": "peoples",
+        "people": [
+          "Jeremiah"
+        ],
+        "note": "The promise of the New Covenant — quoted in full in Hebrews 8."
       }
     ]
   },
@@ -1183,6 +1491,13 @@ window.CROSS_SOURCE_MAP = {
           6
         ],
         "note": "Ezekiel's chariot vision (the Merkabah — wheels within wheels, the four living creatures, the appearance of fire) parallels Enoch's heavenly throne vision in Watchers ch 5-6. Both prophets see the same divine throne chariot. The Merkabah became the center of Jewish mystical tradition precisely because both Ezekiel and Enoch described the same vision."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Ezekiel"
+        ],
+        "note": "Ezekiel's chariot-throne vision by the river Chebar — the foundation of Jewish mystical literature."
       }
     ],
     "28": [
@@ -1200,6 +1515,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities X.8",
         "note": "Ezekiel's vision of the valley of dry bones (Ezek 37) — 'these bones are the whole house of Israel' — prophesied the national resurrection of Israel from Babylonian exile. Josephus' account of the exile and return provides the historical fulfillment: Cyrus' decree, the return of exiles, and the rebuilding of Jerusalem."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Ezekiel"
+        ],
+        "note": "The valley of dry bones — vision of national resurrection."
       }
     ]
   },
@@ -1225,6 +1547,13 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities X.10",
         "note": "Josephus on Daniel 7 — notes that Daniel wrote 'a book' about the kingdoms and their end, but Josephus is characteristically evasive about the specific identification of the fourth kingdom in his own day. His evasion is historically revealing: he is writing under Rome."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Daniel"
+        ],
+        "note": "The Son of Man vision — Jesus' most-quoted self-title comes from this chapter."
       }
     ],
     "9": [
@@ -1242,6 +1571,24 @@ window.CROSS_SOURCE_MAP = {
           3
         ],
         "note": "Daniel 12:1-3 — 'Many of them that sleep in the dust of the earth shall awake, some to everlasting life, and some to shame and everlasting contempt' — is the OT's clearest resurrection prophecy. Enoch's Third Parable declares the same: 'the righteous shall arise from their sleep' while the wicked face judgment. Daniel and Enoch are the two primary OT witnesses to bodily resurrection."
+      }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "Daniel"
+        ],
+        "note": "Daniel and his three friends — refusing the king's meat in Babylon."
+      }
+    ],
+    "6": [
+      {
+        "source": "peoples",
+        "people": [
+          "Daniel"
+        ],
+        "note": "Daniel in the lions' den under King Darius."
       }
     ]
   },
@@ -1384,6 +1731,22 @@ window.CROSS_SOURCE_MAP = {
       {
         "source": "peoples",
         "note": "Matthew's genealogy traces Jesus through 42 generations from Abraham — 14 to David, 14 to the Exile, 14 to Christ. Tap the names in the genealogy for Peoples profiles on the nations and figures in the messianic line, including the remarkable women: Tamar, Rahab, Ruth, and Bathsheba."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Abraham",
+          "David",
+          "Tamar",
+          "Rahab",
+          "Ruth",
+          "Bathsheba",
+          "Solomon",
+          "Mary",
+          "Joseph_NT",
+          "Jesus"
+        ],
+        "note": "The genealogy of Jesus — every name is a tap-clickable person card."
       }
     ],
     "2": [
@@ -1391,6 +1754,16 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVII.8",
         "note": "Josephus on Herod the Great's reign — confirms his political paranoia and violent suppression of perceived threats to his throne (he killed his own wife, mother-in-law, and three sons). The slaughter of the innocents in Bethlehem (Matt 2:16) is historically consistent with the character Josephus describes."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Mary",
+          "Joseph_NT",
+          "Herod"
+        ],
+        "note": "The Magi visit; Herod's slaughter of the innocents; flight to Egypt. Confirmed in Josephus Antiquities XVII.8."
       }
     ],
     "3": [
@@ -1415,6 +1788,15 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVIII.4",
         "note": "Josephus on the high priest Caiaphas — confirms he was appointed by the Roman governor and served at Rome's pleasure. The Jewish high priesthood in Jesus' day was a political appointment, not a spiritual one. Josephus' description of the high-priestly establishment explains why they collaborated with Rome against Jesus."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Peter",
+          "Caiaphas"
+        ],
+        "note": "The arrest, trial before Caiaphas, and Peter's denial."
       }
     ],
     "27": [
@@ -1422,6 +1804,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVIII.3",
         "note": "Josephus on Pontius Pilate — confirms him as prefect of Judea known for his 'briberies, insults, robberies, outrages, wanton injuries, constantly repeated executions without trial, and ceaseless and gravest cruelty.' The Pilate who washed his hands in Matthew 27 is the same Pilate Josephus documents as a brutal pragmatist."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Pilate"
+        ],
+        "note": "The Roman trial before Pontius Pilate. Pilate's historicity is confirmed by Josephus, Tacitus, Philo, and the 1961 Pilate Stone discovered at Caesarea."
       }
     ]
   },
@@ -1431,6 +1821,39 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVIII.5",
         "note": "Mark's Gospel opens with the ministry of John the Baptist, who Josephus independently confirms was a genuine historical figure of great influence: 'many people came in crowds' to hear him, and Herod 'feared that the great influence John had over the people might put it in his power to raise a rebellion.' Josephus corroborates Mark's portrayal of John's popularity."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "JohnBaptist",
+          "Jesus"
+        ],
+        "note": "John the Baptist and Jesus appear in this chapter — tap the names in the text for biographical context."
+      }
+    ],
+    "6": [
+      {
+        "source": "josephus",
+        "refs": "Antiquities XVIII.5",
+        "note": "Josephus on the death of John the Baptist — confirms Herod's marriage to Herodias and John's beheading."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "JohnBaptist",
+          "Herod"
+        ],
+        "note": "The death of John the Baptist under Herod Antipas."
+      }
+    ],
+    "14": [
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Caiaphas"
+        ],
+        "note": "The arrest and trial before the high priest Caiaphas."
       }
     ]
   },
@@ -1440,6 +1863,20 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVII.13",
         "note": "Luke 2:1 — 'There went out a decree from Caesar Augustus that all the world should be taxed' — is confirmed by Josephus' account of the census and its effects. Josephus mentions the census of Quirinius (Antiq. XVIII.1) as a major triggering event for Jewish unrest and the rise of the Zealot movement."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Mary",
+          "Joseph_NT",
+          "Jesus"
+        ],
+        "note": "The Bethlehem birth narrative under the census of Quirinius."
+      },
+      {
+        "source": "josephus",
+        "refs": "Antiquities XVIII.1",
+        "note": "Josephus on the Quirinius census — independent confirmation of Luke 2:2."
       }
     ],
     "3": [
@@ -1447,6 +1884,15 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVIII.5",
         "note": "Josephus' account of John the Baptist confirms Luke 3's portrait: preaching repentance, baptizing in the Jordan, attracting crowds from across Judea. Josephus adds that John's death under Herod Antipas caused Herod's military disaster against Aretas to be seen by Jews as divine judgment."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "JohnBaptist",
+          "Jesus",
+          "Caiaphas"
+        ],
+        "note": "John's ministry begins; Jesus is baptized; the genealogy traces back to Adam (unlike Matthew's, which stops at Abraham)."
       }
     ],
     "20": [
@@ -1454,6 +1900,29 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XX.9",
         "note": "Luke 20's controversy with the Sadducees on resurrection echoes first-century Jewish sectarian debate. Josephus confirms: 'The Sadducees hold that the soul perishes with the body, while the Pharisees believe the soul is immortal.' This was the fault line that divided Jerusalem's religious establishment in Jesus' day."
+      }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "Mary",
+          "Joseph_NT",
+          "JohnBaptist",
+          "Jesus"
+        ],
+        "note": "The annunciation to Mary and the birth narrative of John the Baptist. Tap each name."
+      }
+    ],
+    "23": [
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Pilate",
+          "Herod"
+        ],
+        "note": "The trials before Pilate AND Herod Antipas (unique to Luke). Tap names for context."
       }
     ]
   },
@@ -1468,6 +1937,15 @@ window.CROSS_SOURCE_MAP = {
           3
         ],
         "note": "John 1:1 — 'In the beginning was the Word' — presents the pre-existent Logos. Enoch's Parables reveal this same pre-existent figure: 'His name was named before the Lord of Spirits' before creation. The Son of Man in Enoch is 'the Righteous One' and 'the Chosen One' — the same divine figure John identifies as the Word made flesh."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "JohnBaptist",
+          "Jesus",
+          "Peter"
+        ],
+        "note": "John the Baptist's witness, the calling of Andrew and Peter."
       }
     ],
     "11": [
@@ -1482,6 +1960,27 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XVIII.3",
         "note": "Josephus on Jesus — the Testimonium Flavianum: 'Now there was about this time Jesus, a wise man...He drew over to him both many of the Jews, and many of the Gentiles. He was the Christ; and when Pilate...had condemned him to the cross...he appeared to them alive again the third day.' Even in its disputed form, this confirms Jesus' historicity in first-century Roman Judea."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Peter",
+          "Caiaphas",
+          "Pilate"
+        ],
+        "note": "The arrest, trial before Caiaphas, and the start of the Roman trial."
+      }
+    ],
+    "19": [
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Pilate",
+          "Mary"
+        ],
+        "note": "The crucifixion. Mary stands at the cross."
       }
     ]
   },
@@ -1498,6 +1997,14 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XIX.8",
         "note": "Josephus on Herod Agrippa I's death — Acts 12:21-23 records that Herod was struck dead by an angel after accepting divine honors. Josephus records the same event in detail: 'his flatterers cried out...that he was a god, not a man. The king did not rebuke them...An excruciating pain arose in his belly...after five days he died.' Two independent accounts of the same death."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Peter",
+          "Paul"
+        ],
+        "note": "Peter's miraculous escape from Herod Agrippa I's prison; Herod's gruesome death."
       }
     ],
     "21": [
@@ -1505,6 +2012,47 @@ window.CROSS_SOURCE_MAP = {
         "source": "josephus",
         "refs": "Antiquities XX.8",
         "note": "Paul's arrest in the temple (Acts 21) takes place during a period Josephus describes as the most turbulent in Jerusalem's pre-war history — Egyptian prophet, Zealot activity, frequent Sicarii assassinations in the temple courts. Josephus' Wars II provides the living backdrop for Paul's final journey to Jerusalem."
+      }
+    ],
+    "1": [
+      {
+        "source": "peoples",
+        "people": [
+          "Jesus",
+          "Peter",
+          "Mary"
+        ],
+        "note": "The ascension and the church gathering in the upper room — Mary is named among them (Acts 1:14)."
+      }
+    ],
+    "9": [
+      {
+        "source": "peoples",
+        "people": [
+          "Paul"
+        ],
+        "note": "The Damascus Road conversion of Saul of Tarsus — the moment that turns the persecutor into the apostle to the Gentiles."
+      }
+    ],
+    "13": [
+      {
+        "source": "peoples",
+        "people": [
+          "Paul",
+          "Samuel",
+          "Saul",
+          "David"
+        ],
+        "note": "Paul's first recorded sermon — surveying Israel's history from the wilderness to David to Jesus."
+      }
+    ],
+    "17": [
+      {
+        "source": "peoples",
+        "people": [
+          "Paul"
+        ],
+        "note": "Paul on Mars Hill in Athens — debating the Stoic and Epicurean philosophers about 'the Unknown God.'"
       }
     ]
   },
@@ -1517,6 +2065,46 @@ window.CROSS_SOURCE_MAP = {
           2
         ],
         "note": "Romans 1:18-32 — humanity's suppression of the truth leading to corruption — parallels Enoch's Second Parable: the kings and the mighty who 'have denied the Lord of Spirits and His Anointed' and who 'trust in their scepters and their glory' will face judgment. Both Paul and Enoch describe the same spiritual dynamic: the suppression of divine revelation leads to corruption."
+      }
+    ],
+    "4": [
+      {
+        "source": "peoples",
+        "people": [
+          "Abraham"
+        ],
+        "note": "Paul's argument that Abraham was justified by faith, not by works — establishing the gospel principle."
+      }
+    ],
+    "5": [
+      {
+        "source": "peoples",
+        "people": [
+          "Adam",
+          "Jesus"
+        ],
+        "note": "The Adam–Christ typology: one man brought sin and death, one Man brought righteousness and life."
+      }
+    ],
+    "9": [
+      {
+        "source": "peoples",
+        "people": [
+          "Abraham",
+          "Isaac",
+          "Jacob",
+          "Esau"
+        ],
+        "note": "Paul cites the patriarchs and the Esau/Jacob story to explain God's electing purpose."
+      }
+    ],
+    "11": [
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah"
+        ],
+        "note": "Paul invokes Elijah's despair (1 Kings 19) to argue God has not cast off Israel."
       }
     ]
   },
@@ -1571,6 +2159,23 @@ window.CROSS_SOURCE_MAP = {
           1
         ],
         "note": "Hebrews 11:5 — 'By faith Enoch was translated that he should not see death' — directly references Enoch's translation account. Dreams ch 1 is Enoch's own description of being 'raised aloft to that Son of Man.' The author of Hebrews cites Enoch as the preeminent example of faith's power to transcend death."
+      },
+      {
+        "source": "peoples",
+        "people": [
+          "Abel",
+          "Enoch",
+          "Noah",
+          "Abraham",
+          "Isaac",
+          "Jacob",
+          "Joseph",
+          "Moses",
+          "Rahab",
+          "David",
+          "Samuel"
+        ],
+        "note": "The 'Hall of Faith' — eleven major figures named, each tap-clickable in the verse text."
       }
     ]
   },
@@ -1660,6 +2265,38 @@ window.CROSS_SOURCE_MAP = {
           7
         ],
         "note": "Revelation 21's new Jerusalem with the Tree of Life at its center fulfills Enoch's vision in Watchers ch 7 — the Garden of Righteousness, the Tree of Life on the holy mountain, the fragrant trees the righteous will inherit. Enoch saw the Tree of Life preserved for the righteous; John sees it given to them at the end of all things."
+      }
+    ]
+  },
+  "Galatians": {
+    "3": [
+      {
+        "source": "peoples",
+        "people": [
+          "Abraham"
+        ],
+        "note": "Abraham's faith, 'reckoned to him for righteousness,' is Paul's central exhibit against legalism."
+      }
+    ]
+  },
+  "James": {
+    "2": [
+      {
+        "source": "peoples",
+        "people": [
+          "Abraham",
+          "Rahab"
+        ],
+        "note": "James cites Abraham (faith with works) and Rahab (faith proved by action) — counterpoint to Paul's argument in Romans/Galatians, the two complementary."
+      }
+    ],
+    "5": [
+      {
+        "source": "peoples",
+        "people": [
+          "Elijah"
+        ],
+        "note": "Elijah's prayer-life as the example: 'a man subject to like passions as we are' who prayed and the heavens were shut."
       }
     ]
   }

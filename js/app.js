@@ -981,13 +981,19 @@ function showDef(word){
 }
 
 function showPerson(name){
-  const p=window.PEOPLES[name];
+  let p=window.PEOPLES[name];
+  // Handle cases where a name in PEOPLES might be referenced by short form
+  if(!p && name === 'Joseph') p = window.PEOPLES['Joseph_NT'];
+  // Fall back to DEFINITIONS for biblical-figure terms stored there (e.g. Adam, Eve, Noah, Cain, Abel, Enoch)
+  if(!p && window.DEFINITIONS && window.DEFINITIONS[name]){ showDef(name); return; }
   if(!p)return;
+  // Display name (strip _NT suffix for cleaner UI)
+  const displayName = name.replace(/_NT$/, '');
   const popup=document.getElementById('defPopup');
   popup.classList.remove('strongs');
   popup.classList.add('people');
   const html=[];
-  html.push('<div class="def-word">👤 '+escapeHtml(name)+'</div>');
+  html.push('<div class="def-word">👤 '+escapeHtml(displayName)+'</div>');
   if(p.altName&&p.altName!=='-')html.push('<div class="def-translit">Also: '+escapeHtml(p.altName)+'</div>');
   if(p.biblical)html.push('<div class="def-section"><div class="def-section-label">Biblical Identity</div><div class="def-section-text">'+escapeHtml(p.biblical)+'</div></div>');
   if(p.region)html.push('<div class="def-section"><div class="def-section-label">Region / Origin (Rule 10)</div><div class="def-section-text">'+escapeHtml(p.region)+'</div></div>');
@@ -1251,8 +1257,17 @@ function renderCompanionPassages(book, chapter){
     } else if(src === 'peoples'){
       h += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">';
       h += '<span style="color:var(--people);font-weight:700;font-size:12px;">Peoples of '+escapeHtml(book)+' '+chapter+'</span>';
-      h += '<button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'peoples\')">Open</button>';
       h += '</div>';
+      // If specific people are listed, render individual tappable buttons for each
+      if(ref.people && Array.isArray(ref.people) && ref.people.length){
+        h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
+        for(const pname of ref.people){
+          h += '<button class="icon-btn" style="font-size:11px;padding:4px 10px;background:var(--bg-3);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\''+pname.replace(/\x27/g,"\\\\\x27")+'\')">👤 '+escapeHtml(pname.replace('_NT',''))+'</button>';
+        }
+        h += '</div>';
+      } else {
+        h += '<div style="margin-top:6px;"><button class="icon-btn" style="font-size:10px;padding:3px 8px;" onclick="showModal(\'peoples\')">Open Peoples Index</button></div>';
+      }
     }
     if(ref.note) h += '<div style="color:var(--fg);font-size:13px;margin-top:5px;">'+escapeHtml(ref.note)+'</div>';
     h += '</div>';
