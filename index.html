@@ -46,11 +46,7 @@
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
   </div>
 </header>
-
-<div class="layout">
-  
-
-  <div class="ch-picker-bar">
+<div class="ch-picker-bar">
   <select id="bookSelect" class="ch-select" onchange="loadBook(this.value)"></select>
   <button id="readingOrderBtn" class="icon-btn" onclick="toggleReadingOrder()" title="Switch between canonical and chronological book order" style="margin-left:8px;font-size:12px;">📖 Canonical</button>
   <select id="chapterSelect" class="ch-select" onchange="loadChapter(parseInt(this.value))"></select>
@@ -58,6 +54,8 @@
   <button class="ch-nav-btn" onclick="nextChapter()" title="Next chapter">→</button>
 </div>
 </div><!-- /sticky-nav -->
+
+<div class="layout">
 <main class="main" id="mainContent"></main>
 </div>
 
