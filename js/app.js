@@ -136,6 +136,10 @@ function _unlockBodyScroll(){
 // Updates header labels, button visibility, and other UI elements based on currentBook.
 function _updateBookContext(){
   const book = window.currentBook || 'Genesis';
+  // Update brand title and page title
+  const bt = document.getElementById('brandTitle');
+  if(bt) bt.textContent = 'Kingdom ' + book;
+  document.title = 'SWRV Kingdom ' + book;
   // Header button: prehistory
   const phBtn = document.getElementById('prehistoryBtn');
   if(phBtn){
@@ -846,44 +850,49 @@ function renderVerseMode(ch,verseNums){
   html.push('</select></div>');
   html.push('<div class="verse-mode-controls">');
   html.push('<button class="nav-btn" onclick="prevVerse()" '+(idx===0&&currentChapter===1?'disabled':'')+'>← Prev</button>');
-  html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span><span class="verse-counter-meta">Verse '+(idx+1)+' of '+verseNums.length+' · Chapter '+currentChapter+' of 50</span></div>');
-  html.push('<button class="nav-btn" onclick="nextVerse()" '+(idx===verseNums.length-1&&currentChapter===50?'disabled':'')+'>Next →</button>');
+  const _bookMaxCh=(function(){const _bi=window.BIBLE_INDEX&&window.BIBLE_INDEX.find(function(b){return b.slug===currentBook;});return _bi?_bi.chapters:50;})();
+  html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span><span class="verse-counter-meta">Verse '+(idx+1)+' of '+verseNums.length+' · Chapter '+currentChapter+' of '+_bookMaxCh+'</span></div>');
+  html.push('<button class="nav-btn" onclick="nextVerse()" '+(idx===verseNums.length-1&&currentChapter===_bookMaxCh?'disabled':'')+'>Next →</button>');
   html.push('</div>');
   html.push(renderVerse(v));
   html.push(renderCompanionPassages(currentBook, currentChapter));
   html.push('<div class="verse-mode-controls" style="margin-top:30px;">');
   html.push('<button class="nav-btn" onclick="prevVerse()" '+(idx===0&&currentChapter===1?'disabled':'')+'>← Prev</button>');
   html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span></div>');
-  html.push('<button class="nav-btn" onclick="nextVerse()" '+(idx===verseNums.length-1&&currentChapter===50?'disabled':'')+'>Next →</button>');
+  html.push('<button class="nav-btn" onclick="nextVerse()" '+(idx===verseNums.length-1&&currentChapter===_bookMaxCh?'disabled':'')+'>Next →</button>');
   html.push('</div>');
   main.innerHTML=html.join('');
 }
 
 function prevVerse(){
-  const ch=window.GENESIS[currentChapter];
+  const _bd=_getCurrentBookData();
+  const ch=_bd&&_bd[currentChapter];
+  if(!ch)return;
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
   const idx=verseNums.indexOf(currentVerse);
   if(idx>0){currentVerse=verseNums[idx-1]}
   else if(currentChapter>1){
     currentChapter--;
-    const prevCh=window.GENESIS[currentChapter];
-    const prevVerseNums=Object.keys(prevCh.verses).map(Number).sort((a,b)=>a-b);
-    currentVerse=prevVerseNums[prevVerseNums.length-1];
+    const prevCh=_bd&&_bd[currentChapter];
+    if(prevCh){const prevVerseNums=Object.keys(prevCh.verses).map(Number).sort((a,b)=>a-b);currentVerse=prevVerseNums[prevVerseNums.length-1];}
     localStorage.setItem('swrv_chapter',currentChapter);
   }
   localStorage.setItem('swrv_verse',currentVerse);loadChapter(currentChapter);
 }
 
 function nextVerse(){
-  const ch=window.GENESIS[currentChapter];
+  const _bd=_getCurrentBookData();
+  const _bi=window.BIBLE_INDEX&&window.BIBLE_INDEX.find(function(b){return b.slug===currentBook;});
+  const _maxCh=_bi?_bi.chapters:50;
+  const ch=_bd&&_bd[currentChapter];
+  if(!ch)return;
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
   const idx=verseNums.indexOf(currentVerse);
   if(idx<verseNums.length-1){currentVerse=verseNums[idx+1]}
-  else if(currentChapter<50){
+  else if(currentChapter<_maxCh){
     currentChapter++;
-    const nextCh=window.GENESIS[currentChapter];
-    const nextVerseNums=Object.keys(nextCh.verses).map(Number).sort((a,b)=>a-b);
-    currentVerse=nextVerseNums[0];
+    const nextCh=_bd&&_bd[currentChapter];
+    if(nextCh){const nextVerseNums=Object.keys(nextCh.verses).map(Number).sort((a,b)=>a-b);currentVerse=nextVerseNums[0];}
     localStorage.setItem('swrv_chapter',currentChapter);
   }
   localStorage.setItem('swrv_verse',currentVerse);loadChapter(currentChapter);
@@ -2018,37 +2027,54 @@ window._SRC_MODE = {};  // 'read' or 'search'
 // (page size = 6000 chars; calculated from josephus-antiquities-full.txt).
 // Genesis = Book I, Exodus = Books II-III of Antiquities.
 const JOSEPHUS_PAGE_MAP = {
-  // Genesis
-  'Antiquities I.1.1':    37,
-  'Antiquities I.1.2-3':  37,
-  'Antiquities I.1.4':    38,
-  'Antiquities I.2.1':    39,
-  'Antiquities I.2.2':    40,
-  'Antiquities I.3.1':    40,
-  'Antiquities I.3.2-3':  40,
-  'Antiquities I.3.5-6':  41,
-  'Antiquities I.3.7-8':  42,
-  'Antiquities I.4':      43,
-  'Antiquities I.6':      44,
-  // Exodus
-  'Antiquities II.9.1-2': 75,
-  'Antiquities II.9.3-11':77,
-  'Antiquities II.12':    81,
-  'Antiquities II.13':    82,
-  'Antiquities II.14':    85,
-  'Antiquities II.15-16': 85,
-  'Antiquities III.5':    80,
-  'Antiquities III.5.5-8':95,
-  'Antiquities III.5.7':  95,
-  'Antiquities III.6':    94,
-  'Antiquities III.8':    94,
-  // Leviticus
-  'Antiquities III.9':    102,
-  'Antiquities III.9.1':  102,
-  'Antiquities III.9.2':  102,
-  'Antiquities III.9.3':  102,
-  'Antiquities III.9.4':  102,
-  'Antiquities III.8.7':  94,
+  // Genesis (Book I of Antiquities)
+  'Antiquities I.1.1': 37, 'Antiquities I.1.2-3': 37, 'Antiquities I.1.4': 38,
+  'Antiquities I.2.1': 39, 'Antiquities I.2.2': 40, 'Antiquities I.3.1': 40,
+  'Antiquities I.3.2-3': 40, 'Antiquities I.3.5-6': 41, 'Antiquities I.3.7-8': 42,
+  'Antiquities I.4': 43, 'Antiquities I.6': 44, 'Antiquities I.8': 45,
+  'Antiquities I.10': 50, 'Antiquities I.11': 47, 'Antiquities I.13': 51,
+  'Antiquities I.18': 60, 'Antiquities I.19': 55,
+  // Exodus — Book II
+  'Antiquities II.2': 61, 'Antiquities II.4': 63, 'Antiquities II.5': 67,
+  'Antiquities II.7': 71, 'Antiquities II.8': 73,
+  'Antiquities II.9.1-2': 75, 'Antiquities II.9.3-11': 77,
+  'Antiquities II.12': 81, 'Antiquities II.13': 82,
+  'Antiquities II.14': 85, 'Antiquities II.15-16': 85,
+  // Leviticus / Numbers — Book III
+  'Antiquities III.1': 89, 'Antiquities III.5': 80, 'Antiquities III.5.5-8': 95,
+  'Antiquities III.5.7': 95, 'Antiquities III.6': 94, 'Antiquities III.8': 94,
+  'Antiquities III.8.7': 94, 'Antiquities III.9': 102, 'Antiquities III.9.1': 102,
+  'Antiquities III.9.2': 102, 'Antiquities III.9.3': 102, 'Antiquities III.9.4': 102,
+  'Antiquities III.10': 106, 'Antiquities III.12': 111, 'Antiquities III.14': 109,
+  // Deuteronomy — Book IV
+  'Antiquities IV.2': 121, 'Antiquities IV.6': 119, 'Antiquities IV.8': 132,
+  // Joshua — Book V
+  'Antiquities V.1': 138, 'Antiquities V.2': 147, 'Antiquities V.5': 152,
+  'Antiquities V.6': 153, 'Antiquities V.8': 157, 'Antiquities V.9': 160,
+  'Antiquities V.10': 162,
+  // Samuel — Book VI
+  'Antiquities VI.3': 168, 'Antiquities VI.8': 172, 'Antiquities VI.9': 178,
+  // David — Book VII
+  'Antiquities VII.3': 200, 'Antiquities VII.4': 183, 'Antiquities VII.7': 206,
+  'Antiquities VII.14': 222,
+  // Solomon / Kings — Book VIII
+  'Antiquities VIII.2': 230, 'Antiquities VIII.3': 234, 'Antiquities VIII.4': 238,
+  'Antiquities VIII.6': 240, 'Antiquities VIII.13': 252, 'Antiquities VIII.15': 269,
+  // Divided Kingdom — Book IX
+  'Antiquities IX.1': 263, 'Antiquities IX.2': 266, 'Antiquities IX.4': 272,
+  'Antiquities IX.8': 274, 'Antiquities IX.9': 275, 'Antiquities IX.10': 276,
+  'Antiquities IX.11': 278,
+  // Later Kings / Prophets — Book X
+  'Antiquities X.1': 285, 'Antiquities X.4': 300, 'Antiquities X.5': 288,
+  'Antiquities X.7': 306, 'Antiquities X.8': 295, 'Antiquities X.10': 308,
+  // Persian period — Book XI
+  'Antiquities XI.1': 299, 'Antiquities XI.4': 308, 'Antiquities XI.5': 310,
+  'Antiquities XI.6': 314,
+  // NT historical context — Books XVII-XX
+  'Antiquities XVII.8': 497, 'Antiquities XVII.10': 500, 'Antiquities XVII.13': 502,
+  'Antiquities XVIII.1': 510, 'Antiquities XVIII.3': 507, 'Antiquities XVIII.4': 505,
+  'Antiquities XVIII.5': 525, 'Antiquities XIX.8': 552,
+  'Antiquities XX.8': 564, 'Antiquities XX.9': 566,
 };
 
 /**
