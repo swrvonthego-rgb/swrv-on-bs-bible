@@ -737,25 +737,29 @@ function renderVerse(v){
   verseHtml.push('<div class="verse" id="'+refId+'">');
   const vNum=v.ref.match(/:(\d+)$/)[1];
   verseHtml.push('<span class="verse-num">'+vNum+'</span>');
-  verseHtml.push('<span class="verse-text">'+renderVerseText(v.synthesized,v.definableWords,v.peopleInVerse)+'</span>');
+  // Support both rich Genesis data (v.synthesized) and plain Bible data (v.text)
+  const displayText = v.synthesized || v.text || '';
+  verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,v.definableWords||[],v.peopleInVerse||[])+'</span>');
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
-  verseHtml.push('<div class="sources">');
-  const sourceKeys=Object.keys(v.sources);
-  for(const key of sourceKeys){
-    const meta=window.SOURCES[key];
-    if(!meta)continue;
-    const cls=key==='AMPLIFIED'?'amp':'';
-    verseHtml.push('<button class="source-tab '+cls+'" data-src="'+key+'" data-ref="'+refId+'" onclick="toggleSource(this)">'+meta.short+'</button>');
-  }
-  verseHtml.push('</div>');
-  for(const key of sourceKeys){
-    if(key==='TANAKH')continue;
-    const text=v.sources[key].text;
-    let cls='';
-    if(key==='AMPLIFIED')cls='amp';
-    else if(key==='LXX_GREEK')cls='greek';
-    else if(key==='HEBREW')cls='hebrew';
-    verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
+  const sourceKeys=v.sources?Object.keys(v.sources):[];
+  if(sourceKeys.length>0){
+    verseHtml.push('<div class="sources">');
+    for(const key of sourceKeys){
+      const meta=window.SOURCES[key];
+      if(!meta)continue;
+      const cls=key==='AMPLIFIED'?'amp':'';
+      verseHtml.push('<button class="source-tab '+cls+'" data-src="'+key+'" data-ref="'+refId+'" onclick="toggleSource(this)">'+meta.short+'</button>');
+    }
+    verseHtml.push('</div>');
+    for(const key of sourceKeys){
+      if(key==='TANAKH')continue;
+      const text=v.sources[key].text;
+      let cls='';
+      if(key==='AMPLIFIED')cls='amp';
+      else if(key==='LXX_GREEK')cls='greek';
+      else if(key==='HEBREW')cls='hebrew';
+      verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
+    }
   }
   if(v.kingdomLens){
     verseHtml.push('<div class="kingdom-lens">');
