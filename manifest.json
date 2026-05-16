@@ -1,21 +1,36 @@
 {
-  "name": "SWRV Kingdom",
-  "short_name": "SWRV",
-  "description": "Historical Bible Study Library",
+  "name": "SWRV Kingdom Bible",
+  "short_name": "Kingdom Bible",
+  "description": "The SWRV Kingdom Bible — multi-source Bible study with Kingdom theology, ANE context, peoples profiles, cultural insights, Strong's Hebrew/Greek lexicons, Enoch and Josephus.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0f",
   "theme_color": "#c9a84c",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/dvyigk3sp/image/upload/v1776104453/IMG_1033_qmkp0q.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "assets/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "https://res.cloudinary.com/dvyigk3sp/image/upload/v1776104453/IMG_1033_qmkp0q.png",
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
