@@ -40,14 +40,13 @@ window.CONTEXTUAL_SENSE_NOTES = {
 },
 "1 Corinthians 3:3":{
   carnal:{
-    sense:"σαρκικός (sarkikos, G4559) — adjective form of sarx — meaning FLESHLY-IN-CONDUCT. Paul rebukes the Corinthians as still acting from the unrenewed-nature pattern (envy, strife, division) rather than from the Spirit. The word is precisely chosen: not the noun sarx (the pattern itself) but the adjective sarkikos (someone whose behavior matches that pattern).",
+    // Covers KJV "carnal" AND BSB "worldly" via the engine's lemma-aware
+    // lookup (lemma of "worldly" does not collapse to "carnal", so the
+    // BSB-side tap still routes to this entry through Strong's G4559
+    // resolved by the word-family map — see resolveContextualWordSense).
+    sense:"σαρκικός (sarkikos, G4559) — adjective form of sarx — meaning FLESHLY-IN-CONDUCT. Paul rebukes the Corinthians as still acting from the unrenewed-nature pattern (envy, strife, division) rather than from the Spirit. The word is precisely chosen: not the noun sarx (the pattern itself) but the adjective sarkikos (someone whose behavior matches that pattern). BSB renders this 'worldly'; KJV renders it 'carnal'; both translate the same Greek adjective.",
     notMeant:"Not 'sensual' in the modern English narrow sense. Not 'body-oriented' as a slur on the body. Sarkikos here describes Christian believers behaving in a way that mismatches their Spirit-given identity — childishness, factionalism, jealousy.",
-    matters:"Paul calls baptized believers 'carnal' here — proving that the unrenewed pattern can still operate in genuine Christians. The remedy is not asceticism but maturation in the Spirit (1 Cor 3:1-3; Heb 5:11-14)."
-  },
-  fleshly:{
-    sense:"σαρκικός (sarkikos, G4559) — same as 'carnal' above. See that note.",
-    notMeant:"Not 'sensual.' Not 'body-related.' Conduct-pattern matching the fallen orientation.",
-    matters:"Same as 'carnal' — believers can still walk fleshly; Paul's call is to grow up."
+    matters:"Paul calls baptized believers 'carnal/worldly' here — proving that the unrenewed pattern can still operate in genuine Christians. The remedy is not asceticism but maturation in the Spirit (1 Cor 3:1-3; Heb 5:11-14)."
   }
 },
 "Genesis 1:26":{

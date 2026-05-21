@@ -1,0 +1,90 @@
+{
+  "schema": "swrv-canon-audit/v1",
+  "startedAt": "2026-05-21T23:05:00.705Z",
+  "durationMs": 3831,
+  "phase1LoadFails": [],
+  "supportedVersions": [
+    "KJV"
+  ],
+  "translationLayersDetected": [
+    "TANAKH",
+    "HEBREW",
+    "KJV",
+    "LXX_GREEK",
+    "LXX_ENG",
+    "BSB",
+    "AMPLIFIED",
+    "GREEK_NT"
+  ],
+  "counts": {
+    "bibleVersionsAudited": 1,
+    "booksAudited": 66,
+    "booksMissing": [],
+    "chaptersAudited": 1189,
+    "versesAudited": 31102,
+    "versesMissingText": 0,
+    "versesWithoutStrongsTags": 244,
+    "versesWithoutDefinableWords": 1893,
+    "displayedTokens": 728182,
+    "studiableWords": 123754,
+    "studiableWordsValidated": 123754,
+    "studiableWordsFailed": 0,
+    "studiableWordsWithCurated": 50,
+    "studiableWordsWithOriginalTag": 89615,
+    "cardsByAuditStatus": {
+      "context-reviewed": 47,
+      "context-reviewed with original-word limitation": 89571,
+      "needs manual review": 34136
+    },
+    "cardsByConfidence": {
+      "high": 47,
+      "medium": 89571,
+      "low": 34136
+    },
+    "translationLayerCoverage": {
+      "TANAKH": 18233,
+      "HEBREW": 18241,
+      "KJV": 31101,
+      "LXX_GREEK": 1531,
+      "LXX_ENG": 10,
+      "BSB": 31085,
+      "AMPLIFIED": 588,
+      "GREEK_NT": 7957
+    },
+    "dictionaryEntries": 139,
+    "lexiconEntries": 14197,
+    "strongsHebrewEntries": 8674,
+    "strongsGreekEntries": 5523,
+    "bdbEntries": 9345,
+    "morphologyEntries": 0,
+    "glossaryEntries": 389,
+    "wordFamilyEntries": 139,
+    "curatedPassageNotes": 49,
+    "curatedWordNotes": 58,
+    "curatedNotesOrphanCount": 0,
+    "curatedNotesOrphanList": [],
+    "failuresSample": [],
+    "uniqueFailureModes": {}
+  },
+  "placeholderHits": {
+    "placeholder": {
+      "css/styles.css": 1,
+      "data/audio-narration.js": 1,
+      "index.html": 2,
+      "js/app.js": 7
+    },
+    "coming soon": {
+      "data/bible/Isaiah.js": 2,
+      "data/bible/Revelation.js": 8
+    },
+    "no curated": {
+      "js/app.js": 3
+    },
+    "mapping unavailable": {
+      "js/app.js": 6
+    },
+    "undefined": {
+      "js/app.js": 15
+    }
+  }
+}

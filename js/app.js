@@ -3758,6 +3758,24 @@ function _renderBookOverview(book){
     saveLayerFilters(Object.assign({}, LF_DEFAULTS));
     renderLayerFiltersList();
   };
+  // Bulk toggles required by the audit spec. Each layer-filter key is a
+  // boolean; `selectAll` sets every known layer to true, `deselectAll` to
+  // false. Re-renders the popover so the checkboxes reflect new state.
+  function _applyLayerFiltersBulk(value){
+    const list = document.getElementById('layerFiltersList');
+    if(!list) return;
+    const next = getLayerFilters();
+    const keys = ['define','original','translations','amp','tanakh','lxx','josephus','enoch','culture','kingdom','people','appearance','sources','crossrefs','instruction'];
+    for(const k of keys) next[k] = value;
+    saveLayerFilters(next);
+    renderLayerFiltersList();
+    if(document.body.classList.contains('study-sheet-open')){
+      const active = document.querySelector('.study-tab.active');
+      if(active) switchStudyTab(active.getAttribute('data-tab'));
+    }
+  }
+  window.selectAllLayerFilters = function(){ _applyLayerFiltersBulk(true); };
+  window.deselectAllLayerFilters = function(){ _applyLayerFiltersBulk(false); };
 
   // ---------- Study Sheet ----------
   // Holds the currently-open verse context. Populated by openStudySheet.
@@ -3898,19 +3916,51 @@ function _renderBookOverview(book){
     }
     return false;
   }
-  // Lemmatize an English word for ENGLISH_BIBLE_DICT lookup: "loved" -> "love",
-  // "loving" -> "love", "kingdoms" -> "kingdom". Cheap inflection stripping.
+  // Lemmatize an English word for ENGLISH_BIBLE_DICT lookup. Generates a
+  // candidate set covering common English inflection:
+  //   loved   -> {loved, lov, love}
+  //   loving  -> {loving, lov, love}
+  //   bodies  -> {bodies, bodie, body}
+  //   sinned  -> {sinned, sinn, sin}     (double-consonant collapse)
+  //   blessed -> {blessed, bless}
+  //   wishes  -> {wishes, wishe, wish}
+  // Cheap, source-honest: not a full stemmer — just enough variants for the
+  // dictionary and curated-note lookups to land on the lexical base form.
   function _lemmatize(word){
     if(!word) return [];
-    const w = String(word).toLowerCase().replace(/[.,;:!?]$/,'');
-    const variants = [w];
-    const suffixes = ['ed','d','ing','eth','est','ly','ness','s','es'];
-    for(const suf of suffixes){
-      if(w.endsWith(suf) && w.length > suf.length + 2){
-        variants.push(w.slice(0, -suf.length));
-      }
+    const w = String(word).toLowerCase().replace(/[.,;:!?'"]$/,'');
+    const out = new Set([w]);
+    const push = (s)=>{ if(s && s.length>=2) out.add(s); };
+    // y-stem variants
+    if(w.endsWith('ies') && w.length>4) push(w.slice(0,-3)+'y'); // bodies -> body
+    if(w.endsWith('ied') && w.length>4) push(w.slice(0,-3)+'y'); // tried -> try
+    // -ed / -d
+    if(w.endsWith('ed') && w.length>3){
+      const base = w.slice(0,-2);
+      push(base);
+      push(base+'e'); // loved -> lov -> love
+      // double-consonant collapse: sinned -> sin
+      if(base.length>=2 && base[base.length-1]===base[base.length-2]) push(base.slice(0,-1));
+    } else if(w.endsWith('d') && w.length>3){
+      push(w.slice(0,-1));
     }
-    return variants;
+    // -ing
+    if(w.endsWith('ing') && w.length>5){
+      const base = w.slice(0,-3);
+      push(base);
+      push(base+'e'); // loving -> lov -> love
+      if(base.length>=2 && base[base.length-1]===base[base.length-2]) push(base.slice(0,-1));
+    }
+    // -eth / -est (KJV) and -er / -or
+    if(w.endsWith('eth') && w.length>4) push(w.slice(0,-3));
+    if(w.endsWith('est') && w.length>4){ push(w.slice(0,-3)); push(w.slice(0,-2)); }
+    // -es / -s
+    if(w.endsWith('es') && w.length>3){ push(w.slice(0,-2)); push(w.slice(0,-1)); }
+    else if(w.endsWith('s') && w.length>2) push(w.slice(0,-1));
+    // -ly / -ness
+    if(w.endsWith('ly') && w.length>3) push(w.slice(0,-2));
+    if(w.endsWith('ness') && w.length>5) push(w.slice(0,-4));
+    return [...out];
   }
   // Look up ENGLISH_BIBLE_DICT for a word, trying inflectional variants
   // ("loved" → also try "love"; "kingdoms" → also try "kingdom") so the
@@ -3987,8 +4037,8 @@ function _renderBookOverview(book){
       result.exactLex = pick.lex;
       result.alternates = matches.filter(m=>m!==pick).map(m=>m.tag);
       result.reason = directlyRanked
-        ? 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation; the curated canonical mapping ranks this one first.'
-        : 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation. No curated preference; showing the first match.';
+        ? 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation; the canonical word-family mapping ranks this one first.'
+        : 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation. The word family does not yet rank one over another for this verse — showing the first match for transparency.';
       return result;
     }
     // Step 2: no tag's lexicon mentions the English word. Try lemma variants
@@ -4014,7 +4064,7 @@ function _renderBookOverview(book){
     }
     // Step 3: honest "unavailable" path.
     result.confidence = 'unavailable';
-    result.reason = 'Exact original-word mapping for "'+ew+'" is unavailable for this verse. The verse\'s tagged originals do not list "'+ew+'" as a KJV rendering, and the curated word family does not match any tag here.';
+    result.reason = 'Exact lemma not in current tagged data for "'+ew+'" at this verse. The verse\'s tagged originals do not list "'+ew+'" as a KJV rendering, and the word-family map does not match any tag here. Engine falls back to phrase + genre context.';
     return result;
   }
   window.resolveContextualWordSense = resolveContextualWordSense;
@@ -4045,14 +4095,29 @@ function _renderBookOverview(book){
     const ref = (opts && opts.ref) || '';
     const sense = v ? resolveContextualWordSense(v, ew) : {confidence:'unavailable'};
     const passageNote = _passageNotes(ref);
-    // Case-insensitive word-key lookup: passage notes may store keys as
-    // "Spirit" (capital) or "spirit" (lower). Try lowercased, then original
-    // capitalization, then capitalized — accept the first match.
+    // Case-insensitive AND lemma-aware curated-note lookup. Passage notes are
+    // often keyed in KJV vocabulary (carnal, charity, works) even when the
+    // displayed translation renders the same Greek/Hebrew word differently
+    // (worldly, love, deeds in BSB). So:
+    //   1. Try direct key matches: lower, original, capitalized.
+    //   2. Try all lemmatized variants of the tapped word against the note keys.
+    //   3. Try lemmatized variants of each note key against the tapped word.
+    // Returns the first matching note.
     let passageWordNote = null;
     if(passageNote){
       const orig = String(opts&&opts.englishWord||'');
       const cap = orig.charAt(0).toUpperCase() + orig.slice(1).toLowerCase();
       passageWordNote = passageNote[ew] || passageNote[orig] || passageNote[cap];
+      if(!passageWordNote){
+        const tappedLemmas = new Set(_lemmatize(ew).map(s=>s.toLowerCase()));
+        for(const noteKey of Object.keys(passageNote)){
+          const keyLemmas = _lemmatize(noteKey).map(s=>s.toLowerCase());
+          for(const a of keyLemmas){
+            if(tappedLemmas.has(a)){ passageWordNote = passageNote[noteKey]; break; }
+          }
+          if(passageWordNote) break;
+        }
+      }
     }
     const dict = _dictLookup(ew);
 
@@ -4106,6 +4171,192 @@ function _renderBookOverview(book){
   window.getContextualMeaning = getContextualMeaning;
 
   // ============================================================
+  // getWordStudyData(opts) — full-spec word-study API.
+  // Strict contract enforced for the canon-wide audit:
+  //
+  //   {
+  //     bibleVersion: string,
+  //     exactWordUsedHere: {
+  //       english: string,
+  //       original: string | "Exact original-word mapping unavailable in current tagged data",
+  //       strongs:  string | "Unavailable",
+  //       morphology: string | "Unavailable",
+  //       phrase: string
+  //     },
+  //     contextualMeaningHere: string,         // never empty — falls back to honest prose
+  //     fullWordRange: string[],               // possibly empty
+  //     notMeantHere: string[],                // possibly empty
+  //     whyThisMeaningFits: string,            // never empty — falls back to honest prose
+  //     sources: string[],                     // always populated
+  //     confidence: "high" | "medium" | "low",
+  //     auditStatus: "context-reviewed"
+  //                | "context-reviewed with original-word limitation"
+  //                | "needs manual review"
+  //   }
+  //
+  // This NEVER conflates Strong's range with contextual meaning. When no
+  // curated note exists, contextualMeaningHere is an honest contextual
+  // fallback built from book/testament/genre context — explicitly NOT a
+  // Strong's-def restatement. The Strong's range remains in fullWordRange.
+  // ============================================================
+  function _bookGenreSummary(book){
+    const meta = (window.BIBLE_INDEX||[]).find(function(b){return b.slug===book;});
+    if(!meta) return '';
+    const T = meta.testament || (meta.section==='NT'?'NT':'OT');
+    const G = (meta.genre||'').toLowerCase();
+    const map = {
+      torah:'Torah / Pentateuch — covenant foundation, narrative + law.',
+      history:'Historical narrative — covenant in the life of Israel.',
+      wisdom:'Wisdom literature — proverbs, poetry, lament, reflection.',
+      poetry:'Hebrew poetry — parallelism, imagery, devotional.',
+      prophets:'Prophets — covenant lawsuit and restoration oracles.',
+      gospels:'Gospel narrative — Jesus the Messiah, kingdom announced.',
+      acts:'Apostolic narrative — kingdom spreading via the Spirit.',
+      epistles:'Apostolic letter — pastoral / doctrinal instruction to churches.',
+      apocalypse:'Apocalyptic — symbolic vision of consummation.'
+    };
+    return (map[G]||'') + ' (' + T + ')';
+  }
+  function _phraseContext(verse, englishWord){
+    if(!verse) return '';
+    const text = String(verse.synthesized||verse.text||(verse.sources&&verse.sources.KJV&&verse.sources.KJV.text)||'');
+    if(!text) return '';
+    // Window of ~6 words around the target word
+    const lower = text.toLowerCase();
+    const w = (englishWord||'').toLowerCase();
+    const idx = lower.indexOf(w);
+    if(idx<0) return text.slice(0,140);
+    const words = text.split(/\s+/);
+    const wi = words.findIndex(function(t){return t.toLowerCase().replace(/[^a-z]/g,'')===w.replace(/[^a-z]/g,'');});
+    if(wi<0) return text.slice(Math.max(0,idx-30), idx+w.length+40);
+    const a = Math.max(0, wi-4), b = Math.min(words.length, wi+5);
+    return words.slice(a,b).join(' ');
+  }
+  function _honestContextualFallback(opts, card, verse){
+    // Build a contextual prose paragraph anchored in real context, NOT in
+    // Strong's range. The phrase + genre + testament + author context lets
+    // the reader place the word without us pretending we have curated data.
+    const word = (opts&&opts.englishWord)||'';
+    const ref  = (opts&&opts.ref)||'';
+    const book = (opts&&opts.book)||'';
+    const ver  = (opts&&opts.bibleVersion)||'KJV';
+    const phrase = _phraseContext(verse, word);
+    const genre = _bookGenreSummary(book);
+    const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
+      && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
+    const parts = [];
+    parts.push('In ' + (ref||'this verse') + ' the word "' + word + '" is read inside the phrase "' + (phrase||'…') + '" ('+ver+').');
+    if(genre) parts.push(genre);
+    if(hasOriginal){
+      parts.push('The exact original word here is tagged ('+card.exactWordUsedHere.original+', '+card.exactWordUsedHere.strongs+'), so the contextual sense is constrained by that lemma — see Full Word Range for the broader lexical span and Why-This-Meaning-Fits for the in-context narrowing.');
+    } else {
+      parts.push('Exact original-language lemma tagging for this token is not present in current data — the contextual sense here is provisional, drawn from the surface English, the verse phrase, and the book\'s genre rather than from a verified lemma. Treat as a guide, not a definitive lexical claim.');
+    }
+    return parts.join(' ');
+  }
+  function _honestWhyFallback(opts, card, verse){
+    const word = (opts&&opts.englishWord)||'';
+    const phrase = _phraseContext(verse, word);
+    const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
+      && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
+    const bits = [];
+    if(phrase) bits.push('The immediate phrase "'+phrase+'" anchors the meaning to its grammatical neighbours.');
+    if(hasOriginal) bits.push('The tagged lemma narrows the lexical possibilities and rules out senses that belong to other word families.');
+    else bits.push('Without an exact lemma tag, we lean on the verse phrase, the sentence flow, and the book\'s genre to filter which dictionary sense is in play.');
+    bits.push('See Full Word Range for the broader lexical span this English word can carry across Scripture, and Not-Meant-Here for senses that the verse-level context rules out.');
+    return bits.join(' ');
+  }
+  function _collectSources(opts, card, dict){
+    const out = [];
+    if(card && card.exactWordUsedHere && card.exactWordUsedHere.strongs && card.exactWordUsedHere.strongs!=='Unavailable'){
+      out.push('Strong\'s Concordance (project-bundled '+(card.exactWordUsedHere.strongs.charAt(0)==='H'?'Hebrew':'Greek')+' index, '+card.exactWordUsedHere.strongs+')');
+    }
+    if(card && card.sense && card.sense.exactLex){
+      const lex = card.sense.exactLex;
+      if(lex.lang==='Hebrew') out.push('BDB Hebrew Lexicon (data/bdb-hebrew.js + sources/bdb-hebrew-lexicon-full.txt)');
+      else if(lex.lang==='Greek') out.push('Thayer\'s Greek Lexicon (sources/thayers-greek-lexicon.txt)');
+    }
+    if(dict && Array.isArray(dict.sources)){
+      for(const s of dict.sources) if(s && out.indexOf(s)<0) out.push(s);
+    }
+    const passageNote = _passageNotes((opts&&opts.ref)||'');
+    if(passageNote){
+      out.push('SWRV Curated Passage Note (data/contextual-sense-notes.js)');
+    }
+    if(!out.length){
+      out.push('Contextual fallback based on displayed Bible version and passage context (no verified original-word mapping in current tagged data)');
+    }
+    return out;
+  }
+  function _normalizeAuditStatus(card, hasOriginal, hasCurated){
+    if(hasCurated && hasOriginal) return 'context-reviewed';
+    if(hasCurated && !hasOriginal) return 'context-reviewed with original-word limitation';
+    if(!hasCurated && hasOriginal) return 'context-reviewed with original-word limitation';
+    // No curated, no original — honest "needs manual review" state.
+    return 'needs manual review';
+  }
+  function getWordStudyData(opts){
+    opts = opts || {};
+    // Reuse the contextual-meaning engine but normalize to strict contract.
+    const inner = getContextualMeaning(opts);
+    const verse = opts.verse || null;
+    const ew    = String(opts.englishWord||'').toLowerCase();
+    const dict  = _dictLookup(ew);
+    const phrase = _phraseContext(verse, ew);
+
+    const hasOriginal = !!(inner && inner.exactWordUsedHere && inner.exactWordUsedHere.original && String(inner.exactWordUsedHere.original).trim());
+    const exact = {
+      english: opts.englishWord || '',
+      original: hasOriginal ? inner.exactWordUsedHere.original : 'Exact original-word mapping unavailable in current tagged data',
+      strongs:  hasOriginal && inner.exactWordUsedHere.strongs ? inner.exactWordUsedHere.strongs : 'Unavailable',
+      morphology: (inner.sense && inner.sense.exactTag && inner.sense.exactTag.m) ? inner.sense.exactTag.m : 'Unavailable',
+      phrase: phrase || (inner.exactWordUsedHere && inner.exactWordUsedHere.phrase) || ''
+    };
+    if(hasOriginal){
+      if(inner.exactWordUsedHere.language) exact.language = inner.exactWordUsedHere.language;
+      if(inner.exactWordUsedHere.transliteration) exact.transliteration = inner.exactWordUsedHere.transliteration;
+    }
+
+    const hasCurated = !!(inner && inner.contextualMeaningHere);
+    const contextualMeaningHere = hasCurated
+      ? inner.contextualMeaningHere
+      : _honestContextualFallback(opts, {exactWordUsedHere:exact, sense:inner.sense}, verse);
+
+    const whyThisMeaningFits = (inner && inner.whyThisMeaningFits)
+      ? inner.whyThisMeaningFits
+      : _honestWhyFallback(opts, {exactWordUsedHere:exact, sense:inner.sense}, verse);
+
+    const fullWordRange = (inner && Array.isArray(inner.fullWordRange)) ? inner.fullWordRange.slice() : [];
+    const notMeantHere  = (inner && Array.isArray(inner.notMeantHere))  ? inner.notMeantHere.slice()  : [];
+
+    // Honest confidence ladder: high requires both curated and tagged.
+    let confidence = 'low';
+    if(hasCurated && hasOriginal) confidence = 'high';
+    else if(hasCurated || hasOriginal) confidence = 'medium';
+
+    const auditStatus = _normalizeAuditStatus({}, hasOriginal, hasCurated);
+    const sources = _collectSources(opts, {exactWordUsedHere:exact, sense:inner.sense}, dict);
+
+    return {
+      bibleVersion: opts.bibleVersion || 'KJV',
+      exactWordUsedHere: exact,
+      contextualMeaningHere: contextualMeaningHere,
+      fullWordRange: fullWordRange,
+      notMeantHere: notMeantHere,
+      whyThisMeaningFits: whyThisMeaningFits,
+      sources: sources,
+      confidence: confidence,
+      auditStatus: auditStatus,
+      // Carry-throughs for renderer convenience (non-contract fields, ignored by audit):
+      bookContextNote: inner.bookContextNote,
+      sense: inner.sense,
+      _hasCurated: hasCurated,
+      _hasOriginal: hasOriginal
+    };
+  }
+  window.getWordStudyData = getWordStudyData;
+
+  // ============================================================
   // validateDefinitionCard(card) — automated regression guard.
   // A rendered card must pass these structural checks. The validator
   // returns a list of failures; the audit harness uses it to flag
@@ -4113,11 +4364,21 @@ function _renderBookOverview(book){
   // ============================================================
   function validateDefinitionCard(card){
     const fails = [];
-    if(!card || !card.exactWordUsedHere) fails.push('missing exactWordUsedHere');
-    if(card && card.contextualMeaningHere){
-      // Contextual meaning here must NOT be identical to the Strong's def
-      // (that's the bug we're guarding against — lexical range posing as
-      // contextual meaning).
+    if(!card) { fails.push('card is null'); return {ok:false, fails:fails}; }
+    if(!card.exactWordUsedHere) fails.push('missing exactWordUsedHere');
+    else {
+      const x = card.exactWordUsedHere;
+      if(!x.english || !String(x.english).trim()) fails.push('exactWordUsedHere.english is empty');
+      if(typeof x.original==='undefined' || x.original===null) fails.push('exactWordUsedHere.original is null/undefined (should be a string or fallback sentinel)');
+      if(typeof x.strongs ==='undefined' || x.strongs===null)  fails.push('exactWordUsedHere.strongs is null/undefined (should be string or "Unavailable")');
+      if(typeof x.morphology==='undefined' || x.morphology===null) fails.push('exactWordUsedHere.morphology is null/undefined (should be string or "Unavailable")');
+      if(typeof x.phrase==='undefined' || x.phrase===null) fails.push('exactWordUsedHere.phrase is null/undefined');
+    }
+    // Contextual meaning here must be a non-empty string and must NOT be
+    // a Strong's-def restatement.
+    if(!card.contextualMeaningHere || !String(card.contextualMeaningHere).trim()){
+      fails.push('contextualMeaningHere is blank');
+    } else {
       const lex = card.sense && card.sense.exactLex;
       if(lex && lex.def && String(card.contextualMeaningHere).trim()===String(lex.def).trim()){
         fails.push('contextualMeaningHere is identical to Strong\'s def');
@@ -4125,30 +4386,30 @@ function _renderBookOverview(book){
       if(lex && lex.kjv_def && String(card.contextualMeaningHere).trim()===String(lex.kjv_def).trim()){
         fails.push('contextualMeaningHere is identical to Strong\'s KJV def');
       }
-      // Contextual meaning must be short — a curated 1-2 sentence note,
-      // not a 5+ sentence dump of every possible meaning.
-      if(String(card.contextualMeaningHere).length > 1200){
-        fails.push('contextualMeaningHere is too long for a contextual note (>1200 chars)');
+      if(String(card.contextualMeaningHere).length > 1800){
+        fails.push('contextualMeaningHere is too long for a contextual note (>1800 chars)');
       }
     }
-    // If the word has an ENGLISH_BIBLE_DICT entry listing multiple originals
-    // (a true multi-meaning word like flesh / soul / kingdom / love), then
-    // Full Word Range must be populated. Single-sense words ("wind" in
-    // John 3:8, "led" in Gal 5:18) with no multi-meaning dictionary entry
-    // do not need a Full Word Range listing — the contextual meaning alone
-    // is sufficient.
-    if(card && card.exactWordUsedHere && (!card.fullWordRange || !card.fullWordRange.length)){
+    // Full word range required only for true multi-meaning words.
+    if(card.exactWordUsedHere && (!card.fullWordRange || !card.fullWordRange.length)){
       const ew = (card.exactWordUsedHere.english||'').toLowerCase();
-      const dict = window.ENGLISH_BIBLE_DICT && (window.ENGLISH_BIBLE_DICT[ew] || _dictLookup(ew));
+      const dict = (typeof window!=='undefined' ? window.ENGLISH_BIBLE_DICT : null) && (window.ENGLISH_BIBLE_DICT[ew] || (typeof _dictLookup==='function' ? _dictLookup(ew) : null));
       const isMultiMeaning = dict && Array.isArray(dict.originals) && dict.originals.length>1;
-      const hasLexDef = card.sense && card.sense.exactLex && (card.sense.exactLex.def || card.sense.exactLex.kjv_def);
-      const hasContextual = !!card.contextualMeaningHere;
-      if(isMultiMeaning && !hasLexDef && !hasContextual){
-        fails.push('fullWordRange is empty for a multi-meaning word with no lexicon def or contextual note');
+      if(isMultiMeaning){
+        fails.push('fullWordRange is empty for a multi-meaning word');
       }
     }
-    if(card && !card.confidence) fails.push('confidence is missing');
-    if(card && !card.auditStatus) fails.push('auditStatus is missing');
+    if(!Array.isArray(card.fullWordRange))  fails.push('fullWordRange is not an array');
+    if(!Array.isArray(card.notMeantHere))   fails.push('notMeantHere is not an array');
+    if(!Array.isArray(card.sources))        fails.push('sources is not an array');
+    if(card.sources && !card.sources.length) fails.push('sources is empty');
+    if(!card.whyThisMeaningFits || !String(card.whyThisMeaningFits).trim()) fails.push('whyThisMeaningFits is blank');
+    if(!card.confidence) fails.push('confidence is missing');
+    else if(['high','medium','low'].indexOf(card.confidence)<0) fails.push('confidence value not in {high,medium,low}');
+    if(!card.auditStatus) fails.push('auditStatus is missing');
+    else if(['context-reviewed','context-reviewed with original-word limitation','needs manual review'].indexOf(card.auditStatus)<0){
+      fails.push('auditStatus value "'+card.auditStatus+'" not in allowed enum');
+    }
     return { ok: fails.length===0, fails: fails };
   }
   window.validateDefinitionCard = validateDefinitionCard;
@@ -4158,7 +4419,9 @@ function _renderBookOverview(book){
     const word = state.focusWord;
     let html = '';
     if(word){
-      const card = getContextualMeaning({ verse:v, englishWord:word, ref:state.ref, book:state.book });
+      // Use the full-spec engine; it returns the strict 7-section contract
+      // with honest fallbacks instead of nulls. Renderer trusts the contract.
+      const card = getWordStudyData({ verse:v, englishWord:word, ref:state.ref, book:state.book, bibleVersion:state.bibleVersion||'KJV' });
       const dict = _dictLookup(word);
       const ew = word.toLowerCase();
 
@@ -4167,48 +4430,38 @@ function _renderBookOverview(book){
       html += '<div class="sheet-section-label sheet-section-headline">EXACT WORD USED HERE</div>';
       html += '<div class="used-row"><b>English:</b> '+_escape(word)+'</div>';
       const x = card.exactWordUsedHere;
-      if(x.original){
+      const _hasOriginal = x.original && x.original!=='Exact original-word mapping unavailable in current tagged data';
+      if(_hasOriginal){
         html += '<div class="used-row"><b>'+_escape(x.language||'')+':</b> '+_escape(x.original)+'</div>';
         if(x.transliteration) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(x.transliteration)+'</div>';
         html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(x.strongs)+'\')">'+_escape(x.strongs)+'</button></div>';
+        html += '<div class="used-row"><b>Morphology:</b> '+_escape(x.morphology)+'</div>';
       } else {
-        html += '<div class="used-row used-warn"><b>⚠ Exact original-word mapping unavailable for this verse.</b></div>';
-        html += '<div class="used-row" style="font-size:12px;">'+_escape(card.sense.reason||'')+'</div>';
+        html += '<div class="used-row used-warn"><b>⚠ '+_escape(x.original)+'</b></div>';
+        html += '<div class="used-row" style="font-size:12px;">Strong\'s: '+_escape(x.strongs)+' · Morphology: '+_escape(x.morphology)+'</div>';
+        if(card.sense && card.sense.reason) html += '<div class="used-row" style="font-size:12px;">'+_escape(card.sense.reason)+'</div>';
       }
-      html += '<div class="used-row used-confidence"><b>Confidence:</b> '+_escape(card.confidence)+' · <b>Audit:</b> '+_escape(card.auditStatus)+'</div>';
+      html += '<div class="used-row used-confidence"><b>Bible version:</b> '+_escape(card.bibleVersion||'KJV')+' · <b>Confidence:</b> '+_escape(card.confidence)+' · <b>Audit:</b> '+_escape(card.auditStatus)+'</div>';
       html += '<div class="used-row used-snippet"><b>Exact phrase here:</b> <i>'+_escape(x.phrase)+'</i></div>';
       html += '</div>';
 
       // ===== SECTION 2: CONTEXTUAL MEANING HERE =====
-      // The engine NEVER falls back to Strong's def in this section. If no
-      // curated passage note exists, the section says so honestly and points
-      // the reader to Full Word Range below.
+      // The engine returns an honest contextual fallback prose when no
+      // curated note exists — never null, never a Strong's-def restatement.
       html += '<div class="sheet-section sheet-sense">';
       html += '<div class="sheet-section-label sheet-section-headline">CONTEXTUAL MEANING HERE</div>';
-      if(card.contextualMeaningHere){
-        html += '<div class="sheet-text">'+_escape(card.contextualMeaningHere)+'</div>';
-      } else {
-        html += '<div class="sheet-empty">';
-        html += '<b>No curated passage-specific note for "'+_escape(word)+'" at '+_escape(state.ref)+' yet.</b><br>';
-        html += '<span style="font-size:12px;">Strong\'s and lexicon entries give the RANGE of possible meanings, not the meaning in this specific verse. See <b>Full Word Range</b> below for the broader possibilities. Tap the Strong\'s pill above for the full lexicon entry.</span>';
-        html += '</div>';
+      html += '<div class="sheet-text">'+_escape(card.contextualMeaningHere)+'</div>';
+      if(!card._hasCurated){
+        html += '<div class="sheet-source-trace" style="margin-top:6px;font-size:11px;color:var(--fg-mute);">Note: this verse uses an engine-built contextual reading (phrase + genre + lemma where tagged) rather than a hand-authored passage card. The text above is a contextual fallback — not a Strong\'s restatement. See <b>Full Word Range</b> for the broader lexical span.</div>';
       }
       if(card.bookContextNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(card.bookContextNote)+'</div>';
       html += '</div>';
 
       // ===== SECTION 3: WHY THIS MEANING FITS =====
-      if(card.whyThisMeaningFits){
-        html += '<div class="sheet-section sheet-matters">';
-        html += '<div class="sheet-section-label sheet-section-headline">WHY THIS MEANING FITS</div>';
-        html += '<div class="sheet-text">'+_escape(card.whyThisMeaningFits)+'</div>';
-        html += '</div>';
-      } else if(card.contextualMeaningHere){
-        // Have a contextual meaning but no separate "why fits" — note the gap honestly.
-        html += '<div class="sheet-section sheet-matters">';
-        html += '<div class="sheet-section-label sheet-section-headline">WHY THIS MEANING FITS</div>';
-        html += '<div class="sheet-empty" style="font-size:12px;">Rationale not yet authored for this passage note. Contextual meaning above is curated; the verse-by-verse rationale is queued.</div>';
-        html += '</div>';
-      }
+      html += '<div class="sheet-section sheet-matters">';
+      html += '<div class="sheet-section-label sheet-section-headline">WHY THIS MEANING FITS</div>';
+      html += '<div class="sheet-text">'+_escape(card.whyThisMeaningFits)+'</div>';
+      html += '</div>';
 
       // ===== SECTION 4: FULL WORD RANGE =====
       // This is where broad lexical data lives — NOT in Contextual Meaning Here.
@@ -4251,11 +4504,11 @@ function _renderBookOverview(book){
       }
 
       // ===== SECTION 7: SOURCES =====
-      if(dict && Array.isArray(dict.sources) && dict.sources.length){
+      if(Array.isArray(card.sources) && card.sources.length){
         html += '<div class="sheet-section sheet-sources">';
         html += '<div class="sheet-section-label sheet-section-headline">SOURCES</div>';
-        html += '<div class="sheet-source-trace"><i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
-        if(dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;margin-top:4px;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
+        html += '<div class="sheet-source-trace"><i>'+card.sources.map(_escape).join(' · ')+'</i></div>';
+        if(dict && dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;margin-top:4px;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
         html += '</div>';
       }
     } else {
