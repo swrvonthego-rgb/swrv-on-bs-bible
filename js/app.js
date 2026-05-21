@@ -4109,17 +4109,26 @@ function _renderBookOverview(book){
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bootUx); } else { bootUx(); }
 })();
 
-// Convenience: word-tap-from-verse should open the sheet on Define tab too,
-// without breaking the existing showDef popup behavior. We wrap showDef so
-// the popup still appears AND the sheet auto-opens with the same word/ref.
+// Word-tap-from-verse should route to the Study Sheet on the Define tab ONLY
+// — not also pop up the legacy modal definition card. (Earlier this wrapper
+// called both, which produced two overlapping definition surfaces visible at
+// the same time.) The legacy showDef popup is still reachable for non-verse
+// callers: related-word chips inside the sheet, search-result taps on
+// definition entries, theme/people cards, etc.
 (function(){
   const _origShowDef = window.showDef;
   if(typeof _origShowDef !== 'function') return;
   window.showDef = function(word, opts){
-    _origShowDef.apply(this, arguments);
-    // If opts is a verse-ref string, also drive the study sheet (Define tab).
+    // If opts is a verse-ref string, open the Study Sheet on Define and STOP.
+    // Do not also open the legacy popup — the sheet is the canonical surface
+    // in Study/Scholar mode, and Read mode shouldn't surface inline study
+    // content automatically anyway.
     if(typeof opts === 'string' && /\d+:\d+/.test(opts)){
       try { window.openStudySheet(opts, {word:word, tab:'define'}); } catch(e){}
+      return;
     }
+    // All other callers (related-words, search results, theme/people cards
+    // that fall through to showDef, etc.) keep the legacy popup behavior.
+    _origShowDef.apply(this, arguments);
   };
 })();
