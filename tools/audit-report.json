@@ -1,7 +1,7 @@
 {
   "schema": "swrv-canon-audit/v1",
-  "startedAt": "2026-05-21T23:05:00.705Z",
-  "durationMs": 3831,
+  "startedAt": "2026-05-21T23:50:46.709Z",
+  "durationMs": 4533,
   "phase1LoadFails": [],
   "supportedVersions": [
     "KJV"
@@ -29,17 +29,17 @@
     "studiableWords": 123754,
     "studiableWordsValidated": 123754,
     "studiableWordsFailed": 0,
-    "studiableWordsWithCurated": 50,
+    "studiableWordsWithCurated": 69,
     "studiableWordsWithOriginalTag": 89615,
     "cardsByAuditStatus": {
-      "context-reviewed": 47,
-      "context-reviewed with original-word limitation": 89571,
-      "needs manual review": 34136
+      "context-reviewed": 63,
+      "context-reviewed with original-word limitation": 89558,
+      "needs manual review": 34133
     },
     "cardsByConfidence": {
-      "high": 47,
-      "medium": 89571,
-      "low": 34136
+      "high": 63,
+      "medium": 89558,
+      "low": 34133
     },
     "translationLayerCoverage": {
       "TANAKH": 18233,
@@ -59,32 +59,49 @@
     "morphologyEntries": 0,
     "glossaryEntries": 389,
     "wordFamilyEntries": 139,
-    "curatedPassageNotes": 49,
-    "curatedWordNotes": 58,
+    "curatedPassageNotes": 57,
+    "curatedWordNotes": 82,
     "curatedNotesOrphanCount": 0,
     "curatedNotesOrphanList": [],
     "failuresSample": [],
     "uniqueFailureModes": {}
   },
   "placeholderHits": {
+    "no curated": {
+      "AUDIT_FULL_CANON_REPORT.md": 3,
+      "js/app.js": 3
+    },
+    "unavailable for this verse": {
+      "AUDIT_FULL_CANON_REPORT.md": 2
+    },
+    "mapping unavailable": {
+      "AUDIT_FULL_CANON_REPORT.md": 2,
+      "js/app.js": 6
+    },
+    "no note yet": {
+      "AUDIT_FULL_CANON_REPORT.md": 1
+    },
+    "coming soon": {
+      "AUDIT_FULL_CANON_REPORT.md": 3,
+      "data/bible/Isaiah.js": 2,
+      "data/bible/Revelation.js": 8
+    },
     "placeholder": {
+      "AUDIT_FULL_CANON_REPORT.md": 8,
       "css/styles.css": 1,
       "data/audio-narration.js": 1,
       "index.html": 2,
       "js/app.js": 7
     },
-    "coming soon": {
-      "data/bible/Isaiah.js": 2,
-      "data/bible/Revelation.js": 8
-    },
-    "no curated": {
-      "js/app.js": 3
-    },
-    "mapping unavailable": {
-      "js/app.js": 6
+    "TODO": {
+      "AUDIT_FULL_CANON_REPORT.md": 1
     },
     "undefined": {
+      "AUDIT_FULL_CANON_REPORT.md": 2,
       "js/app.js": 15
+    },
+    "TBD": {
+      "AUDIT_FULL_CANON_REPORT.md": 1
     }
   }
 }

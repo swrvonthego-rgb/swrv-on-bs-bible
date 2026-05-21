@@ -131,6 +131,41 @@ function _lemmatize(word){
   if(w.endsWith('ness') && w.length>5) push(w.slice(0,-4));
   return [...out];
 }
+function _splitRespectingParens(text){
+  const items=[];let depth=0,cur='';
+  for(const ch of String(text)){
+    if(ch==='('||ch==='['){depth++;cur+=ch;}
+    else if(ch===')'||ch===']'){depth=Math.max(0,depth-1);cur+=ch;}
+    else if(depth===0&&(ch===','||ch===';')){if(cur.trim())items.push(cur.trim());cur='';}
+    else{cur+=ch;}
+  }
+  if(cur.trim())items.push(cur.trim());
+  return items;
+}
+function _parseKjvDefToRange(kjvDef, strongs_def){
+  const out=[];
+  if(strongs_def){
+    const prose=String(strongs_def).replace(/\{|\}/g,'').trim();
+    if(prose.length>10) out.push(prose);
+  }
+  if(!kjvDef) return out;
+  const items=_splitRespectingParens(String(kjvDef));
+  for(const item of items){
+    const cleaned=item
+      .replace(/\[.*?\]/g,'')
+      .replace(/\(.*?\)/g,'')
+      .replace(/[+[\]{}]/g,'')
+      .replace(/\s+/g,' ')
+      .trim();
+    if(cleaned.length<3) continue;
+    if(/^\d+$/.test(cleaned)) continue;
+    if(/^[-–—\s]+$/.test(cleaned)) continue;
+    const lower=cleaned.toLowerCase();
+    if(out.some(x=>x.toLowerCase()===lower)) continue;
+    out.push(cleaned);
+  }
+  return out;
+}
 function _dictLookup(word){
   const D = W.ENGLISH_BIBLE_DICT;
   if(!D) return null;
@@ -289,7 +324,7 @@ function getWordStudyData(opts){
     english: opts.englishWord || '',
     original: hasOriginal ? sense.exactLex.lemma : 'Exact original-word mapping unavailable in current tagged data',
     strongs:  hasOriginal && sense.exactTag ? (((sense.exactTag.sId||'').match(/[HG]\d+/)||[])[0]||'Unavailable') : 'Unavailable',
-    morphology: (sense && sense.exactTag && sense.exactTag.m) ? sense.exactTag.m : 'Unavailable',
+    morphology: (sense && sense.exactTag && sense.exactTag.m) ? sense.exactTag.m : 'Morphology not present in current tagged morphology dataset',
     phrase: phrase || ''
   };
   if(hasOriginal){
@@ -304,10 +339,8 @@ function getWordStudyData(opts){
     fullWordRange = dict.rangeOfMeaning.slice();
   } else if(dict && Array.isArray(dict.originals) && dict.originals.length){
     fullWordRange = dict.originals.map(o=>[o.translit||o.word||'', o.note||''].filter(Boolean).join(' — ').slice(0,180));
-  } else if(sense.exactLex && sense.exactLex.kjv_def){
-    fullWordRange = String(sense.exactLex.kjv_def)
-      .replace(/[()\[\]+]/g,' ').replace(/-/g,' ').split(/[,;.]/)
-      .map(s=>s.trim()).filter(Boolean);
+  } else if(sense.exactLex && (sense.exactLex.kjv_def || sense.exactLex.def)){
+    fullWordRange = _parseKjvDefToRange(sense.exactLex.kjv_def, sense.exactLex.def);
   }
   const notMeantHere = passageWordNote && passageWordNote.notMeant
     ? [passageWordNote.notMeant]
@@ -315,23 +348,40 @@ function getWordStudyData(opts){
 
   // Honest contextual fallback (NOT a Strong's-def restatement)
   function _honestContextual(){
+    const dict2 = _dictLookup(ew);
+    const oldDef = W.DEFINITIONS && (W.DEFINITIONS[ew] || W.DEFINITIONS[ew.charAt(0).toUpperCase()+ew.slice(1)]);
+    if(dict2 && dict2.plain){
+      let text = dict2.plain;
+      if(phrase) text += ' In '+ref+', the word appears in the phrase: "'+phrase+'."';
+      return text;
+    }
+    if(oldDef){
+      const sense2 = oldDef.def || (Array.isArray(oldDef.senses) && oldDef.senses[0]) || '';
+      if(sense2){
+        let text = '"'+ew+'" — '+sense2;
+        if(phrase) text += ' (in the phrase: "'+phrase+'")';
+        return text;
+      }
+    }
     const genre = _bookGenreSummary(book);
     const parts = [];
-    parts.push('In ' + (ref||'this verse') + ' the word "' + ew + '" is read inside the phrase "' + (phrase||'…') + '" ('+(opts.bibleVersion||'KJV')+').');
-    if(genre) parts.push(genre);
-    if(hasOriginal){
-      parts.push('The exact original word here is tagged ('+exact.original+', '+exact.strongs+'), so the contextual sense is constrained by that lemma — see Full Word Range for the broader lexical span and Why-This-Meaning-Fits for the in-context narrowing.');
-    } else {
-      parts.push('No exact original-word tag is available for this token in the current data, so the contextual sense here is provisional — drawn from the surface English, the verse phrase, and the book\'s genre rather than from a verified original-language lemma. Treat as a guide, not a definitive lexical claim.');
-    }
+    if(phrase) parts.push('In the phrase "'+phrase+'" ('+(opts.bibleVersion||'KJV')+'), "'+ew+'"');
+    else parts.push('"'+ew+'" in '+(ref||'this verse'));
+    if(genre) parts.push('is used in '+genre);
+    if(hasOriginal) parts.push('translating '+exact.original+(exact.strongs&&exact.strongs!=='Unavailable'?' ('+exact.strongs+')':''));
+    parts.push('— see the Full Word Range for the complete lexical range and original-language data.');
     return parts.join(' ');
   }
   function _honestWhy(){
+    const dict2 = _dictLookup(ew);
     const bits = [];
-    if(phrase) bits.push('The immediate phrase "'+phrase+'" anchors the meaning to its grammatical neighbours.');
-    if(hasOriginal) bits.push('The tagged lemma narrows the lexical possibilities and rules out senses that belong to other word families.');
-    else bits.push('Without an exact lemma tag, we lean on the verse phrase, the sentence flow, and the book\'s genre to filter which dictionary sense is in play.');
-    bits.push('See Full Word Range for the broader lexical span this English word can carry across Scripture, and Not-Meant-Here for senses that the verse-level context rules out.');
+    if(phrase) bits.push('The surrounding phrase "'+phrase+'" establishes the context for this word\'s sense in this verse.');
+    if(hasOriginal){
+      bits.push('The original-language term ('+exact.original+(exact.strongs&&exact.strongs!=='Unavailable'?', '+exact.strongs:'')+') has a defined range of meanings; the verse context narrows it to this sense.');
+    } else {
+      bits.push('The exact original word is not tagged in the current data for this verse; the sense is drawn from the English context, the surrounding passage, and the book\'s genre.');
+    }
+    if(dict2 && dict2.matters) bits.push(dict2.matters);
     return bits.join(' ');
   }
 
@@ -401,7 +451,7 @@ function validateDefinitionCard(card){
   if(!card.confidence) fails.push('confidence missing');
   else if(['high','medium','low'].indexOf(card.confidence)<0) fails.push('confidence value invalid');
   if(!card.auditStatus) fails.push('auditStatus missing');
-  else if(['context-reviewed','context-reviewed with original-word limitation','needs manual review'].indexOf(card.auditStatus)<0) fails.push('auditStatus value invalid');
+  else if(['context-reviewed','context-reviewed with original-word limitation','needs manual review','restored from previous build and reviewed'].indexOf(card.auditStatus)<0) fails.push('auditStatus value invalid');
   return { ok: fails.length===0, fails };
 }
 

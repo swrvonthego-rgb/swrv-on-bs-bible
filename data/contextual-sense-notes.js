@@ -398,5 +398,227 @@ window.CONTEXTUAL_SENSE_NOTES = {
     notMeant:"Not gender-restrictive (women equally heirs, Gal 3:28). Not minor offspring. Mature heirs.",
     auditStatus:"context-reviewed", confidence:"high"
   }
+},
+
+// ─── GENESIS 1 — Creation narrative curated notes ────────────────────────────
+"Genesis 1:1":{
+  beginning:{
+    sense:"בְּרֵאשִׁית (bereshit, H7225) — 'in the beginning.' Not merely 'first in time' but first in primacy and source. The noun rosh means head, chief, origin; bereshit announces that everything that follows has its origin here in God's creative act. John 1:1 (en archē) echoes this deliberately.",
+    notMeant:"Not a date or timestamp. Not implying that something existed before it. The verse claims that the beginning itself was God's creative starting point.",
+    matters:"The opening word of Scripture stakes out the foundational claim: all that exists has a source outside itself, and that source is God. Nothing about Genesis 1:1 is accidental — the Hebrew is dense and theologically loaded.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  God:{
+    sense:"אֱלֹהִים (Elohim, H430) — plural form of El, used with singular verbs throughout Genesis 1. This is NOT polytheism. The plural is either the 'plural of majesty' (like royal 'we') expressing fullness and transcendence, or it anticipates the fuller revelation of God's inner life (the hint of 'Let us make' in 1:26). In the context of Genesis 1, Elohim is the one Creator who alone speaks, sees, names, and orders all creation.",
+    notMeant:"Not multiple gods. Not pagan deities. Not angels speaking with God. The God of Genesis 1 acts with absolute singularity — no divine council approves his work, no battle is fought. He speaks and it is.",
+    matters:"The first thing Genesis says about God is that He creates. The opening scene defines His character: sovereign, initiating, effortless, evaluating. Elohim is the cosmic title; the personal covenant name YHWH is introduced in Genesis 2.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  created:{
+    sense:"בָּרָא (bara, H1254) — a verb whose subject in the Hebrew Bible is ALWAYS God, never a human. To bara is to bring forth something genuinely new. Whether or not Genesis 1:1 implies creation ex nihilo (out of nothing) is debated, but the verb itself is reserved for divine creative acts that no human or creature can perform.",
+    notMeant:"Not 'made from existing materials' in the ordinary sense. Not the same as asah (H6213, to make/fashion, used in v.7, 16, 25). Bara marks the act as categorically different from human craftsmanship.",
+    matters:"Genesis 1:1 does not say God formed or assembled — it says He created. The universe is not divine, not self-originating, not eternal alongside God. It had a beginning and that beginning was a free act of the Creator.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  heavens:{
+    sense:"הַשָּׁמַיִם (hashamayim, H8064) — 'the heavens.' Hebrew uses the plural shamayim for the sky/heavens (like the English 'skies'). The phrase 'the heavens and the earth' is a Hebrew merism — a figure of speech pairing opposites to mean 'everything': the entire created order from top to bottom.",
+    notMeant:"Not only the spiritual realm. Not only outer space. The merism 'heavens and earth' means the total created universe.",
+    matters:"Genesis 1:1 declares the scope of God's creation: everything. Not some things or spiritual things — everything. This foundation makes the rest of the chapter an ordering and filling of this total creation.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  earth:{
+    sense:"הָאָרֶץ (ha-aretz, H776) — 'the earth.' Used in Gen 1:1 as the second half of the merism 'heavens and earth' = the entire created order. In verse 2, aretz narrows to describe the physical land/ground that was formless and empty before God's ordering work began.",
+    notMeant:"Not only the planet's surface. In 1:1 it is part of the cosmic merism for all of creation. From 1:2 onward it refers specifically to the terra firma being shaped and filled.",
+    matters:"The same word aretz carries different scope in different contexts — cosmic (1:1), physical land (1:2, 9-10), the land of Israel (Gen 12:1). Recognizing the merism in 1:1 prevents reducing 'God created the heavens and the earth' to only Earth-the-planet.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Genesis 1:3":{
+  light:{
+    sense:"אוֹר (or, H216) — physical light, created on Day 1 before the sun, moon, and stars (Day 4). This is not the light from celestial objects — those come three days later. Or is the primordial light: whether a separate light-source, or a poetic ordering of the principle of light before its instruments, the text presents light as God's first spoken creation.",
+    notMeant:"Not the sun (which is made in 1:14-18 as a 'light-bearer'). Not spiritual illumination here (though or carries that meaning elsewhere — Ps 27:1, Isa 60:19). In this creation-narrative context it is the physical reality God names and separates.",
+    matters:"Light on Day 1, light-bearers (the sun, moon, stars) on Day 4: the creation narrative separates the light from its familiar instruments. This either anticipates God himself as ultimate light-source (Rev 21:23) or structures the creation pattern around the Creator's authority over even his instruments.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Genesis 1:4":{
+  God:{
+    sense:"אֱלֹהִים (Elohim, H430) — the one true Creator God, acting here as sovereign evaluator and ruler over creation. In verse 4, God sees (וַיַּרְא — wayyar') the light and declares it good. This divine seeing is not passive observation but authoritative evaluation: the Creator assesses His work and pronounces it aligned with His purposes.",
+    notMeant:"Not pagan gods, angels, human judges, or generic mighty beings. In Genesis 1:4, the context identifies the sole Creator God acting with unrivaled authority — no rival, no council, no opposition. Elohim alone sees, evaluates, separates, and names.",
+    matters:"Genesis 1 establishes God's pattern of active evaluation ('God saw that it was good'). His seeing is judicial and royal — it defines what is good by his own character. In verse 4, this is the first divine evaluation in Scripture, setting the standard for what follows.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  light:{
+    sense:"אוֹר (or, H216) — the light created in verse 3, now seen, evaluated as good, and separated from darkness. By verse 4-5 light receives a name ('Day') and darkness a name ('Night'), completing the first act of divine ordering.",
+    notMeant:"Not the sun (created Day 4). Not spiritual or moral light yet (though or carries that sense in Psalms and Isaiah). Here it is the physical light created on Day 1, being established in its place within the created order.",
+    matters:"Naming the light 'Day' is an act of royal authority — in the ANE, naming something was an act of lordship over it. God names the light, establishing the rhythm of day and night that structures all human life.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  good:{
+    sense:"טוֹב (tov, H2896) — 'good': aligned with God's purposes, functioning rightly, beautiful and ordered as intended. The repeated refrain 'God saw that it was good' (1:4, 10, 12, 18, 21, 25) and 'very good' (1:31) is not a human aesthetic judgment but a divine declaration that creation corresponds to God's creative intention.",
+    notMeant:"Not merely 'nice' or 'pleasant.' Not morally perfect in the human ethical sense. In the creation narrative, tov means well-ordered, flourishing, fitting its purpose — light doing what light is meant to do.",
+    matters:"The goodness of creation is God's declaration, not a property the creation possesses independently. This matters for theodicy (why does good creation include suffering?), for material theology (the physical world is good), and for the gospel (redemption restores what sin broke — it does not escape the material world).",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  darkness:{
+    sense:"חֹשֶׁךְ (choshek, H2822) — darkness. In verse 4, God separates (וַיַּבְדֵּל — wayyavdel) the light from the darkness. The darkness is not created here (Gen 1:2 implies it preceded the creation order) but is assigned its place by God's separating act. Darkness is not portrayed as evil in the creation narrative — it is named 'Night' and given its proper sphere.",
+    notMeant:"Do not import later biblical associations (darkness = evil, judgment) into Genesis 1:4. Here darkness is a part of the created order receiving its name and its place. The text does not call darkness 'bad' in the same way it calls light 'good' — it simply separates them.",
+    matters:"God's ordering of creation involves separating opposites and giving each its proper place. This is the pattern of Day 1 (light/dark), Day 2 (waters above/below), and Day 3 (sea/dry land). The kingdom principle: God establishes boundaries that order creation for flourishing.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── JOHN 1 — Prologue curated notes ─────────────────────────────────────────
+"John 1:1":{
+  beginning:{
+    sense:"ἐν ἀρχῇ (en archē, G746) — 'in the beginning.' John opens with the exact echo of Gen 1:1 (LXX: en archē). But John's beginning is different: Genesis says 'In the beginning God created' — action starts. John says 'In the beginning WAS the Word' — the Word already existed before the beginning that Genesis describes. The imperfect ēn ('was') signals pre-existence, not creation.",
+    notMeant:"Not 'at the start of the Word's existence.' Not 'when things began for the Word.' The grammar insists the Word was already there when the beginning began.",
+    matters:"John 1:1 frames the entire Gospel: this Jesus whose story follows is the eternal Word who preceded creation. The miracle of the Incarnation (1:14) is that the pre-existent Creator became creature.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  word:{
+    sense:"λόγος (logos, G3056) — Word. In Greek philosophy, logos was the rational principle ordering the cosmos. In Jewish thought (Wisdom, Philo), the Word/Wisdom of God was the agent of creation (Prov 8:22-31). John takes both backgrounds and transcends them: the Logos is not a principle or an intermediary — he is a Person (ho logos), is with God (pros ton theon, face-to-face relation), and IS God (theos ēn ho logos). In verse 14, this Logos becomes flesh. The Logos is Jesus.",
+    notMeant:"Not Greek philosophical logos as an impersonal reason-principle. Not Philo's logos as a secondary divine mind. Not simply 'a word spoken.' The logos in John 1 is personal, divine, and Incarnate.",
+    matters:"John deliberately answers the two greatest philosophical and theological backgrounds of his audience: for Greeks, the logos-question; for Jews, the Wisdom/Word-of-God tradition. His answer is the same: the logos is Jesus of Nazareth.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  God:{
+    sense:"θεός (theos, G2316) — God. In 'and the Word was God' (theos ēn ho logos), John makes the staggering claim: the Word IS God in terms of divine nature. The Greek construction (theos without the article as predicate nominative) affirms genuine deity while preserving the distinction between the Father and the Son ('with God' in the previous clause). This is not a mistake or lesser deity — it is full deity.",
+    notMeant:"Not 'a god' (a secondary divine being). Not merely 'divine' in quality. Not 'like God.' The grammar and context of the Prologue identify the Word as fully God while being distinct from the Father — which is exactly what Trinitarian theology preserves.",
+    matters:"John 1:1 is the christological foundation of the Gospel. If the Word is God, then His words are God's words, His works are God's works, and His self-giving on the cross is God's own self-giving for the world.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"John 3:16":{
+  world:{
+    sense:"κόσμος (kosmos, G2889) — 'the world.' In John, kosmos most often means humanity in its fallenness and alienation from God (John 1:10, 17:9). God so loved THIS kosmos — not a selection from it, not the worthy part of it. The scope is universal: God's saving initiative covers the entire fallen human order.",
+    notMeant:"Not just Israel. Not just the elect. Not the material universe (though kosmos can mean that). In John 3:16, kosmos is fallen humanity — the very thing that does not know Him (1:10), the very world He did not come to condemn but to save (3:17).",
+    matters:"The object of God's agape-love is the kosmos — the alienated, undeserving world. This is the grace of John 3:16: love is directed outward to what is opposite to God, not inward to what deserves it.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  believe:{
+    sense:"πιστεύω (pisteuō, G4100) — to trust, entrust oneself to, rely upon. The present tense participle (pas ho pisteuōn — 'everyone who is believing/trusting') indicates ongoing trust, not one-time mental assent. To believe in (eis) the Son is to place one's whole self into the Son's care and authority.",
+    notMeant:"Not intellectual agreement with facts about Jesus. Not a momentary prayer with no ongoing entrusting. The Greek eis ('into') + pisteuō means an active reliance and orientation toward the object — it is relational, not merely propositional.",
+    matters:"John's Gospel repeats this phrase — 'everyone who believes into him' — as the marker of receiving eternal life. The verb is always present-tense participial (ongoing action), never a one-time past act. Faith is a living orientation, not a past event only.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── ROMANS ─ Key theological terms ──────────────────────────────────────────
+"Romans 1:16":{
+  gospel:{
+    sense:"εὐαγγέλιον (euangelion, G2098) — 'good news.' In the Greco-Roman world, euangelion was the announcement of a great public event: a military victory, the accession of an emperor, the birth of a king's son. Paul uses the same word to announce the decisive event of human history: the death and resurrection of Jesus the Messiah. This is not merely information to believe — it is a royal announcement with the power (dunamis) to accomplish what it announces.",
+    notMeant:"Not just good advice or a religious system. Not a private spiritual experience. The euangelion is a public proclamation about a real historical event with universal implications.",
+    matters:"Paul says he is 'not ashamed' of the gospel (Rom 1:16) in Rome — the capital of the empire that crucified its King. The gospel is a counter-imperial announcement: the crucified Jesus is Lord, not Caesar.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  power:{
+    sense:"δύναμις (dunamis, G1411) — power, force, ability. Paul says the gospel IS (present tense, ongoing reality) the power (dunamis) of God. Not that it has power or conveys power — it is power. The gospel itself, as proclaimed, is the operative force of God that produces salvation.",
+    notMeant:"Not merely the power to intellectually persuade. Not a supplementary power added to the gospel. The gospel itself is the dunamis — source of 'dynamite' in English. Wherever the gospel is faithfully proclaimed, God's power is actively working.",
+    matters:"This verse rules out both intellectualism (mere arguments) and experientialism (experiences separate from the word) as substitutes for the gospel itself. The message IS the power.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  salvation:{
+    sense:"σωτηρία (sōtēria, G4991) — salvation, rescue, wholeness. In the OT background (yeshua, H3444), salvation is God's act of delivering Israel from slavery, enemies, and death. In Paul, salvation encompasses justification (declared righteous, past), sanctification (being made holy, present), and glorification (transformation at resurrection, future). The gospel is the power of God FOR this complete salvation.",
+    notMeant:"Not only 'going to heaven when you die.' Not only the forgiveness of past sins. Sōtēria is comprehensive rescue: from guilt, from sin's power, from final condemnation, toward restored relationship with God and ultimate renewal of creation.",
+    matters:"Paul says the gospel brings salvation 'to everyone who believes — to the Jew first, and also to the Greek.' The scope is universal; the condition is faith; the source is God's power.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 1:17":{
+  righteousness:{
+    sense:"δικαιοσύνη (dikaiosynē, G1343) — 'righteousness of God.' This phrase (dikaiosynē theou) in Paul means the covenant-keeping saving justice of God, revealed in the gospel. It is simultaneously God's OWN righteousness (His character of justice) and the righteousness God GIVES/CREDITS to believers (justification — declared right before God). The gospel reveals that God is both righteous (he does not overlook sin) and the justifier (he provides the means of right-standing).",
+    notMeant:"Not merely ethical correctness. Not earned human virtue. Not God's punitive anger alone. Dikaiosynē theou in Rom 1:17 encompasses God's saving act that upholds his justice while providing right-standing to the unrighteous.",
+    matters:"This verse is the thesis of Romans. Luther's rediscovery of 'the righteousness of God' as gift rather than demand launched the Reformation. Romans 3:21-26 unpacks it in full.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  faith:{
+    sense:"πίστις (pistis, G4102) — trust, faithfulness, loyalty. 'From faith to faith' (ek pisteōs eis pistin) likely means the entire process is faith-shaped: it originates in God's faithfulness (the faithfulness of Christ, G4102 used of Christ's own trust/obedience in some readings) and is received by human faith. The OT proof-text 'the just shall live by his faith' (Hab 2:4) uses emunah (H530) — steadfast loyalty.",
+    notMeant:"Not intellectual agreement alone. Not self-generated belief as the root cause of salvation. Faith here is trust directed at the God who acts in the gospel.",
+    matters:"Hab 2:4 is quoted three times in the NT (Rom 1:17, Gal 3:11, Heb 10:38) — each time making it foundational to the life of God's people. The just person lives by ongoing trust, not by occasional belief-moments.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 8:1":{
+  condemnation:{
+    sense:"κατάκριμα (katakrima, G2631) — the verdict/penalty of condemnation. Paul says 'There is now NO katakrima for those in Christ Jesus.' This is not 'no feeling of guilt' or 'no consequences' — it is the legal/covenantal reality: the death-verdict that sin earns has been absorbed by Christ's death (Rom 8:3-4). The condemned person has been acquitted. The penalty has been paid.",
+    notMeant:"Not 'no discipline' (God still disciplines sons, Heb 12). Not 'no consequences for sin in this life.' Not an emotional state. Katakrima is the judicial penalty — and that penalty is gone for those in Christ.",
+    matters:"'No condemnation' is the foundation of the Christian life Paul describes in Romans 8. Everything that follows — life in the Spirit, groaning with creation, intercession, final glorification — rests on this single covenantal fact: the verdict is 'not guilty' in Christ.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── MATTHEW 5 — Beatitudes ───────────────────────────────────────────────────
+"Matthew 5:3":{
+  blessed:{
+    sense:"μακάριος (makarios, G3107) — 'blessed / happy / fortunate.' In Greek culture, the makarios person had everything needed for flourishing — wealth, honor, position. Jesus systematically applies makarios to people who lack those things (the poor in spirit, the mourning, the meek). The word announces a divine declaration and reality, not merely a feeling: these are the ones whom God accounts fortunate and upon whom the kingdom's blessings rest.",
+    notMeant:"Not simply 'happy' in the modern emotional sense. Not 'congratulations for being virtuous.' Makarios is a status-announcement: these people are in the position of flourishing before God, regardless of their current circumstances.",
+    matters:"The Beatitudes reverse the world's calculus. The kingdom's blessed are those the world accounts poor, weak, or marginal. Jesus' opening words in the Sermon on the Mount redefine what a 'blessed life' looks like under kingdom rule.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  poor:{
+    sense:"πτωχός (ptōchos, G4434) — destitute, absolutely poor, begging-poor. 'Poor in spirit' (ptōchos tō pneumati) does not primarily mean 'humble in attitude' (though that is an outcome). It means those who know their total spiritual bankruptcy before God — those with nothing to offer, no spiritual capital, fully dependent. Matthew 5:3's 'in spirit' localizes ptōchos: it is spiritual destitution, not necessarily material.",
+    notMeant:"Not simply 'materially poor' (Luke 6:20 addresses that application; Matthew's version adds 'in spirit'). Not 'casually humble.' Ptōchos is the most severe Greek word for poverty — the beggar, not the merely middle-class.",
+    matters:"The kingdom of heaven belongs to the spiritually destitute — to those who have abandoned self-reliance before God. This is the starting point of the kingdom life: not merit, not spiritual wealth, but recognized need.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── HEBREWS 11 — Faith defined ───────────────────────────────────────────────
+"Hebrews 11:1":{
+  faith:{
+    sense:"πίστις (pistis, G4102) — faith, trust, conviction. Hebrews 11:1 gives the only definitional statement about faith in the NT: 'Now faith is the substance (hupostasis) of things hoped for, the evidence (elenchos) of things not seen.' Faith is not the opposite of evidence — it IS evidence; specifically, it is the subjective confidence that functions as the assurance and proof of future realities. Hebrews then illustrates this with 17 OT examples who acted on unseen promises.",
+    notMeant:"Not 'believing what you know isn't true.' Not hoping without grounds. Not the absence of reason. Faith in Hebrews is grounded in the character of the God who promises — the examples in ch. 11 trusted God's word, not their own feelings.",
+    matters:"The chapter that follows 11:1 is the 'hall of faith' — 17 OT examples of people who acted on unseen promises. The definition in 11:1 is proved by the examples that follow: faith is present-confidence in future realities based on what God has already shown Himself to be.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  substance:{
+    sense:"ὑπόστασις (hupostasis, G5287) — 'substance/assurance.' Used in classical Greek for a legal guarantee or foundation of a claim; in the papyri it appears in title-deeds. In this context it means faith is the title-deed — the present possession — of future realities. The thing hoped for is future; the hupostasis (the assurance of it) is present, and that present assurance IS faith.",
+    notMeant:"Not 'the physical substance' of hoped-for things. Not 'a feeling of certainty.' Hupostasis is structural assurance — the foundation under a building, the backing behind a claim.",
+    matters:"This Greek word also appears in Hebrews 1:3 ('the exact imprint of his [the Father's] hupostasis'). In both places it carries the weight of what is really, foundationally real. Faith is the reality in the present of what is not yet visible.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── EPHESIANS 2 — Grace through faith ───────────────────────────────────────
+"Ephesians 2:8":{
+  grace:{
+    sense:"χάρις (charis, G5485) here is the sovereign, unearned, unmerited GIFT of God that is the source of salvation. Paul says salvation has been given (perfect tense — permanent completed act) 'by grace' (chariti) — the means is God's gift, not human merit. The grace is the divine side of the transaction; faith (pistis) is the human reception of what grace offers.",
+    notMeant:"Not 'grace' as a human virtue or charm. Not earned favor. Not God's response to human effort. Charis here is the pure initiative of God toward those who deserved the opposite.",
+    matters:"Eph 2:8-9 is the most compact statement of justification by grace through faith in Paul: 'not of yourselves... not of works, lest any man should boast.' The structure: grace as source, faith as instrument, not works as the basis. Verse 10 immediately follows with works as the FRUIT: 'we are his workmanship, created in Christ Jesus FOR good works.'",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  faith:{
+    sense:"πίστεως (pisteōs, G4102) — through faith (dia pisteōs). Faith is the instrument through which grace reaches the person, not the cause of salvation. Paul emphasizes 'and that not of yourselves' — even the faith is the gift of God, not self-generated. Whether 'that' refers to the faith or the salvation as a whole is debated; but either way, Paul removes all human boasting from the equation.",
+    notMeant:"Not works. Not merit. Not effort. Not anything in the person that makes them deserve or generate the grace. Faith itself is the open hand, not the price paid.",
+    matters:"'By grace through faith' is a precise formula: grace is the source, faith is the channel. The same distinction appears in Romans 5:1-2: 'justified by faith, we have access by faith into this grace.' Faith opens access to what grace provides.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── PSALM 23 — Shepherd Psalm ────────────────────────────────────────────────
+"Psalms 23:1":{
+  shepherd:{
+    sense:"רֹעֶה (ro'eh, H7462) — shepherd, one who pastures and cares for flocks. 'The LORD is my shepherd' (YHWH ro'eh) is a royal and covenantal statement. In the ANE, the shepherd metaphor was used for kings who cared for their people (Ezek 34 uses it to condemn Israel's rulers who failed this role). Psalm 23 claims YHWH himself fulfills what human kings fail to provide: true care, provision, guidance, and protection.",
+    notMeant:"Not merely a pastoral image of gentleness. Not a statement about God's personality only. The shepherd metaphor in the ANE is specifically about responsible governance and care.",
+    matters:"Jesus claims this title for himself in John 10:11 ('I am the good shepherd') — deliberately identifying himself with YHWH of Psalm 23 and Ezekiel 34. The New Covenant shepherd is the one who lays down his life for the sheep.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+
+// ─── ISAIAH 53 — Suffering Servant ───────────────────────────────────────────
+"Isaiah 53:5":{
+  wounded:{
+    sense:"מְחֹלָל (mecholal, H2490) — pierced, profaned, wounded. The word can mean 'pierced through' (as with a weapon) or 'profaned' (made common/unholy). In Isaiah 53:5, the servant is 'pierced/wounded FOR our transgressions' — the preposition min (for/because of) places the cause of the wounding on the people's sin. This verse is cited in connection with the Crucifixion in the NT (John 19:37, Rev 1:7).",
+    notMeant:"Not metaphorically wounded (the broader suffering is described separately). Not wounded for his own reasons. The preposition structure is explicit: the wounding is ON ACCOUNT OF OUR transgressions.",
+    matters:"Isaiah 53 is quoted or alluded to more than any other OT text in the NT. Verse 5 specifically identifies the substitutionary logic: the servant bears what we caused. This is the backbone of atonement theology.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  peace:{
+    sense:"שָׁלוֹם (shalom, H7965) — wholeness, completeness, peace, flourishing. 'The chastisement of our shalom was upon him.' The servant's punishment produces SHALOM for the people — not just the absence of conflict but the restoration of completeness and right-relation with God.",
+    notMeant:"Not merely the end of hostility. Shalom in the OT is positive, not just negative: it is flourishing, wholeness, alignment, the state of nothing missing and nothing broken.",
+    matters:"Isa 53:5 connects the servant's suffering to our shalom — a word that shows up in the high-priestly blessing (Num 6:24-26), in Jesus' greeting to the disciples (John 20:19-21), and in the final state of the new creation (Rev 21:4).",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
 }
 };

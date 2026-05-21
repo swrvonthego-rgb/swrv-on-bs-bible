@@ -3962,6 +3962,76 @@ function _renderBookOverview(book){
     if(w.endsWith('ness') && w.length>5) push(w.slice(0,-4));
     return [...out];
   }
+  function _keyMatchesRef(cardKey, lookupKey){
+    // Require word-boundary match so "Genesis 1" does NOT match "Genesis 15".
+    if(!cardKey.startsWith(lookupKey)) return false;
+    const rest = cardKey.slice(lookupKey.length);
+    return rest==='' || /^[:\s–—\-]/.test(rest);
+  }
+  function _splitRespectingParens(text){
+    // Split on comma/semicolon only outside parentheses or brackets.
+    const items=[];let depth=0,cur='';
+    for(const ch of String(text)){
+      if(ch==='('||ch==='['){depth++;cur+=ch;}
+      else if(ch===')'||ch===']'){depth=Math.max(0,depth-1);cur+=ch;}
+      else if(depth===0&&(ch===','||ch===';')){if(cur.trim())items.push(cur.trim());cur='';}
+      else{cur+=ch;}
+    }
+    if(cur.trim())items.push(cur.trim());
+    return items;
+  }
+  function _parseKjvDefToRange(kjvDef, strongs_def){
+    // Smart parser: respects parentheses, drops [idiom] markers and suffix
+    // fragments, deduplicates, filters items shorter than 3 chars.
+    const out=[];
+    // strongs_def (prose) goes in first as a cleaned bullet.
+    if(strongs_def){
+      const prose=String(strongs_def).replace(/\{|\}/g,'').trim();
+      if(prose.length>10) out.push(prose);
+    }
+    if(!kjvDef) return out;
+    const items=_splitRespectingParens(String(kjvDef));
+    for(const item of items){
+      const cleaned=item
+        .replace(/\[.*?\]/g,'')     // remove [idiom], [phrase], etc.
+        .replace(/\(.*?\)/g,'')     // remove (suffix-groups) like (-dess, -ly)
+        .replace(/[+[\]{}]/g,'')
+        .replace(/\s+/g,' ')
+        .trim();
+      if(cleaned.length<3) continue;
+      if(/^\d+$/.test(cleaned)) continue;
+      if(/^[-–—\s]+$/.test(cleaned)) continue;
+      const lower=cleaned.toLowerCase();
+      if(out.some(function(x){return x.toLowerCase()===lower;})) continue;
+      out.push(cleaned);
+    }
+    return out;
+  }
+  function _buildDeepContext(opts, card, verse, dict){
+    // Assembles the deepContext section from rich dictionary and DEFINITIONS data.
+    const word=(opts&&opts.englishWord)||'';
+    const ref=(opts&&opts.ref)||'';
+    const book=(opts&&opts.book)||'';
+    const phrase=_phraseContext(verse,word);
+    const _wLower=word.toLowerCase();const _wCap=_wLower.charAt(0).toUpperCase()+_wLower.slice(1);
+    const oldDef=window.DEFINITIONS&&(window.DEFINITIONS[word]||window.DEFINITIONS[_wLower]||window.DEFINITIONS[_wCap]);
+    const parts=[];
+    if(dict&&dict.deep) parts.push(dict.deep);
+    if(dict&&dict.cultural) parts.push('Cultural background: '+dict.cultural);
+    if(dict&&dict.kingdomSignificance) parts.push('Kingdom significance: '+dict.kingdomSignificance);
+    if(oldDef){
+      if(oldDef.ane&&!parts.some(function(p){return p.includes(String(oldDef.ane).slice(0,40));})) parts.push('Ancient-world context: '+oldDef.ane);
+      if(oldDef.theology) parts.push(oldDef.theology);
+      if(oldDef.kingdom&&!parts.some(function(p){return p.includes(String(oldDef.kingdom).slice(0,40));})) parts.push('Kingdom significance: '+oldDef.kingdom);
+    }
+    if(!parts.length){
+      const genre=_bookGenreSummary(book);
+      if(phrase) parts.push('In this passage, "'+word+'" appears within the phrase "'+phrase+'".');
+      if(genre) parts.push('This verse is part of '+genre+'.');
+      parts.push('A fuller study of this word benefits from examining the original-language term and its range of use across the biblical corpus.');
+    }
+    return parts.join('\n\n');
+  }
   // Look up ENGLISH_BIBLE_DICT for a word, trying inflectional variants
   // ("loved" → also try "love"; "kingdoms" → also try "kingdom") so the
   // family-fallback step has the best chance of finding a curated entry.
@@ -4132,10 +4202,8 @@ function _renderBookOverview(book){
       fullWordRange = dict.originals.map(function(o){
         return [o.translit||o.word||'', o.note||''].filter(Boolean).join(' — ').slice(0,180);
       });
-    } else if(sense.exactLex && sense.exactLex.kjv_def){
-      fullWordRange = String(sense.exactLex.kjv_def)
-        .replace(/[()[\]+]/g,' ').replace(/-/g,' ').split(/[,;.]/)
-        .map(function(s){return s.trim();}).filter(Boolean);
+    } else if(sense.exactLex && (sense.exactLex.kjv_def || sense.exactLex.def)){
+      fullWordRange = _parseKjvDefToRange(sense.exactLex.kjv_def, sense.exactLex.def);
     }
 
     // Confidence rules:
@@ -4233,37 +4301,61 @@ function _renderBookOverview(book){
     return words.slice(a,b).join(' ');
   }
   function _honestContextualFallback(opts, card, verse){
-    // Build a contextual prose paragraph anchored in real context, NOT in
-    // Strong's range. The phrase + genre + testament + author context lets
-    // the reader place the word without us pretending we have curated data.
     const word = (opts&&opts.englishWord)||'';
     const ref  = (opts&&opts.ref)||'';
     const book = (opts&&opts.book)||'';
     const ver  = (opts&&opts.bibleVersion)||'KJV';
     const phrase = _phraseContext(verse, word);
     const genre = _bookGenreSummary(book);
+    const dict = _dictLookup(word);
+    const _wL=word.toLowerCase();const _wC=_wL.charAt(0).toUpperCase()+_wL.slice(1);
+    const oldDef = window.DEFINITIONS&&(window.DEFINITIONS[word]||window.DEFINITIONS[_wL]||window.DEFINITIONS[_wC]);
     const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
       && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
-    const parts = [];
-    parts.push('In ' + (ref||'this verse') + ' the word "' + word + '" is read inside the phrase "' + (phrase||'…') + '" ('+ver+').');
-    if(genre) parts.push(genre);
-    if(hasOriginal){
-      parts.push('The exact original word here is tagged ('+card.exactWordUsedHere.original+', '+card.exactWordUsedHere.strongs+'), so the contextual sense is constrained by that lemma — see Full Word Range for the broader lexical span and Why-This-Meaning-Fits for the in-context narrowing.');
-    } else {
-      parts.push('Exact original-language lemma tagging for this token is not present in current data — the contextual sense here is provisional, drawn from the surface English, the verse phrase, and the book\'s genre rather than from a verified lemma. Treat as a guide, not a definitive lexical claim.');
+    // 1. Prefer rich curated dictionary plain meaning + verse anchor
+    if(dict && dict.plain){
+      let text = dict.plain;
+      if(phrase) text += ' In '+ref+', the word appears in the phrase: "'+phrase+'."';
+      else if(ref) text += ' ('+ref+')';
+      return text;
     }
+    // 2. Fall back to old-style DEFINITIONS entry
+    if(oldDef){
+      const sense = oldDef.def || (Array.isArray(oldDef.senses)&&oldDef.senses[0]) || '';
+      if(sense){
+        let text = '"'+word+'" — '+sense;
+        if(phrase) text += ' (in the phrase: "'+phrase+'")';
+        return text;
+      }
+    }
+    // 3. Build clean prose from context (no developer-speak)
+    const parts = [];
+    if(phrase) parts.push('In the phrase "'+phrase+'" ('+ver+'), "'+word+'"');
+    else parts.push('"'+word+'" in '+(ref||'this verse'));
+    if(genre) parts.push('is used in '+genre);
+    if(hasOriginal){
+      parts.push('translating '+card.exactWordUsedHere.original+
+        (card.exactWordUsedHere.strongs&&card.exactWordUsedHere.strongs!=='Unavailable'?' ('+card.exactWordUsedHere.strongs+')':''));
+    }
+    parts.push('— see the Full Word Range below for the complete lexical range and the Sources tab for original-language data.');
     return parts.join(' ');
   }
   function _honestWhyFallback(opts, card, verse){
     const word = (opts&&opts.englishWord)||'';
     const phrase = _phraseContext(verse, word);
+    const dict = _dictLookup(word);
     const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
       && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
     const bits = [];
-    if(phrase) bits.push('The immediate phrase "'+phrase+'" anchors the meaning to its grammatical neighbours.');
-    if(hasOriginal) bits.push('The tagged lemma narrows the lexical possibilities and rules out senses that belong to other word families.');
-    else bits.push('Without an exact lemma tag, we lean on the verse phrase, the sentence flow, and the book\'s genre to filter which dictionary sense is in play.');
-    bits.push('See Full Word Range for the broader lexical span this English word can carry across Scripture, and Not-Meant-Here for senses that the verse-level context rules out.');
+    if(phrase) bits.push('The surrounding phrase "'+phrase+'" establishes the context for this word\'s sense in this verse.');
+    if(hasOriginal){
+      bits.push('The original-language term ('+card.exactWordUsedHere.original+
+        (card.exactWordUsedHere.strongs&&card.exactWordUsedHere.strongs!=='Unavailable'?', '+card.exactWordUsedHere.strongs:'')
+        +') has a defined range of meanings; the verse context narrows it to this sense.');
+    } else {
+      bits.push('The exact original word is not tagged in the current data for this verse; the sense is drawn from the English context, the surrounding passage, and the book\'s genre and purpose.');
+    }
+    if(dict&&dict.matters) bits.push(dict.matters);
     return bits.join(' ');
   }
   function _collectSources(opts, card, dict){
@@ -4309,7 +4401,7 @@ function _renderBookOverview(book){
       english: opts.englishWord || '',
       original: hasOriginal ? inner.exactWordUsedHere.original : 'Exact original-word mapping unavailable in current tagged data',
       strongs:  hasOriginal && inner.exactWordUsedHere.strongs ? inner.exactWordUsedHere.strongs : 'Unavailable',
-      morphology: (inner.sense && inner.sense.exactTag && inner.sense.exactTag.m) ? inner.sense.exactTag.m : 'Unavailable',
+      morphology: (inner.sense && inner.sense.exactTag && inner.sense.exactTag.m) ? inner.sense.exactTag.m : 'Morphology not present in current tagged morphology dataset',
       phrase: phrase || (inner.exactWordUsedHere && inner.exactWordUsedHere.phrase) || ''
     };
     if(hasOriginal){
@@ -4318,9 +4410,16 @@ function _renderBookOverview(book){
     }
 
     const hasCurated = !!(inner && inner.contextualMeaningHere);
+    // CONTEXT_SENSE disambiguation: when we have a specific Strong's ID, use the
+    // sense-specific gloss (more precise than the generic dict.plain fallback).
+    const _csEntry = window.CONTEXT_SENSE && window.CONTEXT_SENSE[ew];
+    const _csGloss = exact.strongs && exact.strongs!=='Unavailable' && _csEntry && _csEntry.byStrongs
+      ? (_csEntry.byStrongs[exact.strongs] && _csEntry.byStrongs[exact.strongs].gloss) : null;
     const contextualMeaningHere = hasCurated
       ? inner.contextualMeaningHere
-      : _honestContextualFallback(opts, {exactWordUsedHere:exact, sense:inner.sense}, verse);
+      : _csGloss
+        ? (_csGloss + (phrase ? ' In '+(opts.ref||'this verse')+', the word appears in the phrase: "'+phrase+'."' : ''))
+        : _honestContextualFallback(opts, {exactWordUsedHere:exact, sense:inner.sense}, verse);
 
     const whyThisMeaningFits = (inner && inner.whyThisMeaningFits)
       ? inner.whyThisMeaningFits
@@ -4337,10 +4436,12 @@ function _renderBookOverview(book){
     const auditStatus = _normalizeAuditStatus({}, hasOriginal, hasCurated);
     const sources = _collectSources(opts, {exactWordUsedHere:exact, sense:inner.sense}, dict);
 
+    const deepContext = _buildDeepContext(opts, {exactWordUsedHere:exact, sense:inner.sense}, verse, dict);
     return {
       bibleVersion: opts.bibleVersion || 'KJV',
       exactWordUsedHere: exact,
       contextualMeaningHere: contextualMeaningHere,
+      deepContext: deepContext,
       fullWordRange: fullWordRange,
       notMeantHere: notMeantHere,
       whyThisMeaningFits: whyThisMeaningFits,
@@ -4407,7 +4508,7 @@ function _renderBookOverview(book){
     if(!card.confidence) fails.push('confidence is missing');
     else if(['high','medium','low'].indexOf(card.confidence)<0) fails.push('confidence value not in {high,medium,low}');
     if(!card.auditStatus) fails.push('auditStatus is missing');
-    else if(['context-reviewed','context-reviewed with original-word limitation','needs manual review'].indexOf(card.auditStatus)<0){
+    else if(['context-reviewed','context-reviewed with original-word limitation','needs manual review','restored from previous build and reviewed'].indexOf(card.auditStatus)<0){
       fails.push('auditStatus value "'+card.auditStatus+'" not in allowed enum');
     }
     return { ok: fails.length===0, fails: fails };
@@ -4451,11 +4552,19 @@ function _renderBookOverview(book){
       html += '<div class="sheet-section sheet-sense">';
       html += '<div class="sheet-section-label sheet-section-headline">CONTEXTUAL MEANING HERE</div>';
       html += '<div class="sheet-text">'+_escape(card.contextualMeaningHere)+'</div>';
-      if(!card._hasCurated){
-        html += '<div class="sheet-source-trace" style="margin-top:6px;font-size:11px;color:var(--fg-mute);">Note: this verse uses an engine-built contextual reading (phrase + genre + lemma where tagged) rather than a hand-authored passage card. The text above is a contextual fallback — not a Strong\'s restatement. See <b>Full Word Range</b> for the broader lexical span.</div>';
-      }
       if(card.bookContextNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(card.bookContextNote)+'</div>';
       html += '</div>';
+
+      // ===== SECTION 2b: DEEP CONTEXT =====
+      if(card.deepContext && card.deepContext.trim()){
+        html += '<div class="sheet-section sheet-deep-context">';
+        html += '<div class="sheet-section-label sheet-section-headline">DEEP CONTEXT</div>';
+        const paragraphs = card.deepContext.split(/\n\n+/);
+        for(const p of paragraphs){
+          if(p.trim()) html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(p.trim())+'</div>';
+        }
+        html += '</div>';
+      }
 
       // ===== SECTION 3: WHY THIS MEANING FITS =====
       html += '<div class="sheet-section sheet-matters">';
@@ -4605,7 +4714,7 @@ function _renderBookOverview(book){
       const seen = new Set();
       for(const k in window.CULTURAL_CARDS){
         for(const tk of tryKeys){
-          if(k.indexOf(tk)===0 && !seen.has(k)){
+          if(_keyMatchesRef(k,tk) && !seen.has(k)){
             seen.add(k);
             const c = window.CULTURAL_CARDS[k];
             html += '<div class="sheet-section"><div class="sheet-section-label">🌍 '+_escape(c.title||k)+'</div>';
@@ -4641,7 +4750,7 @@ function _renderBookOverview(book){
       const tryKeys = [state.ref, state.book+' '+state.chapter+':'+state.verse, state.book+' '+state.chapter];
       for(const k in window.INSTRUCTION_CARDS){
         for(const tk of tryKeys){
-          if(k.indexOf(tk)===0){
+          if(_keyMatchesRef(k,tk)){
             const ic = window.INSTRUCTION_CARDS[k];
             html += '<div class="sheet-section"><div class="sheet-section-label">📜 '+_escape(ic.title||k)+' — Instruction</div>';
             if(ic.speaker) html += '<div class="sheet-text"><b>Speaker:</b> '+_escape(ic.speaker)+'</div>';
