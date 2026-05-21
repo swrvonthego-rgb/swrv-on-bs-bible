@@ -1154,6 +1154,8 @@ function renderVerse(v){
   const augmentedDefinables = getAugmentedDefinables(v, displayText);
   if(v.ref && v.strongsTags) window.__verseStrongs[v.ref] = v.strongsTags;
   verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
+  // Compact per-verse Study chip — visible in Read & Study modes; opens the unified Study Sheet.
+  verseHtml.push('<button class="verse-study-chip" onclick="openStudySheet(\''+v.ref.replace(/\'/g,"\\\\'")+'\')" title="Open study panel for '+escapeHtml(v.ref)+'">📖 Study</button>');
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
@@ -3578,3 +3580,520 @@ function _renderBookOverview(book){
   h += '</div>';
   return h;
 }
+
+
+// ====================================================================
+// SWRV UX OVERHAUL — Reading Modes + Unified Study Sheet + Layer Filters
+// ====================================================================
+// Three-mode reading model:
+//   read    = clean Bible text only; inline study boxes hidden; verses
+//             get a small [Study] chip; tap chip opens the study sheet.
+//   study   = default for desktop; study chips visible; inline cards still
+//             hidden by default; study sheet is the primary depth surface.
+//   scholar = inline cards visible too; for maximum source depth.
+//
+// The sheet renders as a bottom drawer on mobile (≤680px) and a side panel
+// on desktop. Same DOM, swapped by CSS. Eight tabs sourced from existing
+// project data (no new content needed; no duplication of cards).
+
+(function(){
+  const RM_KEY = 'swrv_reading_mode';
+  const LF_KEY = 'swrv_layer_filters';
+  // Default layer-filter state. Keys map to study-sheet tab/section IDs.
+  const LF_DEFAULTS = {
+    define:true, original:true, translations:true, culture:true,
+    kingdom:true, people:true, sources:true, crossrefs:true,
+    amp:true, lxx:true, tanakh:true, josephus:true, enoch:true,
+    instruction:true, appearance:true
+  };
+
+  function getReadingMode(){
+    try { return localStorage.getItem(RM_KEY) || _defaultReadingMode(); } catch(e){ return _defaultReadingMode(); }
+  }
+  function _defaultReadingMode(){
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 680px)').matches;
+    return isMobile ? 'read' : 'study';
+  }
+  function getLayerFilters(){
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(LF_KEY)||'null'); } catch(e){}
+    return Object.assign({}, LF_DEFAULTS, saved||{});
+  }
+  function saveLayerFilters(lf){
+    try { localStorage.setItem(LF_KEY, JSON.stringify(lf)); } catch(e){}
+  }
+
+  function setReadingMode(mode){
+    if(!['read','study','scholar'].includes(mode)) mode='study';
+    try { localStorage.setItem(RM_KEY, mode); } catch(e){}
+    document.body.setAttribute('data-reading-mode', mode);
+    // Keep legacy classes synced so older CSS still works
+    document.body.classList.toggle('reader-focus', mode==='read');
+    document.body.classList.toggle('study-focus', mode==='study' || mode==='scholar');
+    document.body.classList.toggle('scholar-focus', mode==='scholar');
+    // Mark the mode button
+    ['read','study','scholar'].forEach(m=>{
+      const b = document.getElementById('readingMode'+m.charAt(0).toUpperCase()+m.slice(1));
+      if(b){ b.classList.toggle('active', m===mode); b.setAttribute('aria-pressed', m===mode?'true':'false'); }
+    });
+  }
+  window.setReadingMode = setReadingMode;
+  // Keep legacy toggleStudyLayers as a 2-state shortcut between read and study.
+  window.toggleStudyLayers = function(){
+    setReadingMode(document.body.getAttribute('data-reading-mode')==='read' ? 'study' : 'read');
+  };
+
+  // ---------- Layer filters popover ----------
+  function renderLayerFiltersList(){
+    const lf = getLayerFilters();
+    const list = document.getElementById('layerFiltersList');
+    if(!list) return;
+    const items = [
+      ['define','Definitions'],
+      ['original','Original Language'],
+      ['translations','Translation Comparison'],
+      ['amp','AMP'],
+      ['tanakh','Tanakh'],
+      ['lxx','LXX'],
+      ['josephus','Josephus'],
+      ['enoch','Enoch'],
+      ['culture','Cultural Context'],
+      ['kingdom','Kingdom Lens'],
+      ['people','People / Places'],
+      ['appearance','Appearance / Geography'],
+      ['sources','Outside Sources'],
+      ['crossrefs','Cross References'],
+      ['instruction','Instruction Classification']
+    ];
+    list.innerHTML = items.map(function(it){
+      const checked = lf[it[0]]!==false;
+      return '<label class="layer-filter-row"><input type="checkbox" data-lf="'+it[0]+'" '+(checked?'checked':'')+'> '+it[1]+'</label>';
+    }).join('');
+    list.querySelectorAll('input[data-lf]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        const cur = getLayerFilters();
+        cur[cb.getAttribute('data-lf')] = cb.checked;
+        saveLayerFilters(cur);
+        // If the sheet is open, re-render the current tab so changes take effect.
+        if(document.body.classList.contains('study-sheet-open')){
+          const active = document.querySelector('.study-tab.active');
+          if(active) switchStudyTab(active.getAttribute('data-tab'));
+        }
+      });
+    });
+  }
+  window.toggleLayerFilters = function(){
+    const pop = document.getElementById('layerFiltersPopover');
+    if(!pop) return;
+    const open = pop.getAttribute('aria-hidden')==='false';
+    if(open){ pop.setAttribute('aria-hidden','true'); pop.classList.remove('open'); }
+    else { renderLayerFiltersList(); pop.setAttribute('aria-hidden','false'); pop.classList.add('open'); }
+  };
+  window.resetLayerFilters = function(){
+    saveLayerFilters(Object.assign({}, LF_DEFAULTS));
+    renderLayerFiltersList();
+  };
+
+  // ---------- Study Sheet ----------
+  // Holds the currently-open verse context. Populated by openStudySheet.
+  window._studySheetState = { ref:null, book:null, chapter:null, verse:null, verseData:null, focusWord:null };
+
+  function _getVerseData(book, ch, vn){
+    // Genesis lives in window.GENESIS; everything else in window.BIBLE[slug].
+    if(book==='Genesis' && window.GENESIS) return (window.GENESIS[ch] && window.GENESIS[ch].verses) ? window.GENESIS[ch].verses[vn] : null;
+    if(window.BIBLE && window.BIBLE[book] && window.BIBLE[book][ch] && window.BIBLE[book][ch].verses) return window.BIBLE[book][ch].verses[vn];
+    return null;
+  }
+
+  function parseRef(ref){
+    // "Galatians 5:21" → {book:'Galatians', ch:5, v:21}
+    if(!ref) return null;
+    const m = ref.match(/^(.+)\s+(\d+):(\d+)$/);
+    if(!m) return null;
+    return { book: m[1].replace(/\s+/g,''), ch: parseInt(m[2],10), v: parseInt(m[3],10) };
+  }
+
+  function openStudySheet(verseRef, opts){
+    opts = opts || {};
+    const parsed = parseRef(verseRef);
+    if(!parsed) return;
+    const vData = _getVerseData(parsed.book, parsed.ch, parsed.v);
+    window._studySheetState = { ref: verseRef, book: parsed.book, chapter: parsed.ch, verse: parsed.v, verseData: vData, focusWord: opts.word||null };
+    const sheet = document.getElementById('studySheet');
+    if(!sheet) return;
+    sheet.setAttribute('aria-hidden','false');
+    sheet.classList.add('open');
+    document.body.classList.add('study-sheet-open');
+    document.getElementById('studySheetRef').textContent = verseRef;
+    // Pick initial tab: 'define' if a word was tapped, else 'define' if available, else 'translations'.
+    const initialTab = opts.tab || 'define';
+    switchStudyTab(initialTab);
+  }
+  window.openStudySheet = openStudySheet;
+
+  function closeStudySheet(){
+    const sheet = document.getElementById('studySheet');
+    if(!sheet) return;
+    sheet.setAttribute('aria-hidden','true');
+    sheet.classList.remove('open');
+    document.body.classList.remove('study-sheet-open');
+  }
+  window.closeStudySheet = closeStudySheet;
+
+  function switchStudyTab(tab){
+    document.querySelectorAll('.study-tab').forEach(function(t){
+      const active = t.getAttribute('data-tab')===tab;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active?'true':'false');
+    });
+    const body = document.getElementById('studySheetBody');
+    if(!body) return;
+    const lf = getLayerFilters();
+    const state = window._studySheetState;
+    const v = state.verseData;
+    if(!v){ body.innerHTML = '<div class="sheet-empty">No verse data loaded.</div>'; return; }
+    let html = '';
+    switch(tab){
+      case 'define': html = renderTabDefine(state, v, lf); break;
+      case 'original': html = renderTabOriginal(state, v, lf); break;
+      case 'translations': html = renderTabTranslations(state, v, lf); break;
+      case 'culture': html = renderTabCulture(state, v, lf); break;
+      case 'kingdom': html = renderTabKingdom(state, v, lf); break;
+      case 'people': html = renderTabPeople(state, v, lf); break;
+      case 'sources': html = renderTabSources(state, v, lf); break;
+      case 'crossrefs': html = renderTabCrossRefs(state, v, lf); break;
+      default: html = '<div class="sheet-empty">Unknown tab.</div>';
+    }
+    body.innerHTML = html;
+    body.scrollTop = 0;
+  }
+  window.switchStudyTab = switchStudyTab;
+
+  // ---------- Tab renderers ----------
+  function _escape(s){ return escapeHtml(String(s==null?'':s)); }
+
+  function renderTabDefine(state, v, lf){
+    if(lf.define===false) return '<div class="sheet-empty">Definitions layer is off. Enable via 🎛 Layers.</div>';
+    const word = state.focusWord;
+    let html = '';
+    if(word){
+      // USED IN THIS VERSE block — match the word against v.strongsTags first.
+      let matchedTag = null;
+      if(Array.isArray(v.strongsTags)){
+        // Try a soft-match on the English wordKey using definableWords or just present the first matching tag.
+        // Since strongsTags carry source-language only, we surface them when a word is tapped.
+        matchedTag = v.strongsTags[0];
+      }
+      const dict = window.ENGLISH_BIBLE_DICT && (window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[word.toLowerCase()]);
+      const legacy = window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]);
+      html += '<div class="sheet-section sheet-used">';
+      html += '<div class="sheet-section-label">Used in this verse</div>';
+      html += '<div class="used-row"><b>English:</b> '+_escape(word)+'</div>';
+      if(legacy){
+        if(legacy.hebrew) html += '<div class="used-row"><b>Hebrew:</b> '+legacy.hebrew+'</div>';
+        if(legacy.greek) html += '<div class="used-row"><b>Greek:</b> '+legacy.greek+'</div>';
+        if(legacy.translit) html += '<div class="used-row"><b>Translit:</b> '+_escape(legacy.translit)+'</div>';
+        if(legacy.strongs) html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(legacy.strongs)+'\')">'+_escape(legacy.strongs)+'</button></div>';
+      } else if(dict && Array.isArray(dict.originals) && dict.originals.length){
+        const o = dict.originals[0];
+        html += '<div class="used-row"><b>'+_escape(o.lang||'')+':</b> '+_escape(o.word||'')+'</div>';
+        if(o.translit) html += '<div class="used-row"><b>Translit:</b> '+_escape(o.translit)+'</div>';
+        if(o.strongs) html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(o.strongs)+'\')">'+_escape(o.strongs)+'</button></div>';
+      }
+      // Translation here = the verse text snippet
+      const snippet = (v.synthesized || v.text || '').slice(0,140);
+      html += '<div class="used-row used-snippet"><b>Translation here:</b> <i>'+_escape(snippet)+(snippet.length>=140?'…':'')+'</i></div>';
+      html += '</div>';
+      // Deep definition body
+      if(dict){
+        html += '<div class="sheet-section"><div class="sheet-section-label">Deep meaning</div>';
+        if(dict.plain) html += '<div class="sheet-text"><b>Quick:</b> '+_escape(dict.plain)+'</div>';
+        if(dict.deep) html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(dict.deep)+'</div>';
+        if(dict.misunderstood||dict.notMean) html += '<div class="sheet-warn"><b>⚠ Modern misunderstanding:</b> '+_escape(dict.misunderstood||dict.notMean)+'</div>';
+        if(dict.kingdomSignificance) html += '<div class="sheet-text" style="margin-top:8px;color:var(--gold);"><b>⚜ Kingdom:</b> '+_escape(dict.kingdomSignificance)+'</div>';
+        if(Array.isArray(dict.originals) && dict.originals.length>1){
+          html += '<div class="sheet-section-label" style="margin-top:10px;">Word family</div>';
+          html += '<div class="sheet-chips">';
+          for(const o of dict.originals){
+            const sId = (o.strongs||'').match(/[HG]\d+/)?.[0];
+            html += '<button class="lex-pill" '+(sId?'onclick="showStrongs(\''+_escape(sId)+'\')"':'')+' title="'+_escape(o.note||'')+'">'+_escape(o.translit||o.word||sId||'')+'</button>';
+          }
+          html += '</div>';
+        }
+        if(Array.isArray(dict.sources)&&dict.sources.length) html += '<div class="sheet-source-trace"><b>Source trace:</b> <i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
+        if(dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;">Confidence: '+_escape(dict.confidence)+'</div>';
+        html += '</div>';
+      } else if(legacy){
+        if(legacy.def) html += '<div class="sheet-section"><div class="sheet-section-label">Definition</div><div class="sheet-text">'+_escape(legacy.def)+'</div></div>';
+        if(legacy.kingdom) html += '<div class="sheet-section"><div class="sheet-section-label">⚜ Kingdom</div><div class="sheet-text">'+_escape(legacy.kingdom)+'</div></div>';
+        if(legacy.warning) html += '<div class="sheet-warn"><b>⚠ Translation warning:</b> '+_escape(legacy.warning)+'</div>';
+        if(legacy.ane) html += '<div class="sheet-section"><div class="sheet-section-label">ANE Context</div><div class="sheet-text">'+_escape(legacy.ane)+'</div></div>';
+        if(legacy.cross) html += '<div class="sheet-source-trace"><b>Cross-refs:</b> '+_escape(legacy.cross)+'</div>';
+      } else {
+        html += '<div class="sheet-empty">No curated definition for "'+_escape(word)+'" yet. Try the Original tab for the verse\'s Hebrew/Greek roots.</div>';
+      }
+    } else {
+      // No word focused — list the verse's definable words as taps.
+      html += '<div class="sheet-section sheet-used"><div class="sheet-section-label">Tap a word in the verse to define it</div>';
+      const defs = Array.isArray(v.definableWords) ? v.definableWords : [];
+      if(defs.length){
+        html += '<div class="sheet-chips">';
+        for(const w of defs){ html += '<button class="lex-pill" onclick="openStudySheet(\''+_escape(state.ref)+'\',{word:\''+_escape(w)+'\',tab:\'define\'})">'+_escape(w)+'</button>'; }
+        html += '</div>';
+      } else {
+        html += '<div class="sheet-empty">No definable terms tagged for this verse. Try the Original tab.</div>';
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+
+  function renderTabOriginal(state, v, lf){
+    if(lf.original===false) return '<div class="sheet-empty">Original-language layer is off. Enable via 🎛 Layers.</div>';
+    if(!Array.isArray(v.strongsTags) || !v.strongsTags.length) return '<div class="sheet-empty">No original-language tags for this verse.</div>';
+    const isGrk = v.strongsTags[0].sId && v.strongsTags[0].sId.startsWith('G');
+    let html = '<div class="sheet-section"><div class="sheet-section-label">'+v.strongsTags.length+' '+(isGrk?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+'</div>';
+    html += '<div class="sheet-chips">';
+    for(const t of v.strongsTags){
+      const cleanW = (t.w||'').replace(/[֑-ֽֿ-ׇ]/g,'');
+      const greek = t.sId && t.sId.startsWith('G');
+      const lex = greek ? (window.STRONGS_GRK && window.STRONGS_GRK[String(t.sId).replace(/^G/,'')]) : (window.STRONGS_HEB && window.STRONGS_HEB[t.sId]);
+      const gloss = lex ? (lex.kjv_def || lex.def || lex.strongs_def || '') : '';
+      html += '<button class="lex-pill lex-pill-big" onclick="showStrongs(\''+_escape(t.sId)+'\')" title="'+_escape(gloss).slice(0,160)+'">';
+      html += '<span class="lex-pill-word" style="direction:'+(greek?'ltr':'rtl')+'">'+_escape(cleanW||t.sId)+'</span>';
+      html += '<span class="lex-pill-id">'+_escape(t.sId)+'</span>';
+      if(gloss) html += '<span class="lex-pill-gloss">'+_escape(String(gloss).split(/[;,]/)[0].slice(0,40))+'</span>';
+      html += '</button>';
+    }
+    html += '</div></div>';
+    return html;
+  }
+
+  function renderTabTranslations(state, v, lf){
+    if(lf.translations===false) return '<div class="sheet-empty">Translation layer is off. Enable via 🎛 Layers.</div>';
+    const sources = v.sources || {};
+    const keys = Object.keys(sources);
+    if(!keys.length) return '<div class="sheet-empty">No translation layers for this verse.</div>';
+    const order = ['KJV','BSB','TANAKH','HEBREW','GREEK_NT','LXX_ENG','LXX_GREEK','AMP'];
+    const sorted = keys.slice().sort(function(a,b){ const ia=order.indexOf(a), ib=order.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
+    const meta = (window.SOURCES_META && window.SOURCES_META) || {
+      KJV:{name:'King James Version', short:'KJV'},
+      BSB:{name:'Berean Standard Bible', short:'BSB'},
+      TANAKH:{name:'Tanakh JPS 1917', short:'TNK'},
+      HEBREW:{name:'Hebrew Masoretic', short:'HEB'},
+      GREEK_NT:{name:'Greek NT', short:'GRC'},
+      LXX_ENG:{name:'Septuagint (English)', short:'LXX'},
+      LXX_GREEK:{name:'Septuagint (Greek)', short:'LXX-G'},
+      AMP:{name:'Amplified', short:'AMP'}
+    };
+    let html = '<div class="sheet-section"><div class="sheet-section-label">Translation comparison</div>';
+    for(const k of sorted){
+      const m = meta[k] || {name:k, short:k};
+      const filterKey = (k==='AMP'?'amp':(k==='LXX_ENG'||k==='LXX_GREEK'?'lxx':(k==='TANAKH'?'tanakh':null)));
+      if(filterKey && lf[filterKey]===false) continue;
+      const t = sources[k] && sources[k].text;
+      if(!t) continue;
+      html += '<div class="sheet-trans"><div class="sheet-trans-label">'+_escape(m.short)+' <span style="font-weight:400;color:var(--fg-dim);">'+_escape(m.name)+'</span></div><div class="sheet-trans-text">'+_escape(t)+'</div></div>';
+    }
+    html += '</div>';
+    // AMP-style nuance note (project original commentary)
+    if(typeof getAmpStyleNote==='function'){
+      const ampNote = getAmpStyleNote(v);
+      if(ampNote && lf.amp!==false){
+        html += '<div class="sheet-section"><div class="sheet-section-label">🟣 AMP-Style — Hebrew-Audited Rendering</div>';
+        html += '<div class="sheet-text">'+_escape(ampNote.text||'')+'</div>';
+        if(ampNote.audit) html += '<div class="sheet-source-trace"><b>Audit:</b> '+_escape(ampNote.audit)+'</div>';
+        html += '</div>';
+      }
+    }
+    return html;
+  }
+
+  function renderTabCulture(state, v, lf){
+    if(lf.culture===false) return '<div class="sheet-empty">Cultural context layer is off. Enable via 🎛 Layers.</div>';
+    let html = '';
+    // Verse-level cultural data (Genesis-style)
+    if(v.cultural){
+      html += '<div class="sheet-section"><div class="sheet-section-label">🌍 Cultural Context</div>';
+      if(v.cultural.title) html += '<div class="sheet-text" style="font-weight:700;">'+_escape(v.cultural.title)+'</div>';
+      if(v.cultural.detail) html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(v.cultural.detail)+'</div>';
+      if(v.cultural.sources) html += '<div class="sheet-source-trace"><b>Sources:</b> '+_escape(v.cultural.sources)+'</div>';
+      html += '</div>';
+    }
+    // Cross-ref cultural cards by passage key
+    if(window.CULTURAL_CARDS){
+      const tryKeys = [state.ref, state.book+' '+state.chapter+':'+state.verse, state.book+' '+state.chapter];
+      const seen = new Set();
+      for(const k in window.CULTURAL_CARDS){
+        for(const tk of tryKeys){
+          if(k.indexOf(tk)===0 && !seen.has(k)){
+            seen.add(k);
+            const c = window.CULTURAL_CARDS[k];
+            html += '<div class="sheet-section"><div class="sheet-section-label">🌍 '+_escape(c.title||k)+'</div>';
+            if(c.cultural) html += '<div class="sheet-text">'+_escape(c.cultural)+'</div>';
+            if(c.misunderstood) html += '<div class="sheet-warn"><b>⚠ Misunderstanding:</b> '+_escape(c.misunderstood)+'</div>';
+            if(c.matters) html += '<div class="sheet-text" style="margin-top:6px;color:var(--gold);"><b>⚜ Why:</b> '+_escape(c.matters)+'</div>';
+            if(Array.isArray(c.sources)&&c.sources.length) html += '<div class="sheet-source-trace"><b>Sources:</b> '+c.sources.map(_escape).join(' · ')+'</div>';
+            html += '</div>';
+          }
+        }
+      }
+    }
+    // Translation-loss variants
+    if(Array.isArray(v.variants)){
+      for(const variant of v.variants){
+        html += '<div class="sheet-section"><div class="sheet-section-label">⚠ Translation Loss — '+_escape(variant.label||'')+'</div>';
+        if(variant.note) html += '<div class="sheet-text">'+_escape(variant.note)+'</div>';
+        html += '</div>';
+      }
+    }
+    if(!html) html = '<div class="sheet-empty">No cultural-context data tagged for this verse yet.</div>';
+    return html;
+  }
+
+  function renderTabKingdom(state, v, lf){
+    if(lf.kingdom===false) return '<div class="sheet-empty">Kingdom Lens layer is off. Enable via 🎛 Layers.</div>';
+    let html = '';
+    if(v.kingdomLens){
+      html += '<div class="sheet-section"><div class="sheet-section-label">⚜ Kingdom Lens</div><div class="sheet-text">'+_escape(v.kingdomLens)+'</div></div>';
+    }
+    // Instruction classification cards keyed by passage
+    if(window.INSTRUCTION_CARDS && lf.instruction!==false){
+      const tryKeys = [state.ref, state.book+' '+state.chapter+':'+state.verse, state.book+' '+state.chapter];
+      for(const k in window.INSTRUCTION_CARDS){
+        for(const tk of tryKeys){
+          if(k.indexOf(tk)===0){
+            const ic = window.INSTRUCTION_CARDS[k];
+            html += '<div class="sheet-section"><div class="sheet-section-label">📜 '+_escape(ic.title||k)+' — Instruction</div>';
+            if(ic.speaker) html += '<div class="sheet-text"><b>Speaker:</b> '+_escape(ic.speaker)+'</div>';
+            if(ic.addressed) html += '<div class="sheet-text"><b>Addressed:</b> '+_escape(ic.addressed)+'</div>';
+            if(ic.commanded) html += '<div class="sheet-text" style="margin-top:6px;"><b>Commanded:</b> '+_escape(ic.commanded)+'</div>';
+            if(ic.category) html += '<div class="sheet-text"><b>Category:</b> '+_escape(ic.category)+'</div>';
+            if(ic.misunderstood) html += '<div class="sheet-warn"><b>⚠ Misunderstanding:</b> '+_escape(ic.misunderstood)+'</div>';
+            html += '</div>';
+          }
+        }
+      }
+    }
+    if(!html) html = '<div class="sheet-empty">No Kingdom-Lens or Instruction data tagged for this verse yet.</div>';
+    return html;
+  }
+
+  function renderTabPeople(state, v, lf){
+    if(lf.people===false) return '<div class="sheet-empty">People / Places layer is off. Enable via 🎛 Layers.</div>';
+    let html = '';
+    const people = (v.peopleInVerse||[]).slice();
+    const places = (v.placesInVerse||[]).slice();
+    if(people.length){
+      html += '<div class="sheet-section"><div class="sheet-section-label">👤 People in this verse</div><div class="sheet-chips">';
+      for(const p of people){
+        html += '<button class="lex-pill" onclick="showPerson(\''+_escape(p)+'\')">'+_escape(p)+'</button>';
+      }
+      html += '</div></div>';
+    }
+    if(places.length){
+      html += '<div class="sheet-section"><div class="sheet-section-label">📍 Places in this verse</div><div class="sheet-chips">';
+      for(const p of places){ html += '<button class="lex-pill" onclick="showPlace(\''+_escape(p)+'\')">'+_escape(p)+'</button>'; }
+      html += '</div></div>';
+    }
+    // Group/nation cards relevant to mentioned peoples (Levite→Levites, Philistine→Philistines, etc.)
+    if(window.GROUP_NATIONS && people.length){
+      for(const p of people){
+        const guesses = [p, p+'s', p+'es'];
+        for(const g of guesses){
+          if(window.GROUP_NATIONS[g]){
+            const grp = window.GROUP_NATIONS[g];
+            html += '<div class="sheet-section"><div class="sheet-section-label">🌐 '+_escape(grp.name||g)+' — Group / Nation</div>';
+            if(grp.origin) html += '<div class="sheet-text"><b>Origin:</b> '+_escape(grp.origin)+'</div>';
+            if(grp.region) html += '<div class="sheet-text"><b>Region:</b> '+_escape(grp.region)+'</div>';
+            if(grp.religion) html += '<div class="sheet-text"><b>Religion:</b> '+_escape(grp.religion)+'</div>';
+            if(grp.appearance && lf.appearance!==false) html += '<div class="sheet-text"><b>Appearance / regional context:</b> '+_escape(grp.appearance)+'</div>';
+            if(grp.relationToIsrael) html += '<div class="sheet-text"><b>Relation to Israel:</b> '+_escape(grp.relationToIsrael)+'</div>';
+            if(grp.confidence) html += '<div class="sheet-source-trace">Confidence: '+_escape(grp.confidence)+'</div>';
+            html += '</div>';
+            break;
+          }
+        }
+      }
+    }
+    if(!html) html = '<div class="sheet-empty">No people or places tagged for this verse.</div>';
+    return html;
+  }
+
+  function renderTabSources(state, v, lf){
+    if(lf.sources===false) return '<div class="sheet-empty">Outside Sources layer is off. Enable via 🎛 Layers.</div>';
+    let html = '';
+    if(v.enochRef && lf.enoch!==false) html += '<div class="sheet-section"><div class="sheet-section-label">📖 1 Enoch</div><div class="sheet-text">'+_escape(v.enochRef)+'</div></div>';
+    if(v.josephusRef && lf.josephus!==false) html += '<div class="sheet-section"><div class="sheet-section-label">📜 Josephus, Antiquities</div><div class="sheet-text">'+_escape(v.josephusRef)+'</div></div>';
+    // Cross-source map (chapter-level Enoch/Josephus links)
+    if(window.CROSS_SOURCE_MAP && window.CROSS_SOURCE_MAP[state.book] && window.CROSS_SOURCE_MAP[state.book][state.chapter]){
+      const refs = window.CROSS_SOURCE_MAP[state.book][state.chapter];
+      for(const r of refs){
+        if(r.type==='enoch' && lf.enoch===false) continue;
+        if(r.type==='josephus' && lf.josephus===false) continue;
+        const badge = r.type==='enoch'?'📖 1 Enoch':(r.type==='josephus'?'📜 Josephus':'📚 Companion');
+        html += '<div class="sheet-section"><div class="sheet-section-label">'+badge+' — '+_escape(r.ref||'')+'</div>';
+        if(r.summary||r.note) html += '<div class="sheet-text">'+_escape(r.summary||r.note)+'</div>';
+        html += '</div>';
+      }
+    }
+    if(!html) html = '<div class="sheet-empty">No outside-source references tagged for this verse.</div>';
+    return html;
+  }
+
+  function renderTabCrossRefs(state, v, lf){
+    if(lf.crossrefs===false) return '<div class="sheet-empty">Cross References layer is off. Enable via 🎛 Layers.</div>';
+    let html = '';
+    // Parallel passages
+    if(Array.isArray(window.PARALLEL_PASSAGES)){
+      for(const p of window.PARALLEL_PASSAGES){
+        if(Array.isArray(p.passages) && p.passages.some(function(s){return s.indexOf(state.book)===0;})){
+          html += '<div class="sheet-section"><div class="sheet-section-label">🔗 Parallel — '+_escape(p.title||p.id)+'</div>';
+          html += '<div class="sheet-text">'+p.passages.map(_escape).join(' · ')+'</div></div>';
+        }
+      }
+    }
+    // Prophecy fulfillment
+    if(Array.isArray(window.PROPHECY_FULFILLMENT)){
+      for(const p of window.PROPHECY_FULFILLMENT){
+        if((p.prophecy && p.prophecy.indexOf(state.book)===0) || (p.fulfillment && p.fulfillment.indexOf(state.book)===0)){
+          html += '<div class="sheet-section"><div class="sheet-section-label">📜 Prophecy → Fulfillment</div>';
+          if(p.prophecy) html += '<div class="sheet-text"><b>Prophecy:</b> '+_escape(p.prophecy)+'</div>';
+          if(p.fulfillment) html += '<div class="sheet-text"><b>Fulfillment:</b> '+_escape(p.fulfillment)+'</div>';
+          if(p.summary) html += '<div class="sheet-text" style="margin-top:4px;">'+_escape(p.summary)+'</div>';
+          html += '</div>';
+        }
+      }
+    }
+    if(!html) html = '<div class="sheet-empty">No parallel or prophecy links tagged for this verse.</div>';
+    return html;
+  }
+
+  // ---------- Bootstrap on load ----------
+  function bootUx(){
+    setReadingMode(getReadingMode());
+    // Close sheet on Escape
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape'){
+        const sheet = document.getElementById('studySheet');
+        if(sheet && sheet.classList.contains('open')) closeStudySheet();
+      }
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bootUx); } else { bootUx(); }
+})();
+
+// Convenience: word-tap-from-verse should open the sheet on Define tab too,
+// without breaking the existing showDef popup behavior. We wrap showDef so
+// the popup still appears AND the sheet auto-opens with the same word/ref.
+(function(){
+  const _origShowDef = window.showDef;
+  if(typeof _origShowDef !== 'function') return;
+  window.showDef = function(word, opts){
+    _origShowDef.apply(this, arguments);
+    // If opts is a verse-ref string, also drive the study sheet (Define tab).
+    if(typeof opts === 'string' && /\d+:\d+/.test(opts)){
+      try { window.openStudySheet(opts, {word:word, tab:'define'}); } catch(e){}
+    }
+  };
+})();

@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260517-reading-flow">
+<link rel="stylesheet" href="css/styles.css?v=20260521uxoverhaul1">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — splash cover (shows on load, dismissed by Enter) -->
@@ -53,7 +53,12 @@
     </div>
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
     <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
-    <button id="studyLayerToggle" class="icon-btn study-layer-toggle" onclick="toggleStudyLayers()" title="Toggle uninterrupted reading vs inline study notes">📖 Read</button>
+    <div class="reading-mode-group" id="readingModeGroup" role="group" aria-label="Reading mode">
+      <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="Clean Bible reading. Inline study boxes hidden.">📖 Read</button>
+      <button id="readingModeStudy" class="icon-btn reading-mode-btn" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel.">🧠 Study</button>
+      <button id="readingModeScholar" class="icon-btn reading-mode-btn" onclick="setReadingMode('scholar')" aria-pressed="false" title="Scholar Mode: maximum source depth available.">🎓 Scholar</button>
+    </div>
+    <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
     <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button class="icon-btn" onclick="showModal('peoples')">👥 Peoples</button>
@@ -244,16 +249,16 @@
 <script src="data/strongs-greek.js"></script>
 <script src="data/bible-index.js"></script>
 <!-- ============ Deep Definition Bible Engine — new layers ============ -->
-<script src="data/english-bible-dictionary.js?v=20260518completenesspack1"></script>
-<script src="data/foundational-word-families.js?v=20260518completenesspack1"></script>
-<script src="data/concept-completeness-pack.js?v=20260518completenesspack1"></script>
-<script src="data/context-sense-disambiguator.js?v=20260518completenesspack1"></script>
-<script src="data/cultural-context-cards.js?v=20260518completenesspack1"></script>
-<script src="data/instruction-classification.js?v=20260518completenesspack1"></script>
+<script src="data/english-bible-dictionary.js?v=20260521uxoverhaul1"></script>
+<script src="data/foundational-word-families.js?v=20260521uxoverhaul1"></script>
+<script src="data/concept-completeness-pack.js?v=20260521uxoverhaul1"></script>
+<script src="data/context-sense-disambiguator.js?v=20260521uxoverhaul1"></script>
+<script src="data/cultural-context-cards.js?v=20260521uxoverhaul1"></script>
+<script src="data/instruction-classification.js?v=20260521uxoverhaul1"></script>
 <!-- ============ Cultural / People / Nations / Religion context layers ============ -->
-<script src="data/person-context-cards.js?v=20260518completenesspack1"></script>
-<script src="data/group-nation-cards.js?v=20260518completenesspack1"></script>
-<script src="data/religion-context-cards.js?v=20260518completenesspack1"></script>
+<script src="data/person-context-cards.js?v=20260521uxoverhaul1"></script>
+<script src="data/group-nation-cards.js?v=20260521uxoverhaul1"></script>
+<script src="data/religion-context-cards.js?v=20260521uxoverhaul1"></script>
 
 <!-- ============ GENESIS 1-4 DEEP BUILD v8 DATA ============ -->
 <script src="data/pre-history.js"></script>
@@ -312,19 +317,56 @@
   <script src="data/leviticus-definitions.js"></script>
 <script src="data/cross-refs.js"></script>
 
+<!-- ============ Unified Study Sheet (mobile bottom-sheet / desktop side-panel) ============ -->
+<!-- Single source of truth for verse/word study. Replaces inline cards in Read/Study modes. -->
+<div class="study-sheet" id="studySheet" aria-hidden="true">
+  <div class="study-sheet-backdrop" onclick="closeStudySheet()"></div>
+  <div class="study-sheet-panel" role="dialog" aria-label="Study panel">
+    <div class="study-sheet-handle" aria-hidden="true"></div>
+    <div class="study-sheet-head">
+      <div class="study-sheet-ref" id="studySheetRef">—</div>
+      <button class="study-sheet-close" onclick="closeStudySheet()" title="Close (Esc)" aria-label="Close study panel">✕</button>
+    </div>
+    <div class="study-sheet-tabs" id="studySheetTabs" role="tablist">
+      <button class="study-tab active" data-tab="define" onclick="switchStudyTab('define')" role="tab">Define</button>
+      <button class="study-tab" data-tab="original" onclick="switchStudyTab('original')" role="tab">Original</button>
+      <button class="study-tab" data-tab="translations" onclick="switchStudyTab('translations')" role="tab">Translations</button>
+      <button class="study-tab" data-tab="culture" onclick="switchStudyTab('culture')" role="tab">Culture</button>
+      <button class="study-tab" data-tab="kingdom" onclick="switchStudyTab('kingdom')" role="tab">Kingdom</button>
+      <button class="study-tab" data-tab="people" onclick="switchStudyTab('people')" role="tab">People</button>
+      <button class="study-tab" data-tab="sources" onclick="switchStudyTab('sources')" role="tab">Sources</button>
+      <button class="study-tab" data-tab="crossrefs" onclick="switchStudyTab('crossrefs')" role="tab">Cross Refs</button>
+    </div>
+    <div class="study-sheet-body" id="studySheetBody"></div>
+  </div>
+</div>
+
+<!-- ============ Layer Filters popover ============ -->
+<div class="layer-filters-popover" id="layerFiltersPopover" aria-hidden="true">
+  <div class="layer-filters-head">
+    <span>Study layers</span>
+    <button class="layer-filters-close" onclick="toggleLayerFilters()" aria-label="Close">✕</button>
+  </div>
+  <div class="layer-filters-help">Choose which sections appear in the Study panel. Saved to this device.</div>
+  <div class="layer-filters-list" id="layerFiltersList"></div>
+  <div class="layer-filters-actions">
+    <button class="icon-btn" onclick="resetLayerFilters()">Reset</button>
+  </div>
+</div>
+
 <!-- ============ ENRICHMENTS — must load AFTER data, BEFORE app ============ -->
 <!-- Merges deep definitions into DEFINITIONS and defines renderGen14Enrichments. -->
 <!-- In the original monolith this came AFTER app.js, which left the first render
      unenriched (silently swallowed by try/catch). Loading it before app.js fixes
      that latent bug — Genesis 1-4 enrichments now show on initial load. -->
-<script src="js/enrichments.js?v=20260517-reading-flow"></script>
+<script src="js/enrichments.js?v=20260521uxoverhaul1"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260517-reading-flow"></script>
-<script src="js/search.js?v=20260517-reading-flow"></script>
+<script src="js/app.js?v=20260521uxoverhaul1"></script>
+<script src="js/search.js?v=20260521uxoverhaul1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
-<script src="js/preload-bible.js?v=20260517-reading-flow" defer></script>
+<script src="js/preload-bible.js?v=20260521uxoverhaul1" defer></script>
 
 
 <script>

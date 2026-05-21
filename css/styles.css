@@ -2063,3 +2063,360 @@ body.study-focus .cross-refs-panel.study-layer:not([open]) > summary{
     line-height:1.55!important;
   }
 }
+
+/* ============================================================
+   SWRV UX OVERHAUL — Reading Modes + Unified Study Sheet
+   ============================================================
+   Three-mode reading model: read / study / scholar.
+   Read   = clean Bible text only; inline study cards hidden; the small
+            [Study] chip is the only inline study affordance.
+   Study  = same as Read, but the [Study] chip is more prominent and the
+            study panel opens by default on desktop.
+   Scholar= inline cards remain visible inline, plus the study sheet.
+   The study sheet is one DOM element that renders as a bottom drawer
+   on mobile (≤680px) and a side panel on desktop. Tabs source data from
+   the existing project globals — no card duplication. */
+
+/* Mode 1 + 2 (Read / Study) — hide ALL inline study-layer content. */
+body[data-reading-mode="read"] .study-layer,
+body[data-reading-mode="study"] .study-layer{ display:none !important; }
+/* Mode 3 (Scholar) — show everything inline. */
+body[data-reading-mode="scholar"] .study-layer{ display:revert; }
+
+/* The per-verse Study chip — small, clean, always present. */
+.verse-study-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin:10px 0 0;
+  padding:6px 12px;
+  border:1px solid rgba(212,175,55,0.42);
+  background:linear-gradient(180deg, rgba(212,175,55,0.12), rgba(0,0,0,0.05));
+  color:var(--gold);
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.verse-study-chip:hover{ background:rgba(212,175,55,0.22); transform:translateY(-1px); }
+.verse-study-chip:active{ transform:translateY(0); }
+/* In Scholar mode the chip is still useful (gives quick access to the sheet) but lower-key. */
+body[data-reading-mode="scholar"] .verse-study-chip{ opacity:0.7; font-size:11px; }
+/* In Read mode the chip is the only inline study control — make it slightly more visible. */
+body[data-reading-mode="read"] .verse-study-chip{
+  background:linear-gradient(180deg, rgba(212,175,55,0.18), rgba(0,0,0,0.05));
+  border-color:rgba(212,175,55,0.55);
+}
+
+/* Reading-mode toggle group in the header */
+.reading-mode-group{
+  display:inline-flex;
+  gap:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--bg-2);
+}
+.reading-mode-btn{
+  border:none !important;
+  border-radius:0 !important;
+  border-right:1px solid var(--line) !important;
+  background:transparent !important;
+  padding:6px 12px;
+}
+.reading-mode-btn:last-child{ border-right:none !important; }
+.reading-mode-btn.active{ background:rgba(212,175,55,0.18) !important; color:var(--gold) !important; }
+
+/* When the study sheet is open, dim the rest a touch on mobile (handled below). */
+
+/* ============================================================
+   Unified Study Sheet — mobile bottom drawer
+   ============================================================ */
+.study-sheet{
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  pointer-events:none;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.study-sheet[aria-hidden="true"]{ display:none; }
+.study-sheet-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  opacity:0;
+  transition:opacity .22s ease;
+  pointer-events:auto;
+}
+.study-sheet.open .study-sheet-backdrop{ opacity:1; }
+.study-sheet-panel{
+  position:relative;
+  pointer-events:auto;
+  background:var(--bg-1);
+  color:var(--fg);
+  width:100%;
+  max-width:640px;
+  height:78vh;
+  border-radius:18px 18px 0 0;
+  box-shadow:0 -20px 60px rgba(0,0,0,0.6);
+  display:flex;
+  flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .26s ease;
+  border-top:1px solid rgba(212,175,55,0.4);
+}
+.study-sheet.open .study-sheet-panel{ transform:translateY(0); }
+.study-sheet-handle{
+  width:42px; height:5px;
+  background:rgba(255,255,255,0.22);
+  border-radius:999px;
+  margin:8px auto 4px;
+}
+.study-sheet-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:6px 16px 4px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.study-sheet-ref{
+  font-weight:800;
+  color:var(--gold);
+  font-size:16px;
+  letter-spacing:0.02em;
+}
+.study-sheet-close{
+  border:none;
+  background:transparent;
+  color:var(--fg-dim);
+  font-size:22px;
+  cursor:pointer;
+  padding:6px 10px;
+  border-radius:6px;
+}
+.study-sheet-close:hover{ color:var(--fg); background:rgba(255,255,255,0.06); }
+.study-sheet-tabs{
+  display:flex;
+  gap:4px;
+  overflow-x:auto;
+  padding:6px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  scrollbar-width:none;
+}
+.study-sheet-tabs::-webkit-scrollbar{ display:none; }
+.study-tab{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  background:var(--bg-2);
+  color:var(--fg-dim);
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.03em;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .15s ease;
+}
+.study-tab:hover{ color:var(--fg); border-color:rgba(212,175,55,0.5); }
+.study-tab.active{
+  background:rgba(212,175,55,0.18);
+  color:var(--gold);
+  border-color:rgba(212,175,55,0.55);
+}
+.study-sheet-body{
+  flex:1 1 auto;
+  overflow-y:auto;
+  padding:14px 16px 22px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Sheet content sections */
+.sheet-section{
+  margin-bottom:14px;
+  padding:12px 14px;
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+.sheet-section-label{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.06em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.sheet-text{ font-size:14px; line-height:1.55; color:var(--fg); }
+.sheet-warn{
+  margin-top:8px;
+  padding:8px 10px;
+  background:rgba(192,57,43,0.10);
+  border-left:3px solid #c0392b;
+  border-radius:6px;
+  font-size:13px;
+}
+.sheet-source-trace{
+  margin-top:8px;
+  font-size:12px;
+  font-style:italic;
+  color:var(--fg-dim);
+}
+.sheet-empty{
+  padding:20px 16px;
+  color:var(--fg-dim);
+  font-style:italic;
+  text-align:center;
+  font-size:13px;
+}
+.sheet-used{ border-color:rgba(212,175,55,0.45); }
+.used-row{ font-size:13px; line-height:1.5; padding:2px 0; }
+.used-row b{ color:var(--gold); }
+.used-snippet{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
+.sheet-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:4px;
+}
+.lex-pill{
+  border:1px solid rgba(212,175,55,0.35);
+  background:rgba(212,175,55,0.10);
+  color:var(--gold);
+  border-radius:999px;
+  padding:5px 11px;
+  font-size:12px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:all .12s ease;
+}
+.lex-pill:hover{ background:rgba(212,175,55,0.22); }
+.lex-pill-big{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:8px 12px;
+  gap:2px;
+  border-radius:10px;
+  text-align:left;
+}
+.lex-pill-word{ font-size:16px; font-weight:700; color:var(--fg); }
+.lex-pill-id{ font-size:10px; color:var(--gold); letter-spacing:0.04em; }
+.lex-pill-gloss{ font-size:11px; color:var(--fg-dim); font-style:italic; }
+.sheet-trans{ padding:10px 0; border-bottom:1px dashed var(--line); }
+.sheet-trans:last-child{ border-bottom:none; }
+.sheet-trans-label{ font-size:11px; font-weight:800; letter-spacing:0.05em; color:var(--gold); margin-bottom:4px; }
+.sheet-trans-text{ font-size:14px; line-height:1.55; color:var(--fg); }
+
+/* ============================================================
+   Desktop layout — convert bottom sheet to RIGHT side panel
+   ============================================================ */
+@media (min-width: 900px){
+  .study-sheet{ align-items:stretch; justify-content:flex-end; }
+  .study-sheet-backdrop{
+    background:rgba(0,0,0,0.25);
+  }
+  .study-sheet-panel{
+    width:440px;
+    max-width:480px;
+    height:100vh;
+    border-radius:0;
+    border-top:none;
+    border-left:1px solid rgba(212,175,55,0.4);
+    transform:translateX(100%);
+    box-shadow:-20px 0 60px rgba(0,0,0,0.5);
+  }
+  .study-sheet.open .study-sheet-panel{ transform:translateX(0); }
+  .study-sheet-handle{ display:none; }
+  /* When the panel is open in desktop study/scholar mode, the main content can shift
+     to keep the Bible text comfortably readable next to the panel. */
+  body.study-sheet-open .main{ padding-right:460px; transition:padding-right .25s ease; }
+}
+
+/* ============================================================
+   Layer Filters popover
+   ============================================================ */
+.layer-filters-popover{
+  position:fixed;
+  top:64px;
+  right:14px;
+  z-index:9100;
+  width:280px;
+  max-width:90vw;
+  background:var(--bg-1);
+  border:1px solid rgba(212,175,55,0.45);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  padding:12px 14px;
+  display:none;
+}
+.layer-filters-popover[aria-hidden="false"], .layer-filters-popover.open{ display:block; }
+.layer-filters-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.layer-filters-head > span{
+  font-weight:800;
+  color:var(--gold);
+  letter-spacing:0.04em;
+  font-size:13px;
+}
+.layer-filters-close{
+  border:none;
+  background:transparent;
+  color:var(--fg-dim);
+  font-size:18px;
+  cursor:pointer;
+  padding:2px 6px;
+  border-radius:4px;
+}
+.layer-filters-help{
+  font-size:11px;
+  color:var(--fg-dim);
+  margin-bottom:8px;
+}
+.layer-filters-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:280px;
+  overflow-y:auto;
+  padding:4px 2px;
+}
+.layer-filter-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  padding:4px 6px;
+  border-radius:6px;
+}
+.layer-filter-row:hover{ background:rgba(255,255,255,0.04); }
+.layer-filter-row input[type="checkbox"]{
+  accent-color:var(--gold);
+  width:16px; height:16px;
+}
+.layer-filters-actions{
+  margin-top:10px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* ============================================================
+   Mobile-only tweaks — push the Study sheet above the mini player
+   ============================================================ */
+@media (max-width: 680px){
+  .verse-study-chip{ font-size:13px; padding:7px 14px; }
+  .study-sheet-panel{ height:82vh; }
+  .study-sheet-tabs{ padding:6px 8px; }
+  .study-tab{ padding:8px 11px; font-size:12px; }
+  .reading-mode-group{ overflow:hidden; }
+  .reading-mode-btn{ padding:6px 8px; font-size:11px; }
+}
