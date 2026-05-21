@@ -3684,11 +3684,37 @@ function _renderBookOverview(book){
   }
   window.toggleLayerFilters = function(){
     const pop = document.getElementById('layerFiltersPopover');
+    const bd = document.getElementById('layerFiltersBackdrop');
     if(!pop) return;
     const open = pop.getAttribute('aria-hidden')==='false';
-    if(open){ pop.setAttribute('aria-hidden','true'); pop.classList.remove('open'); }
-    else { renderLayerFiltersList(); pop.setAttribute('aria-hidden','false'); pop.classList.add('open'); }
+    if(open){
+      pop.setAttribute('aria-hidden','true'); pop.classList.remove('open');
+      if(bd){ bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
+    } else {
+      renderLayerFiltersList();
+      pop.setAttribute('aria-hidden','false'); pop.classList.add('open');
+      if(bd){ bd.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
+    }
   };
+  // Close Layers on Escape; close on click-outside the popover (already
+  // handled by the backdrop's onclick, but covers desktop top-right popover).
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      const pop = document.getElementById('layerFiltersPopover');
+      if(pop && pop.classList.contains('open')) window.toggleLayerFilters();
+    }
+  });
+  document.addEventListener('click', function(e){
+    const pop = document.getElementById('layerFiltersPopover');
+    const trigger = document.getElementById('layerFiltersBtn');
+    if(!pop || !pop.classList.contains('open')) return;
+    // Don't close if the click is inside the popover or on its trigger button.
+    if(pop.contains(e.target) || (trigger && trigger.contains(e.target))) return;
+    // Don't close if the click hit the backdrop (the backdrop has its own onclick).
+    const bd = document.getElementById('layerFiltersBackdrop');
+    if(bd && bd.contains(e.target)) return;
+    window.toggleLayerFilters();
+  });
   window.resetLayerFilters = function(){
     saveLayerFilters(Object.assign({}, LF_DEFAULTS));
     renderLayerFiltersList();
