@@ -2609,3 +2609,4 @@ body[data-reading-mode="read"] .verse-study-chip{
 @media (max-width: 680px){
   .nav-show-chip{ top:58px; font-size:11px; padding:5px 12px; min-height:30px; }
 }
+.sheet-sources { border-left:3px solid var(--fg-dim); }

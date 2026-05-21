@@ -4029,76 +4029,220 @@ function _renderBookOverview(book){
     return (window.CONTEXTUAL_SENSE_NOTES && window.CONTEXTUAL_SENSE_NOTES[ref]) || null;
   }
 
+  // ============================================================
+  // getContextualMeaning(opts) — public API per definition-audit spec.
+  // Returns a structured object separating exact verse word, contextual
+  // meaning HERE, full word range, what's not meant here, and the rationale.
+  // The engine NEVER conflates lexical range (Strong's/lexicon possible
+  // meanings) with contextual meaning HERE. If no curated passage note
+  // exists for this exact verse+word, contextualMeaningHere is null and
+  // confidence is "low" — the UI then says so honestly instead of
+  // pretending the Strong's def is the contextual meaning.
+  // ============================================================
+  function getContextualMeaning(opts){
+    const v = opts && opts.verse;
+    const ew = (opts && opts.englishWord || '').toLowerCase();
+    const ref = (opts && opts.ref) || '';
+    const sense = v ? resolveContextualWordSense(v, ew) : {confidence:'unavailable'};
+    const passageNote = _passageNotes(ref);
+    // Case-insensitive word-key lookup: passage notes may store keys as
+    // "Spirit" (capital) or "spirit" (lower). Try lowercased, then original
+    // capitalization, then capitalized — accept the first match.
+    let passageWordNote = null;
+    if(passageNote){
+      const orig = String(opts&&opts.englishWord||'');
+      const cap = orig.charAt(0).toUpperCase() + orig.slice(1).toLowerCase();
+      passageWordNote = passageNote[ew] || passageNote[orig] || passageNote[cap];
+    }
+    const dict = _dictLookup(ew);
+
+    // Full word range comes from ENGLISH_BIBLE_DICT.rangeOfMeaning (deep
+    // curated list), or from the dict.originals list, or from the lexicon
+    // entry's KJV def split into tokens. Never from a single Strong's def
+    // string used as if it were "the meaning here."
+    let fullWordRange = [];
+    if(dict && Array.isArray(dict.rangeOfMeaning) && dict.rangeOfMeaning.length){
+      fullWordRange = dict.rangeOfMeaning.slice();
+    } else if(dict && Array.isArray(dict.originals) && dict.originals.length){
+      fullWordRange = dict.originals.map(function(o){
+        return [o.translit||o.word||'', o.note||''].filter(Boolean).join(' — ').slice(0,180);
+      });
+    } else if(sense.exactLex && sense.exactLex.kjv_def){
+      fullWordRange = String(sense.exactLex.kjv_def)
+        .replace(/[()[\]+]/g,' ').replace(/-/g,' ').split(/[,;.]/)
+        .map(function(s){return s.trim();}).filter(Boolean);
+    }
+
+    // Confidence rules:
+    //   high   — verse has Strong's-tagged exact word AND a curated passage
+    //            note giving the contextual meaning here.
+    //   medium — verse has Strong's-tagged exact word but no curated note;
+    //            we can show the word but cannot claim contextual meaning.
+    //   low    — no exact-word tagging available for this verse+word.
+    let confidence = 'low';
+    if((sense.confidence==='directly-tagged'||sense.confidence==='multiple-candidates'||sense.confidence==='inferred-from-family')){
+      confidence = (passageWordNote && passageWordNote.sense) ? 'high' : 'medium';
+    }
+
+    return {
+      exactWordUsedHere: {
+        english: ew,
+        original: sense.exactLex ? sense.exactLex.lemma : null,
+        language: sense.exactLex ? sense.exactLex.lang : null,
+        transliteration: sense.exactLex ? sense.exactLex.xlit : null,
+        strongs: sense.exactTag ? ((sense.exactTag.sId||'').match(/[HG]\d+/)||[])[0] : null,
+        phrase: sense.verseSnippet || ''
+      },
+      contextualMeaningHere: passageWordNote && passageWordNote.sense ? passageWordNote.sense : null,
+      fullWordRange: fullWordRange,
+      notMeantHere: passageWordNote && passageWordNote.notMeant ? [passageWordNote.notMeant] : (dict && (dict.notMean||dict.misunderstood) ? [dict.notMean||dict.misunderstood] : []),
+      whyThisMeaningFits: passageWordNote && (passageWordNote.matters || passageWordNote.why) ? (passageWordNote.matters || passageWordNote.why) : null,
+      confidence: confidence,
+      auditStatus: passageWordNote && passageWordNote.auditStatus ? passageWordNote.auditStatus : (passageWordNote ? 'context-reviewed' : 'no-passage-note'),
+      bookContextNote: _bookContextNote(opts && opts.book),
+      sense: sense
+    };
+  }
+  window.getContextualMeaning = getContextualMeaning;
+
+  // ============================================================
+  // validateDefinitionCard(card) — automated regression guard.
+  // A rendered card must pass these structural checks. The validator
+  // returns a list of failures; the audit harness uses it to flag
+  // entries that fall back to broad lexical data as contextual meaning.
+  // ============================================================
+  function validateDefinitionCard(card){
+    const fails = [];
+    if(!card || !card.exactWordUsedHere) fails.push('missing exactWordUsedHere');
+    if(card && card.contextualMeaningHere){
+      // Contextual meaning here must NOT be identical to the Strong's def
+      // (that's the bug we're guarding against — lexical range posing as
+      // contextual meaning).
+      const lex = card.sense && card.sense.exactLex;
+      if(lex && lex.def && String(card.contextualMeaningHere).trim()===String(lex.def).trim()){
+        fails.push('contextualMeaningHere is identical to Strong\'s def');
+      }
+      if(lex && lex.kjv_def && String(card.contextualMeaningHere).trim()===String(lex.kjv_def).trim()){
+        fails.push('contextualMeaningHere is identical to Strong\'s KJV def');
+      }
+      // Contextual meaning must be short — a curated 1-2 sentence note,
+      // not a 5+ sentence dump of every possible meaning.
+      if(String(card.contextualMeaningHere).length > 1200){
+        fails.push('contextualMeaningHere is too long for a contextual note (>1200 chars)');
+      }
+    }
+    // If the word has an ENGLISH_BIBLE_DICT entry listing multiple originals
+    // (a true multi-meaning word like flesh / soul / kingdom / love), then
+    // Full Word Range must be populated. Single-sense words ("wind" in
+    // John 3:8, "led" in Gal 5:18) with no multi-meaning dictionary entry
+    // do not need a Full Word Range listing — the contextual meaning alone
+    // is sufficient.
+    if(card && card.exactWordUsedHere && (!card.fullWordRange || !card.fullWordRange.length)){
+      const ew = (card.exactWordUsedHere.english||'').toLowerCase();
+      const dict = window.ENGLISH_BIBLE_DICT && (window.ENGLISH_BIBLE_DICT[ew] || _dictLookup(ew));
+      const isMultiMeaning = dict && Array.isArray(dict.originals) && dict.originals.length>1;
+      const hasLexDef = card.sense && card.sense.exactLex && (card.sense.exactLex.def || card.sense.exactLex.kjv_def);
+      const hasContextual = !!card.contextualMeaningHere;
+      if(isMultiMeaning && !hasLexDef && !hasContextual){
+        fails.push('fullWordRange is empty for a multi-meaning word with no lexicon def or contextual note');
+      }
+    }
+    if(card && !card.confidence) fails.push('confidence is missing');
+    if(card && !card.auditStatus) fails.push('auditStatus is missing');
+    return { ok: fails.length===0, fails: fails };
+  }
+  window.validateDefinitionCard = validateDefinitionCard;
+
   function renderTabDefine(state, v, lf){
     if(lf.define===false) return '<div class="sheet-empty">Definitions layer is off. Enable via 🎛 Layers.</div>';
     const word = state.focusWord;
     let html = '';
     if(word){
-      const sense = resolveContextualWordSense(v, word);
-      const dict = window.ENGLISH_BIBLE_DICT && (window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[word.toLowerCase()]);
-      const legacy = window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]);
-      const passageNote = _passageNotes(state.ref);
-      const passageWordNote = passageNote && passageNote[word.toLowerCase()];
+      const card = getContextualMeaning({ verse:v, englishWord:word, ref:state.ref, book:state.book });
+      const dict = _dictLookup(word);
+      const ew = word.toLowerCase();
 
       // ===== SECTION 1: EXACT WORD USED HERE =====
       html += '<div class="sheet-section sheet-used">';
       html += '<div class="sheet-section-label sheet-section-headline">EXACT WORD USED HERE</div>';
       html += '<div class="used-row"><b>English:</b> '+_escape(word)+'</div>';
-      if(sense.confidence==='directly-tagged' || sense.confidence==='multiple-candidates' || sense.confidence==='inferred-from-family'){
-        const lex = sense.exactLex;
-        const tag = sense.exactTag;
-        html += '<div class="used-row"><b>'+_escape(lex.lang)+':</b> '+_escape(lex.lemma||(tag&&tag.w)||'')+'</div>';
-        if(lex.xlit) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(lex.xlit)+'</div>';
-        const sId = (tag.sId||'').match(/[HG]\d+/)?.[0] || tag.sId;
-        html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(sId)+'\')">'+_escape(sId)+'</button></div>';
-        html += '<div class="used-row used-confidence"><b>Confidence:</b> '+_escape(sense.confidence==='directly-tagged'?'directly tagged in this verse':(sense.confidence==='multiple-candidates'?'multiple candidates — best match shown':'inferred from curated word family'))+'</div>';
+      const x = card.exactWordUsedHere;
+      if(x.original){
+        html += '<div class="used-row"><b>'+_escape(x.language||'')+':</b> '+_escape(x.original)+'</div>';
+        if(x.transliteration) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(x.transliteration)+'</div>';
+        html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(x.strongs)+'\')">'+_escape(x.strongs)+'</button></div>';
       } else {
         html += '<div class="used-row used-warn"><b>⚠ Exact original-word mapping unavailable for this verse.</b></div>';
-        html += '<div class="used-row" style="font-size:12px;">'+_escape(sense.reason)+'</div>';
+        html += '<div class="used-row" style="font-size:12px;">'+_escape(card.sense.reason||'')+'</div>';
       }
-      html += '<div class="used-row used-snippet"><b>Phrase here:</b> <i>'+_escape(sense.verseSnippet)+(sense.verseSnippet.length>=180?'…':'')+'</i></div>';
+      html += '<div class="used-row used-confidence"><b>Confidence:</b> '+_escape(card.confidence)+' · <b>Audit:</b> '+_escape(card.auditStatus)+'</div>';
+      html += '<div class="used-row used-snippet"><b>Exact phrase here:</b> <i>'+_escape(x.phrase)+'</i></div>';
       html += '</div>';
 
-      // ===== SECTION 2: CONTEXTUAL SENSE =====
+      // ===== SECTION 2: CONTEXTUAL MEANING HERE =====
+      // The engine NEVER falls back to Strong's def in this section. If no
+      // curated passage note exists, the section says so honestly and points
+      // the reader to Full Word Range below.
       html += '<div class="sheet-section sheet-sense">';
-      html += '<div class="sheet-section-label sheet-section-headline">SENSE IN THIS VERSE</div>';
-      if(passageWordNote && passageWordNote.sense){
-        html += '<div class="sheet-text">'+_escape(passageWordNote.sense)+'</div>';
-      } else if(sense.exactLex && sense.exactLex.def){
-        html += '<div class="sheet-text">'+_escape(sense.exactLex.def)+'</div>';
-      } else if(dict && dict.deep){
-        html += '<div class="sheet-text">'+_escape(dict.deep.slice(0,400))+(dict.deep.length>400?'…':'')+'</div>';
-      } else if(legacy && legacy.def){
-        html += '<div class="sheet-text">'+_escape(legacy.def)+'</div>';
+      html += '<div class="sheet-section-label sheet-section-headline">CONTEXTUAL MEANING HERE</div>';
+      if(card.contextualMeaningHere){
+        html += '<div class="sheet-text">'+_escape(card.contextualMeaningHere)+'</div>';
       } else {
-        html += '<div class="sheet-empty">No curated contextual note for this exact verse yet.</div>';
+        html += '<div class="sheet-empty">';
+        html += '<b>No curated passage-specific note for "'+_escape(word)+'" at '+_escape(state.ref)+' yet.</b><br>';
+        html += '<span style="font-size:12px;">Strong\'s and lexicon entries give the RANGE of possible meanings, not the meaning in this specific verse. See <b>Full Word Range</b> below for the broader possibilities. Tap the Strong\'s pill above for the full lexicon entry.</span>';
+        html += '</div>';
       }
-      const bookNote = _bookContextNote(state.book);
-      if(bookNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(bookNote)+'</div>';
+      if(card.bookContextNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(card.bookContextNote)+'</div>';
       html += '</div>';
 
-      // ===== SECTION 3: NOT MEANT HERE =====
-      if((passageWordNote && passageWordNote.notMeant) || (dict && (dict.misunderstood||dict.notMean))){
-        html += '<div class="sheet-section sheet-warn-section">';
-        html += '<div class="sheet-section-label sheet-section-headline">⚠ NOT MEANT HERE</div>';
-        if(passageWordNote && passageWordNote.notMeant){
-          html += '<div class="sheet-warn">'+_escape(passageWordNote.notMeant)+'</div>';
-        }
-        if(dict && (dict.misunderstood||dict.notMean)){
-          html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(dict.misunderstood||dict.notMean)+'</div>';
+      // ===== SECTION 3: WHY THIS MEANING FITS =====
+      if(card.whyThisMeaningFits){
+        html += '<div class="sheet-section sheet-matters">';
+        html += '<div class="sheet-section-label sheet-section-headline">WHY THIS MEANING FITS</div>';
+        html += '<div class="sheet-text">'+_escape(card.whyThisMeaningFits)+'</div>';
+        html += '</div>';
+      } else if(card.contextualMeaningHere){
+        // Have a contextual meaning but no separate "why fits" — note the gap honestly.
+        html += '<div class="sheet-section sheet-matters">';
+        html += '<div class="sheet-section-label sheet-section-headline">WHY THIS MEANING FITS</div>';
+        html += '<div class="sheet-empty" style="font-size:12px;">Rationale not yet authored for this passage note. Contextual meaning above is curated; the verse-by-verse rationale is queued.</div>';
+        html += '</div>';
+      }
+
+      // ===== SECTION 4: FULL WORD RANGE =====
+      // This is where broad lexical data lives — NOT in Contextual Meaning Here.
+      if(card.fullWordRange && card.fullWordRange.length){
+        html += '<div class="sheet-section sheet-deep">';
+        html += '<div class="sheet-section-label sheet-section-headline">FULL WORD RANGE</div>';
+        html += '<div class="sheet-help" style="font-size:11px;color:var(--fg-mute);margin-bottom:8px;">The full lexical range of what this word can mean across Scripture. NOT all of these apply in this verse — see <b>Contextual Meaning Here</b> above for what is meant in this passage.</div>';
+        html += '<ul class="sheet-list">';
+        for(const r of card.fullWordRange) html += '<li>'+_escape(r)+'</li>';
+        html += '</ul>';
+        if(card.sense.exactLex && card.sense.exactLex.def){
+          html += '<div class="sheet-source-trace" style="margin-top:8px;"><b>Strong\'s lexicon:</b> <i>'+_escape(card.sense.exactLex.def)+'</i></div>';
         }
         html += '</div>';
       }
 
-      // ===== SECTION 4: RELATED WORD FAMILY — NOT USED HERE =====
+      // ===== SECTION 5: NOT MEANT HERE =====
+      if(card.notMeantHere && card.notMeantHere.length){
+        html += '<div class="sheet-section sheet-warn-section">';
+        html += '<div class="sheet-section-label sheet-section-headline">⚠ NOT MEANT HERE</div>';
+        for(const n of card.notMeantHere) html += '<div class="sheet-warn">'+_escape(n)+'</div>';
+        html += '</div>';
+      }
+
+      // ===== SECTION 6: RELATED WORD FAMILY =====
       if(dict && Array.isArray(dict.originals) && dict.originals.length>1){
         html += '<div class="sheet-section sheet-family">';
-        html += '<div class="sheet-section-label sheet-section-headline">RELATED WORD FAMILY — NOT NECESSARILY USED HERE</div>';
-        html += '<div class="sheet-help" style="font-size:11px;color:var(--fg-mute);margin-bottom:8px;">These are related original-language words for "'+_escape(word)+'." They appear elsewhere in Scripture — not necessarily in this verse.</div>';
+        html += '<div class="sheet-section-label sheet-section-headline">RELATED WORD FAMILY</div>';
+        html += '<div class="sheet-help" style="font-size:11px;color:var(--fg-mute);margin-bottom:8px;">Related original-language words for "'+_escape(word)+'" — appearing elsewhere in Scripture, not necessarily in this verse.</div>';
         html += '<div class="sheet-chips">';
+        const exactSid = x.strongs;
         for(const o of dict.originals){
           const sId = (o.strongs||'').match(/[HG]\d+/)?.[0];
-          const isHere = sense.exactTag && ((sense.exactTag.sId||'').match(/[HG]\d+/)?.[0]===sId);
+          const isHere = exactSid && sId===exactSid;
           const note = isHere ? '✓ used in this verse' : 'related — not in this verse';
           html += '<button class="lex-pill '+(isHere?'lex-pill-active':'')+'" '+(sId?'onclick="showStrongs(\''+_escape(sId)+'\')"':'')+' title="'+_escape(note+' — '+(o.note||''))+'">'+_escape(o.translit||o.word||sId||'')+(sId?' <span style="font-size:10px;opacity:0.7;">'+_escape(sId)+'</span>':'')+'</button>';
         }
@@ -4106,31 +4250,12 @@ function _renderBookOverview(book){
         html += '</div>';
       }
 
-      // ===== SECTION 5: DEEP SOURCE MEANING =====
-      if(dict || (sense.exactLex && sense.exactLex.def)){
-        html += '<div class="sheet-section sheet-deep">';
-        html += '<div class="sheet-section-label sheet-section-headline">DEEP SOURCE MEANING</div>';
-        if(dict && dict.deep) html += '<div class="sheet-text">'+_escape(dict.deep)+'</div>';
-        if(dict && Array.isArray(dict.rangeOfMeaning) && dict.rangeOfMeaning.length){
-          html += '<div class="sheet-section-label" style="margin-top:10px;">Range of meaning</div><ul class="sheet-list">';
-          for(const r of dict.rangeOfMeaning) html += '<li>'+_escape(r)+'</li>';
-          html += '</ul>';
-        }
-        if(Array.isArray(dict&&dict.sources)&&dict.sources.length){
-          html += '<div class="sheet-source-trace"><b>Source trace:</b> <i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
-        }
-        if(dict && dict.confidence){
-          html += '<div class="sheet-source-trace" style="opacity:0.8;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
-        }
-        html += '</div>';
-      }
-
-      // ===== SECTION 6: WHY IT MATTERS =====
-      const matters = (passageWordNote && passageWordNote.matters) || (dict && (dict.matters||dict.kingdomSignificance));
-      if(matters){
-        html += '<div class="sheet-section sheet-matters">';
-        html += '<div class="sheet-section-label sheet-section-headline">WHY IT MATTERS</div>';
-        html += '<div class="sheet-text">'+_escape(matters)+'</div>';
+      // ===== SECTION 7: SOURCES =====
+      if(dict && Array.isArray(dict.sources) && dict.sources.length){
+        html += '<div class="sheet-section sheet-sources">';
+        html += '<div class="sheet-section-label sheet-section-headline">SOURCES</div>';
+        html += '<div class="sheet-source-trace"><i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
+        if(dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;margin-top:4px;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
         html += '</div>';
       }
     } else {

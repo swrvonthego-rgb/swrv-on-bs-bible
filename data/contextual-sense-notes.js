@@ -144,7 +144,260 @@ window.CONTEXTUAL_SENSE_NOTES = {
   law:{
     sense:"νόμος (nomos, G3551) here = MOSAIC LAW specifically — the Torah-system that Paul is arguing CANNOT justify. The phrase 'works of the law' (erga nomou) names the specific covenant-boundary deeds (circumcision, food laws, Sabbath) that Paul's opponents required of Gentile believers.",
     notMeant:"Not 'principle' here (that's Rom 8:2's nomos). Not 'all moral effort generally.' Specifically the Mosaic covenant-boundary works.",
-    matters:"Paul does not abolish moral obedience — he denies that Torah-observance JUSTIFIES. The just shall live by faith (2:20; Hab 2:4)."
+    matters:"Paul does not abolish moral obedience — he denies that Torah-observance JUSTIFIES. The just shall live by faith (2:20; Hab 2:4).",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Galatians 5:18":{
+  Spirit:{
+    sense:"πνεῦμα (pneuma, G4151) here = THE HOLY SPIRIT specifically — God's Spirit as the active, governing, indwelling guide who leads the believer. Paul contrasts being 'led by the Spirit' with being 'under the law,' so pneuma here is the personal divine agent who replaces the law's external constraint with internal direction.",
+    notMeant:"NOT wind. NOT breath. NOT the human spirit. NOT a generic spiritual force. NOT one's mood or attitude. Context (Spirit vs law in Galatians 5; the Spirit's fruit in vv.22-23; the Spirit walked-in in v.25) demands the Holy Spirit.",
+    matters:"Reading 'spirit' as the human spirit here makes the verse self-help ethics. Reading it as the Holy Spirit makes it the gospel: God's own Spirit governs the believer where the law could not. The whole Gal 5 argument collapses without this distinction.",
+    why:"Three contextual proofs: (1) Paul's running contrast with 'the law' (5:18) only works if 'Spirit' is divine — a human spirit cannot replace Torah as covenant authority. (2) The 'fruit of the Spirit' in 5:22-23 is the result of the Spirit's work, not the human spirit's striving. (3) 5:25 'walk in the Spirit' parallels Rom 8:4 — explicitly the Holy Spirit.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  led:{
+    sense:"ἄγω (ago, G71) — to lead, conduct, bring. Passive 'be led' (ἄγεσθε). The Spirit ACTS; the believer is led. The verb's force is ongoing governance, not a one-time prompting.",
+    notMeant:"Not 'inspired in a moment.' Not 'felt a nudge.' Ongoing governance.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  law:{
+    sense:"νόμος (nomos, G3551) here = the MOSAIC LAW as covenant administration. Paul argues those led by the Spirit are no longer under that administration (cf. Rom 6:14; 7:6).",
+    notMeant:"Not 'principle' here. Not 'moral effort generally.' Mosaic Torah as the prior covenant order.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"John 3:5":{
+  Spirit:{
+    sense:"πνεῦμα (pneuma, G4151) here = THE HOLY SPIRIT. 'Born of water and of the Spirit' identifies the agent of the new birth — the divine Spirit who regenerates (cf. Titus 3:5; Ezek 36:25-27).",
+    notMeant:"Not wind here. Not human spirit. Jesus speaks of new BIRTH BY GOD'S Spirit.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"John 3:8":{
+  wind:{
+    sense:"πνεῦμα (pneuma, G4151) here = LITERAL WIND. Jesus deliberately uses the SAME Greek word he used for Spirit in v.5 — making a pun on pneuma's double meaning. The wind blows freely, unseen yet evident; so it is with everyone born of the Spirit.",
+    notMeant:"Not the Holy Spirit in this clause — though the analogy points to Him. The wordplay is the point.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  Spirit:{
+    sense:"πνεῦμα (pneuma, G4151) — at the end of v.8, back to the HOLY SPIRIT. The verse uses pneuma TWICE in two senses to make the analogy: as you cannot trace the wind, you cannot trace the Spirit's regenerating work — yet you see its effect.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 8:9":{
+  Spirit:{
+    sense:"πνεῦμα (pneuma, G4151) — used four times in this verse, alternating between (a) the HOLY SPIRIT ('the Spirit of God,' 'the Spirit of Christ') and (b) the SPHERE of being indwelt by Him ('ye are not in the flesh, but in the Spirit'). The same word; different referents distinguished by qualifier and context.",
+    notMeant:"Not the human spirit in any of the four uses here. Qualifiers ('of God,' 'of Christ') and the contrast with 'in the flesh' force the divine reading.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Genesis 1:2":{
+  Spirit:{
+    sense:"רוּחַ אֱלֹהִים (ruach elohim) — THE SPIRIT OF GOD, hovering over the waters. Ruach (H7307) means wind/breath/spirit; qualified by 'of God' it identifies God's Spirit as creative agent.",
+    notMeant:"Not 'a mighty wind' (some modern translations). The construct 'ruach elohim' with the verb merachefet (hovering, brooding — used in Deut 32:11 of a mother eagle over her young) describes intentional, life-tending presence — not weather.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Ezekiel 37:9":{
+  breath:{
+    sense:"רוּחַ (ruach, H7307) here = the LIFE-BREATH that animates the dry bones into living people. The valley-of-dry-bones vision turns on ruach's triple meaning (wind/breath/Spirit); v.14 makes explicit that this ruach is God's Spirit put within His people.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Genesis 8:1":{
+  wind:{
+    sense:"רוּחַ (ruach, H7307) here = literal WIND that God sent over the earth to dry the flood waters. Same word as Gen 1:2's Spirit, here in its weather sense.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Acts 17:25":{
+  breath:{
+    sense:"πνοή (pnoē, G4157) — wind/breath, the life-breath God gives to all. Paul echoes Gen 2:7 in Greek vocabulary at the Areopagus to make his case to Greek polytheists.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 8:5":{
+  flesh:{
+    sense:"σάρξ (sarx, G4561) here = the FALLEN HUMAN PATTERN/ORIENTATION opposed to the Spirit — same sense as Gal 5:17. 'They that are after the flesh do mind the things of the flesh' identifies a mode of life, not a physical body.",
+    notMeant:"Not physical body (the body is destined for resurrection — Rom 8:11, 23). Not Hebrew basar/kinship. Not 'sensual' in the modern English narrow sense.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  Spirit:{
+    sense:"πνεῦμα (pneuma, G4151) here = THE HOLY SPIRIT — the divine indwelling agent who governs the believer's orientation. Paired with sarx as opposite modes of life.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"1 Corinthians 15:39":{
+  flesh:{
+    sense:"σάρξ (sarx, G4561) here = LITERAL ANIMAL FLESH/MEAT — the physical substance of bodies. Paul lists the different fleshes of men, beasts, fishes, birds. This is the plainly physical sense.",
+    notMeant:"NOT fallen pattern. NOT kinship. Plain biological flesh.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 9:3":{
+  flesh:{
+    sense:"σάρξ (sarx, G4561) here = KINSHIP/ETHNIC DESCENT. 'My kinsmen according to the flesh' = my fellow Israelites by physical descent.",
+    notMeant:"Not fallen nature. Not physical body. Family/ethnic line.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Matthew 5:8":{
+  heart:{
+    sense:"καρδία (kardia, G2588) here = the INNER PERSON as a unity — thought, will, intention, moral center. 'Pure in heart' = single-aimed, undivided inner orientation toward God.",
+    notMeant:"Not modern English 'heart' as emotion-only. The Hebrew/Greek heart thinks, decides, desires — the whole inner self.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Proverbs 4:23":{
+  heart:{
+    sense:"לֵב (lev, H3820) here = the INNER WELLSPRING of life — thought, will, desire flowing from the same center. 'Keep your heart with all diligence; for out of it are the issues of life.'",
+    notMeant:"Not feelings only. Not 'follow your heart' as modern intuition-worship — Jer 17:9 says the heart can deceive.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Matthew 6:33":{
+  kingdom:{
+    sense:"βασιλεία (basileia, G932) here = GOD'S ACTIVE REIGN as the priority of life — His rule applied in the believer's daily orientation. Jesus pairs it with 'his righteousness' (the just ordering of life under that reign).",
+    notMeant:"Not 'heaven as a destination.' Not 'church.' The active reign of God to be sought first.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Mark 1:15":{
+  kingdom:{
+    sense:"βασιλεία (basileia, G932) here = THE INAUGURATED REIGN OF GOD breaking into history through Jesus' ministry. 'The kingdom of God is at hand' = the long-awaited reign has begun. Calls for repentance and faith as the response.",
+    notMeant:"Not future-only. Not a place. The arrival of God's active rule in person.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Luke 17:21":{
+  kingdom:{
+    sense:"βασιλεία (basileia, G932) here = GOD'S REIGN AMONG/WITHIN you — already operating where Jesus is, not requiring outward markers. Whether 'within you' (internal) or 'among you' (in your midst, with Jesus standing there) is debated; both readings affirm the reign's present-and-personal nature.",
+    notMeant:"Not 'sometime far off when you see signs.' Not 'an inner private experience' alone.",
+    auditStatus:"context-reviewed", confidence:"medium"
+  }
+},
+"1 John 4:8":{
+  love:{
+    sense:"ἀγάπη (agape, G26) here = SELF-GIVING COVENANT LOVE as God's very identity. 'God is love' — agape is who God IS, not a feeling He has.",
+    notMeant:"Not 'God is loving' (which would make love an attribute among many). Not feeling. Identity-language: God IS agape.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 5:8":{
+  love:{
+    sense:"ἀγάπη (agape, G26) here = SELF-GIVING SACRIFICIAL LOVE proven historically. 'God commends his agape toward us, in that, while we were yet sinners, Christ died for us.' The cross is the proof and definition.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 3:23":{
+  sin:{
+    sense:"ἁμαρτία (hamartia, G266) here = UNIVERSAL HUMAN FAILURE to reach God's standard. 'All have sinned (hēmarton) and come short of the glory of God' — the verb pictures missing the target; the noun summarizes the human condition.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 6:14":{
+  sin:{
+    sense:"ἁμαρτία (hamartia, G266) here = SIN AS POWER/DOMINION over the unbelieving life. Paul personifies it: sin shall not have dominion. The believer is now under grace's rule, not sin's.",
+    notMeant:"Not just individual acts of sin. The personified power.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"1 John 1:8":{
+  sin:{
+    sense:"ἁμαρτία (hamartia, G266) here = INDWELLING SIN PRINCIPLE that believers still carry. 'If we say we have no sin' = if we deny remaining sin-presence. Calls for ongoing confession (v.9).",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Hebrews 11:1":{
+  faith:{
+    sense:"πίστις (pistis, G4102) here = ASSURED CONVICTION of unseen realities — the substance/foundation of hope. The chapter then illustrates this conviction in action across OT figures.",
+    notMeant:"Not 'blind belief.' Not 'feeling sure.' Grounded conviction that acts.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 1:17":{
+  faith:{
+    sense:"πίστις (pistis, G4102) here = the FAITH-RESPONSE by which God's saving righteousness is received. The 'from faith to faith' phrasing emphasizes faith as the entry AND ongoing path.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"James 2:17":{
+  faith:{
+    sense:"πίστις (pistis, G4102) here = the CLAIM TO FAITH that has no fruit — what James calls 'dead' (nekra). Not opposing Paul; insisting that justifying faith always produces works as evidence.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Ephesians 2:8":{
+  grace:{
+    sense:"χάρις (charis, G5485) here = SAVING DIVINE FAVOR/GIFT — the free, unearned ground of salvation. 'By grace are ye saved through faith; and that not of yourselves: it is the gift of God.'",
+    notMeant:"Not 'God overlooks sin.' Not human effort enabled. The free divine gift that grounds salvation.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"2 Corinthians 12:9":{
+  grace:{
+    sense:"χάρις (charis, G5485) here = DIVINE EMPOWERING SUFFICIENCY in weakness. 'My grace is sufficient for thee: for my strength is made perfect in weakness.' Active divine power supplied in human weakness.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Genesis 6:8":{
+  grace:{
+    sense:"חֵן (chen, H2580) here = FAVOR/REGARD in the eyes of YHWH. 'Noah found chen in the eyes of the LORD.' Hebrew idiom for being looked-upon-with-favor.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Ephesians 2:10":{
+  works:{
+    sense:"ἔργα ἀγαθά (erga agatha, G2041) here = GOOD WORKS PREPARED by God for the believer to walk in. The fruit-side of salvation: created in Christ for these works. Not the basis of salvation (v.8-9) but the result.",
+    notMeant:"Not 'works of the law.' Not earning. The fruit of grace.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"John 1:1":{
+  Word:{
+    sense:"λόγος (logos, G3056) here = THE ETERNAL DIVINE WORD — the personal Logos who was with God and was God from the beginning. John borrows philosophical/wisdom vocabulary and redirects it to identify Christ as the divine self-expression.",
+    notMeant:"Not 'a word spoken.' Not just 'reason' or 'principle' in the Greek-philosophical sense alone. The personal pre-incarnate Christ.",
+    matters:"This single word grounds Christ's deity AND His historical incarnation (v.14). The logos was God AND became flesh.",
+    why:"v.1: 'with God' (companionship) + 'was God' (identity); v.3: creator of all things; v.14: 'became flesh' — the same logos. Personal, divine, incarnate.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"John 1:5":{
+  light:{
+    sense:"φῶς (phos, G5457) here = THE DIVINE LIGHT brought by the Logos into the world's spiritual darkness. Cosmic/spiritual light, not physical illumination.",
+    auditStatus:"context-reviewed", confidence:"high"
+  },
+  darkness:{
+    sense:"σκοτία (skotia, G4653) here = SPIRITUAL/MORAL DARKNESS — the realm and condition of unbelief and evil that opposes the divine light. 'Comprehended it not' = did not overcome / did not grasp it.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"1 John 2:15":{
+  world:{
+    sense:"κόσμος (kosmos, G2889) here = THE FALLEN HUMAN SYSTEM organized apart from God — values, drives, structures that oppose Him. 'Love not the world' = don't be conformed to this system.",
+    notMeant:"Not humanity (which God loves, John 3:16). Not creation. The fallen world-pattern.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 12:1":{
+  body:{
+    sense:"σῶμα (soma, G4983) here = the WHOLE PHYSICAL PERSON offered to God as living worship. Paul deliberately uses soma (body) to anchor worship in tangible bodily life, not just inner spirituality.",
+    notMeant:"Not 'inner self only.' Not 'spiritual life apart from the body.' The actual body offered.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"1 Corinthians 6:19":{
+  body:{
+    sense:"σῶμα (soma, G4983) here = the BELIEVER'S PHYSICAL BODY as the Spirit's temple. Grounds Paul's sexual-ethics argument: the body matters because it belongs to the indwelling Spirit.",
+    auditStatus:"context-reviewed", confidence:"high"
+  }
+},
+"Romans 8:14":{
+  sons:{
+    sense:"υἱοί (huioi, G5207) here = MATURE COVENANT HEIRS who are Spirit-led. Paul's son-language carries the full Roman heir-status (inheritance, authority) — not just minor children.",
+    notMeant:"Not gender-restrictive (women equally heirs, Gal 3:28). Not minor offspring. Mature heirs.",
+    auditStatus:"context-reviewed", confidence:"high"
   }
 }
 };
