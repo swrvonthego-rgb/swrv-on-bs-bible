@@ -705,6 +705,45 @@ window.updateMobileNavSummary=updateMobileNavSummary;
 window.toggleMobileNav=toggleMobileNav;
 window.setMobileNavCollapsed=setMobileNavCollapsed;
 
+// Fully hide / unhide the entire Book / Chapter / Verse / Canonical row at any
+// screen width. When hidden, a small floating "Show navigation" chip appears
+// (anchored under the header) so the user can bring the row back. Persisted
+// in localStorage as 'swrv_nav_hidden'.
+function setNavBarHidden(hidden){
+  const bar = document.getElementById('studyNavBar');
+  const chip = document.getElementById('navShowChip');
+  const btn = document.getElementById('navHideToggle');
+  if(bar) bar.classList.toggle('nav-fully-hidden', !!hidden);
+  if(chip){
+    chip.classList.toggle('visible', !!hidden);
+    chip.setAttribute('aria-hidden', hidden ? 'false' : 'true');
+  }
+  if(btn){
+    btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    btn.textContent = hidden ? '⇩ Show nav' : '⇧ Hide nav';
+    btn.setAttribute('title', hidden ? 'Show the Book / Chapter / Verse / Canonical row' : 'Hide the Book / Chapter / Verse / Canonical row');
+  }
+  try{ localStorage.setItem('swrv_nav_hidden', hidden ? '1' : '0'); }catch(e){}
+}
+function toggleNavBarHidden(){
+  const bar = document.getElementById('studyNavBar');
+  if(!bar) return;
+  setNavBarHidden(!bar.classList.contains('nav-fully-hidden'));
+}
+function initNavBarHiddenState(){
+  let saved = null;
+  try{ saved = localStorage.getItem('swrv_nav_hidden'); }catch(e){}
+  setNavBarHidden(saved==='1');
+}
+window.setNavBarHidden = setNavBarHidden;
+window.toggleNavBarHidden = toggleNavBarHidden;
+// Restore the user's hide/show preference once the DOM is ready.
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initNavBarHiddenState);
+} else {
+  setTimeout(initNavBarHiddenState, 0);
+}
+
 // === SWRV Reader Focus / Study Layers ===
 // The study Bible has a lot of context. This toggle lets readers choose an
 // uninterrupted Scripture flow or the full inline study-layer experience.
@@ -3798,65 +3837,301 @@ function _renderBookOverview(book){
   // ---------- Tab renderers ----------
   function _escape(s){ return escapeHtml(String(s==null?'':s)); }
 
+  // ============================================================
+  // CONTEXTUAL WORD-SENSE RESOLVER
+  // ============================================================
+  // Given a verse object + a tapped English word, identify the specific
+  // Hebrew/Greek/Aramaic word ACTUALLY USED in that verse (not just a
+  // generic family member). Strategy:
+  //   1. Pull the verse's strongsTags array (positional original-language
+  //      tokens with Strong's IDs).
+  //   2. For each tag, look up the Strong's lexicon's kjv_def (KJV renderings)
+  //      and def/strongs_def, and check whether the tapped English word is
+  //      among the words that Strong's records as a translation of this lemma.
+  //   3. If exactly one tag matches → confidence "directly-tagged".
+  //   4. If multiple match → cross-reference ENGLISH_BIBLE_DICT[word].originals
+  //      to pick the canonical one, then label the rest as alternates.
+  //   5. If no tag matches → fall back to ENGLISH_BIBLE_DICT for the family
+  //      view, but label confidence "exact verse mapping unavailable" and
+  //      DO NOT claim a specific tag is "used here".
+  // The resolver never invents — it cites the verse's actual data or says
+  // honestly that the verse data does not preserve that mapping.
+  function _strongsLookup(sId){
+    if(!sId) return null;
+    const m = String(sId).match(/^([HG])(\d+)([a-z]?)$/);
+    if(!m) return null;
+    const lang = m[1]==='H' ? 'Hebrew' : 'Greek';
+    const numKey = m[2] + m[3];
+    if(lang==='Hebrew'){
+      const heb = window.STRONGS_HEB && (window.STRONGS_HEB[sId] || window.STRONGS_HEB['H'+numKey]);
+      if(!heb) return null;
+      return { lang:'Hebrew', sId:sId, lemma:heb.lemma||'', xlit:heb.xlit||'', pron:heb.pron||'', kjv_def:heb.kjv_def||'', def:heb.strongs_def||'', derivation:heb.derivation||'' };
+    } else {
+      const grk = window.STRONGS_GRK && (window.STRONGS_GRK[numKey] || window.STRONGS_GRK[String(m[2])]);
+      if(!grk) return null;
+      return { lang:'Greek', sId:sId, lemma:grk.grk||'', xlit:grk.translit||grk.xlit||'', pron:grk.pron||'', kjv_def:grk.kjv_def||'', def:grk.def||grk.strongs_def||'', derivation:grk.derivation||'' };
+    }
+  }
+  function _wordInKjvDef(englishWord, kjvDef){
+    if(!englishWord || !kjvDef) return false;
+    // KJV def is like "carnal(-ly, + -ly minded), flesh(-ly)." — find the
+    // English word as a whole token, tolerating KJV's parenthesized suffixes
+    // and English inflectional endings (-ed, -ing, -s, -eth, etc.).
+    const ew = String(englishWord).toLowerCase().replace(/[.,;:!?]$/,'');
+    // Normalize the kjv_def: strip parens, brackets, plus signs; collapse
+    // hyphens to spaces so "love(-ed)" becomes "love ed" and tokens are findable.
+    const norm = String(kjvDef).toLowerCase()
+      .replace(/[()[\]+,;.{}]/g, ' ')
+      .replace(/-/g, ' ')
+      .replace(/\s+/g, ' ');
+    // (1) Direct token match.
+    const escEw = ew.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if(new RegExp('\\b'+escEw+'\\b').test(norm)) return true;
+    // (2) Suffix-stemming: if the tapped word ends with a common English
+    // inflection, try the stem against the normalized def.
+    const suffixes = ['ed','d','ing','eth','est','ly','ness','s','es'];
+    for(const suf of suffixes){
+      if(ew.endsWith(suf) && ew.length > suf.length + 2){
+        const stem = ew.slice(0, -suf.length).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if(new RegExp('\\b'+stem+'\\b').test(norm)) return true;
+      }
+    }
+    return false;
+  }
+  // Lemmatize an English word for ENGLISH_BIBLE_DICT lookup: "loved" -> "love",
+  // "loving" -> "love", "kingdoms" -> "kingdom". Cheap inflection stripping.
+  function _lemmatize(word){
+    if(!word) return [];
+    const w = String(word).toLowerCase().replace(/[.,;:!?]$/,'');
+    const variants = [w];
+    const suffixes = ['ed','d','ing','eth','est','ly','ness','s','es'];
+    for(const suf of suffixes){
+      if(w.endsWith(suf) && w.length > suf.length + 2){
+        variants.push(w.slice(0, -suf.length));
+      }
+    }
+    return variants;
+  }
+  // Look up ENGLISH_BIBLE_DICT for a word, trying inflectional variants
+  // ("loved" → also try "love"; "kingdoms" → also try "kingdom") so the
+  // family-fallback step has the best chance of finding a curated entry.
+  function _dictLookup(word){
+    const D = window.ENGLISH_BIBLE_DICT;
+    if(!D) return null;
+    for(const v of _lemmatize(word)){
+      if(D[v]) return D[v];
+      const cap = v.charAt(0).toUpperCase() + v.slice(1);
+      if(D[cap]) return D[cap];
+    }
+    return null;
+  }
+  function resolveContextualWordSense(v, englishWord){
+    const ew = String(englishWord||'').toLowerCase().replace(/[.,;:!?]$/,'');
+    const result = {
+      englishWord: ew,
+      confidence: 'unavailable',
+      exactTag: null,
+      exactLex: null,
+      alternates: [],
+      family: [],
+      verseSnippet: (v.synthesized || v.text || '').slice(0,180),
+      reason: ''
+    };
+    const tags = Array.isArray(v.strongsTags) ? v.strongsTags : [];
+    if(!tags.length){
+      result.reason = 'This verse has no Strong\'s tag data attached. Exact original-word mapping is unavailable.';
+      return result;
+    }
+    // Step 1: find tags whose lexicon kjv_def actually contains the tapped word.
+    const matches = [];
+    for(const t of tags){
+      if(!t || !t.sId) continue;
+      const lex = _strongsLookup(t.sId);
+      if(!lex) continue;
+      if(_wordInKjvDef(ew, lex.kjv_def) || _wordInKjvDef(ew, lex.def)){
+        matches.push({ tag:t, lex:lex });
+      }
+    }
+    if(matches.length===1){
+      result.confidence = 'directly-tagged';
+      result.exactTag = matches[0].tag;
+      result.exactLex = matches[0].lex;
+      result.alternates = tags.filter(t=>t!==matches[0].tag);
+      result.reason = 'The verse\'s Strong\'s tag for "'+ew+'" resolves to this single original word.';
+      return result;
+    }
+    if(matches.length>1){
+      // Multiple verse tags match the tapped English word. Rank by canonical
+      // order in ENGLISH_BIBLE_DICT[word].originals[] — the curated dictionary
+      // lists the primary original first (e.g., for "soul" the order is
+      // nephesh H5315, psyche G5590, neshamah H5397 — so if both H5397 and
+      // H5315 match, prefer H5315). If no dict order applies, fall back to
+      // verse-position order.
+      const dict = _dictLookup(ew);
+      let pick = null, preferredRank = null;
+      if(dict && Array.isArray(dict.originals)){
+        const knownOrder = dict.originals.map(o=>(o.strongs||'').match(/[HG]\d+/)?.[0]).filter(Boolean);
+        for(const m of matches){
+          const ms = (m.tag.sId||'').match(/[HG]\d+/)?.[0];
+          if(!ms) continue;
+          const rank = knownOrder.indexOf(ms);
+          if(rank>=0 && (preferredRank===null || rank<preferredRank)){
+            preferredRank = rank; pick = m;
+          }
+        }
+      }
+      const directlyRanked = pick !== null;
+      if(!pick) pick = matches[0];
+      result.confidence = directlyRanked ? 'directly-tagged' : 'multiple-candidates';
+      result.exactTag = pick.tag;
+      result.exactLex = pick.lex;
+      result.alternates = matches.filter(m=>m!==pick).map(m=>m.tag);
+      result.reason = directlyRanked
+        ? 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation; the curated canonical mapping ranks this one first.'
+        : 'Multiple Strong\'s tags in this verse list "'+ew+'" as a translation. No curated preference; showing the first match.';
+      return result;
+    }
+    // Step 2: no tag's lexicon mentions the English word. Try lemma variants
+    // ("loved" -> "love", "kingdoms" -> "kingdom") against the curated
+    // ENGLISH_BIBLE_DICT family, and see if any of its known Strong's IDs
+    // appears among the verse's tags.
+    const dict = _dictLookup(ew);
+    if(dict && Array.isArray(dict.originals)){
+      for(const o of dict.originals){
+        const sId = (o.strongs||'').match(/[HG]\d+/)?.[0];
+        if(!sId) continue;
+        const tagMatch = tags.find(t=>(t.sId||'').match(/[HG]\d+/)?.[0]===sId);
+        if(tagMatch){
+          const lex = _strongsLookup(tagMatch.sId);
+          result.confidence = 'inferred-from-family';
+          result.exactTag = tagMatch;
+          result.exactLex = lex;
+          result.alternates = tags.filter(t=>t!==tagMatch);
+          result.reason = 'The curated word family for "'+ew+'" identifies '+sId+', which is tagged in this verse. The verse\'s lexicon does not list "'+ew+'" as a direct KJV rendering, but the family mapping points here.';
+          return result;
+        }
+      }
+    }
+    // Step 3: honest "unavailable" path.
+    result.confidence = 'unavailable';
+    result.reason = 'Exact original-word mapping for "'+ew+'" is unavailable for this verse. The verse\'s tagged originals do not list "'+ew+'" as a KJV rendering, and the curated word family does not match any tag here.';
+    return result;
+  }
+  window.resolveContextualWordSense = resolveContextualWordSense;
+
+  function _bookContextNote(book){
+    if(!book) return '';
+    const NT = ['Matthew','Mark','Luke','John','Acts','Romans','1Corinthians','2Corinthians','Galatians','Ephesians','Philippians','Colossians','1Thessalonians','2Thessalonians','1Timothy','2Timothy','Titus','Philemon','Hebrews','James','1Peter','2Peter','1John','2John','3John','Jude','Revelation'];
+    if(NT.includes(book)) return 'NT book — original language is Koine Greek.';
+    return 'OT book — original language is Hebrew (with some Aramaic in Daniel and Ezra).';
+  }
+  function _passageNotes(ref){
+    return (window.CONTEXTUAL_SENSE_NOTES && window.CONTEXTUAL_SENSE_NOTES[ref]) || null;
+  }
+
   function renderTabDefine(state, v, lf){
     if(lf.define===false) return '<div class="sheet-empty">Definitions layer is off. Enable via 🎛 Layers.</div>';
     const word = state.focusWord;
     let html = '';
     if(word){
-      // USED IN THIS VERSE block — match the word against v.strongsTags first.
-      let matchedTag = null;
-      if(Array.isArray(v.strongsTags)){
-        // Try a soft-match on the English wordKey using definableWords or just present the first matching tag.
-        // Since strongsTags carry source-language only, we surface them when a word is tapped.
-        matchedTag = v.strongsTags[0];
-      }
+      const sense = resolveContextualWordSense(v, word);
       const dict = window.ENGLISH_BIBLE_DICT && (window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[word.toLowerCase()]);
       const legacy = window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]);
+      const passageNote = _passageNotes(state.ref);
+      const passageWordNote = passageNote && passageNote[word.toLowerCase()];
+
+      // ===== SECTION 1: EXACT WORD USED HERE =====
       html += '<div class="sheet-section sheet-used">';
-      html += '<div class="sheet-section-label">Used in this verse</div>';
+      html += '<div class="sheet-section-label sheet-section-headline">EXACT WORD USED HERE</div>';
       html += '<div class="used-row"><b>English:</b> '+_escape(word)+'</div>';
-      if(legacy){
-        if(legacy.hebrew) html += '<div class="used-row"><b>Hebrew:</b> '+legacy.hebrew+'</div>';
-        if(legacy.greek) html += '<div class="used-row"><b>Greek:</b> '+legacy.greek+'</div>';
-        if(legacy.translit) html += '<div class="used-row"><b>Translit:</b> '+_escape(legacy.translit)+'</div>';
-        if(legacy.strongs) html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(legacy.strongs)+'\')">'+_escape(legacy.strongs)+'</button></div>';
-      } else if(dict && Array.isArray(dict.originals) && dict.originals.length){
-        const o = dict.originals[0];
-        html += '<div class="used-row"><b>'+_escape(o.lang||'')+':</b> '+_escape(o.word||'')+'</div>';
-        if(o.translit) html += '<div class="used-row"><b>Translit:</b> '+_escape(o.translit)+'</div>';
-        if(o.strongs) html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(o.strongs)+'\')">'+_escape(o.strongs)+'</button></div>';
-      }
-      // Translation here = the verse text snippet
-      const snippet = (v.synthesized || v.text || '').slice(0,140);
-      html += '<div class="used-row used-snippet"><b>Translation here:</b> <i>'+_escape(snippet)+(snippet.length>=140?'…':'')+'</i></div>';
-      html += '</div>';
-      // Deep definition body
-      if(dict){
-        html += '<div class="sheet-section"><div class="sheet-section-label">Deep meaning</div>';
-        if(dict.plain) html += '<div class="sheet-text"><b>Quick:</b> '+_escape(dict.plain)+'</div>';
-        if(dict.deep) html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(dict.deep)+'</div>';
-        if(dict.misunderstood||dict.notMean) html += '<div class="sheet-warn"><b>⚠ Modern misunderstanding:</b> '+_escape(dict.misunderstood||dict.notMean)+'</div>';
-        if(dict.kingdomSignificance) html += '<div class="sheet-text" style="margin-top:8px;color:var(--gold);"><b>⚜ Kingdom:</b> '+_escape(dict.kingdomSignificance)+'</div>';
-        if(Array.isArray(dict.originals) && dict.originals.length>1){
-          html += '<div class="sheet-section-label" style="margin-top:10px;">Word family</div>';
-          html += '<div class="sheet-chips">';
-          for(const o of dict.originals){
-            const sId = (o.strongs||'').match(/[HG]\d+/)?.[0];
-            html += '<button class="lex-pill" '+(sId?'onclick="showStrongs(\''+_escape(sId)+'\')"':'')+' title="'+_escape(o.note||'')+'">'+_escape(o.translit||o.word||sId||'')+'</button>';
-          }
-          html += '</div>';
-        }
-        if(Array.isArray(dict.sources)&&dict.sources.length) html += '<div class="sheet-source-trace"><b>Source trace:</b> <i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
-        if(dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;">Confidence: '+_escape(dict.confidence)+'</div>';
-        html += '</div>';
-      } else if(legacy){
-        if(legacy.def) html += '<div class="sheet-section"><div class="sheet-section-label">Definition</div><div class="sheet-text">'+_escape(legacy.def)+'</div></div>';
-        if(legacy.kingdom) html += '<div class="sheet-section"><div class="sheet-section-label">⚜ Kingdom</div><div class="sheet-text">'+_escape(legacy.kingdom)+'</div></div>';
-        if(legacy.warning) html += '<div class="sheet-warn"><b>⚠ Translation warning:</b> '+_escape(legacy.warning)+'</div>';
-        if(legacy.ane) html += '<div class="sheet-section"><div class="sheet-section-label">ANE Context</div><div class="sheet-text">'+_escape(legacy.ane)+'</div></div>';
-        if(legacy.cross) html += '<div class="sheet-source-trace"><b>Cross-refs:</b> '+_escape(legacy.cross)+'</div>';
+      if(sense.confidence==='directly-tagged' || sense.confidence==='multiple-candidates' || sense.confidence==='inferred-from-family'){
+        const lex = sense.exactLex;
+        const tag = sense.exactTag;
+        html += '<div class="used-row"><b>'+_escape(lex.lang)+':</b> '+_escape(lex.lemma||(tag&&tag.w)||'')+'</div>';
+        if(lex.xlit) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(lex.xlit)+'</div>';
+        const sId = (tag.sId||'').match(/[HG]\d+/)?.[0] || tag.sId;
+        html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(sId)+'\')">'+_escape(sId)+'</button></div>';
+        html += '<div class="used-row used-confidence"><b>Confidence:</b> '+_escape(sense.confidence==='directly-tagged'?'directly tagged in this verse':(sense.confidence==='multiple-candidates'?'multiple candidates — best match shown':'inferred from curated word family'))+'</div>';
       } else {
-        html += '<div class="sheet-empty">No curated definition for "'+_escape(word)+'" yet. Try the Original tab for the verse\'s Hebrew/Greek roots.</div>';
+        html += '<div class="used-row used-warn"><b>⚠ Exact original-word mapping unavailable for this verse.</b></div>';
+        html += '<div class="used-row" style="font-size:12px;">'+_escape(sense.reason)+'</div>';
+      }
+      html += '<div class="used-row used-snippet"><b>Phrase here:</b> <i>'+_escape(sense.verseSnippet)+(sense.verseSnippet.length>=180?'…':'')+'</i></div>';
+      html += '</div>';
+
+      // ===== SECTION 2: CONTEXTUAL SENSE =====
+      html += '<div class="sheet-section sheet-sense">';
+      html += '<div class="sheet-section-label sheet-section-headline">SENSE IN THIS VERSE</div>';
+      if(passageWordNote && passageWordNote.sense){
+        html += '<div class="sheet-text">'+_escape(passageWordNote.sense)+'</div>';
+      } else if(sense.exactLex && sense.exactLex.def){
+        html += '<div class="sheet-text">'+_escape(sense.exactLex.def)+'</div>';
+      } else if(dict && dict.deep){
+        html += '<div class="sheet-text">'+_escape(dict.deep.slice(0,400))+(dict.deep.length>400?'…':'')+'</div>';
+      } else if(legacy && legacy.def){
+        html += '<div class="sheet-text">'+_escape(legacy.def)+'</div>';
+      } else {
+        html += '<div class="sheet-empty">No curated contextual note for this exact verse yet.</div>';
+      }
+      const bookNote = _bookContextNote(state.book);
+      if(bookNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(bookNote)+'</div>';
+      html += '</div>';
+
+      // ===== SECTION 3: NOT MEANT HERE =====
+      if((passageWordNote && passageWordNote.notMeant) || (dict && (dict.misunderstood||dict.notMean))){
+        html += '<div class="sheet-section sheet-warn-section">';
+        html += '<div class="sheet-section-label sheet-section-headline">⚠ NOT MEANT HERE</div>';
+        if(passageWordNote && passageWordNote.notMeant){
+          html += '<div class="sheet-warn">'+_escape(passageWordNote.notMeant)+'</div>';
+        }
+        if(dict && (dict.misunderstood||dict.notMean)){
+          html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(dict.misunderstood||dict.notMean)+'</div>';
+        }
+        html += '</div>';
+      }
+
+      // ===== SECTION 4: RELATED WORD FAMILY — NOT USED HERE =====
+      if(dict && Array.isArray(dict.originals) && dict.originals.length>1){
+        html += '<div class="sheet-section sheet-family">';
+        html += '<div class="sheet-section-label sheet-section-headline">RELATED WORD FAMILY — NOT NECESSARILY USED HERE</div>';
+        html += '<div class="sheet-help" style="font-size:11px;color:var(--fg-mute);margin-bottom:8px;">These are related original-language words for "'+_escape(word)+'." They appear elsewhere in Scripture — not necessarily in this verse.</div>';
+        html += '<div class="sheet-chips">';
+        for(const o of dict.originals){
+          const sId = (o.strongs||'').match(/[HG]\d+/)?.[0];
+          const isHere = sense.exactTag && ((sense.exactTag.sId||'').match(/[HG]\d+/)?.[0]===sId);
+          const note = isHere ? '✓ used in this verse' : 'related — not in this verse';
+          html += '<button class="lex-pill '+(isHere?'lex-pill-active':'')+'" '+(sId?'onclick="showStrongs(\''+_escape(sId)+'\')"':'')+' title="'+_escape(note+' — '+(o.note||''))+'">'+_escape(o.translit||o.word||sId||'')+(sId?' <span style="font-size:10px;opacity:0.7;">'+_escape(sId)+'</span>':'')+'</button>';
+        }
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // ===== SECTION 5: DEEP SOURCE MEANING =====
+      if(dict || (sense.exactLex && sense.exactLex.def)){
+        html += '<div class="sheet-section sheet-deep">';
+        html += '<div class="sheet-section-label sheet-section-headline">DEEP SOURCE MEANING</div>';
+        if(dict && dict.deep) html += '<div class="sheet-text">'+_escape(dict.deep)+'</div>';
+        if(dict && Array.isArray(dict.rangeOfMeaning) && dict.rangeOfMeaning.length){
+          html += '<div class="sheet-section-label" style="margin-top:10px;">Range of meaning</div><ul class="sheet-list">';
+          for(const r of dict.rangeOfMeaning) html += '<li>'+_escape(r)+'</li>';
+          html += '</ul>';
+        }
+        if(Array.isArray(dict&&dict.sources)&&dict.sources.length){
+          html += '<div class="sheet-source-trace"><b>Source trace:</b> <i>'+dict.sources.map(_escape).join(' · ')+'</i></div>';
+        }
+        if(dict && dict.confidence){
+          html += '<div class="sheet-source-trace" style="opacity:0.8;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
+        }
+        html += '</div>';
+      }
+
+      // ===== SECTION 6: WHY IT MATTERS =====
+      const matters = (passageWordNote && passageWordNote.matters) || (dict && (dict.matters||dict.kingdomSignificance));
+      if(matters){
+        html += '<div class="sheet-section sheet-matters">';
+        html += '<div class="sheet-section-label sheet-section-headline">WHY IT MATTERS</div>';
+        html += '<div class="sheet-text">'+_escape(matters)+'</div>';
+        html += '</div>';
       }
     } else {
       // No word focused — list the verse's definable words as taps.
