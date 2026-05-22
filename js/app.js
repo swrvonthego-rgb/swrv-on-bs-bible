@@ -4007,6 +4007,28 @@ function _renderBookOverview(book){
     }
     return out;
   }
+  function _parseBdbDef(def){
+    // Parses BDB's pipe-separated numbered senses into a clean bullet array.
+    // Input: "1) meaning | 1a) sub-meaning | 2) meaning2"
+    // Output: ["meaning","sub-meaning","meaning2"]
+    if(!def) return [];
+    const raw = String(def).split('|');
+    const out = [];
+    for(const part of raw){
+      const cleaned = part.trim()
+        .replace(/^\d+[a-z]{0,2}\)\s*/,'')   // strip "1)" "1a)" "1a1)" etc.
+        .replace(/<BR>/gi,' ')
+        .replace(/<i>|<\/i>/g,'')             // strip <i> tags
+        .replace(/<[^>]+>/g,'')               // strip other HTML tags
+        .replace(/\s+/g,' ')
+        .trim();
+      // Skip cross-refs, Aramaic notes, and trivially short entries
+      if(cleaned.length>4 && !/^(Also means:|Aramaic|§|See H|see H|see G|Aramaic of)/.test(cleaned)){
+        out.push(cleaned);
+      }
+    }
+    return out;
+  }
   function _buildDeepContext(opts, card, verse, dict){
     // Assembles the deepContext section from rich dictionary and DEFINITIONS data.
     const word=(opts&&opts.englishWord)||'';
@@ -4023,6 +4045,37 @@ function _renderBookOverview(book){
       if(oldDef.ane&&!parts.some(function(p){return p.includes(String(oldDef.ane).slice(0,40));})) parts.push('Ancient-world context: '+oldDef.ane);
       if(oldDef.theology) parts.push(oldDef.theology);
       if(oldDef.kingdom&&!parts.some(function(p){return p.includes(String(oldDef.kingdom).slice(0,40));})) parts.push('Kingdom significance: '+oldDef.kingdom);
+    }
+    // STRONGS_SENSE_MAP: deep contextual sense for this Strong's ID
+    const _sId = card && card.exactWordUsedHere && card.exactWordUsedHere.strongs;
+    if(_sId && _sId!=='Unavailable'){
+      const _ssm = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_sId];
+      if(_ssm){
+        if(_ssm.etymology && !parts.some(function(p){return p.includes((_ssm.etymology||'').slice(0,30));}))
+          parts.push('Etymology: '+_ssm.etymology);
+        if(_ssm.contextNote && !parts.some(function(p){return p.includes((_ssm.contextNote||'').slice(0,30));}))
+          parts.push(_ssm.contextNote);
+        if(Array.isArray(_ssm.senses) && _ssm.senses.length && !parts.some(function(p){return p.includes('Lexical senses:');}))
+          parts.push('Lexical senses: '+_ssm.senses.join(' | '));
+      }
+      // BDB for Hebrew: numbered senses give the full semantic range
+      if(_sId.charAt(0)==='H' && window.BDB_HEB){
+        const _bdb = window.BDB_HEB[_sId];
+        if(_bdb && _bdb.def){
+          const _bdbSenses = _parseBdbDef(_bdb.def);
+          if(_bdbSenses.length && !parts.some(function(p){return p.includes('BDB lexical senses:');}))
+            parts.push('BDB lexical senses: '+_bdbSenses.slice(0,6).join(' | '));
+        }
+      }
+      // Strong's Greek def for Greek words
+      if(_sId.charAt(0)==='G' && window.STRONGS_GRK){
+        const _gNum=_sId.replace(/^G/,'');
+        const _grk=window.STRONGS_GRK[_gNum];
+        if(_grk && !parts.some(function(p){return p.includes('Greek lexical range:');})){
+          const _gDef=String(_grk.strongs_def||_grk.def||'').replace(/\{|\}/g,'').trim();
+          if(_gDef.length>10) parts.push('Greek lexical range: '+_gDef);
+        }
+      }
     }
     if(!parts.length){
       const genre=_bookGenreSummary(book);
@@ -4205,6 +4258,41 @@ function _renderBookOverview(book){
     } else if(sense.exactLex && (sense.exactLex.kjv_def || sense.exactLex.def)){
       fullWordRange = _parseKjvDefToRange(sense.exactLex.kjv_def, sense.exactLex.def);
     }
+    // Augment fullWordRange from STRONGS_SENSE_MAP, BDB (Hebrew), and Strong's Greek.
+    if(sense.exactTag){
+      const _augId=((sense.exactTag.sId||'').match(/[HG]\d+/)||[])[0];
+      if(_augId){
+        // STRONGS_SENSE_MAP: deep contextual senses for key vocabulary
+        const _ssm = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_augId];
+        if(_ssm && Array.isArray(_ssm.senses)){
+          for(const _s of _ssm.senses){
+            if(_s && !fullWordRange.some(function(x){return x.toLowerCase()===String(_s).toLowerCase();}))
+              fullWordRange.push(String(_s));
+          }
+        }
+        // BDB: full Hebrew numbered senses
+        if(_augId.charAt(0)==='H' && window.BDB_HEB){
+          const _bdb=window.BDB_HEB[_augId];
+          if(_bdb && _bdb.def){
+            const _bdbSenses=_parseBdbDef(_bdb.def);
+            for(const _s of _bdbSenses){
+              if(!fullWordRange.some(function(x){return x.toLowerCase()===_s.toLowerCase();}))
+                fullWordRange.push(_s);
+            }
+          }
+        }
+        // Strong's Greek strongs_def for Greek words
+        if(_augId.charAt(0)==='G' && window.STRONGS_GRK){
+          const _gNum=_augId.replace(/^G/,'');
+          const _grk=window.STRONGS_GRK[_gNum];
+          if(_grk){
+            const _gDef=String(_grk.strongs_def||_grk.def||'').replace(/\{|\}/g,'').trim();
+            if(_gDef.length>10 && !fullWordRange.some(function(x){return x.toLowerCase()===_gDef.toLowerCase();}))
+              fullWordRange.push(_gDef);
+          }
+        }
+      }
+    }
 
     // Confidence rules:
     //   high   — verse has Strong's-tagged exact word AND a curated passage
@@ -4328,6 +4416,42 @@ function _renderBookOverview(book){
         return text;
       }
     }
+    // 2b. STRONGS_SENSE_MAP: deep primary sense for this Strong's ID
+    const _stn = card && card.exactWordUsedHere && card.exactWordUsedHere.strongs;
+    if(_stn && _stn!=='Unavailable'){
+      const _ssmE = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_stn];
+      if(_ssmE && _ssmE.primarySense){
+        let text = '"'+word+'" ('+_stn+') — '+_ssmE.primarySense;
+        if(_ssmE.contextNote) text += ' '+_ssmE.contextNote;
+        if(phrase) text += ' In '+ref+', it appears in the phrase: "'+phrase+'."';
+        return text;
+      }
+      // 2c. BDB gloss + first senses for Hebrew words
+      if(_stn.charAt(0)==='H' && window.BDB_HEB){
+        const _bdbE = window.BDB_HEB[_stn];
+        if(_bdbE){
+          const _bdbS = _parseBdbDef(_bdbE.def);
+          let text = '"'+word+'" translates the Hebrew '+(_bdbE.lemma||'')+' ('+(_bdbE.xlit||_stn)+')';
+          if(_bdbE.gloss) text += ', meaning "'+_bdbE.gloss+'"';
+          if(_bdbS.length) text += '. '+_bdbS.slice(0,3).join('; ')+'.';
+          if(phrase) text += ' In '+ref+', it appears in: "'+phrase+'."';
+          return text;
+        }
+      }
+      // 2d. Strong's Greek def for Greek words
+      if(_stn.charAt(0)==='G' && window.STRONGS_GRK){
+        const _gN=_stn.replace(/^G/,'');
+        const _grkE=window.STRONGS_GRK[_gN];
+        if(_grkE && (_grkE.strongs_def||_grkE.def)){
+          const _gDef=String(_grkE.strongs_def||_grkE.def||'').replace(/\{|\}/g,'').trim();
+          let text = '"'+word+'" translates the Greek '+(_grkE.grk||'')
+            +' ('+_stn+')';
+          if(_gDef) text += ', meaning: '+_gDef;
+          if(phrase) text += ' In '+ref+', it appears in: "'+phrase+'."';
+          return text;
+        }
+      }
+    }
     // 3. Build clean prose from context (no developer-speak)
     const parts = [];
     if(phrase) parts.push('In the phrase "'+phrase+'" ('+ver+'), "'+word+'"');
@@ -4360,13 +4484,24 @@ function _renderBookOverview(book){
   }
   function _collectSources(opts, card, dict){
     const out = [];
-    if(card && card.exactWordUsedHere && card.exactWordUsedHere.strongs && card.exactWordUsedHere.strongs!=='Unavailable'){
-      out.push('Strong\'s Concordance (project-bundled '+(card.exactWordUsedHere.strongs.charAt(0)==='H'?'Hebrew':'Greek')+' index, '+card.exactWordUsedHere.strongs+')');
+    const _stn2 = card && card.exactWordUsedHere && card.exactWordUsedHere.strongs;
+    if(_stn2 && _stn2!=='Unavailable'){
+      out.push('Strong\'s Concordance (project-bundled '+(_stn2.charAt(0)==='H'?'Hebrew':'Greek')+' index, '+_stn2+')');
+      // BDB for Hebrew
+      if(_stn2.charAt(0)==='H' && window.BDB_HEB && window.BDB_HEB[_stn2])
+        out.push('Brown-Driver-Briggs Hebrew Lexicon (data/bdb-hebrew.js — BDB '+_stn2+')');
+      // Thayer's / Strong's Greek for Greek
+      if(_stn2.charAt(0)==='G') out.push("Strong's Greek Lexicon (data/strongs-greek.js — "+_stn2+')');
+      // STRONGS_SENSE_MAP when present
+      if(window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_stn2])
+        out.push('SWRV Curated Word Sense Map (data/strongs-sense-map.js — '+_stn2+')');
     }
     if(card && card.sense && card.sense.exactLex){
       const lex = card.sense.exactLex;
-      if(lex.lang==='Hebrew') out.push('BDB Hebrew Lexicon (data/bdb-hebrew.js + sources/bdb-hebrew-lexicon-full.txt)');
-      else if(lex.lang==='Greek') out.push('Thayer\'s Greek Lexicon (sources/thayers-greek-lexicon.txt)');
+      if(lex.lang==='Hebrew' && !out.some(function(s){return s.includes('BDB');}))
+        out.push('BDB Hebrew Lexicon (data/bdb-hebrew.js + sources/bdb-hebrew-lexicon-full.txt)');
+      else if(lex.lang==='Greek' && !out.some(function(s){return s.includes('Strong\'s Greek')||s.includes('Thayer');}))
+        out.push('Thayer\'s Greek Lexicon (sources/thayers-greek-lexicon.txt)');
     }
     if(dict && Array.isArray(dict.sources)){
       for(const s of dict.sources) if(s && out.indexOf(s)<0) out.push(s);

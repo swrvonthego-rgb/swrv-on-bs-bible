@@ -1,7 +1,7 @@
 {
   "schema": "swrv-canon-audit/v1",
-  "startedAt": "2026-05-21T23:50:46.709Z",
-  "durationMs": 4533,
+  "startedAt": "2026-05-22T05:02:56.563Z",
+  "durationMs": 5967,
   "phase1LoadFails": [],
   "supportedVersions": [
     "KJV"
@@ -69,6 +69,7 @@
   "placeholderHits": {
     "no curated": {
       "AUDIT_FULL_CANON_REPORT.md": 3,
+      "DEEP_WORD_STUDY_REPORT.md": 1,
       "js/app.js": 3
     },
     "unavailable for this verse": {
@@ -76,6 +77,7 @@
     },
     "mapping unavailable": {
       "AUDIT_FULL_CANON_REPORT.md": 2,
+      "DEEP_WORD_STUDY_REPORT.md": 1,
       "js/app.js": 6
     },
     "no note yet": {
@@ -88,8 +90,10 @@
     },
     "placeholder": {
       "AUDIT_FULL_CANON_REPORT.md": 8,
+      "DEEP_WORD_STUDY_REPORT.md": 3,
       "css/styles.css": 1,
       "data/audio-narration.js": 1,
+      "data/strongs-sense-map.js": 1,
       "index.html": 2,
       "js/app.js": 7
     },

@@ -68,6 +68,7 @@ const DATA_FILES = [
   'data/concept-completeness-pack.js',
   'data/contextual-sense-notes.js',
   'data/context-sense-disambiguator.js',
+  'data/strongs-sense-map.js',
   'data/cultural-context-cards.js',
   'data/instruction-classification.js',
   'data/person-context-cards.js',
@@ -200,6 +201,25 @@ function _wordInKjvDef(ew, kjv){
   if(!kjv) return false;
   const toks = String(kjv).toLowerCase().split(/[^a-z]+/);
   return toks.indexOf(ew) >= 0;
+}
+function _parseBdbDef(def){
+  // Mirrors js/app.js _parseBdbDef
+  if(!def) return [];
+  const raw = String(def).split('|');
+  const out = [];
+  for(const part of raw){
+    const cleaned = part.trim()
+      .replace(/^\d+[a-z]{0,2}\)\s*/,'')
+      .replace(/<BR>/gi,' ')
+      .replace(/<i>|<\/i>/g,'')
+      .replace(/<[^>]+>/g,'')
+      .replace(/\s+/g,' ')
+      .trim();
+    if(cleaned.length>4 && !/^(Also means:|Aramaic|§|See H|see H|see G|Aramaic of)/.test(cleaned)){
+      out.push(cleaned);
+    }
+  }
+  return out;
 }
 function _passageNotes(ref){
   return (W.CONTEXTUAL_SENSE_NOTES && W.CONTEXTUAL_SENSE_NOTES[ref]) || null;
@@ -342,11 +362,43 @@ function getWordStudyData(opts){
   } else if(sense.exactLex && (sense.exactLex.kjv_def || sense.exactLex.def)){
     fullWordRange = _parseKjvDefToRange(sense.exactLex.kjv_def, sense.exactLex.def);
   }
+  // Augment from STRONGS_SENSE_MAP, BDB, and Strong's Greek (mirrors app.js)
+  if(sense.exactTag){
+    const _augId=((sense.exactTag.sId||'').match(/[HG]\d+/)||[])[0];
+    if(_augId){
+      const _ssm = W.STRONGS_SENSE_MAP && W.STRONGS_SENSE_MAP[_augId];
+      if(_ssm && Array.isArray(_ssm.senses)){
+        for(const _s of _ssm.senses){
+          if(_s && !fullWordRange.some(x=>x.toLowerCase()===String(_s).toLowerCase()))
+            fullWordRange.push(String(_s));
+        }
+      }
+      if(_augId.charAt(0)==='H' && W.BDB_HEB){
+        const _bdb=W.BDB_HEB[_augId];
+        if(_bdb && _bdb.def){
+          const _bdbSenses=_parseBdbDef(_bdb.def);
+          for(const _s of _bdbSenses){
+            if(!fullWordRange.some(x=>x.toLowerCase()===_s.toLowerCase()))
+              fullWordRange.push(_s);
+          }
+        }
+      }
+      if(_augId.charAt(0)==='G' && W.STRONGS_GRK){
+        const _gNum=_augId.replace(/^G/,'');
+        const _grk=W.STRONGS_GRK[_gNum];
+        if(_grk){
+          const _gDef=String(_grk.strongs_def||_grk.def||'').replace(/\{|\}/g,'').trim();
+          if(_gDef.length>10 && !fullWordRange.some(x=>x.toLowerCase()===_gDef.toLowerCase()))
+            fullWordRange.push(_gDef);
+        }
+      }
+    }
+  }
   const notMeantHere = passageWordNote && passageWordNote.notMeant
     ? [passageWordNote.notMeant]
     : (dict && (dict.notMean||dict.misunderstood) ? [dict.notMean||dict.misunderstood] : []);
 
-  // Honest contextual fallback (NOT a Strong's-def restatement)
+  // Honest contextual fallback (NOT a Strong's-def restatement) — mirrors app.js
   function _honestContextual(){
     const dict2 = _dictLookup(ew);
     const oldDef = W.DEFINITIONS && (W.DEFINITIONS[ew] || W.DEFINITIONS[ew.charAt(0).toUpperCase()+ew.slice(1)]);
@@ -361,6 +413,39 @@ function getWordStudyData(opts){
         let text = '"'+ew+'" — '+sense2;
         if(phrase) text += ' (in the phrase: "'+phrase+'")';
         return text;
+      }
+    }
+    // STRONGS_SENSE_MAP / BDB / Greek fallback
+    const _stn2 = exact.strongs;
+    if(_stn2 && _stn2!=='Unavailable'){
+      const _ssmE = W.STRONGS_SENSE_MAP && W.STRONGS_SENSE_MAP[_stn2];
+      if(_ssmE && _ssmE.primarySense){
+        let text = '"'+ew+'" ('+_stn2+') — '+_ssmE.primarySense;
+        if(_ssmE.contextNote) text += ' '+_ssmE.contextNote;
+        if(phrase) text += ' In '+ref+', it appears in the phrase: "'+phrase+'."';
+        return text;
+      }
+      if(_stn2.charAt(0)==='H' && W.BDB_HEB){
+        const _bdbE = W.BDB_HEB[_stn2];
+        if(_bdbE){
+          const _bdbS = _parseBdbDef(_bdbE.def);
+          let text = '"'+ew+'" translates the Hebrew '+(_bdbE.lemma||'')+' ('+(_bdbE.xlit||_stn2)+')';
+          if(_bdbE.gloss) text += ', meaning "'+_bdbE.gloss+'"';
+          if(_bdbS.length) text += '. '+_bdbS.slice(0,3).join('; ')+'.';
+          if(phrase) text += ' In '+ref+', it appears in: "'+phrase+'."';
+          return text;
+        }
+      }
+      if(_stn2.charAt(0)==='G' && W.STRONGS_GRK){
+        const _gN2=_stn2.replace(/^G/,'');
+        const _grkE=W.STRONGS_GRK[_gN2];
+        if(_grkE && (_grkE.strongs_def||_grkE.def)){
+          const _gDef=String(_grkE.strongs_def||_grkE.def||'').replace(/\{|\}/g,'').trim();
+          let text = '"'+ew+'" translates the Greek '+(_grkE.grk||'')+ ' ('+_stn2+')';
+          if(_gDef) text += ', meaning: '+_gDef;
+          if(phrase) text += ' In '+ref+', it appears in: "'+phrase+'."';
+          return text;
+        }
       }
     }
     const genre = _bookGenreSummary(book);
@@ -401,9 +486,16 @@ function getWordStudyData(opts){
 
   const sources = [];
   if(hasOriginal){
-    sources.push('Strong\'s Concordance (project-bundled '+(exact.strongs.charAt(0)==='H'?'Hebrew':'Greek')+' index, '+exact.strongs+')');
-    if(sense.exactLex && sense.exactLex.lang==='Hebrew') sources.push('BDB Hebrew Lexicon (data/bdb-hebrew.js + sources/bdb-hebrew-lexicon-full.txt)');
-    else if(sense.exactLex && sense.exactLex.lang==='Greek') sources.push('Thayer\'s Greek Lexicon (sources/thayers-greek-lexicon.txt)');
+    const _st3 = exact.strongs;
+    sources.push('Strong\'s Concordance (project-bundled '+(_st3.charAt(0)==='H'?'Hebrew':'Greek')+' index, '+_st3+')');
+    if(_st3.charAt(0)==='H' && W.BDB_HEB && W.BDB_HEB[_st3])
+      sources.push('Brown-Driver-Briggs Hebrew Lexicon (data/bdb-hebrew.js — BDB '+_st3+')');
+    if(_st3.charAt(0)==='G')
+      sources.push("Strong's Greek Lexicon (data/strongs-greek.js — "+_st3+')');
+    if(W.STRONGS_SENSE_MAP && W.STRONGS_SENSE_MAP[_st3])
+      sources.push('SWRV Curated Word Sense Map (data/strongs-sense-map.js — '+_st3+')');
+    if(sense.exactLex && sense.exactLex.lang==='Greek' && !sources.some(s=>s.includes('Strong\'s Greek')))
+      sources.push('Thayer\'s Greek Lexicon (sources/thayers-greek-lexicon.txt)');
   }
   if(dict && Array.isArray(dict.sources)) for(const s of dict.sources) if(s && sources.indexOf(s)<0) sources.push(s);
   if(hasCurated) sources.push('SWRV Curated Passage Note (data/contextual-sense-notes.js)');
