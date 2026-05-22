@@ -1,7 +1,7 @@
 {
   "schema": "swrv-canon-audit/v1",
-  "startedAt": "2026-05-22T05:02:56.563Z",
-  "durationMs": 5967,
+  "startedAt": "2026-05-22T09:52:47.169Z",
+  "durationMs": 6302,
   "phase1LoadFails": [],
   "supportedVersions": [
     "KJV"
@@ -29,17 +29,17 @@
     "studiableWords": 123754,
     "studiableWordsValidated": 123754,
     "studiableWordsFailed": 0,
-    "studiableWordsWithCurated": 69,
+    "studiableWordsWithCurated": 86,
     "studiableWordsWithOriginalTag": 89615,
     "cardsByAuditStatus": {
-      "context-reviewed": 63,
-      "context-reviewed with original-word limitation": 89558,
-      "needs manual review": 34133
+      "context-reviewed": 79,
+      "context-reviewed with original-word limitation": 89543,
+      "needs manual review": 34132
     },
     "cardsByConfidence": {
-      "high": 63,
-      "medium": 89558,
-      "low": 34133
+      "high": 79,
+      "medium": 89543,
+      "low": 34132
     },
     "translationLayerCoverage": {
       "TANAKH": 18233,
@@ -59,10 +59,106 @@
     "morphologyEntries": 0,
     "glossaryEntries": 389,
     "wordFamilyEntries": 139,
-    "curatedPassageNotes": 57,
-    "curatedWordNotes": 82,
-    "curatedNotesOrphanCount": 0,
-    "curatedNotesOrphanList": [],
+    "curatedPassageNotes": 85,
+    "curatedWordNotes": 153,
+    "curatedNotesOrphanCount": 20,
+    "curatedNotesOrphanList": [
+      {
+        "ref": "Genesis 2:7",
+        "word": "living soul",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "John 3:16",
+        "word": "eternal life",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Romans 3:23",
+        "word": "fall short",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Romans 3:23",
+        "word": "glory of God",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Ephesians 2:10",
+        "word": "good works",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Romans 8:1",
+        "word": "in Christ",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Matthew 5:3",
+        "word": "poor in spirit",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Genesis 2:15",
+        "word": "tend",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Exodus 3:14",
+        "word": "I AM",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Exodus 20:3",
+        "word": "other gods",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Exodus 20:3",
+        "word": "before me",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Psalm 22:1",
+        "reason": "verse-not-found"
+      },
+      {
+        "ref": "Psalm 23:1",
+        "reason": "verse-not-found"
+      },
+      {
+        "ref": "Psalm 23:4",
+        "reason": "verse-not-found"
+      },
+      {
+        "ref": "Psalm 51:1",
+        "reason": "verse-not-found"
+      },
+      {
+        "ref": "Psalm 51:10",
+        "reason": "verse-not-found"
+      },
+      {
+        "ref": "Matthew 6:11",
+        "word": "daily bread",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "John 3:3",
+        "word": "born again",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Romans 5:1",
+        "word": "access",
+        "reason": "word-not-in-any-translation-layer"
+      },
+      {
+        "ref": "Revelation 1:8",
+        "word": "Alpha and Omega",
+        "reason": "word-not-in-any-translation-layer"
+      }
+    ],
     "failuresSample": [],
     "uniqueFailureModes": {}
   },
@@ -93,7 +189,6 @@
       "DEEP_WORD_STUDY_REPORT.md": 3,
       "css/styles.css": 1,
       "data/audio-narration.js": 1,
-      "data/strongs-sense-map.js": 1,
       "index.html": 2,
       "js/app.js": 7
     },
