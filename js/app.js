@@ -2529,6 +2529,39 @@ function strongsSmartLookup(){
   }
   
   out.innerHTML = h;
+  // Wire click handlers for every result card type
+  out.querySelectorAll('.strongs-clickable').forEach(function(el){
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', function(){
+      const lang = el.dataset.lang;
+      const num  = el.dataset.num;
+      const bdb  = el.dataset.bdb;
+      const deep = el.dataset.deep;
+      if(lang && num){
+        renderStrongsEntry(lang, num);
+      } else if(bdb){
+        // BDB keys are H-prefixed Strong's IDs — showStrongs handles them
+        showStrongs(bdb);
+      } else if(deep && window.DEFINITIONS && window.DEFINITIONS[deep]){
+        // SWRV Deep entry — show via the defPopup
+        const d = window.DEFINITIONS[deep];
+        const popup = document.getElementById('defPopup');
+        popup.classList.remove('people');
+        popup.classList.add('strongs');
+        const parts = [];
+        parts.push('<div class="def-word">' + escapeHtml(deep) + '</div>');
+        if(d.hebrew) parts.push('<div class="def-hebrew">' + d.hebrew + '</div>');
+        if(d.translit) parts.push('<div class="def-translit">' + escapeHtml(d.translit) + '</div>');
+        if(d.senses && d.senses.length){
+          parts.push('<div class="def-section"><div class="def-section-label">Senses</div><ul style="margin:6px 0 0 16px;line-height:1.7;">' + d.senses.map(function(s){return '<li>'+escapeHtml(s)+'</li>';}).join('') + '</ul></div>');
+        }
+        if(d.theology) parts.push('<div class="def-section"><div class="def-section-label">Theological depth</div><div class="def-section-text">'+escapeHtml(d.theology)+'</div></div>');
+        if(d.kingdom) parts.push('<div class="def-section"><div class="def-section-label">Kingdom significance</div><div class="def-section-text">'+escapeHtml(d.kingdom)+'</div></div>');
+        document.getElementById('defContent').innerHTML = parts.join('');
+        popup.classList.add('show');
+      }
+    });
+  });
 }
 
 function renderStrongsEntry(lang,num){
@@ -4029,6 +4062,107 @@ function _renderBookOverview(book){
     }
     return out;
   }
+
+  // ─── Morphology decoder ──────────────────────────────────────────────────
+  // Converts machine codes (V-PAP-NMS, H-Ncmsa) to readable English.
+  function _decodeMorph(code){
+    if(!code || typeof code !== 'string') return null;
+    if(code.toLowerCase().includes('not present') || code.toLowerCase().includes('unavailable')) return null;
+    const c = code.trim();
+    // Greek Robinson-style: POS-Tense+Voice+Mood-Case+Num+Gender
+    const GRK_POS = {V:'Verb',N:'Noun',A:'Adjective',P:'Pronoun',R:'Relative Pronoun',C:'Reciprocal Pronoun',D:'Demonstrative Pronoun',T:'Definite Article',K:'Correlative Pronoun',I:'Interrogative Pronoun',X:'Indefinite Pronoun',Q:'Correlative/Interrogative Pronoun',F:'Reflexive Pronoun',S:'Possessive Pronoun',ADV:'Adverb',CONJ:'Conjunction',COND:'Conditional Particle',PRT:'Particle',INJ:'Interjection',ARAM:'Aramaic',HEB:'Hebrew'};
+    const GRK_TENSE={P:'Present',I:'Imperfect',F:'Future',A:'Aorist',X:'Perfect',Y:'Pluperfect'};
+    const GRK_VOICE={A:'Active',M:'Middle',P:'Passive',D:'Middle-Deponent',O:'Passive-Deponent',N:'Middle or Passive',E:'Either Middle or Passive',Q:'Middle, Passive or either'};
+    const GRK_MOOD={I:'Indicative',S:'Subjunctive',O:'Optative',D:'Imperative',N:'Infinitive',P:'Participle'};
+    const GRK_CASE={N:'Nom',G:'Gen',D:'Dat',A:'Acc',V:'Voc'};
+    const GRK_NUM={S:'Sing',P:'Plur'};
+    const GRK_GEN={M:'Masc',F:'Fem',N:'Neut'};
+    const GRK_PER={1:'1st',2:'2nd',3:'3rd'};
+
+    // Greek patterns: V-PAP-NMS  or  N-NSM  or  ADV
+    const grkMatch = c.match(/^([A-Z]+)-([A-Z0-9]*)(?:-([A-Z0-9]*))?$/);
+    if(grkMatch && GRK_POS[grkMatch[1]]){
+      const pos = GRK_POS[grkMatch[1]];
+      const seg2 = grkMatch[2]||'';
+      const seg3 = grkMatch[3]||'';
+      const parts=[pos];
+      if(grkMatch[1]==='V'){
+        // Verb: seg2 = Tense+Voice+Mood, seg3 = Case+Num+Gender or Person+Num
+        if(seg2.length>=1 && GRK_TENSE[seg2[0]]) parts.push(GRK_TENSE[seg2[0]]);
+        if(seg2.length>=2 && GRK_VOICE[seg2[1]]) parts.push(GRK_VOICE[seg2[1]]);
+        if(seg2.length>=3 && GRK_MOOD[seg2[2]]) parts.push(GRK_MOOD[seg2[2]]);
+        // Participle: seg3 = CaseNumGender
+        if(seg3.length===3 && GRK_CASE[seg3[0]] && GRK_GEN[seg3[2]] && GRK_NUM[seg3[1]])
+          parts.push(GRK_CASE[seg3[0]]+'/'+GRK_GEN[seg3[2]]+'/'+GRK_NUM[seg3[1]]);
+        else if(seg3.length===2 && GRK_PER[seg3[0]] && GRK_NUM[seg3[1]])
+          parts.push(GRK_PER[seg3[0]]+' pers / '+GRK_NUM[seg3[1]]);
+      } else {
+        // Noun/adj/pronoun: seg2 = CaseNumGender or CaseNum
+        const s = seg2;
+        if(s.length>=1 && GRK_CASE[s[0]]) parts.push(GRK_CASE[s[0]]);
+        if(s.length>=2 && GRK_NUM[s[1]]) parts.push(GRK_NUM[s[1]]);
+        if(s.length>=3 && GRK_GEN[s[2]]) parts.push(GRK_GEN[s[2]]);
+      }
+      return parts.join(' · ');
+    }
+    // Hebrew OpenScriptures style: HNcmsa, Vqp3ms, etc.
+    const HEB_POS={'N':'Noun','V':'Verb','A':'Adjective','D':'Adverb','P':'Preposition','C':'Conjunction','T':'Particle','R':'Pronoun','S':'Suffix','M':'Numerical'};
+    const HEB_STEM={q:'Qal',n:'Niphal',p:'Piel',u:'Pual',h:'Hiphil',H:'Hophal',t:'Hithpael',o:'Polel',r:'Polal',m:'Poel',k:'Poal',z:'Pilpel',K:'Palpal',f:'Pealal',b:'Hishtaphel',N:'Nithpael'};
+    const HEB_ASPECT={p:'Perfect',q:'Imperfect',v:'Imperative',i:'Infinitive construct',a:'Infinitive absolute',r:'Active participle',s:'Passive participle'};
+    const HEB_PERSON={'1':'1st','2':'2nd','3':'3rd'};
+    const HEB_NUM={s:'Sing',p:'Plur',d:'Dual'};
+    const HEB_GEN={m:'Masc',f:'Fem',c:'Common'};
+    const HEB_STATE={a:'Absolute',c:'Construct',d:'Determined'};
+
+    const hebMatch = c.match(/^H([NVADPCTRSM])(.*)$/i);
+    if(hebMatch){
+      const pos = HEB_POS[hebMatch[1].toUpperCase()]||hebMatch[1];
+      const rest = hebMatch[2]||'';
+      const parts=[pos];
+      if(hebMatch[1].toUpperCase()==='V'){
+        // Verb: stem, aspect, person, number, gender
+        if(rest[0] && HEB_STEM[rest[0]]) parts.push(HEB_STEM[rest[0]]);
+        if(rest[1] && HEB_ASPECT[rest[1]]) parts.push(HEB_ASPECT[rest[1]]);
+        if(rest[2] && HEB_PERSON[rest[2]]) parts.push(HEB_PERSON[rest[2]]+' pers');
+        if(rest[3] && HEB_NUM[rest[3]]) parts.push(HEB_NUM[rest[3]]);
+        if(rest[4] && HEB_GEN[rest[4]]) parts.push(HEB_GEN[rest[4]]);
+      } else {
+        // Noun/adj: type, gender, number, state
+        if(rest[0] && (rest[0]==='c'||rest[0]==='p'||rest[0]==='g')) {/* skip type letter */}
+        const offset = (rest[0]==='c'||rest[0]==='p'||rest[0]==='g') ? 1 : 0;
+        if(rest[offset] && HEB_GEN[rest[offset]]) parts.push(HEB_GEN[rest[offset]]);
+        if(rest[offset+1] && HEB_NUM[rest[offset+1]]) parts.push(HEB_NUM[rest[offset+1]]);
+        if(rest[offset+2] && HEB_STATE[rest[offset+2]]) parts.push(HEB_STATE[rest[offset+2]]);
+      }
+      return parts.join(' · ');
+    }
+    // Fallback — return original code, cleaned up, as-is
+    return c;
+  }
+
+  // ─── Contextual meaning text formatter ───────────────────────────────────
+  // Bolds the English study word, italicises the original language word
+  // when they appear in the text. Returns safe HTML.
+  function _formatContextualText(text, engWord, original, translit){
+    if(!text) return '';
+    let html = escapeHtml(text);
+    // Bold: the English word (case-insensitive, word-boundary)
+    if(engWord && engWord.length > 1){
+      const esc = escapeHtml(engWord).replace(/[.*+?^$()|[\]\\]/g,'\\$&');
+      html = html.replace(new RegExp('\\b(' + esc + '(?:s|ed|ing|\'s)?)\\b','gi'),
+        '<strong style="color:var(--gold);">$1</strong>');
+    }
+    // Italicise: transliteration (e.g. "sarx", "basar", "nephesh")
+    if(translit && translit.length > 2){
+      const esc = escapeHtml(translit).replace(/[.*+?^$()|[\]\\]/g,'\\$&');
+      html = html.replace(new RegExp('\\b(' + esc + ')\\b','gi'),
+        '<em style="color:var(--enoch);">$1</em>');
+    }
+    // Italicise Strong's IDs when they appear inline
+    html = html.replace(/\b([HG]\d{1,5})\b/g,'<em style="color:var(--strongs);font-size:0.9em;">$1</em>');
+    return html;
+  }
+
   function _buildDeepContext(opts, card, verse, dict){
     // Assembles the deepContext section from rich dictionary and DEFINITIONS data.
     const word=(opts&&opts.englishWord)||'';
@@ -4671,10 +4805,16 @@ function _renderBookOverview(book){
         html += '<div class="used-row"><b>'+_escape(x.language||'')+':</b> '+_escape(x.original)+'</div>';
         if(x.transliteration) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(x.transliteration)+'</div>';
         html += '<div class="used-row"><b>Strong\'s:</b> <button class="lex-pill" onclick="showStrongs(\''+_escape(x.strongs)+'\')">'+_escape(x.strongs)+'</button></div>';
-        html += '<div class="used-row"><b>Morphology:</b> '+_escape(x.morphology)+'</div>';
+        const _morphDecoded = _decodeMorph(x.morphology);
+        if(_morphDecoded){
+          html += '<div class="used-row"><b>Morphology:</b> <span style="font-family:monospace;font-size:11px;color:var(--fg-dim);">'+_escape(x.morphology)+'</span> <span style="color:var(--fg-mute);font-size:12px;">→ '+_escape(_morphDecoded)+'</span></div>';
+        } else {
+          html += '<div class="used-row" style="color:var(--fg-dim);font-size:12px;"><b>Morphology:</b> <span style="opacity:0.5;">— not tagged for this verse</span></div>';
+        }
       } else {
         html += '<div class="used-row used-warn"><b>⚠ '+_escape(x.original)+'</b></div>';
-        html += '<div class="used-row" style="font-size:12px;">Strong\'s: '+_escape(x.strongs)+' · Morphology: '+_escape(x.morphology)+'</div>';
+        const _morphFallback = _decodeMorph(x.morphology);
+        html += '<div class="used-row" style="font-size:12px;">Strong\'s: '+_escape(x.strongs)+(_morphFallback?' · Morphology: '+_escape(_morphFallback):'')+'</div>';
         if(card.sense && card.sense.reason) html += '<div class="used-row" style="font-size:12px;">'+_escape(card.sense.reason)+'</div>';
       }
       html += '<div class="used-row used-confidence"><b>Bible version:</b> '+_escape(card.bibleVersion||'KJV')+' · <b>Confidence:</b> '+_escape(card.confidence)+' · <b>Audit:</b> '+_escape(card.auditStatus)+'</div>';
@@ -4686,7 +4826,7 @@ function _renderBookOverview(book){
       // curated note exists — never null, never a Strong's-def restatement.
       html += '<div class="sheet-section sheet-sense">';
       html += '<div class="sheet-section-label sheet-section-headline">CONTEXTUAL MEANING HERE</div>';
-      html += '<div class="sheet-text">'+_escape(card.contextualMeaningHere)+'</div>';
+      html += '<div class="sheet-text">'+_formatContextualText(card.contextualMeaningHere, word, x && x.original, x && x.transliteration)+'</div>';
       if(card.bookContextNote) html += '<div class="sheet-source-trace" style="margin-top:8px;font-style:italic;">'+_escape(card.bookContextNote)+'</div>';
       html += '</div>';
 
@@ -4694,9 +4834,46 @@ function _renderBookOverview(book){
       if(card.deepContext && card.deepContext.trim()){
         html += '<div class="sheet-section sheet-deep-context">';
         html += '<div class="sheet-section-label sheet-section-headline">DEEP CONTEXT</div>';
+        // Section label → icon + accent color + background pill
+        const _DC_LABELS = [
+          {prefix:'Etymology:',          icon:'🔤', accent:'var(--enoch)',   bg:'rgba(0,170,200,0.09)'},
+          {prefix:'Cultural background:',icon:'🌍', accent:'#5aad7a',       bg:'rgba(90,173,122,0.09)'},
+          {prefix:'Kingdom significance:',icon:'👑',accent:'var(--gold)',   bg:'rgba(212,175,55,0.09)'},
+          {prefix:'Ancient-world context:',icon:'🏺',accent:'#c87a2a',     bg:'rgba(200,120,42,0.09)'},
+          {prefix:'Lexical senses:',     icon:'📖', accent:'var(--strongs)',bg:'rgba(155,135,210,0.09)'},
+          {prefix:'BDB lexical senses:', icon:'📚', accent:'var(--enoch)',  bg:'rgba(0,170,200,0.07)'},
+          {prefix:'Greek lexical range:',icon:'🇬🇷',accent:'var(--strongs)',bg:'rgba(155,135,210,0.07)'},
+        ];
         const paragraphs = card.deepContext.split(/\n\n+/);
         for(const p of paragraphs){
-          if(p.trim()) html += '<div class="sheet-text" style="margin-top:6px;">'+_escape(p.trim())+'</div>';
+          const txt = p.trim();
+          if(!txt) continue;
+          let matched = false;
+          for(const lbl of _DC_LABELS){
+            if(txt.startsWith(lbl.prefix)){
+              const body = txt.slice(lbl.prefix.length).trim();
+              html += '<div style="margin-top:8px;border-left:3px solid '+lbl.accent+';padding:8px 10px;border-radius:0 6px 6px 0;background:'+lbl.bg+';">';
+              html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:'+lbl.accent+';margin-bottom:4px;">'+lbl.icon+' '+_escape(lbl.prefix.replace(':','').toUpperCase())+'</div>';
+              // Lexical senses: render as bulleted list, not pipe-separated
+              if(lbl.prefix.includes('senses') || lbl.prefix.includes('range')){
+                const items = body.split(/\s*\|\s*/);
+                html += '<ul style="margin:0 0 0 12px;padding:0;line-height:1.8;font-size:13px;">';
+                for(const item of items){
+                  if(item.trim()) html += '<li>'+_formatContextualText(item.trim(), word, x&&x.original, x&&x.transliteration)+'</li>';
+                }
+                html += '</ul>';
+              } else {
+                html += '<div style="font-size:13px;line-height:1.7;color:var(--fg);">'+_formatContextualText(body, word, x&&x.original, x&&x.transliteration)+'</div>';
+              }
+              html += '</div>';
+              matched = true;
+              break;
+            }
+          }
+          if(!matched){
+            // Unlabelled paragraph — plain card
+            html += '<div style="margin-top:8px;padding:8px 10px;border-radius:6px;background:var(--bg-2);font-size:13px;line-height:1.7;color:var(--fg);">'+_formatContextualText(txt, word, x&&x.original, x&&x.transliteration)+'</div>';
+          }
         }
         html += '</div>';
       }
@@ -4751,8 +4928,23 @@ function _renderBookOverview(book){
       if(Array.isArray(card.sources) && card.sources.length){
         html += '<div class="sheet-section sheet-sources">';
         html += '<div class="sheet-section-label sheet-section-headline">SOURCES</div>';
-        html += '<div class="sheet-source-trace"><i>'+card.sources.map(_escape).join(' · ')+'</i></div>';
-        if(dict && dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.8;margin-top:4px;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
+        html += '<div style="display:flex;flex-direction:column;gap:5px;margin-top:4px;">';
+        for(const src of card.sources){
+          // Extract Strong's ID if present so we can make it clickable
+          const _sidMatch = String(src).match(/\b([HG]\d{1,5})\b/);
+          const _sid = _sidMatch ? _sidMatch[1] : null;
+          if(_sid){
+            html += '<button onclick="showStrongs(\''+_escape(_sid)+'\')" style="text-align:left;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--fg);font-family:inherit;line-height:1.4;">'
+              + '<span style="color:var(--strongs);font-weight:700;font-size:10px;margin-right:6px;">'+_escape(_sid)+'</span>'
+              + '<i style="color:var(--fg-mute);">'+_escape(src)+'</i>'
+              + ' <span style="float:right;color:var(--fg-dim);font-size:10px;">tap to open →</span>'
+              + '</button>';
+          } else {
+            html += '<div style="font-size:12px;color:var(--fg-mute);padding:4px 2px;font-style:italic;">'+_escape(src)+'</div>';
+          }
+        }
+        html += '</div>';
+        if(dict && dict.confidence) html += '<div class="sheet-source-trace" style="opacity:0.7;margin-top:6px;font-size:11px;">Dictionary confidence: '+_escape(dict.confidence)+'</div>';
         html += '</div>';
       }
     } else {

@@ -1,7 +1,7 @@
 {
   "schema": "swrv-canon-audit/v1",
-  "startedAt": "2026-05-22T09:52:47.169Z",
-  "durationMs": 6302,
+  "startedAt": "2026-05-22T19:51:29.296Z",
+  "durationMs": 5806,
   "phase1LoadFails": [],
   "supportedVersions": [
     "KJV"
