@@ -11,7 +11,7 @@
 
   var queue = window.BIBLE_INDEX
     .map(function(b){ return b.slug; })
-    .filter(function(slug){ return slug !== 'Genesis' && !window.isBookLocked(slug); });
+    .filter(function(slug){ return slug !== 'Genesis'; });
 
   var inflight = 0;
   var loaded = 0;
