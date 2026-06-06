@@ -1189,7 +1189,7 @@ function renderVerse(v){
   verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
   // Compact per-verse Study chip — visible in Read & Study modes; opens the unified Study Sheet.
   verseHtml.push('<button class="verse-study-chip" onclick="openStudySheet(\''+v.ref.replace(/\'/g,"\\\\'")+'\')" title="Open study panel for '+escapeHtml(v.ref)+'">📖 Study</button>');
-  verseHtml.push('<button class="verse-study-chip verse-visualize-chip" onclick="visualizeVerse(\''+v.ref.replace(/\'/g,"\\\\'")+'\',\''+displayText.replace(/\\/g,'\\\\').replace(/\'/g,"\\\\'").replace(/\n/g,' ').substring(0,200)+'\')" title="Generate an image for this verse">🎨 Visualize</button>');
+  
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
@@ -1903,65 +1903,6 @@ function closeDef(){
   _unlockBodyScroll();
   document.getElementById('defPopup').classList.remove('show','people','strongs');
   document.getElementById('defOverlay').classList.remove('show');
-}
-
-function visualizeVerse(ref, text){
-  _lockBodyScroll();
-  const title = document.getElementById('modalTitle');
-  const body = document.getElementById('modalBody');
-  title.textContent = ref;
-  document.getElementById('modal').classList.add('show');
-
-  // Generate beautiful SVG visualization locally (no external APIs)
-  const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
-  
-  // Extract key words for visual theme
-  const keyWords = clean.split(' ').filter(w => w.length > 5);
-  const wordCount = clean.split(' ').length;
-  
-  // Create SVG dynamically
-  const svg = generateVerseVisualization(ref, clean, keyWords);
-  body.innerHTML = '<div class="viz-result">' + svg + '<p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
-}
-
-function generateVerseVisualization(ref, text, keyWords){
-  const colors = ['#c9a84c', '#b47fff', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
-  const bgColor = colors[Math.floor(Math.random() * colors.length)];
-  
-  // Create SVG with geometric patterns based on verse
-  let svg = '<svg viewBox="0 0 1024 576" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:100%;border-radius:12px;overflow:hidden;">';
-  
-  // Gradient background
-  svg += '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">';
-  svg += '<stop offset="0%" style="stop-color:' + bgColor + ';stop-opacity:0.9" />';
-  svg += '<stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />';
-  svg += '</linearGradient></defs>';
-  
-  svg += '<rect width="1024" height="576" fill="url(#grad)"/>';
-  
-  // Decorative geometric elements
-  const wordLength = text.length;
-  for(let i = 0; i < 8; i++){
-    const x = Math.random() * 1024;
-    const y = Math.random() * 576;
-    const size = 20 + (wordLength % 80);
-    const opacity = 0.1 + (i * 0.05);
-    svg += '<circle cx="' + x + '" cy="' + y + '" r="' + size + '" fill="white" opacity="' + opacity + '"/>';
-  }
-  
-  // Text with dramatic styling
-  svg += '<text x="512" y="250" text-anchor="middle" font-size="42" font-weight="bold" fill="white" font-family="Georgia,serif" text-shadow="0 2px 8px rgba(0,0,0,0.5)">';
-  svg += escapeHtml(text.substring(0, 100)) + (text.length > 100 ? '…' : '');
-  svg += '</text>';
-  
-  // Reference at bottom
-  svg += '<text x="512" y="520" text-anchor="middle" font-size="18" fill="rgba(255,255,255,0.8)" font-family="Arial,sans-serif">';
-  svg += escapeHtml(ref);
-  svg += '</text>';
-  
-  svg += '</svg>';
-  
-  return svg;
 }
 
 
