@@ -1917,7 +1917,7 @@ function visualizeVerse(ref, text){
   const prompt = clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art';
   
   // Hugging Face Inference API (free, reliable)
-  const hfUrl = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large';
+  const hfUrl = 'https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo';
   
   fetch(hfUrl, {
     method: 'POST',
@@ -1930,7 +1930,7 @@ function visualizeVerse(ref, text){
     body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
   })
   .catch(err => {
-    body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Generating…</p><p style="color:var(--fg-dim);font-size:12px;">This may take 30-60 seconds.</p></div>';
+    body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Generating…</p><p style="color:var(--fg-dim);font-size:12px;">This should take 5-15 seconds.</p></div>';
   });
 }
 
