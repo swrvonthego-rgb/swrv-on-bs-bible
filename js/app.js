@@ -1198,6 +1198,7 @@ function renderVerse(v){
   verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
   // Compact per-verse Study chip — visible in Read & Study modes; opens the unified Study Sheet.
   verseHtml.push('<button class="verse-study-chip" onclick="openStudySheet(\''+v.ref.replace(/\'/g,"\\\\'")+'\')" title="Open study panel for '+escapeHtml(v.ref)+'">📖 Study</button>');
+  verseHtml.push('<button class="verse-study-chip verse-visualize-chip" onclick="visualizeVerse(\''+v.ref.replace(/\'/g,"\\\\'")+'\',\''+displayText.replace(/\\/g,'\\\\').replace(/\'/g,"\\\\'").replace(/\n/g,' ').substring(0,200)+'\')" title="Generate an image for this verse">🎨 Visualize</button>');
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
@@ -1912,6 +1913,28 @@ function closeDef(){
   _unlockBodyScroll();
   document.getElementById('defPopup').classList.remove('show','people','strongs');
   document.getElementById('defOverlay').classList.remove('show');
+}
+
+function visualizeVerse(ref, text){
+  _lockBodyScroll();
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  title.textContent = ref;
+  body.innerHTML = '<div class="viz-loading"><div class="viz-spinner"></div><p>Generating image…</p></div>';
+  document.getElementById('modal').classList.add('show');
+
+  const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
+  const prompt = encodeURIComponent(clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art');
+  const url = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
+
+  const img = new Image();
+  img.onload = function(){
+    body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
+  };
+  img.onerror = function(){
+    body.innerHTML = '<p style="color:var(--fg-mute);padding:20px 0;">Could not generate image. Check your connection and try again.</p>';
+  };
+  img.src = url;
 }
 
 /* ============================================================

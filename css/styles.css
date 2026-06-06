@@ -2108,6 +2108,14 @@ body[data-reading-mode="scholar"] .study-layer{ display:revert; }
 }
 .verse-study-chip:hover{ background:rgba(212,175,55,0.22); transform:translateY(-1px); }
 .verse-study-chip:active{ transform:translateY(0); }
+.verse-visualize-chip{ border-color:rgba(180,120,255,0.45); color:#b47fff; background:linear-gradient(180deg,rgba(180,120,255,0.12),rgba(0,0,0,0.05)); }
+.verse-visualize-chip:hover{ background:rgba(180,120,255,0.22); }
+.viz-loading{ display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 0;gap:16px;color:var(--fg-mute); }
+.viz-spinner{ width:36px;height:36px;border:3px solid rgba(180,120,255,0.25);border-top-color:#b47fff;border-radius:50%;animation:viz-spin 0.8s linear infinite; }
+@keyframes viz-spin{ to{ transform:rotate(360deg); } }
+.viz-result{ display:flex;flex-direction:column;align-items:center;gap:12px; }
+.viz-img{ width:100%;max-width:100%;border-radius:8px;border:1px solid rgba(180,120,255,0.3);display:block; }
+.viz-caption{ font-size:12px;color:var(--fg-dim);letter-spacing:0.05em; }
 /* In Scholar mode the chip is still useful (gives quick access to the sheet) but lower-key. */
 body[data-reading-mode="scholar"] .verse-study-chip{ opacity:0.7; font-size:11px; }
 /* In Read mode the chip is the only inline study control — make it slightly more visible. */
