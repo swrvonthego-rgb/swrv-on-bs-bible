@@ -1929,16 +1929,23 @@ function visualizeVerse(ref, text){
   const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
   const prompt = encodeURIComponent(clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art');
   const url = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
-
-  const img = new Image();
-  img.onload = function(){
-    body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
-  };
-  img.onerror = function(){
-    body.innerHTML = '<p style="color:var(--fg-mute);padding:20px 0;">Could not generate image. Check your connection and try again.</p>';
-  };
-  img.src = url;
+  
+  // Try fetch first (CORS-friendly for PWA mode)
+  fetch(url, { mode: 'cors', cache: 'force-cache' })
+    .then(r => r.ok ? r.blob() : Promise.reject())
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      body.innerHTML = '<div class="viz-result"><img src="' + blobUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
+    })
+    .catch(err => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => { body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>'; };
+      img.onerror = () => { body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);">Could not generate image</p><p style="color:var(--fg-dim);font-size:11px;margin:8px 0;">Visualization service unavailable in app mode. Open in browser to generate.</p></div>'; };
+      img.src = url;
+    });
 }
+
 
 /* ============================================================
    PANEL LAYERING FIX — definition / Strong's popup always on top
