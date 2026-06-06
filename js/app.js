@@ -519,6 +519,14 @@ setTimeout(function(){
 
 
 const THEMES=['vintage','luxe','cyberpunk','earth','sonic'];
+
+// === GENESIS GATING — FREE ACCESS TO GENESIS ONLY ===
+const FREE_BOOKS = ['Genesis'];
+function isBookLocked(slug) {
+  return !FREE_BOOKS.includes(slug);
+}
+window.isBookLocked = isBookLocked;
+
 let themeIdx=0;
 function cycleTheme(){themeIdx=(themeIdx+1)%THEMES.length;document.body.dataset.theme=THEMES[themeIdx];localStorage.setItem('swrv_theme',THEMES[themeIdx])}
 const savedTheme=localStorage.getItem('swrv_theme');
@@ -854,7 +862,8 @@ function populateBookSelect(){
       if(!b) continue;
       const opt = document.createElement('option');
       opt.value = b.slug;
-      opt.textContent = b.display;
+      opt.textContent = isBookLocked(b.slug) ? b.display + ' 🔒' : b.display;
+      if(isBookLocked(b.slug)) opt.style.opacity = '0.5';
       if(b.slug === currentBook) opt.selected = true;
       grp.appendChild(opt);
     }
@@ -872,7 +881,8 @@ function populateBookSelect(){
     }
     const opt=document.createElement('option');
     opt.value=b.slug;
-    opt.textContent=b.display;
+    opt.textContent = isBookLocked(b.slug) ? b.display + ' 🔒' : b.display;
+    if(isBookLocked(b.slug)) opt.style.opacity = '0.5';
     if(b.slug===currentBook)opt.selected=true;
     if(currentGroup)currentGroup.appendChild(opt);
     else bookSelect.appendChild(opt);
@@ -937,8 +947,7 @@ function openVerseReference(book, chapter, verse){
   });
 }
 
-function loadBook(slug){
-  if(!slug||slug===currentBook&&_getCurrentBookData())return;
+function loadBook(slug){if(isBookLocked(slug)){showUnlockModal();return;}if(!slug||slug===currentBook&&_getCurrentBookData())return;
   _loadBookScript(slug,function(){
     currentBook=slug;window.currentBook=slug;_updateBookContext();
     localStorage.setItem('swrv_book',slug);
@@ -961,7 +970,7 @@ function nextChapter(){
   const max=info?info.chapters:50;
   if(currentChapter<max){loadChapter(currentChapter+1);}else{
     const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;_updateBookContext();localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;currentVerse=1;localStorage.setItem('swrv_chapter',1);localStorage.setItem('swrv_verse',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();populateVerseSelect();_loadChapterCore(1);});}
+    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];if(isBookLocked(nxt.slug)){showUnlockModal();return}_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;_updateBookContext();localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;currentVerse=1;localStorage.setItem('swrv_chapter',1);localStorage.setItem('swrv_verse',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();populateVerseSelect();_loadChapterCore(1);});}
   }
 }
 
@@ -1327,6 +1336,35 @@ function setMode(m){
   document.body.classList.toggle('verse-mode',m==='verse');
   loadChapter(currentChapter);
 }
+
+
+// === UNLOCK MODAL ===
+function showUnlockModal() {
+  const existing = document.getElementById('unlockModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'unlockModal';
+  modal.innerHTML = `
+    <div class="unlock-overlay" onclick="closeUnlockModal()"></div>
+    <div class="unlock-card">
+      <div class="unlock-badge">FREE PREVIEW</div>
+      <h2 class="unlock-headline">Learn Your Identity</h2>
+      <p class="unlock-sub">Discover who Elohim created you to be.</p>
+      <p class="unlock-body">Your story didn't start at birth.<br>Genesis is just the beginning.<br><br>Unlock all 66 books and go deeper into who He made you to be.</p>
+      <a class="unlock-cta" href="https://www.swrvonthego.pro" target="_blank" rel="noopener">
+        Unlock Full Bible → swrvonthego.pro
+      </a>
+      <button class="unlock-close" onclick="closeUnlockModal()">Stay in Genesis</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+function closeUnlockModal() {
+  const m = document.getElementById('unlockModal');
+  if (m) m.remove();
+}
+window.showUnlockModal = showUnlockModal;
+window.closeUnlockModal = closeUnlockModal;
 
 function loadChapter(n, direction){
   _loadChapterCore(n);

@@ -949,6 +949,8 @@
     // Group by category — preserve insertion order
     const groups = new Map();
     for(const r of results){
+      // Gate: skip locked books in Scripture Passages
+      if(r.category === 'Scripture Passages' && r.book && window.isBookLocked && window.isBookLocked(r.book)) continue;
       const cat = r.category || 'Other';
       if(!groups.has(cat)) groups.set(cat, []);
       groups.get(cat).push(r);
@@ -1006,6 +1008,17 @@
       if(!activeCategoryFilter && list.length > showCount){
         html.push('<button class="search-show-more" onclick="searchFilterCategory('+JSON.stringify(cat).replace(/"/g,'&quot;')+')">Show all '+list.length+' results in '+_esc(cat)+' →</button>');
       }
+    }
+    // Add unlock notice if there are locked results
+    let hasLockedResults = false;
+    for(const r of results){
+      if(r.category === 'Scripture Passages' && r.book && window.isBookLocked && window.isBookLocked(r.book)){
+        hasLockedResults = true;
+        break;
+      }
+    }
+    if(hasLockedResults && results.length > 0){
+      html.push('<div class="search-unlock-notice">Unlock the full Bible to search all 66 books → <a href="https://www.swrvonthego.pro" target="_blank">swrvonthego.pro</a></div>');
     }
     out.innerHTML = html.join('');
   }

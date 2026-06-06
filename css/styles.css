@@ -2858,3 +2858,87 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 
 /* Thread browse button in header */
 .thread-browse-btn { font-size: 12px; font-weight: 700; }
+
+/* === IDENTITY UNLOCK MODAL === */
+#unlockModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.unlock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.unlock-card {
+  position: relative;
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--line, rgba(255,255,255,0.12));
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+.unlock-badge {
+  display: inline-block;
+  background: var(--accent, #c9a84c);
+  color: #000;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 4px 12px;
+  border-radius: 100px;
+  margin-bottom: 18px;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+}
+.unlock-headline {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--fg, #fff);
+  margin: 0 0 8px;
+  font-family: 'New York', 'SF Pro Display', Georgia, serif;
+  line-height: 1.2;
+}
+.unlock-sub {
+  font-size: 15px;
+  color: var(--accent, #c9a84c);
+  margin: 0 0 16px;
+  font-style: italic;
+}
+.unlock-body {
+  font-size: 14px;
+  color: var(--fg-dim, rgba(255,255,255,0.65));
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.unlock-cta {
+  display: block;
+  background: var(--accent, #c9a84c);
+  color: #000;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  text-decoration: none;
+  margin-bottom: 12px;
+  font-family: 'SF Pro Text', -apple-system, sans-serif;
+  transition: opacity 0.2s;
+}
+.unlock-cta:active { opacity: 0.8; }
+.unlock-close {
+  background: none;
+  border: none;
+  color: var(--fg-dim, rgba(255,255,255,0.45));
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px;
+  font-family: 'SF Pro Text', -apple-system, sans-serif;
+}

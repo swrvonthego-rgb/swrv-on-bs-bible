@@ -1,0 +1,15 @@
+{
+  "appId": "com.swrvonthego.bible",
+  "appName": "SWRV Kingdom Bible",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "ios": {
+    "scheme": "SWRV Kingdom Bible",
+    "contentInset": "always"
+  },
+  "server": {
+    "allowNavigation": [
+      "www.swrvonthego.pro"
+    ]
+  }
+}
