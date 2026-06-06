@@ -2,8 +2,6 @@
 // Depends on all data files + enrichments.js (loaded before this).
 // Bootstraps with loadChapter() at the end of the file.
 
-
-
 // === SWRV KINGDOM BIBLE SPLASH ===
 function dismissSplash(){
   const splash = document.getElementById('splashCover');
@@ -63,7 +61,6 @@ audio.addEventListener('canplay',function(){
 
 audio.addEventListener('playing',function(){playBtn.textContent='❚❚';});
 audio.addEventListener('pause',function(){playBtn.textContent='▶';});
-
 
 // === GLOSSARY — terms and abbreviations used throughout the app ===
 window.GLOSSARY = {
@@ -291,7 +288,6 @@ function audioRestoreDefaults(){
   _renderPlaylist();
 }
 
-
 function _loadPlaylistItem(idx, autoplay){
   if(idx < 0 || idx >= _audioPlaylist.length) return;
   _audioCurrentIdx = idx;
@@ -517,9 +513,7 @@ setTimeout(function(){
   } catch(e) {}
 }, 100);
 
-
 const THEMES=['vintage','luxe','cyberpunk','earth','sonic'];
-
 
 let themeIdx=0;
 function cycleTheme(){themeIdx=(themeIdx+1)%THEMES.length;document.body.dataset.theme=THEMES[themeIdx];localStorage.setItem('swrv_theme',THEMES[themeIdx])}
@@ -658,7 +652,6 @@ const chapterSelect=document.getElementById('chapterSelect');
 const bookSelect=document.getElementById('bookSelect');
 const verseSelect=document.getElementById('verseSelect');
 
-
 // === SWRV mobile reading controls ===
 // Mobile needs maximum reading space. Keep Book/Chapter/Verse controls available,
 // but collapse them into a one-line summary by default on phones. Desktop is
@@ -796,7 +789,6 @@ function goRandomVerse(){
   });
 }
 
-
 // === CHRONOLOGICAL BIBLE READING ORDER (item 5) ===
 // Order books per Chronological Study Bible (Thomas Nelson) approximate composition/event order.
 // Job placed in patriarchal era; prophets interleaved with historical books they wrote during.
@@ -917,7 +909,6 @@ populateVerseSelect();
   }
 })();
 
-
 function openVerseReference(book, chapter, verse){
   if(!book) return;
   _loadBookScript(book,function(){
@@ -967,7 +958,6 @@ function nextChapter(){
 }
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
 
 // Stopwords stay untagged so the reader sees helpful definitions, not noise.
 const SWRV_STOP_WORDS = new Set(('a an the and or but if then than to of in on at by for from with without into unto under over as is are was were be been being have has had do does did will would shall should may might can could i you he she it we they them his her their our your my me us this that these those there here not no yes so').split(' '));
@@ -1328,8 +1318,6 @@ function setMode(m){
   document.body.classList.toggle('verse-mode',m==='verse');
   loadChapter(currentChapter);
 }
-
-
 
 function loadChapter(n, direction){
   _loadChapterCore(n);
@@ -1806,7 +1794,6 @@ function showPerson(name){
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
 
-
 function auditPeopleContextCoverage(){
   const known = _getKnownPersonKeys();
   const withProfiles = known.filter(_hasPersonContext);
@@ -1928,24 +1915,24 @@ function visualizeVerse(ref, text){
 
   const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
   const prompt = encodeURIComponent(clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art');
-  const url = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
+  const pollUrl = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
   
-  // Try fetch first (CORS-friendly for PWA mode)
-  fetch(url, { mode: 'cors', cache: 'force-cache' })
-    .then(r => r.ok ? r.blob() : Promise.reject())
-    .then(blob => {
-      const blobUrl = URL.createObjectURL(blob);
-      body.innerHTML = '<div class="viz-result"><img src="' + blobUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
-    })
-    .catch(err => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => { body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>'; };
-      img.onerror = () => { body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);">Could not generate image</p><p style="color:var(--fg-dim);font-size:11px;margin:8px 0;">Visualization service unavailable in app mode. Open in browser to generate.</p></div>'; };
-      img.src = url;
-    });
+  // CORS proxy: corsproxy.io handles PWA sandbox restrictions
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(pollUrl);
+  
+  const img = new Image();
+  img.onload = function(){
+    body.innerHTML = '<div class="viz-result"><img src="' + proxyUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
+  };
+  img.onerror = function(){
+    // Proxy failed, try direct (works in browser, fails in app)
+    const img2 = new Image();
+    img2.onload = () => { body.innerHTML = '<div class="viz-result"><img src="' + pollUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>'; };
+    img2.onerror = () => { body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Visualization Unavailable</p><p style="color:var(--fg-dim);font-size:11px;margin:8px 0;">Open in your browser to generate images. The app sandbox restricts API access.</p><button onclick="closeModal()" style="margin-top:12px;padding:6px 14px;background:var(--accent);color:#000;border:none;border-radius:4px;font-weight:700;cursor:pointer;">Close</button></div>'; };
+    img2.src = pollUrl;
+  };
+  img.src = proxyUrl;
 }
-
 
 /* ============================================================
    PANEL LAYERING FIX — definition / Strong's popup always on top
@@ -2143,8 +2130,6 @@ function strongsLookup(){
   h+='</div>';
   result.innerHTML=h;
 }
-
-
 
 function renderCompanionPassages(book, chapter){
   if(!window.CROSS_SOURCE_MAP) return '';
@@ -2763,7 +2748,6 @@ function searchSource(){
   document.getElementById('sourceResults').innerHTML=resultHtml;
 }
 
-
 // === SOURCES LIBRARY READERS ===
 
 // Universal back button to library
@@ -2909,7 +2893,6 @@ function openEnochReader(section, chapter){
   h += '</div>';
   body.innerHTML = h;
 }
-
 
 // === STRONG'S READER (rebuilt — input stable, list updates independently) ===
 window._STRONGS_PAGE = window._STRONGS_PAGE || {H:0, G:0};
@@ -3362,7 +3345,6 @@ function _renderSourceReadPage(key, page){
   document.getElementById('sourceReadPane').innerHTML = h;
 }
 
-
 function showModal(type){
   _lockBodyScroll();
   const title=document.getElementById('modalTitle');
@@ -3659,7 +3641,6 @@ loadChapter(currentChapter);
 // controls into a one-line summary; on desktop, this is a no-op.
 if(typeof initMobileNavState==='function') initMobileNavState();
 
-
 // ============================================================
 // Keyboard arrow navigation only (swipe removed - vertical scroll preserved)
 (function(){
@@ -3732,7 +3713,6 @@ function _renderBookOverview(book){
   h += '</div>';
   return h;
 }
-
 
 // ====================================================================
 // SWRV UX OVERHAUL — Reading Modes + Unified Study Sheet + Layer Filters
