@@ -1918,7 +1918,7 @@ function visualizeVerse(ref, text){
   const pollUrl = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
   
   // CORS proxy: corsproxy.io handles PWA sandbox restrictions
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(pollUrl);
+  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(pollUrl);
   
   const img = new Image();
   img.onload = function(){
