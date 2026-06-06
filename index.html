@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260603bsbplain">
+<link rel="stylesheet" href="css/styles.css?v=20260603final">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — splash cover (shows on load, dismissed by Enter) -->
@@ -54,9 +54,11 @@
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
     <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
     <div class="reading-mode-group" id="readingModeGroup" role="group" aria-label="Reading mode">
-      <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="Clean Bible reading. Inline study boxes hidden.">📖 Read</button>
+      <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels.">📖 New Reader</button>
       <button id="readingModeStudy" class="icon-btn reading-mode-btn" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel.">🧠 Study</button>
       <button id="readingModeScholar" class="icon-btn reading-mode-btn" onclick="setReadingMode('scholar')" aria-pressed="false" title="Scholar Mode: maximum source depth available.">🎓 Scholar</button>
+      <button id="fontSizeBtn" class="icon-btn" title="Change text size">Aa M</button>
+      <button class="icon-btn thread-browse-btn" onclick="openAllThreadsBrowser()" title="Browse deep commentary threads">🧵 Threads</button>
     </div>
     <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
     <button id="navHideToggle" class="icon-btn" onclick="toggleNavBarHidden()" title="Hide or show the Book / Chapter / Verse / Canonical row" aria-pressed="false">⇧ Hide nav</button>
@@ -245,6 +247,7 @@
 <script src="data/audit.js"></script>
 <script src="data/genesis.js"></script>
 <script src="data/definitions.js"></script>
+  <script src="data/thread-commentary.js?v=20260603threads"></script>
 <script src="data/peoples.js"></script>
 <script src="data/strongs-hebrew.js"></script>
 <script src="data/bdb-hebrew.js"></script>
@@ -252,18 +255,18 @@
 <script src="data/strongs-greek.js"></script>
 <script src="data/bible-index.js"></script>
 <!-- ============ Deep Definition Bible Engine — new layers ============ -->
-<script src="data/english-bible-dictionary.js?v=20260603bsbplain"></script>
-<script src="data/strongs-sense-map.js?v=20260603bsbplain"></script>
-<script src="data/foundational-word-families.js?v=20260603bsbplain"></script>
-<script src="data/concept-completeness-pack.js?v=20260603bsbplain"></script>
-<script src="data/contextual-sense-notes.js?v=20260603bsbplain"></script>
-<script src="data/context-sense-disambiguator.js?v=20260603bsbplain"></script>
-<script src="data/cultural-context-cards.js?v=20260603bsbplain"></script>
-<script src="data/instruction-classification.js?v=20260603bsbplain"></script>
+<script src="data/english-bible-dictionary.js?v=20260603final"></script>
+<script src="data/strongs-sense-map.js?v=20260603final"></script>
+<script src="data/foundational-word-families.js?v=20260603final"></script>
+<script src="data/concept-completeness-pack.js?v=20260603final"></script>
+<script src="data/contextual-sense-notes.js?v=20260603final"></script>
+<script src="data/context-sense-disambiguator.js?v=20260603final"></script>
+<script src="data/cultural-context-cards.js?v=20260603final"></script>
+<script src="data/instruction-classification.js?v=20260603final"></script>
 <!-- ============ Cultural / People / Nations / Religion context layers ============ -->
-<script src="data/person-context-cards.js?v=20260603bsbplain"></script>
-<script src="data/group-nation-cards.js?v=20260603bsbplain"></script>
-<script src="data/religion-context-cards.js?v=20260603bsbplain"></script>
+<script src="data/person-context-cards.js?v=20260603final"></script>
+<script src="data/group-nation-cards.js?v=20260603final"></script>
+<script src="data/religion-context-cards.js?v=20260603final"></script>
 
 <!-- ============ GENESIS 1-4 DEEP BUILD v8 DATA ============ -->
 <script src="data/pre-history.js"></script>
@@ -369,14 +372,14 @@
 <!-- In the original monolith this came AFTER app.js, which left the first render
      unenriched (silently swallowed by try/catch). Loading it before app.js fixes
      that latent bug — Genesis 1-4 enrichments now show on initial load. -->
-<script src="js/enrichments.js?v=20260603bsbplain"></script>
+<script src="js/enrichments.js?v=20260603final"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260603bsbplain"></script>
-<script src="js/search.js?v=20260603bsbplain"></script>
+<script src="js/app.js?v=20260603final"></script>
+<script src="js/search.js?v=20260603final"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
-<script src="js/preload-bible.js?v=20260603bsbplain" defer></script>
+<script src="js/preload-bible.js?v=20260603final" defer></script>
 
 
 <script>

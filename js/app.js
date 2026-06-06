@@ -1042,7 +1042,7 @@ function renderUniversalDeepStudy(v){
   if(cards.length){
     h+='<div class="study-card-grid">';
     cards.forEach(function(c){
-      h+='<div class="study-mini-card cultural-mini"><div class="mini-card-label">🌍 Cultural / Historical Context</div><h4>'+escapeHtml(c.label)+'</h4><p>'+escapeHtml(c.body)+'</p><div class="misunderstand"><b>Modern misunderstanding to avoid:</b> '+escapeHtml(c.avoid)+'</div><div class="source-trace">Source trace: '+escapeHtml(c.source)+'</div></div>';
+      h+='<div class="study-mini-card cultural-mini"><div class="mini-card-label">🌍 Cultural / Historical Context</div><h4>'+escapeHtml(c.label)+'</h4><p>'+escapeHtml(c.body)+'</p><div class="misunderstand"><b>⚠ Common mistake:</b> '+escapeHtml(c.avoid)+'</div><div class="source-trace">Source trace: '+escapeHtml(c.source)+'</div></div>';
     });
     h+='</div>';
   }
@@ -1138,7 +1138,7 @@ function renderPersonContextStrip(v, text){
     const safe = String(name).replace(/'/g,"\\'");
     return '<button class="context-chip person-context-chip" onclick="showPerson(\''+safe+'\')" title="Open appearance, tribe, family, culture, belief, and source context">👤 '+escapeHtml(_normNameKey(name).replace(/ NT$/,''))+'</button>';
   }).join('');
-  return '<details class="verse-context-strip person-context-strip study-layer"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Appearance notes are source-honest: exact features are only stated where the library supports them; otherwise the card uses responsible regional/geographic context.</div></details>';
+  return '<details class="verse-context-strip person-context-strip study-layer"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Information shown here is sourced. Where exact details are not recorded in historical texts, the card notes that.</div></details>';
 }
 
 function renderVerseText(text,definables,peopleNames,verseRef){
@@ -1248,7 +1248,7 @@ function renderVerse(v){
         '<span class="root-id">'+t.sId+'</span>'+ 
         (gloss?'<span class="root-gloss">'+escapeHtml(String(gloss).split(/[;,]/)[0]).slice(0,42)+'</span>':'')+'</button>');
     }
-    verseHtml.push('<details class="strongs-roots-panel study-layer"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
+    verseHtml.push('<details class="strongs-roots-panel study-layer"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to explore</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
   }
   if(v.kingdomLens){
     verseHtml.push('<details class="collapsible-section kingdom-lens study-layer">');
@@ -1285,6 +1285,9 @@ function renderVerse(v){
   // SWRV — Places + themes chips (additive, below cross-refs)
   if((v.placesInVerse&&v.placesInVerse.length)||(v.themesInVerse&&v.themesInVerse.length)){
     verseHtml.push('<div class="inline-relation-chips study-layer" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;">');
+    // Thread commentary chips — always visible (not study-layer only)
+    const threadChipsHtml = renderThreadChips(v.ref, (v.sources&&v.sources.BSB&&v.sources.BSB.text)||v.synthesized||v.text||'');
+    if(threadChipsHtml) verseHtml.push('</div>'+threadChipsHtml+'<div style="display:none">');
     if(v.placesInVerse&&v.placesInVerse.length){
       for(const place of v.placesInVerse){
         const escaped=place.replace(/'/g,"\\'");
@@ -1349,6 +1352,7 @@ function _loadChapterCore(n){
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
   if(mode==='chapter'){
     const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
+    if(window._renderChapterIntro){ html.push(window._renderChapterIntro(currentBook, currentChapter)); }
     html.push(renderChapterDeepStudyBanner(ch, verseNums));
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
     html.push(renderCompanionPassages(currentBook, currentChapter));
@@ -1477,15 +1481,15 @@ function showAutoTermCard(word){
   let html=[];
   html.push('<div class="def-word">'+escapeHtml(key)+'</div>');
   if(sup){
-    html.push('<div class="def-section kingdom-section"><div class="def-section-label">Definition Bible / Contextual Meaning</div><div class="def-section-text">'+escapeHtml(sup.def||'')+'</div></div>');
-    if(sup.hebrew) html.push('<div class="def-section"><div class="def-section-label">Hebrew layer</div><div class="def-section-text">'+escapeHtml(sup.hebrew)+'</div></div>');
-    if(sup.greek) html.push('<div class="def-section"><div class="def-section-label">Greek layer</div><div class="def-section-text">'+escapeHtml(sup.greek)+'</div></div>');
-    if(sup.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">Modern misunderstanding to avoid</div><div class="def-section-text">'+escapeHtml(sup.warning)+'</div></div>');
+    html.push('<div class="def-section kingdom-section"><div class="def-section-label">What it means in context</div><div class="def-section-text">'+escapeHtml(sup.def||'')+'</div></div>');
+    if(sup.hebrew) html.push('<div class="def-section"><div class="def-section-label">Hebrew original</div><div class="def-section-text">'+escapeHtml(sup.hebrew)+'</div></div>');
+    if(sup.greek) html.push('<div class="def-section"><div class="def-section-label">Greek original</div><div class="def-section-text">'+escapeHtml(sup.greek)+'</div></div>');
+    if(sup.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(sup.warning)+'</div></div>');
   }
-  if(reg){ html.push('<div class="def-section"><div class="def-section-label">Regular English / older Bible word</div><div class="def-section-text">'+escapeHtml(reg)+'</div></div>'); }
-  if(gloss){ html.push('<div class="def-section"><div class="def-section-label">Glossary / Study Term</div><div class="def-section-text">'+escapeHtml(gloss.body||gloss.term||'')+'</div></div>'); }
+  if(reg){ html.push('<div class="def-section"><div class="def-section-label">Familiar English</div><div class="def-section-text">'+escapeHtml(reg)+'</div></div>'); }
+  if(gloss){ html.push('<div class="def-section"><div class="def-section-label">Study term</div><div class="def-section-text">'+escapeHtml(gloss.body||gloss.term||'')+'</div></div>'); }
   if(lex.length){
-    html.push('<div class="def-section strongs-section"><div class="def-section-label">Possible original-language links</div>');
+    html.push('<div class="def-section strongs-section"><div class="def-section-label">Original language connections</div>');
     lex.forEach(function(hit){
       const e=hit.e||{};
       const label=hit.kind==='Greek'?(e.grk||hit.id):(e.lemma||hit.id);
@@ -1495,9 +1499,9 @@ function showAutoTermCard(word){
     html.push('</div>');
   }
   if(!sup && !reg && !gloss && !lex.length){
-    html.push('<div class="def-section warning-section"><div class="def-section-label">Definition not sourced yet</div><div class="def-section-text">This word is readable English, but no project source has a dedicated card for it yet. It has been flagged for the next dictionary/source expansion pass instead of pretending.</div></div>');
+    html.push('<div class="def-section warning-section"><div class="def-section-label">Still finding sources for this</div><div class="def-section-text">This word is readable English, but no project source has a dedicated card for it yet. It has been flagged for the next dictionary/source expansion pass instead of pretending.</div></div>');
   }
-  html.push('<div class="def-section"><div class="def-section-label">Source rule</div><div class="def-section-text">This app may explain and connect sources, but it must not invent doctrine. Use the lexicon/source rows where available and the verse context to decide meaning.</div></div>');
+  html.push('<div class="def-section"><div class="def-section-label">A note on sources</div><div class="def-section-text">This app may explain and connect sources, but it must not invent doctrine. Use the lexicon/source rows where available and the verse context to decide meaning.</div></div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
   document.getElementById('defOverlay').classList.add('show');
@@ -1529,19 +1533,19 @@ function _contextSenseFor(word, opts){
 function _renderEnglishDictBlock(deep){
   const out=[];
   if(deep.plain) out.push('<div class="def-section"><div class="def-section-label">Quick Meaning</div><div class="def-section-text">'+escapeHtml(deep.plain)+'</div></div>');
-  if(deep.deep) out.push('<div class="def-section"><div class="def-section-label">Deep Meaning (Rule 09)</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
+  if(deep.deep) out.push('<div class="def-section"><div class="def-section-label">What this word really means</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
   if(deep.rangeOfMeaning && deep.rangeOfMeaning.length){
-    out.push('<div class="def-section"><div class="def-section-label">Range of Meaning</div><ul class="def-list">');
+    out.push('<div class="def-section"><div class="def-section-label">Full range of meanings</div><ul class="def-list">');
     for(const r of deep.rangeOfMeaning) out.push('<li>'+escapeHtml(r)+'</li>');
     out.push('</ul></div>');
   }
-  if(deep.notMean) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Not Meant</div><div class="def-section-text">'+escapeHtml(deep.notMean)+'</div></div>');
-  if(deep.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(deep.misunderstood)+'</div></div>');
-  if(deep.cultural) out.push('<div class="def-section"><div class="def-section-label">Cultural / Historical (Rule 10)</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
-  if(deep.kingdomSignificance) out.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance (Rule 12)</div><div class="def-section-text">'+escapeHtml(deep.kingdomSignificance)+'</div></div>');
-  if(deep.matters) out.push('<div class="def-section"><div class="def-section-label">Why It Matters</div><div class="def-section-text">'+escapeHtml(deep.matters)+'</div></div>');
+  if(deep.notMean) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ This does NOT mean</div><div class="def-section-text">'+escapeHtml(deep.notMean)+'</div></div>');
+  if(deep.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(deep.misunderstood)+'</div></div>');
+  if(deep.cultural) out.push('<div class="def-section"><div class="def-section-label">Historical background</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
+  if(deep.kingdomSignificance) out.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters today</div><div class="def-section-text">'+escapeHtml(deep.kingdomSignificance)+'</div></div>');
+  if(deep.matters) out.push('<div class="def-section"><div class="def-section-label">Why this matters</div><div class="def-section-text">'+escapeHtml(deep.matters)+'</div></div>');
   if(deep.originals && deep.originals.length){
-    out.push('<div class="def-section"><div class="def-section-label">Original Language Words (clickable)</div>');
+    out.push('<div class="def-section"><div class="def-section-label">Original words — tap to explore</div>');
     for(const o of deep.originals){
       const sId=(o.strongs||'').match(/[HG]\d+/)?.[0];
       const onclick = sId ? ' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"' : '';
@@ -1554,13 +1558,13 @@ function _renderEnglishDictBlock(deep){
     out.push('</div>');
   }
   if(deep.relatedVerses && deep.relatedVerses.length){
-    out.push('<div class="def-section"><div class="def-section-label">Related Verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+    out.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
   }
   if(deep.relatedWords && deep.relatedWords.length){
-    out.push('<div class="def-section"><div class="def-section-label">Related Words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
+    out.push('<div class="def-section"><div class="def-section-label">Related words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
   }
   if(deep.sources && deep.sources.length){
-    out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+deep.sources.map(escapeHtml).join(' · ')+'</div></div>');
+    out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+deep.sources.map(escapeHtml).join(' · ')+'</div></div>');
   }
   if(deep.confidence){
     out.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(deep.confidence)+(deep.category?' · <span class="def-section-label">Category:</span> '+escapeHtml(deep.category):'')+'</div>');
@@ -1575,9 +1579,9 @@ function _renderInstructionBlock(ic){
   if(ic.commanded) out.push('<div class="def-section"><div class="def-section-label">Commanded</div><div class="def-section-text">'+escapeHtml(ic.commanded)+'</div></div>');
   if(ic.category) out.push('<div class="def-section"><div class="def-section-label">Category</div><div class="def-section-text">'+escapeHtml(ic.category)+'</div></div>');
   if(ic.scope) out.push('<div class="def-section"><div class="def-section-label">Scope</div><div class="def-section-text">'+escapeHtml(ic.scope)+'</div></div>');
-  if(ic.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(ic.misunderstood)+'</div></div>');
+  if(ic.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(ic.misunderstood)+'</div></div>');
   if(ic.text) out.push('<div class="def-section"><div class="def-section-label">Text</div><div class="def-section-text" style="font-style:italic;">'+escapeHtml(ic.text)+'</div></div>');
-  if(ic.sources && ic.sources.length) out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+ic.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(ic.sources && ic.sources.length) out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+ic.sources.map(escapeHtml).join(' · ')+'</div></div>');
   return out.join('');
 }
 // Show a cultural-context passage card.
@@ -1588,10 +1592,10 @@ function showCulturalCard(passage){
   const html=['<div class="def-word">🌍 '+escapeHtml(c.title||passage)+'</div>'];
   if(c.passage) html.push('<div class="def-translit">'+escapeHtml(c.passage)+'</div>');
   if(c.cultural) html.push('<div class="def-section"><div class="def-section-label">Cultural / Historical Setting</div><div class="def-section-text">'+escapeHtml(c.cultural)+'</div></div>');
-  if(c.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(c.misunderstood)+'</div></div>');
-  if(c.matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why It Matters</div><div class="def-section-text">'+escapeHtml(c.matters)+'</div></div>');
-  if(c.relatedVerses && c.relatedVerses.length) html.push('<div class="def-section"><div class="def-section-label">Related Verses</div><div class="def-section-text">'+c.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
-  if(c.sources && c.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+c.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(c.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(c.misunderstood)+'</div></div>');
+  if(c.matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters</div><div class="def-section-text">'+escapeHtml(c.matters)+'</div></div>');
+  if(c.relatedVerses && c.relatedVerses.length) html.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+c.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  if(c.sources && c.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+c.sources.map(escapeHtml).join(' · ')+'</div></div>');
   if(c.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(c.confidence)+'</div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
@@ -1643,17 +1647,17 @@ function showDef(word, opts){
   if(def.plain)html.push('<div class="def-section plain-section"><div class="def-section-label">In Plain English</div><div class="def-section-text plain-text">'+escapeHtml(def.plain)+'</div></div>');
   if(def.root)html.push('<div class="def-section"><div class="def-section-label">Root</div><div class="def-section-text">'+escapeHtml(def.root)+'</div></div>');
   if(def.senses&&def.senses.length){
-    html.push('<div class="def-section"><div class="def-section-label">Full Semantic Range (Rule 09 / Rule 08)</div><ul class="def-list">');
+    html.push('<div class="def-section"><div class="def-section-label">All the ways this word is used</div><ul class="def-list">');
     for(const s of def.senses)html.push('<li>'+escapeHtml(s)+'</li>');
     html.push('</ul></div>');
   }
-  if(def.def)html.push('<div class="def-section"><div class="def-section-label">Definition (Rule 09)</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
-  if(def.visual)html.push('<div class="def-section"><div class="def-section-label">Visual / Concrete Meaning</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
-  if(def.ane)html.push('<div class="def-section"><div class="def-section-label">Ancient Near East Context (Rule 10)</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
-  if(def.kingdom)html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance (Rule 12)</div><div class="def-section-text">'+escapeHtml(def.kingdom)+'</div></div>');
-  if(def.theology)html.push('<div class="def-section"><div class="def-section-label">Theological Depth</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
-  if(def.psychology)html.push('<div class="def-section"><div class="def-section-label">Inner Faculties Framework</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
-  if(def.warning)html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Translation Warning</div><div class="def-section-text">'+escapeHtml(def.warning)+'</div></div>');
+  if(def.def)html.push('<div class="def-section"><div class="def-section-label">What it means</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
+  if(def.visual)html.push('<div class="def-section"><div class="def-section-label">Picture it like this</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
+  if(def.ane)html.push('<div class="def-section"><div class="def-section-label">What life looked like back then</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
+  if(def.kingdom)html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters today</div><div class="def-section-text">'+escapeHtml(def.kingdom)+'</div></div>');
+  if(def.theology)html.push('<div class="def-section"><div class="def-section-label">Going deeper</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
+  if(def.psychology)html.push('<div class="def-section"><div class="def-section-label">Heart, soul, and mind</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
+  if(def.warning)html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up — translation issue</div><div class="def-section-text">'+escapeHtml(def.warning)+'</div></div>');
   if(def.greek)html.push('<div class="def-section"><div class="def-section-label">Greek (LXX/NT)</div><div class="def-section-text">'+escapeHtml(def.greek)+'</div></div>');
   if(def.aramaic)html.push('<div class="def-section"><div class="def-section-label">Aramaic</div><div class="def-section-text">'+escapeHtml(def.aramaic)+'</div></div>');
   // BDB + Strong's enrichment
@@ -1662,8 +1666,8 @@ function showDef(word, opts){
     if(sId){
       const bdbResults=lookupBDB(sId);
       if(bdbResults.length>0){
-        html.push('<div class="def-section strongs-section">');
-        html.push('<div class="def-section-label">📖 BDB Lexicon — '+(bdbResults.length>1?bdbResults.length+' Senses':'Definition')+'</div>');
+        html.push('<div class="def-section strongs-section scholar-depth">');
+        html.push('<div class="def-section-label">📖 Scholar\'s Dictionary — '+(bdbResults.length>1?bdbResults.length+' Senses':'Definition')+'</div>');
         for(const r of bdbResults){
           if(bdbResults.length>1)html.push('<div style="margin-top:6px;color:var(--gold);font-weight:700;font-size:12px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
           if(r.entry.def){
@@ -1680,10 +1684,10 @@ function showDef(word, opts){
     html.push('<div class="def-section">');
     html.push('<div class="def-section-label">📚 Strong\'s Concise (1894)</div>');
     if(sd.strongs_def)html.push('<div class="def-section-text">'+escapeHtml(sd.strongs_def)+'</div>');
-    if(sd.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renderings:</b> <i>'+escapeHtml(sd.kjv_def)+'</i></div>');
+    if(sd.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>King James Version:</b> <i>'+escapeHtml(sd.kjv_def)+'</i></div>');
     html.push('</div>');
   }
-  if(def.cross)html.push('<div class="def-section"><div class="def-section-label">Cross-References</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
+  if(def.cross)html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
   // ---- Deep English Bible Dictionary block (if available) ----
   if(deep){
     // Context-sense disambiguation: if the verse's strongsTags pick a specific
@@ -1725,8 +1729,8 @@ function showGroupCard(key){
   if(g.relationToIsrael) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Relationship to Israel / Early Church</div><div class="def-section-text">'+escapeHtml(g.relationToIsrael)+'</div></div>');
   if(g.relatedPeople && g.relatedPeople.length) html.push('<div class="def-section"><div class="def-section-label">Related People</div><div class="def-section-text">'+g.relatedPeople.map(escapeHtml).join(' · ')+'</div></div>');
   if(g.relatedPlaces && g.relatedPlaces.length) html.push('<div class="def-section"><div class="def-section-label">Related Places</div><div class="def-section-text">'+g.relatedPlaces.map(escapeHtml).join(' · ')+'</div></div>');
-  if(g.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(g.misunderstood)+'</div></div>');
-  if(g.sources && g.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+g.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(g.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(g.misunderstood)+'</div></div>');
+  if(g.sources && g.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+g.sources.map(escapeHtml).join(' · ')+'</div></div>');
   if(g.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(g.confidence)+'</div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
@@ -1744,10 +1748,10 @@ function showReligionCard(key){
   if(r.references && r.references.length) html.push('<div class="def-section"><div class="def-section-label">Bible References</div><div class="def-section-text">'+r.references.map(escapeHtml).join(' · ')+'</div></div>');
   if(r.description) html.push('<div class="def-section"><div class="def-section-label">Description</div><div class="def-section-text">'+escapeHtml(r.description)+'</div></div>');
   if(r.practices) html.push('<div class="def-section"><div class="def-section-label">Worship Practices</div><div class="def-section-text">'+escapeHtml(r.practices)+'</div></div>');
-  if(r.whyMatters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why It Matters In The Passage</div><div class="def-section-text">'+escapeHtml(r.whyMatters)+'</div></div>');
+  if(r.whyMatters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters In The Passage</div><div class="def-section-text">'+escapeHtml(r.whyMatters)+'</div></div>');
   if(r.contrastYHWH) html.push('<div class="def-section"><div class="def-section-label">Contrast with YHWH</div><div class="def-section-text">'+escapeHtml(r.contrastYHWH)+'</div></div>');
-  if(r.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(r.misunderstood)+'</div></div>');
-  if(r.sources && r.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+r.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(r.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(r.misunderstood)+'</div></div>');
+  if(r.sources && r.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+r.sources.map(escapeHtml).join(' · ')+'</div></div>');
   if(r.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(r.confidence)+'</div>');
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
@@ -1770,12 +1774,12 @@ function showPerson(name){
   html.push('<div class="def-word">👤 '+escapeHtml(displayName)+'</div>');
   if(p.altName&&p.altName!=='-')html.push('<div class="def-translit">Also: '+escapeHtml(p.altName)+'</div>');
   if(p.biblical)html.push('<div class="def-section"><div class="def-section-label">Biblical Identity</div><div class="def-section-text">'+escapeHtml(p.biblical)+'</div></div>');
-  if(p.region)html.push('<div class="def-section"><div class="def-section-label">Region / Origin (Rule 10)</div><div class="def-section-text">'+escapeHtml(p.region)+'</div></div>');
-  if(p.appearance)html.push('<div class="def-section"><div class="def-section-label">Appearance — ANE Eyes (Rule 12)</div><div class="def-section-text">'+escapeHtml(p.appearance)+'</div></div>');
+  if(p.region)html.push('<div class="def-section"><div class="def-section-label">Region and origin</div><div class="def-section-text">'+escapeHtml(p.region)+'</div></div>');
+  if(p.appearance)html.push('<div class="def-section"><div class="def-section-label">What historians tell us they looked like</div><div class="def-section-text">'+escapeHtml(p.appearance)+'</div></div>');
   else html.push('<div class="def-section warning-section"><div class="def-section-label">Appearance / Region Guardrail</div><div class="def-section-text">Exact skin, hair, and eye details are not directly preserved for every person. This app does not default ancient biblical people into European movie imagery. Use region, ancestry, tribe, climate, era, and source evidence when available; when source data is limited, the honest answer is marked as limited rather than invented.</div></div>');
   if(p.diet)html.push('<div class="def-section"><div class="def-section-label">Diet & Daily Life</div><div class="def-section-text">'+escapeHtml(p.diet)+'</div></div>');
   if(p.notable)html.push('<div class="def-section"><div class="def-section-label">Notable</div><div class="def-section-text">'+escapeHtml(p.notable)+'</div></div>');
-  if(p.sources)html.push('<div class="def-section"><div class="def-section-label">Sources (Rule 13)</div><div class="def-section-text"><i>'+escapeHtml(p.sources)+'</i></div></div>');
+  if(p.sources)html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text"><i>'+escapeHtml(p.sources)+'</i></div></div>');
   // ---- Person Context overlay (window.PERSON_CONTEXT) — additional schema layers ----
   const ctx = (window.PERSON_CONTEXT && (window.PERSON_CONTEXT[name] || window.PERSON_CONTEXT[displayName])) || null;
   if(ctx){
@@ -1787,7 +1791,7 @@ function showPerson(name){
     if(ctx.political) html.push('<div class="def-section"><div class="def-section-label">Political Setting</div><div class="def-section-text">'+escapeHtml(ctx.political)+'</div></div>');
     if(ctx.covenant) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Covenant Relationship</div><div class="def-section-text">'+escapeHtml(ctx.covenant)+'</div></div>');
     if(ctx.whyMatters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why They Matter</div><div class="def-section-text">'+escapeHtml(ctx.whyMatters)+'</div></div>');
-    if(ctx.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(ctx.misunderstood)+'</div></div>');
+    if(ctx.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(ctx.misunderstood)+'</div></div>');
     if(ctx.relatedPeople && ctx.relatedPeople.length) html.push('<div class="def-section"><div class="def-section-label">Related People</div><div class="def-section-text">'+ctx.relatedPeople.map(escapeHtml).join(' · ')+'</div></div>');
     if(ctx.relatedPlaces && ctx.relatedPlaces.length) html.push('<div class="def-section"><div class="def-section-label">Related Places</div><div class="def-section-text">'+ctx.relatedPlaces.map(escapeHtml).join(' · ')+'</div></div>');
     if(ctx.relatedThemes && ctx.relatedThemes.length) html.push('<div class="def-section"><div class="def-section-label">Related Themes</div><div class="def-section-text">'+ctx.relatedThemes.map(escapeHtml).join(' · ')+'</div></div>');
@@ -1861,11 +1865,11 @@ function showStrongs(id){
     // Greek lexicon entry
     if(entry.grk) html.push('<div class="def-hebrew">'+entry.grk+'</div>');
     if(entry.translit || entry.xlit) html.push('<div class="def-translit">'+escapeHtml(entry.translit||entry.xlit||'')+'</div>');
-    html.push('<div class="def-section strongs-section">');
+    html.push('<div class="def-section strongs-section scholar-depth">');
     html.push('<div class="def-section-label">📚 Strong\'s Greek (1894) — concise definition</div>');
     if(entry.derivation) html.push('<div class="def-section-text"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>');
     if(entry.def) html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(entry.def)+'</div>');
-    if(entry.kjv_def) html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renders as:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
+    if(entry.kjv_def) html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>King James Version says:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
     html.push('</div>');
     html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Strong\'s Concise Dictionary of the Greek New Testament (1894). Public domain.</i></div></div>');
   } else {
@@ -1875,7 +1879,7 @@ function showStrongs(id){
     const xlit=entry?.xlit||bdbResults[0]?.entry?.xlit;
     if(xlit)html.push('<div class="def-translit">'+escapeHtml(xlit)+(entry?.pron?' — pronounced: '+escapeHtml(entry.pron):'')+'</div>');
     if(bdbResults.length>0){
-      html.push('<div class="def-section strongs-section">');
+      html.push('<div class="def-section strongs-section scholar-depth">');
       html.push('<div class="def-section-label">📖 BDB Hebrew Lexicon — '+(bdbResults.length>1?bdbResults.length+' senses':'definition')+'</div>');
       for(const r of bdbResults){
         if(bdbResults.length>1)html.push('<div style="margin-top:8px;color:var(--gold);font-weight:700;font-size:13px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
@@ -1893,7 +1897,7 @@ function showStrongs(id){
       html.push('<div class="def-section-label">📚 Strong\'s (1894) — concise definition</div>');
       if(entry.derivation)html.push('<div class="def-section-text"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>');
       if(entry.strongs_def)html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(entry.strongs_def)+'</div>');
-      if(entry.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renders as:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
+      if(entry.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>King James Version says:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
       html.push('</div>');
     }
     html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Brown-Driver-Briggs Hebrew-English Lexicon (1906) via STEPBible/Tyndale House (CC BY 4.0). Strong\'s Concise Dictionary of the Hebrew Bible (1894) via openscriptures.org. Both public domain.</i></div></div>');
@@ -5264,3 +5268,439 @@ function _renderBookOverview(book){
     _origShowDef.apply(this, arguments);
   };
 })();
+
+/* ============================================================
+   NEW READER MODE — beginner-friendly definition panel
+   In 'read' mode: hide BDB/ANE deep dives, show only plain English + basic definition.
+   In 'study' mode: show everything except raw BDB block.
+   In 'scholar' mode: show absolutely everything.
+   ============================================================ */
+(function(){
+  const style = document.createElement('style');
+  style.textContent = `
+    /* New Reader mode: hide scholarly-depth sections in the def popup */
+    body[data-reading-mode="read"] .strongs-section,
+    body[data-reading-mode="read"] .scholar-depth {
+      display: none !important;
+    }
+    /* Study mode: show strongs but still hide raw BDB dump */
+    body[data-reading-mode="study"] .scholar-depth {
+      display: none !important;
+    }
+    /* Plain English section: always show prominently */
+    .plain-section {
+      order: -1;
+    }
+    /* New Reader mode: plain section gets extra breathing room */
+    body[data-reading-mode="read"] .plain-section {
+      border-left-width: 5px;
+      padding: 14px 16px;
+    }
+    body[data-reading-mode="read"] .plain-text {
+      font-size: 18px;
+    }
+    /* In New Reader mode soften the strong's pill in verse to just show word */
+    body[data-reading-mode="read"] .root-id,
+    body[data-reading-mode="read"] .root-original { font-size: 11px; }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* ============================================================
+   CHAPTER INTRO CARDS — plain-English story setup before each chapter.
+   Automatically renders before chapter 1 content for every book,
+   and before each Genesis chapter. Beginner-facing, always visible.
+   ============================================================ */
+window.CHAPTER_INTROS = {
+  'Genesis': {
+    book: 'Genesis means "In the beginning." This is the first book of the Bible — it tells the story of how everything started: the universe, humanity, sin, and the promise of a rescue. It follows the first family and the first nation God chose to work through.',
+    chapters: {
+      1: 'God creates everything — light, sky, land, sea, plants, animals, and finally human beings — out of nothing, in six days. On the seventh day He rests. Every living thing is called "good." Humans are made in God\'s image and given charge over the earth.',
+      2: 'A closer look at the sixth day. God forms the man from the dust and breathes life into him. He plants a garden called Eden. He creates the woman from the man\'s side. The two are joined as one — the first marriage.',
+      3: 'The first choice that broke everything. A serpent twists God\'s words. The woman and the man eat the one fruit God said not to touch. Shame enters the world. God confronts them, pronounces consequences — and in the middle of judgment, gives the first promise of rescue.',
+      4: 'The first murder. Cain kills his brother Abel out of jealousy. Cain is sent away. Eve has another son — Seth — and through his line, people begin to call on God\'s name.',
+      5: 'Ten generations from Adam to Noah. A genealogy — but hidden in it is Enoch, who walked so closely with God that God simply took him.',
+      6: 'The world fills with evil. God grieves. He chooses one man — Noah — who walked with God. God tells Noah to build an ark. The corruption that filled the earth is going to be addressed.',
+      7: 'The flood. Rain falls for forty days and nights. Every living thing outside the ark dies. Noah, his family, and the animals ride it out. The same water that judges also saves — the ark stays afloat.',
+      8: 'The water recedes. Noah sends out a raven, then a dove. The dove returns with an olive branch — land is drying out. God tells Noah to leave the ark. Noah builds an altar and worships. God commits to never flooding the whole earth again.',
+      9: 'God makes a covenant with Noah and all living creatures. The sign: a rainbow. God restates the charge to fill the earth. Noah plants a vineyard. An incident with his sons sets up the future of three people-groups.',
+      10: 'The Table of Nations — the 70 peoples who descended from Noah\'s three sons. This is the ancient world\'s genealogy of nations.',
+      11: 'Babel. All humanity speaks one language and builds a tower to make themselves great. God confuses their language and scatters them. Then the line narrows to focus: Shem\'s descendants lead to Terah, who leads to Abram.',
+      12: 'Everything changes. God calls Abram out of his homeland with an extraordinary promise: "I will make you a great nation. Through you all families of the earth will be blessed." Abram obeys without knowing where he\'s going.',
+      13: 'Abram and his nephew Lot part ways because their flocks are too large to share the land. Lot chooses the Jordan valley. Abram stays in Canaan. God repeats the land promise.',
+      14: 'Four kings attack five. Lot gets captured in the battle. Abram takes 318 trained men and rescues him. On the way back he meets Melchizedek — a mysterious king-priest who gives bread and wine and blesses Abram.',
+      15: 'The covenant cut in darkness. Abram asks God how he can know the promises are real. God tells him to count the stars — that\'s how many descendants he\'ll have. Abram believes, and God declares him righteous. Then God passes through the sacrifice alone — the whole weight of the covenant is on God.',
+      16: 'Sarai can\'t get pregnant. She gives her servant Hagar to Abram as a surrogate. Hagar conceives and despises Sarai. Hagar flees. God meets her in the wilderness — the only person in the Bible who gives God a name: "You are the God who sees me."',
+      17: 'God changes Abram\'s name to Abraham ("father of many") and Sarai\'s to Sarah. He institutes circumcision as the covenant sign. He promises a son — Isaac — from Sarah within a year. Abraham is 99.',
+      18: 'Three visitors arrive at Abraham\'s tent. One is God. He tells Abraham that Sarah will have a son. Sarah laughs. Then God tells Abraham he\'s going to investigate Sodom — and Abraham intercedes, bargaining God down to: "Will you spare the city for 10 righteous people?"',
+      19: 'Two angels arrive in Sodom. The men of the city surround Lot\'s house and demand access to the visitors. The angels blind them. At dawn, the angels drag Lot\'s family out. Fire and brimstone destroy Sodom and Gomorrah. Lot\'s wife looks back and becomes a pillar of salt.',
+      20: 'Abraham moves to Gerar and again calls Sarah his sister. King Abimelech takes her — but God warns him in a dream. Abimelech returns her. Abraham prays for him. The pattern from Egypt (ch. 12) repeats.',
+      21: 'Finally — the promised son is born. Sarah laughs again, but now with joy. They name him Isaac ("he laughs"). Hagar and Ishmael are sent away. God provides water in the wilderness. Abraham makes a treaty with Abimelech at Beersheba.',
+      22: 'The hardest test in Genesis. God tells Abraham to offer Isaac — his only son, the son of the promise — as a sacrifice on Mount Moriah. Abraham obeys. At the last moment God stops him and provides a ram caught in a thicket. God swears the covenant oath with His own name.',
+      23: 'Sarah dies at 127. Abraham mourns, then negotiates to buy a burial plot — the cave of Machpelah in Hebron. He pays full price, refusing gifts, to own the land legally. It becomes the first piece of the Promised Land in Abraham\'s possession.',
+      24: 'The longest chapter in Genesis. Abraham sends his servant to find a wife for Isaac from his own people. The servant prays for a specific sign. Rebekah appears and fulfills it exactly. She agrees to go. Isaac sees her in the field at evening and she becomes his wife.',
+      25: 'Abraham dies and is buried with Sarah. Isaac and Ishmael bury him together. Then the story shifts: Rebekah is pregnant with twins. They struggle in the womb. God says two nations are inside her. Esau comes out first, Jacob second — grabbing Esau\'s heel. Esau sells his birthright for a bowl of stew.',
+      26: 'Isaac repeats his father\'s patterns — calling Rebekah his sister, re-digging Abraham\'s wells, making a covenant with Abimelech. God blesses him just as He blessed Abraham. The promise continues to the second generation.',
+      27: 'Isaac is old and nearly blind. He asks Esau to hunt game for a blessing meal. Rebekah overhears and schemes with Jacob to steal the blessing first. Jacob impersonates Esau and receives the firstborn blessing. When Esau arrives, the blessing is gone. Esau weeps and vows to kill Jacob.',
+      28: 'Jacob flees to his uncle Laban. On the way, he sleeps with a stone for a pillow and dreams of a stairway to heaven with angels ascending and descending. God speaks from the top: same promise He gave Abraham and Isaac. Jacob wakes up and calls the place Bethel — "house of God."',
+      29: 'Jacob meets Rachel at a well and falls in love immediately. He works seven years for her — "they seemed like only a few days because of his love for her." Laban tricks him on the wedding night, giving him Leah instead. Jacob works another seven years for Rachel.',
+      30: 'The competition between Leah and Rachel produces ten sons and a daughter. Then God opens Rachel\'s womb — she has Joseph. Jacob negotiates with Laban for his own flocks, and through a series of breeding schemes, becomes wealthy.',
+      31: 'Jacob quietly leaves with his wives, children, and flocks. Rachel steals her father\'s household gods. Laban chases and catches them. They argue. God has been with Jacob, not Laban. They part with a covenant pile of stones as witness.',
+      32: 'Jacob is terrified Esau will attack. He sends gifts ahead and divides his camp. Then at night, a man wrestles with him until dawn — won\'t let go. The man is God. Jacob demands a blessing and gets one — and a new name: Israel, "one who struggles with God." His hip is dislocated.',
+      33: 'The reunion. Jacob bows seven times approaching Esau. Esau runs to meet him and embraces him. It\'s not the confrontation Jacob feared — it\'s restoration. Jacob settles at Shechem.',
+      34: 'Dinah, Jacob\'s daughter, is violated by Shechem the prince. He wants to marry her. Her brothers Simeon and Levi agree — if every male in the city is circumcised. On the third day, when the men are in pain, they attack and kill them all. Jacob is horrified.',
+      35: 'God tells Jacob to return to Bethel. He puts away foreign gods and the whole household is purified. God confirms the name Israel and repeats the covenant promise. Rachel dies giving birth to Benjamin. Isaac dies.',
+      36: 'Esau\'s descendants and the kings of Edom. The line that doesn\'t carry the covenant — but still accounted for.',
+      37: 'Joseph is seventeen and his father\'s favorite. Jacob gives him a special robe. Joseph has two dreams that imply his family will bow to him. His brothers hate him. They throw him in a pit and sell him to Ishmaelite traders going to Egypt for 20 pieces of silver. They bring back the robe soaked in goat\'s blood.',
+      38: 'A break in Joseph\'s story. Judah, one of the brothers, has three sons. The first two die. He refuses to give his daughter-in-law Tamar his third son. She disguises herself as a prostitute, sleeps with Judah, and gets pregnant. Judah\'s hypocrisy exposed. Tamar gives birth to twins — one of whom is in the Messianic line.',
+      39: 'Joseph is bought by Potiphar, an Egyptian official. God is with Joseph and everything he touches prospers. Potiphar puts him in charge of everything. Potiphar\'s wife tries to seduce him. He refuses. She accuses him falsely. He\'s thrown in prison.',
+      40: 'In prison, Joseph meets Pharaoh\'s cupbearer and baker. Both have dreams. Joseph interprets them — the cupbearer will be restored, the baker will die. Three days later, exactly as Joseph said. The cupbearer forgets to mention Joseph to Pharaoh.',
+      41: 'Two years later Pharaoh has two dreams. Nobody can interpret them. The cupbearer finally remembers Joseph. Joseph is brought out of prison. He interprets: seven years of abundance followed by seven years of famine. Pharaoh makes Joseph second in command over all Egypt. Joseph is 30.',
+      42: 'The famine reaches Canaan. Jacob sends his ten oldest sons to Egypt to buy grain — except Benjamin. They bow before Joseph without recognizing him. He recognizes them. He tests them, accuses them of spying, demands they bring Benjamin.',
+      43: 'The famine gets worse. Jacob finally lets Benjamin go. The brothers return to Egypt. Joseph seats them in exact birth order at dinner — they are stunned. He gives Benjamin five times as much food.',
+      44: 'Joseph\'s final test. He plants his silver cup in Benjamin\'s sack. His steward overtakes them on the road. Judah — the same brother who suggested selling Joseph — now offers himself as a slave in Benjamin\'s place to protect his father.',
+      45: 'Joseph can\'t hold it together anymore. He sends everyone out and weeps so loudly that Egypt hears. He reveals himself: "I am Joseph your brother." He reassures them — God sent him ahead to save lives. "It was not you who sent me here, but God."',
+      46: 'Jacob packs everything and moves to Egypt. God speaks to him in a vision on the road: "Do not be afraid to go down to Egypt — I will go with you, and I will bring you back." 70 people go down into Egypt.',
+      47: 'Joseph presents his family to Pharaoh. The famine is severe. People trade their money, then their livestock, then their land, then themselves for food. Only the priests\' land is not sold. Jacob lives in Egypt 17 years. As he\'s dying, he makes Joseph swear to bury him in Canaan.',
+      48: 'Jacob is dying. He adopts Joseph\'s two sons — Manasseh and Ephraim — as his own sons, giving Joseph a double portion. He crosses his hands to bless the younger (Ephraim) above the older (Manasseh). The pattern of the younger chosen over the older continues.',
+      49: 'Jacob blesses each of his twelve sons with prophetic words. The most important: "The scepter will not depart from Judah...until he to whom it belongs shall come." The Messianic promise narrows to one tribe.',
+      50: 'Jacob dies. Joseph weeps over him. His body is embalmed and carried back to Canaan for burial in the cave of Machpelah. His brothers fear Joseph will take revenge now. He weeps again and reassures them: "You intended to harm me, but God intended it for good." Joseph lives 110 years. His last words: "God will surely come to your aid. Carry my bones up from here."'
+    }
+  }
+};
+
+// Render chapter intro card before chapter content
+window._renderChapterIntro = function(book, chapterNum) {
+  const bookData = window.CHAPTER_INTROS && window.CHAPTER_INTROS[book];
+  if (!bookData) return '';
+  const chText = bookData.chapters && bookData.chapters[chapterNum];
+  const bookText = chapterNum === 1 ? bookData.book : null;
+  if (!chText && !bookText) return '';
+  let h = '<div class="chapter-intro-card">';
+  if (bookText) {
+    h += '<div class="chapter-intro-book">' + escapeHtml(bookText) + '</div>';
+  }
+  if (chText) {
+    h += '<div class="chapter-intro-label">Chapter ' + chapterNum + '</div>';
+    h += '<div class="chapter-intro-text">' + escapeHtml(chText) + '</div>';
+  }
+  h += '</div>';
+  return h;
+};
+
+/* ============================================================
+   FIRST-LAUNCH ONBOARDING — 3-card swipe shown once to new users.
+   Explains chapters/verses, word-tapping, and reading modes.
+   Stored in localStorage so it only shows once.
+   ============================================================ */
+(function(){
+  const KEY = 'swrv_onboarded_v1';
+  function alreadyOnboarded(){
+    try { return localStorage.getItem(KEY) === '1'; } catch(e){ return true; }
+  }
+  function markOnboarded(){
+    try { localStorage.setItem(KEY, '1'); } catch(e){}
+  }
+
+  function buildOnboarding(){
+    const cards = [
+      {
+        icon: '📚',
+        title: 'Welcome to the SWRV Kingdom Study Bible',
+        body: 'The Bible is a library of 66 books. Each book is broken into chapters, and each chapter into verses. A verse address like "Genesis 1:1" means Book: Genesis, Chapter 1, Verse 1. Use the navigation at the top to move between books and chapters.'
+      },
+      {
+        icon: '👆',
+        title: 'Tap any underlined word',
+        body: 'Every underlined word in the text has a definition you can explore. Tap it to see what the original Hebrew or Greek word means, where it comes from, and why it matters. Start with words like "created," "covenant," or "grace."'
+      },
+      {
+        icon: '📖',
+        title: 'Three reading modes',
+        body: 'Use the buttons at the top to switch modes. New Reader gives you clean text with plain-English definitions. Study adds more context. Scholar unlocks the full library depth. Start on New Reader and move up when you\'re ready.'
+      }
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.id = 'swrvOnboarding';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:20px;';
+
+    let current = 0;
+
+    function render(){
+      const c = cards[current];
+      overlay.innerHTML = `
+        <div style="max-width:420px;width:100%;background:var(--bg-2,#1a1209);border:1px solid rgba(212,175,55,0.4);border-top:4px solid var(--gold,#d4af37);border-radius:18px;padding:32px 28px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;">${c.icon}</div>
+          <div style="font-size:20px;font-weight:800;color:var(--gold,#d4af37);margin-bottom:14px;line-height:1.3;">${c.title}</div>
+          <div style="font-size:15px;line-height:1.65;color:var(--fg,#f0e8d8);margin-bottom:28px;">${c.body}</div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">
+            ${cards.map((_,i)=>`<div style="width:8px;height:8px;border-radius:50%;background:${i===current?'var(--gold,#d4af37)':'rgba(212,175,55,0.3)'};"></div>`).join('')}
+          </div>
+          <button id="swrvOnboardNext" style="background:var(--gold,#d4af37);color:#0a0604;border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.04em;">
+            ${current < cards.length - 1 ? "Next →" : "Let's go →"}
+          </button>
+          <div style="margin-top:12px;font-size:12px;color:var(--fg-dim,#8a7a60);cursor:pointer;" id="swrvOnboardSkip">Skip intro</div>
+        </div>
+      `;
+      document.getElementById('swrvOnboardNext').onclick = function(){
+        if(current < cards.length - 1){ current++; render(); }
+        else { dismiss(); }
+      };
+      document.getElementById('swrvOnboardSkip').onclick = dismiss;
+    }
+
+    function dismiss(){
+      markOnboarded();
+      overlay.remove();
+    }
+
+    render();
+    document.body.appendChild(overlay);
+  }
+
+  // Show after a short delay so the app loads first
+  if(!alreadyOnboarded()){
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(buildOnboarding, 800); });
+    } else {
+      setTimeout(buildOnboarding, 800);
+    }
+  }
+})();
+
+/* ============================================================
+   FONT SIZE TOGGLE — 5 sizes, saves to localStorage
+   Tap the Aa button to cycle through sizes.
+   ============================================================ */
+(function(){
+  const SIZES = [13, 15, 17, 19, 22];
+  const LABELS = ['XS','S','M','L','XL'];
+  const KEY = 'swrv_font_size';
+  let current = 2; // default M
+
+  function applySize(idx){
+    current = idx;
+    document.documentElement.style.setProperty('--bible-text-size', SIZES[idx]+'px');
+    document.documentElement.style.setProperty('--bible-line-height', (1.55 + idx*0.04).toFixed(2));
+    const btn = document.getElementById('fontSizeBtn');
+    if(btn) btn.textContent = 'Aa ' + LABELS[idx];
+    try { localStorage.setItem(KEY, idx); } catch(e){}
+  }
+
+  function init(){
+    try {
+      const saved = localStorage.getItem(KEY);
+      if(saved !== null) current = Math.min(4, Math.max(0, parseInt(saved)||2));
+    } catch(e){}
+    applySize(current);
+    const btn = document.getElementById('fontSizeBtn');
+    if(btn) btn.onclick = function(){ applySize((current+1)%5); };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+
+/* ============================================================
+   THREAD COMMENTARY — verse chips + panel + browser
+   ============================================================ */
+
+// Build a fast lookup: verse ref → array of thread entry keys
+window.__threadIndex = null;
+function _buildThreadIndex(){
+  if(window.__threadIndex) return;
+  window.__threadIndex = {};
+  if(!window.THREAD_COMMENTARY) return;
+  // Direct verse-ref keys e.g. "Matthew 5:39"
+  Object.keys(window.THREAD_COMMENTARY).forEach(function(k){
+    const ref = k.replace(/["']/g,'').trim();
+    if(!window.__threadIndex[ref]) window.__threadIndex[ref] = [];
+    window.__threadIndex[ref].push(k);
+  });
+  // Also index by book+chapter so chapter-level entries show on verse 1
+  Object.keys(window.THREAD_COMMENTARY).forEach(function(k){
+    const e = window.THREAD_COMMENTARY[k];
+    if(e.chapterRef){
+      const r = e.chapterRef;
+      if(!window.__threadIndex[r]) window.__threadIndex[r] = [];
+      window.__threadIndex[r].push(k);
+    }
+  });
+}
+
+// Get thread entries for a verse ref, also matching by word keys (Sheol, Hades etc.)
+function getThreadEntries(ref, verseText){
+  _buildThreadIndex();
+  const results = [];
+  const seen = new Set();
+  // Direct ref match
+  if(window.__threadIndex[ref]){
+    window.__threadIndex[ref].forEach(function(k){ if(!seen.has(k)){seen.add(k);results.push(k);} });
+  }
+  // Word match — check if verse text contains a word that is a thread key
+  if(verseText && window.THREAD_COMMENTARY){
+    const words = verseText.match(/[A-Za-z']+/g)||[];
+    words.forEach(function(w){
+      if(window.THREAD_COMMENTARY[w] && !seen.has(w)){
+        seen.add(w); results.push(w);
+      }
+    });
+  }
+  return results;
+}
+
+// Render thread chips for a verse
+function renderThreadChips(ref, verseText){
+  if(!window.THREAD_COMMENTARY) return '';
+  const keys = getThreadEntries(ref, verseText);
+  if(!keys.length) return '';
+  const meta = window.THREAD_METADATA || {};
+  const chips = keys.map(function(k){
+    const e = window.THREAD_COMMENTARY[k];
+    if(!e) return '';
+    const m = meta[e.tag] || {icon:'📌', label:e.tag, color:'#d4af37'};
+    return '<button class="thread-chip" onclick="openThreadPanel(\''+k.replace(/'/g,"\\'")+'\')" style="border-color:'+m.color+';color:'+m.color+'" title="'+escapeHtml(e.title)+'">'+m.icon+' '+escapeHtml(e.title.length>30?e.title.slice(0,30)+'…':e.title)+'</button>';
+  }).join('');
+  return '<div class="thread-chips-row">'+chips+'</div>';
+}
+
+// Open the thread panel for a specific entry
+window.openThreadPanel = function(key){
+  if(!window.THREAD_COMMENTARY) return;
+  const e = window.THREAD_COMMENTARY[key];
+  if(!e) return;
+  const meta = (window.THREAD_METADATA||{})[e.tag] || {icon:'📌', label:e.tag, color:'#d4af37'};
+
+  // Build related entries in same thread
+  const threadKeys = Object.keys(window.THREAD_COMMENTARY)
+    .filter(function(k){ return window.THREAD_COMMENTARY[k].thread === e.thread; })
+    .sort(function(a,b){ return (window.THREAD_COMMENTARY[a].threadOrder||99)-(window.THREAD_COMMENTARY[b].threadOrder||99); });
+
+  const relatedHtml = threadKeys.length > 1
+    ? '<div class="thread-panel-related"><div class="thread-panel-related-label">'+meta.icon+' Follow this thread ('+threadKeys.length+' entries)</div>'
+      + threadKeys.map(function(k){
+          const te=window.THREAD_COMMENTARY[k];
+          const active=k===key?'active':'';
+          return '<button class="thread-nav-pill '+active+'" onclick="openThreadPanel(\''+k.replace(/'/g,"\\'")+'\')" >'+escapeHtml(te.title)+'</button>';
+        }).join('')+'</div>'
+    : '';
+
+  const relVersesHtml = (e.relatedVerses&&e.relatedVerses.length)
+    ? '<div class="thread-panel-section"><div class="thread-panel-section-label">Connected verses</div><div style="display:flex;flex-wrap:wrap;gap:6px;">'
+      + e.relatedVerses.map(function(r){
+          return '<button class="xref-chip" onclick="navigateToRef(\''+r+'\')">'+escapeHtml(r)+'</button>';
+        }).join('') + '</div></div>'
+    : '';
+
+  const deeperHtml = e.deeperDive
+    ? '<details class="thread-panel-deeper"><summary>Go deeper — scholar notes</summary><div class="thread-panel-deeper-body">'+escapeHtml(e.deeperDive)+'</div></details>'
+    : '';
+
+  const sourcesHtml = e.sources
+    ? '<div class="thread-panel-sources">Sources: '+escapeHtml(e.sources)+'</div>'
+    : '';
+
+  const html = '<div class="thread-panel-inner">'
+    + '<div class="thread-panel-tag" style="color:'+meta.color+';border-color:'+meta.color+'">'+meta.icon+' '+meta.label+'</div>'
+    + '<h2 class="thread-panel-title">'+escapeHtml(e.title)+'</h2>'
+    + '<div class="thread-panel-plain">'+escapeHtml(e.plain)+'</div>'
+    + '<div class="thread-panel-body">'+escapeHtml(e.body).replace(/\\n\\n/g,'</p><p>').replace(/^/,'<p>').replace(/$/,'</p>')+'</div>'
+    + deeperHtml
+    + relVersesHtml
+    + sourcesHtml
+    + relatedHtml
+    + '</div>';
+
+  // Reuse def popup infrastructure for the thread panel
+  const popup = document.getElementById('defPopup');
+  const overlay = document.getElementById('defOverlay');
+  if(!popup||!overlay) return;
+  popup.innerHTML = '<button class="close-btn" onclick="closeDef()" aria-label="Close">✕</button>' + html;
+  popup.classList.add('show','thread-panel');
+  overlay.classList.add('show');
+  if(window.__raiseDefPopup) window.__raiseDefPopup();
+};
+
+// Open the full thread browser for a thread category
+window.openThreadBrowser = function(threadTag){
+  if(!window.THREAD_COMMENTARY) return;
+  const meta = (window.THREAD_METADATA||{})[threadTag] || {icon:'📌', label:threadTag, color:'#d4af37', desc:''};
+  const entries = Object.keys(window.THREAD_COMMENTARY)
+    .filter(function(k){ return window.THREAD_COMMENTARY[k].thread===threadTag||window.THREAD_COMMENTARY[k].tag===threadTag; })
+    .sort(function(a,b){
+      return (window.THREAD_COMMENTARY[a].threadOrder||99)-(window.THREAD_COMMENTARY[b].threadOrder||99);
+    });
+
+  const listHtml = entries.map(function(k,i){
+    const e=window.THREAD_COMMENTARY[k];
+    return '<div class="thread-browser-item" onclick="openThreadPanel(\''+k.replace(/'/g,"\\'")+'\')">'
+      +'<div class="thread-browser-num" style="color:'+meta.color+'">'+(i+1)+'</div>'
+      +'<div class="thread-browser-content">'
+      +'<div class="thread-browser-item-title">'+escapeHtml(e.title)+'</div>'
+      +'<div class="thread-browser-item-plain">'+escapeHtml(e.plain)+'</div>'
+      +'</div><div class="thread-browser-arrow" style="color:'+meta.color+'">›</div>'
+      +'</div>';
+  }).join('');
+
+  const html = '<div class="thread-panel-inner">'
+    +'<div class="thread-panel-tag" style="color:'+meta.color+';border-color:'+meta.color+'">'+meta.icon+' '+meta.label+'</div>'
+    +'<div class="thread-panel-desc">'+escapeHtml(meta.desc)+'</div>'
+    +'<div class="thread-browser-list">'+listHtml+'</div>'
+    +'</div>';
+
+  const popup = document.getElementById('defPopup');
+  const overlay = document.getElementById('defOverlay');
+  if(!popup||!overlay) return;
+  popup.innerHTML = '<button class="close-btn" onclick="closeDef()" aria-label="Close">✕</button>' + html;
+  popup.classList.add('show','thread-panel');
+  overlay.classList.add('show');
+  if(window.__raiseDefPopup) window.__raiseDefPopup();
+};
+
+// Navigate to a verse reference string
+window.navigateToRef = function(ref){
+  if(!ref) return;
+  const parts = ref.match(/^(.+)\s+(\d+):(\d+)$/);
+  if(!parts) return;
+  const book=parts[1], ch=parseInt(parts[2]), vs=parseInt(parts[3]);
+  closeDef();
+  if(window.loadBook) loadBook(book, ch, vs);
+};
+
+// All-threads browser — the entry point from the header button
+window.openAllThreadsBrowser = function(){
+  if(!window.THREAD_METADATA) return;
+  const popup = document.getElementById('defPopup');
+  const overlay = document.getElementById('defOverlay');
+  if(!popup||!overlay) return;
+
+  const cards = Object.keys(window.THREAD_METADATA).map(function(tag){
+    const m=window.THREAD_METADATA[tag];
+    const count=Object.keys(window.THREAD_COMMENTARY||{}).filter(function(k){
+      const e=window.THREAD_COMMENTARY[k];
+      return e.thread===tag||e.tag===tag;
+    }).length;
+    return '<div class="thread-category-card" onclick="openThreadBrowser(\''+tag+'\')" style="border-color:'+m.color+'">'
+      +'<div class="thread-category-icon" style="color:'+m.color+'">'+m.icon+'</div>'
+      +'<div class="thread-category-content">'
+      +'<div class="thread-category-label" style="color:'+m.color+'">'+escapeHtml(m.label)+'</div>'
+      +'<div class="thread-category-desc">'+escapeHtml(m.desc)+'</div>'
+      +'<div class="thread-category-count">'+count+' entries</div>'
+      +'</div>'
+      +'<div class="thread-category-arrow" style="color:'+m.color+'">›</div>'
+      +'</div>';
+  }).join('');
+
+  const html = '<div class="thread-panel-inner">'
+    +'<div class="thread-panel-title" style="font-size:20px;margin-bottom:4px;">🧵 Deep Study Threads</div>'
+    +'<div class="thread-panel-desc" style="margin-bottom:18px;">Each thread follows one continuous storyline across the whole Bible. Tap a thread to explore it in order.</div>'
+    +'<div class="thread-categories">'+cards+'</div>'
+    +'</div>';
+
+  popup.innerHTML = '<button class="close-btn" onclick="closeDef()" aria-label="Close">✕</button>' + html;
+  popup.classList.add('show','thread-panel');
+  overlay.classList.add('show');
+  if(window.__raiseDefPopup) window.__raiseDefPopup();
+};
