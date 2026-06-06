@@ -1914,25 +1914,26 @@ function visualizeVerse(ref, text){
   document.getElementById('modal').classList.add('show');
 
   const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
-  const prompt = encodeURIComponent(clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art');
-  const pollUrl = 'https://image.pollinations.ai/prompt/' + prompt + '?width=1024&height=576&nologo=true&enhance=true';
+  const prompt = clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art';
   
-  // CORS proxy: corsproxy.io handles PWA sandbox restrictions
-  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(pollUrl);
+  // Hugging Face Inference API (free, reliable)
+  const hfUrl = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large';
   
-  const img = new Image();
-  img.onload = function(){
-    body.innerHTML = '<div class="viz-result"><img src="' + proxyUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
-  };
-  img.onerror = function(){
-    // Proxy failed, try direct (works in browser, fails in app)
-    const img2 = new Image();
-    img2.onload = () => { body.innerHTML = '<div class="viz-result"><img src="' + pollUrl + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>'; };
-    img2.onerror = () => { body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Visualization Unavailable</p><p style="color:var(--fg-dim);font-size:11px;margin:8px 0;">Open in your browser to generate images. The app sandbox restricts API access.</p><button onclick="closeModal()" style="margin-top:12px;padding:6px 14px;background:var(--accent);color:#000;border:none;border-radius:4px;font-weight:700;cursor:pointer;">Close</button></div>'; };
-    img2.src = pollUrl;
-  };
-  img.src = proxyUrl;
+  fetch(hfUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inputs: prompt, parameters: { height: 576, width: 1024 } })
+  })
+  .then(r => r.ok ? r.blob() : Promise.reject('API error'))
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
+  })
+  .catch(err => {
+    body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Generating…</p><p style="color:var(--fg-dim);font-size:12px;">This may take 30-60 seconds.</p></div>';
+  });
 }
+
 
 /* ============================================================
    PANEL LAYERING FIX — definition / Strong's popup always on top
