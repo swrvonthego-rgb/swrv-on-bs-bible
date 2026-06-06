@@ -1910,29 +1910,60 @@ function visualizeVerse(ref, text){
   const title = document.getElementById('modalTitle');
   const body = document.getElementById('modalBody');
   title.textContent = ref;
-  body.innerHTML = '<div class="viz-loading"><div class="viz-spinner"></div><p>Generating image…</p></div>';
   document.getElementById('modal').classList.add('show');
 
+  // Generate beautiful SVG visualization locally (no external APIs)
   const clean = text.replace(/["""'']/g, "'").replace(/\s+/g, ' ').trim();
-  const prompt = clean + ', biblical scene, epic cinematic oil painting, dramatic lighting, highly detailed, sacred art';
   
-  // Hugging Face Inference API (free, reliable)
-  const hfUrl = 'https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo';
+  // Extract key words for visual theme
+  const keyWords = clean.split(' ').filter(w => w.length > 5);
+  const wordCount = clean.split(' ').length;
   
-  fetch(hfUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ inputs: prompt, parameters: { height: 576, width: 1024 } })
-  })
-  .then(r => r.ok ? r.blob() : Promise.reject('API error'))
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    body.innerHTML = '<div class="viz-result"><img src="' + url + '" alt="' + escapeHtml(ref) + '" class="viz-img"><p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
-  })
-  .catch(err => {
-    body.innerHTML = '<div style="padding:20px;text-align:center;"><p style="color:var(--fg-mute);font-weight:700;">Generating…</p><p style="color:var(--fg-dim);font-size:12px;">This should take 5-15 seconds.</p></div>';
-  });
+  // Create SVG dynamically
+  const svg = generateVerseVisualization(ref, clean, keyWords);
+  body.innerHTML = '<div class="viz-result">' + svg + '<p class="viz-caption">' + escapeHtml(ref) + '</p></div>';
 }
+
+function generateVerseVisualization(ref, text, keyWords){
+  const colors = ['#c9a84c', '#b47fff', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
+  const bgColor = colors[Math.floor(Math.random() * colors.length)];
+  
+  // Create SVG with geometric patterns based on verse
+  let svg = '<svg viewBox="0 0 1024 576" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:100%;border-radius:12px;overflow:hidden;">';
+  
+  // Gradient background
+  svg += '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">';
+  svg += '<stop offset="0%" style="stop-color:' + bgColor + ';stop-opacity:0.9" />';
+  svg += '<stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />';
+  svg += '</linearGradient></defs>';
+  
+  svg += '<rect width="1024" height="576" fill="url(#grad)"/>';
+  
+  // Decorative geometric elements
+  const wordLength = text.length;
+  for(let i = 0; i < 8; i++){
+    const x = Math.random() * 1024;
+    const y = Math.random() * 576;
+    const size = 20 + (wordLength % 80);
+    const opacity = 0.1 + (i * 0.05);
+    svg += '<circle cx="' + x + '" cy="' + y + '" r="' + size + '" fill="white" opacity="' + opacity + '"/>';
+  }
+  
+  // Text with dramatic styling
+  svg += '<text x="512" y="250" text-anchor="middle" font-size="42" font-weight="bold" fill="white" font-family="Georgia,serif" text-shadow="0 2px 8px rgba(0,0,0,0.5)">';
+  svg += escapeHtml(text.substring(0, 100)) + (text.length > 100 ? '…' : '');
+  svg += '</text>';
+  
+  // Reference at bottom
+  svg += '<text x="512" y="520" text-anchor="middle" font-size="18" fill="rgba(255,255,255,0.8)" font-family="Arial,sans-serif">';
+  svg += escapeHtml(ref);
+  svg += '</text>';
+  
+  svg += '</svg>';
+  
+  return svg;
+}
+
 
 
 /* ============================================================
