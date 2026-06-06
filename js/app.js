@@ -856,8 +856,7 @@ function populateBookSelect(){
       if(!b) continue;
       const opt = document.createElement('option');
       opt.value = b.slug;
-      opt.textContent = isBookLocked(b.slug) ? b.display + ' 🔒' : b.display;
-      if(isBookLocked(b.slug)) opt.style.opacity = '0.5';
+      opt.textContent = b.display;
       if(b.slug === currentBook) opt.selected = true;
       grp.appendChild(opt);
     }
@@ -875,8 +874,7 @@ function populateBookSelect(){
     }
     const opt=document.createElement('option');
     opt.value=b.slug;
-    opt.textContent = isBookLocked(b.slug) ? b.display + ' 🔒' : b.display;
-    if(isBookLocked(b.slug)) opt.style.opacity = '0.5';
+    opt.textContent = b.display;
     if(b.slug===currentBook)opt.selected=true;
     if(currentGroup)currentGroup.appendChild(opt);
     else bookSelect.appendChild(opt);
