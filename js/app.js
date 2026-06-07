@@ -1335,6 +1335,28 @@ function setMode(m){
 function loadChapter(n, direction){
   _loadChapterCore(n);
 }
+
+function reloadCurrentChapter(){
+  var btn=document.getElementById('reloadChapterBtn');
+  if(btn){btn.classList.add('spinning');setTimeout(function(){btn.classList.remove('spinning');},800);}
+  _loadBookScript(currentBook,function(){
+    _loadChapterCore(currentChapter);
+  });
+}
+
+// Auto-retry: if mainContent has no verses 1.5s after a chapter load, silently reload
+var _autoRetryTimer=null;
+function _scheduleAutoRetry(){
+  clearTimeout(_autoRetryTimer);
+  _autoRetryTimer=setTimeout(function(){
+    var main=document.getElementById('mainContent');
+    if(!main) return;
+    var hasContent=main.querySelector('.verse')||main.querySelector('.chapter-title');
+    if(!hasContent){
+      reloadCurrentChapter();
+    }
+  },1500);
+}
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;window.currentChapter=n;window.currentVerse=currentVerse;localStorage.setItem('swrv_chapter',n);
@@ -1371,6 +1393,7 @@ function _loadChapterCore(n){
   }
   window.scrollTo(0,0);
   setTimeout(_applyUserAnnotations,0);
+  _scheduleAutoRetry();
 }
 
 function renderVerseMode(ch,verseNums){
