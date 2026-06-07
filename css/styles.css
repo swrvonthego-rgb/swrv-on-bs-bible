@@ -2108,6 +2108,35 @@ body[data-reading-mode="scholar"] .study-layer{ display:revert; }
 }
 .verse-study-chip:hover{ background:rgba(212,175,55,0.22); transform:translateY(-1px); }
 .verse-study-chip:active{ transform:translateY(0); }
+/* Bookmark chip */
+.verse-bm-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
+.verse-bm-chip.active{ color:var(--gold); border-color:rgba(212,175,55,0.5); }
+/* Highlight chip */
+.verse-hl-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
+/* Note chip */
+.verse-note-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
+.verse-note-chip.has-note{ color:#7eb8f7; border-color:rgba(126,184,247,0.45); }
+/* Verse highlight backgrounds */
+.verse.verse-hl-yellow{ background:rgba(255,220,50,0.13); border-left:3px solid rgba(255,220,50,0.55); padding-left:8px; }
+.verse.verse-hl-green{ background:rgba(80,200,120,0.13); border-left:3px solid rgba(80,200,120,0.55); padding-left:8px; }
+.verse.verse-hl-blue{ background:rgba(80,160,255,0.13); border-left:3px solid rgba(80,160,255,0.55); padding-left:8px; }
+.verse.verse-hl-pink{ background:rgba(255,100,180,0.13); border-left:3px solid rgba(255,100,180,0.55); padding-left:8px; }
+/* Inline highlight color picker */
+.hl-picker{ display:flex; align-items:center; gap:10px; padding:8px 0 4px; flex-wrap:wrap; }
+.hl-swatch{ width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform .12s,border-color .12s; }
+.hl-swatch:hover,.hl-swatch.hl-active{ transform:scale(1.2); border-color:var(--gold); }
+.hl-yellow{ background:rgba(255,220,50,0.85); }
+.hl-green{ background:rgba(80,200,120,0.85); }
+.hl-blue{ background:rgba(80,160,255,0.85); }
+.hl-pink{ background:rgba(255,100,180,0.85); }
+.hl-{ background:var(--bg-3); border:2px solid var(--line) !important; }
+/* Memory modal */
+.mem-tab{ background:none; border:none; border-bottom:2px solid transparent; color:var(--fg-mute); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; padding:6px 14px 8px; transition:color .15s; }
+.mem-tab.mem-tab-active{ color:var(--gold); border-bottom-color:var(--gold); }
+.mem-item{ background:var(--bg-2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; }
+.mem-item:hover{ border-color:var(--gold); }
+.mem-item-ref{ color:var(--gold); font-weight:700; font-size:13px; margin-bottom:4px; }
+.mem-item-text{ color:var(--fg-mute); font-size:13px; line-height:1.5; font-style:italic; }
 
 /* In Scholar mode the chip is still useful (gives quick access to the sheet) but lower-key. */
 body[data-reading-mode="scholar"] .verse-study-chip{ opacity:0.7; font-size:11px; }

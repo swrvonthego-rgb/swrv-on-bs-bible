@@ -1189,7 +1189,13 @@ function renderVerse(v){
   verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
   // Compact per-verse Study chip — visible in Read & Study modes; opens the unified Study Sheet.
   verseHtml.push('<button class="verse-study-chip" onclick="openStudySheet(\''+v.ref.replace(/\'/g,"\\\\'")+'\')" title="Open study panel for '+escapeHtml(v.ref)+'">📖 Study</button>');
-  
+  const _bRefId=v.ref.replace(/[^a-z0-9]/gi,'_');
+  const _bERef=v.ref.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const _bEText=displayText.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ').substring(0,150);
+  verseHtml.push('<button class="verse-study-chip verse-bm-chip" id="bm_'+_bRefId+'" onclick="toggleBookmark(\''+_bERef+'\',\''+_bEText+'\')" title="Bookmark this verse">🔖</button>');
+  verseHtml.push('<button class="verse-study-chip verse-hl-chip" onclick="showHighlightPicker(\''+_bERef+'\',this)" title="Highlight this verse">◐ Color</button>');
+  verseHtml.push('<button class="verse-study-chip verse-note-chip" id="note_'+_bRefId+'" onclick="openNote(\''+_bERef+'\')" title="Add a note">📝 Note</button>');
+
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
@@ -1357,6 +1363,7 @@ function _loadChapterCore(n){
     renderVerseMode(ch,verseNums);
   }
   window.scrollTo(0,0);
+  setTimeout(_applyUserAnnotations,0);
 }
 
 function renderVerseMode(ch,verseNums){
@@ -1906,6 +1913,115 @@ function closeDef(){
 }
 
 
+
+/* ============================================================
+   BOOKMARKS / HIGHLIGHTS / NOTES
+   ------------------------------------------------------------ */
+function _getBookmarks(){try{return JSON.parse(localStorage.getItem('swrv_bookmarks')||'[]');}catch(e){return[];}}
+function _saveBookmarks(a){localStorage.setItem('swrv_bookmarks',JSON.stringify(a));}
+function _getHighlights(){try{return JSON.parse(localStorage.getItem('swrv_highlights')||'{}');}catch(e){return{};}}
+function _saveHighlights(o){localStorage.setItem('swrv_highlights',JSON.stringify(o));}
+function _getNotes(){try{return JSON.parse(localStorage.getItem('swrv_notes')||'{}');}catch(e){return{};}}
+function _saveNotes(o){localStorage.setItem('swrv_notes',JSON.stringify(o));}
+
+function toggleBookmark(ref,text){
+  const bms=_getBookmarks();
+  const idx=bms.findIndex(function(b){return b.ref===ref;});
+  if(idx>=0){bms.splice(idx,1);}else{bms.push({ref:ref,text:(text||'').substring(0,150),book:currentBook,chapter:currentChapter,ts:Date.now()});}
+  _saveBookmarks(bms);
+  const btn=document.getElementById('bm_'+ref.replace(/[^a-z0-9]/gi,'_'));
+  if(btn)btn.classList.toggle('active',idx<0);
+}
+
+function showHighlightPicker(ref,btn){
+  document.querySelectorAll('.hl-picker').forEach(function(p){p.remove();});
+  const colors=[{c:'yellow',l:'Yellow'},{c:'green',l:'Green'},{c:'blue',l:'Blue'},{c:'pink',l:'Pink'},{c:'',l:'Clear'}];
+  const cur=(_getHighlights()[ref]||'');
+  const div=document.createElement('div');
+  div.className='hl-picker';
+  div.innerHTML=colors.map(function(x){
+    return '<button class="hl-swatch hl-'+x.c+(cur===x.c?' hl-active':'')+'" onclick="applyHighlight(\''+ref.replace(/'/g,"\\'")+'\',\''+x.c+'\')" title="'+x.l+'"></button>';
+  }).join('');
+  btn.closest('.verse').appendChild(div);
+}
+function applyHighlight(ref,color){
+  const hl=_getHighlights();
+  if(color){hl[ref]=color;}else{delete hl[ref];}
+  _saveHighlights(hl);
+  document.querySelectorAll('.hl-picker').forEach(function(p){p.remove();});
+  const verse=document.getElementById(ref.replace(/[^a-z0-9]/gi,'_'));
+  if(verse){
+    verse.className=verse.className.replace(/\bverse-hl-\w+/g,'').trim();
+    if(color)verse.classList.add('verse-hl-'+color);
+  }
+}
+
+function openNote(ref){
+  const notes=_getNotes();
+  const existing=notes[ref]||'';
+  _lockBodyScroll();
+  document.getElementById('modalTitle').textContent='Note — '+ref;
+  const eRef=ref.replace(/'/g,"\\'");
+  document.getElementById('modalBody').innerHTML=
+    '<textarea id="noteTA" style="width:100%;min-height:120px;background:var(--bg-3);border:1px solid var(--line);border-radius:6px;color:var(--fg);font-family:inherit;font-size:15px;padding:10px;resize:vertical;box-sizing:border-box;" placeholder="Write your note…">'+escapeHtml(existing)+'</textarea>'
+    +'<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">'
+    +'<button onclick="saveNote(\''+eRef+'\',document.getElementById(\'noteTA\').value)" style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:10px 22px;font-weight:700;cursor:pointer;font-family:inherit;">Save</button>'
+    +(existing?'<button onclick="deleteNote(\''+eRef+'\')" style="background:var(--bg-3);border:1px solid var(--line);color:var(--fg-mute);border-radius:6px;padding:10px 18px;cursor:pointer;font-family:inherit;">Delete note</button>':'')
+    +'<button onclick="closeModal()" style="background:var(--bg-3);border:1px solid var(--line);color:var(--fg-mute);border-radius:6px;padding:10px 18px;cursor:pointer;font-family:inherit;">Cancel</button>'
+    +'</div>';
+  document.getElementById('modal').classList.add('show');
+  setTimeout(function(){var t=document.getElementById('noteTA');if(t){t.focus();t.selectionStart=t.value.length;}},80);
+}
+function saveNote(ref,text){
+  const notes=_getNotes();
+  if(text&&text.trim()){notes[ref]=text.trim();}else{delete notes[ref];}
+  _saveNotes(notes);
+  closeModal();
+  const btn=document.getElementById('note_'+ref.replace(/[^a-z0-9]/gi,'_'));
+  if(btn)btn.classList.toggle('has-note',!!(text&&text.trim()));
+}
+function deleteNote(ref){
+  const notes=_getNotes();
+  delete notes[ref];
+  _saveNotes(notes);
+  closeModal();
+  const btn=document.getElementById('note_'+ref.replace(/[^a-z0-9]/gi,'_'));
+  if(btn)btn.classList.remove('has-note');
+}
+
+function _applyUserAnnotations(){
+  const hl=_getHighlights();
+  const notes=_getNotes();
+  const bms=new Set(_getBookmarks().map(function(b){return b.ref;}));
+  Object.keys(hl).forEach(function(ref){
+    const v=document.getElementById(ref.replace(/[^a-z0-9]/gi,'_'));
+    if(v&&hl[ref]){v.className=v.className.replace(/\bverse-hl-\w+/g,'').trim();v.classList.add('verse-hl-'+hl[ref]);}
+  });
+  Object.keys(notes).forEach(function(ref){
+    const btn=document.getElementById('note_'+ref.replace(/[^a-z0-9]/gi,'_'));
+    if(btn)btn.classList.add('has-note');
+  });
+  bms.forEach(function(ref){
+    const btn=document.getElementById('bm_'+ref.replace(/[^a-z0-9]/gi,'_'));
+    if(btn)btn.classList.add('active');
+  });
+}
+
+function _loadSavedPosition(book,chapter){
+  if(book===currentBook&&(_bookScriptLoaded[book]||(window.BIBLE&&window.BIBLE[book])||(book==='Genesis'))){
+    currentChapter=chapter;
+    _loadChapterCore(chapter);
+  }else{
+    _loadBookScript(book,function(){
+      currentBook=book;window.currentBook=book;_updateBookContext();
+      if(typeof bookSelect!=='undefined'&&bookSelect)bookSelect.value=book;
+      populateChapterSelect();
+      currentChapter=chapter;
+      populateVerseSelect();
+      _loadChapterCore(chapter);
+    });
+  }
+}
 
 /* ============================================================
    PANEL LAYERING FIX — definition / Strong's popup always on top
@@ -3585,6 +3701,36 @@ function showModal(type){
 
     body.innerHTML=auditHtml;
   }
+  if(type==='memory'){
+    title.textContent='📌 Memory';
+    const bms=_getBookmarks();
+    const notesObj=_getNotes();
+    const noteEntries=Object.entries(notesObj);
+    let h='<div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--line);">';
+    h+='<button id="memTabBtnBm" onclick="document.getElementById(\'memTabBm\').style.display=\'\';document.getElementById(\'memTabNotes\').style.display=\'none\';document.getElementById(\'memTabBtnBm\').classList.add(\'mem-tab-active\');document.getElementById(\'memTabBtnNotes\').classList.remove(\'mem-tab-active\');" class="mem-tab mem-tab-active">🔖 Bookmarks ('+bms.length+')</button>';
+    h+='<button id="memTabBtnNotes" onclick="document.getElementById(\'memTabBm\').style.display=\'none\';document.getElementById(\'memTabNotes\').style.display=\'\';document.getElementById(\'memTabBtnNotes\').classList.add(\'mem-tab-active\');document.getElementById(\'memTabBtnBm\').classList.remove(\'mem-tab-active\');" class="mem-tab">📝 Notes ('+noteEntries.length+')</button>';
+    h+='</div>';
+    h+='<div id="memTabBm">';
+    if(!bms.length){h+='<p style="color:var(--fg-mute);padding:8px 0;">No bookmarks yet. Tap 🔖 on any verse to save it here.</p>';}
+    else{bms.slice().reverse().forEach(function(bm){
+      h+='<div class="mem-item" onclick="closeModal();_loadSavedPosition(\''+bm.book.replace(/'/g,"\\'")+'\','+bm.chapter+');">';
+      h+='<div class="mem-item-ref">'+escapeHtml(bm.ref)+'</div>';
+      h+='<div class="mem-item-text">'+escapeHtml((bm.text||'').substring(0,110))+'…</div>';
+      h+='</div>';
+    });}
+    h+='</div>';
+    h+='<div id="memTabNotes" style="display:none;">';
+    if(!noteEntries.length){h+='<p style="color:var(--fg-mute);padding:8px 0;">No notes yet. Tap 📝 on any verse to write one.</p>';}
+    else{noteEntries.forEach(function(entry){
+      const nRef=entry[0],nText=entry[1];
+      h+='<div class="mem-item" onclick="closeModal();openNote(\''+nRef.replace(/'/g,"\\'")+'\');">';
+      h+='<div class="mem-item-ref">'+escapeHtml(nRef)+'</div>';
+      h+='<div class="mem-item-text">'+escapeHtml(nText.substring(0,120))+'</div>';
+      h+='</div>';
+    });}
+    h+='</div>';
+    body.innerHTML=h;
+  }
   document.getElementById('modal').classList.add('show');
   setTimeout(_populateSuggestionChips, 0);
 }
@@ -3609,7 +3755,31 @@ if(mode==='verse'){
 }
 
 if(typeof applyStudyLayerMode==='function') applyStudyLayerMode(window._studyLayerMode);
-loadChapter(currentChapter);
+// Smart init: new users always start at Genesis 1; returning users resume their saved position.
+// If the saved book's data isn't bundled (only Genesis is), load its script first.
+(function(){
+  var _firstVisit=!localStorage.getItem('swrv_has_visited');
+  if(_firstVisit){
+    localStorage.setItem('swrv_has_visited','1');
+    currentBook='Genesis';window.currentBook='Genesis';if(typeof _updateBookContext==='function')_updateBookContext();
+    currentChapter=1;currentVerse=1;
+    if(typeof bookSelect!=='undefined'&&bookSelect)bookSelect.value='Genesis';
+    if(typeof populateChapterSelect==='function')populateChapterSelect();
+    if(typeof populateVerseSelect==='function')populateVerseSelect();
+    _loadChapterCore(1);
+  }else if(currentBook==='Genesis'||_bookScriptLoaded[currentBook]||(window.BIBLE&&window.BIBLE[currentBook])){
+    _loadChapterCore(currentChapter);
+  }else{
+    const _main=document.getElementById('mainContent');
+    if(_main)_main.innerHTML='<p style="padding:30px;color:var(--fg-mute);">Resuming '+currentBook+' '+currentChapter+'…</p>';
+    _loadBookScript(currentBook,function(){
+      if(typeof bookSelect!=='undefined'&&bookSelect)bookSelect.value=currentBook;
+      if(typeof populateChapterSelect==='function')populateChapterSelect();
+      if(typeof populateVerseSelect==='function')populateVerseSelect();
+      _loadChapterCore(currentChapter);
+    });
+  }
+})();
 // Initialize mobile nav state: on phone widths, collapse the Book/Chapter/Verse
 // controls into a one-line summary; on desktop, this is a no-op.
 if(typeof initMobileNavState==='function') initMobileNavState();
