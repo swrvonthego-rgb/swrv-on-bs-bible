@@ -8,7 +8,7 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260607-no-viz';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260607-redletters';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,8 @@ const CORE_ASSETS = [
   './assets/icons/icon-180.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  // Red Letter data — Jesus's direct words
+  './data/red-letters.js',
   // Deep Definition Bible Engine — new layers
   './data/english-bible-dictionary.js?v=20260522deepword3',
   './data/strongs-sense-map.js?v=20260522deepword3',

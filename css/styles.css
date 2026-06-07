@@ -13,6 +13,7 @@
   --bg:#e8dcc0;--bg-2:#ddcfae;--bg-3:#d1c098;
   --fg:#3a2810;--fg-mute:#5c4628;--fg-dim:#7c6648;
   --gold:#8b6f2a;--gold-bright:#a88840;
+  --red-letter:#a01a10;
   --crimson:#8b3a2e;--emerald:#3a6b3a;--azure:#3a5a7a;
   --violet:#5a4080;--teal:#2e6661;
   --line:#a89668;--kingdom-bg:rgba(139,111,42,0.15);
@@ -36,6 +37,7 @@ body[data-theme="vintage"]{
   --bg:#0a0908;--bg-2:#16130f;--bg-3:#221d17;
   --fg:#e8d9b0;--fg-mute:#b8a778;--fg-dim:#897a50;
   --gold:#d4af37;--gold-bright:#ffd770;
+  --red-letter:#e8574a;
   --crimson:#9b2335;--emerald:#1b5e20;--azure:#1a3a5e;
   --violet:#4b1d6e;--teal:#1a4d4a;
   --line:#3a3328;--kingdom-bg:rgba(212,175,55,0.1);
@@ -63,6 +65,7 @@ body[data-theme="luxe"]{
   --bg:#05050a;--bg-2:#0a0a14;--bg-3:#14141f;
   --fg:#e0fbff;--fg-mute:#88c0d0;--fg-dim:#5a8a96;
   --gold:#00fff0;--gold-bright:#7afff7;
+  --red-letter:#ff5c4a;
   --crimson:#ff2a6d;--emerald:#39ff14;--azure:#00d4ff;
   --violet:#bd00ff;--teal:#00fff0;
   --line:#1a2a3a;--kingdom-bg:rgba(0,255,240,0.06);
@@ -88,6 +91,7 @@ body[data-theme="cyberpunk"]{
   --bg:#e8e4d9;--bg-2:#dad5c5;--bg-3:#ccc4ae;
   --fg:#2d2a22;--fg-mute:#544e3e;--fg-dim:#766e58;
   --gold:#8a7138;--gold-bright:#a88a48;
+  --red-letter:#9e1f14;
   --crimson:#7a3a2e;--emerald:#4a6e3a;--azure:#406880;
   --violet:#5e4868;--teal:#3a6862;
   --line:#a89e82;--kingdom-bg:rgba(138,113,56,0.12);
@@ -109,6 +113,7 @@ body[data-theme="earth"]{
   --bg:#0d0a1a;--bg-2:#161028;--bg-3:#221836;
   --fg:#f0e6ff;--fg-mute:#b8a8d8;--fg-dim:#867a98;
   --gold:#d4a14a;--gold-bright:#f0bf6c;
+  --red-letter:#ff6455;
   --crimson:#d4365c;--emerald:#3a9c7a;--azure:#5c8acc;
   --violet:#a86cd8;--teal:#4ac2b6;
   --line:#3a2e54;--kingdom-bg:rgba(212,161,74,0.12);
@@ -163,6 +168,10 @@ header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));borde
 .verse{margin-bottom:28px;padding:14px 0;border-bottom:1px dotted var(--bg-3)}
 .verse-num{display:inline-block;color:var(--gold);font-weight:700;margin-right:10px;font-size:14px;vertical-align:top;min-width:26px;font-family:-apple-system,sans-serif}
 .verse-text{display:inline;font-size:17px;line-height:1.75;color:var(--fg);-webkit-user-select:text;user-select:text;cursor:text;}
+/* Red Letter — Jesus's direct words */
+.verse-text.red-letter{ color:var(--red-letter, #a01a10); }
+.verse-text.red-letter .definable{ border-bottom-color:var(--red-letter, #a01a10); }
+.verse-text.red-letter .definable:hover{ color:var(--red-letter, #a01a10); filter:brightness(1.3); }
 .definable{cursor:pointer;border-bottom:1px dotted var(--gold);transition:color 0.15s}
 .definable:hover{color:var(--gold)}
 .person-name{cursor:pointer;color:var(--people);font-weight:600;border-bottom:1px dotted var(--people);transition:all 0.15s}
@@ -2774,6 +2783,71 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 }
 .verse-text, .verse-body { font-size: var(--bible-text-size) !important; line-height: var(--bible-line-height) !important; }
 #fontSizeBtn { font-weight: 700; font-size: 12px; min-width: 52px; }
+
+/* ============================================================
+   TYPOGRAPHY PANEL — Word/Pages-style picker
+   ============================================================ */
+.typo-panel{
+  position:fixed; bottom:calc(72px + env(safe-area-inset-bottom,0px)); right:16px;
+  width:300px; max-width:calc(100vw - 24px);
+  background:var(--bg-1,var(--bg)); border:1px solid var(--line);
+  border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.45);
+  padding:0 0 12px; z-index:9999; overflow:hidden;
+  opacity:0; transform:translateY(16px) scale(0.96);
+  transition:opacity .2s ease, transform .2s ease;
+  pointer-events:none;
+}
+.typo-panel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
+.typo-panel-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px 10px; border-bottom:1px solid var(--line);
+}
+.typo-panel-title{ font-size:14px; font-weight:700; color:var(--gold); letter-spacing:0.04em; font-family:-apple-system,sans-serif; }
+.typo-close{ background:none; border:none; color:var(--fg-dim); font-size:16px; cursor:pointer; padding:2px 6px; border-radius:6px; }
+.typo-close:hover{ color:var(--fg); background:rgba(128,128,128,0.15); }
+.typo-section-label{ font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--fg-dim); padding:10px 14px 4px; font-family:-apple-system,sans-serif; }
+.typo-stepper{
+  display:flex; align-items:center; gap:0; margin:0 14px 8px;
+  border:1.5px solid var(--line); border-radius:10px; overflow:hidden;
+  background:var(--bg-2);
+}
+.typo-step-btn{
+  background:none; border:none; color:var(--fg); font-size:22px; font-weight:300;
+  padding:6px 16px; cursor:pointer; flex:0 0 auto;
+  font-family:-apple-system,sans-serif; transition:background .1s;
+  line-height:1;
+}
+.typo-step-btn:hover{ background:rgba(212,175,55,0.12); color:var(--gold); }
+.typo-size-input{
+  flex:1; border:none; background:transparent; text-align:center;
+  font-size:22px; font-weight:700; color:var(--gold);
+  font-family:-apple-system,sans-serif; outline:none; width:0; min-width:0;
+  padding:6px 0;
+}
+.typo-size-unit{ font-size:12px; color:var(--fg-dim); padding-right:10px; font-family:-apple-system,sans-serif; }
+.typo-presets{
+  display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 4px;
+}
+.typo-preset{
+  background:transparent; border:1.5px solid var(--line); color:var(--fg-mute);
+  padding:5px 10px; border-radius:8px; font-size:12px; font-family:-apple-system,sans-serif;
+  font-weight:600; cursor:pointer; transition:all .12s;
+}
+.typo-preset:hover{ border-color:rgba(212,175,55,0.5); color:var(--fg); }
+.typo-preset.active{ background:rgba(212,175,55,0.22); border-color:rgba(212,175,55,0.7); color:var(--gold); }
+.typo-families{
+  display:flex; flex-direction:column; gap:4px; padding:0 14px;
+}
+.typo-family-btn{
+  background:transparent; border:1.5px solid var(--line); color:var(--fg-mute);
+  padding:8px 12px; border-radius:8px; font-size:14px; cursor:pointer;
+  text-align:left; transition:all .12s; letter-spacing:0.01em;
+}
+.typo-family-btn:hover{ border-color:rgba(212,175,55,0.5); color:var(--fg); }
+.typo-family-btn.active{ background:rgba(212,175,55,0.18); border-color:rgba(212,175,55,0.6); color:var(--gold); }
+@media(max-width:480px){
+  .typo-panel{ right:8px; left:8px; width:auto; bottom:calc(60px + env(safe-area-inset-bottom,0px)); }
+}
 
 /* ============================================================
    THREAD CHIPS — appear below verse, always visible

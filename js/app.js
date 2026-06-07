@@ -1194,7 +1194,8 @@ function renderVerse(v){
   const displayText = (v.sources && v.sources.BSB && v.sources.BSB.text) || v.synthesized || v.text || '';
   const augmentedDefinables = getAugmentedDefinables(v, displayText);
   if(v.ref && v.strongsTags) window.__verseStrongs[v.ref] = v.strongsTags;
-  verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
+  const rlClass = (window.RED_LETTERS_SET && window.RED_LETTERS_SET.has(v.ref)) ? ' red-letter' : '';
+  verseHtml.push('<span class="verse-text'+rlClass+'">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
   // Compact per-verse Study chip — visible in Read & Study modes; opens the unified Study Sheet.
   verseHtml.push('<button class="verse-study-chip" onclick="openStudySheet(\''+v.ref.replace(/\'/g,"\\\\'")+'\')" title="Open study panel for '+escapeHtml(v.ref)+'">📖 Study</button>');
   const _bRefId=v.ref.replace(/[^a-z0-9]/gi,'_');
@@ -5906,32 +5907,129 @@ window._renderChapterIntro = function(book, chapterNum) {
 })();
 
 /* ============================================================
-   FONT SIZE TOGGLE — 5 sizes, saves to localStorage
-   Tap the Aa button to cycle through sizes.
+   TYPOGRAPHY PANEL — Word/Pages-style font size + family picker
+   Tap the Aa button to open a floating panel with:
+   - Clickable size buttons (10–32 pt range)
+   - +/- stepper
+   - Direct number input
+   - Font family selector (4 curated families)
+   Saves to localStorage: swrv_font_size_v2, swrv_font_family
    ============================================================ */
 (function(){
-  const SIZES = [13, 15, 17, 19, 22];
-  const LABELS = ['XS','S','M','L','XL'];
-  const KEY = 'swrv_font_size';
-  let current = 2; // default M
+  const SIZE_KEY   = 'swrv_font_size_v2';
+  const FAMILY_KEY = 'swrv_font_family';
+  const MIN_SIZE   = 10;
+  const MAX_SIZE   = 36;
+  const PRESET_SIZES = [11, 13, 15, 17, 19, 22, 26, 32];
+  const FAMILIES = [
+    { id:'serif',   label:'Serif',    stack:"'Iowan Old Style','Palatino Linotype',Georgia,serif" },
+    { id:'garamond',label:'Garamond', stack:"'Cormorant Garamond','Crimson Pro',Georgia,serif" },
+    { id:'sans',    label:'Clean',    stack:"-apple-system,'Helvetica Neue',Arial,sans-serif" },
+    { id:'mono',    label:'Mono',     stack:"'Courier New',Courier,monospace" }
+  ];
 
-  function applySize(idx){
-    current = idx;
-    document.documentElement.style.setProperty('--bible-text-size', SIZES[idx]+'px');
-    document.documentElement.style.setProperty('--bible-line-height', (1.55 + idx*0.04).toFixed(2));
+  let currentSize   = 17;
+  let currentFamily = 'serif';
+  let panelOpen     = false;
+  let _panel        = null;
+
+  function applyTypography(){
+    document.documentElement.style.setProperty('--bible-text-size', currentSize+'px');
+    document.documentElement.style.setProperty('--bible-line-height', Math.max(1.45, 1.78 - (currentSize-17)*0.012).toFixed(3));
+    const fam = FAMILIES.find(function(f){ return f.id===currentFamily; }) || FAMILIES[0];
+    document.documentElement.style.setProperty('--font-body', fam.stack);
     const btn = document.getElementById('fontSizeBtn');
-    if(btn) btn.textContent = 'Aa ' + LABELS[idx];
-    try { localStorage.setItem(KEY, idx); } catch(e){}
+    if(btn) btn.textContent = 'Aa ' + currentSize;
+    try {
+      localStorage.setItem(SIZE_KEY, currentSize);
+      localStorage.setItem(FAMILY_KEY, currentFamily);
+    } catch(e){}
+    _syncPanel();
   }
+
+  function _syncPanel(){
+    if(!_panel) return;
+    var inp = _panel.querySelector('#typo-size-input');
+    if(inp) inp.value = currentSize;
+    _panel.querySelectorAll('.typo-preset').forEach(function(b){
+      b.classList.toggle('active', parseInt(b.dataset.sz)===currentSize);
+    });
+    _panel.querySelectorAll('.typo-family-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.fid===currentFamily);
+    });
+  }
+
+  function setSize(sz){
+    currentSize = Math.min(MAX_SIZE, Math.max(MIN_SIZE, Math.round(sz)));
+    applyTypography();
+  }
+
+  function _buildPanel(){
+    var el = document.createElement('div');
+    el.id = 'typographyPanel';
+    el.className = 'typo-panel';
+    var presetsHtml = PRESET_SIZES.map(function(s){
+      return '<button class="typo-preset'+(s===currentSize?' active':'') +'" data-sz="'+s+'" onclick="window._typoSetSize('+s+')">'+s+'</button>';
+    }).join('');
+    var familiesHtml = FAMILIES.map(function(f){
+      return '<button class="typo-family-btn'+(f.id===currentFamily?' active':'') +'" data-fid="'+f.id+'" style="font-family:'+f.stack+'" onclick="window._typoSetFamily(\''+f.id+'\')">'+f.label+'</button>';
+    }).join('');
+    el.innerHTML =
+      '<div class="typo-panel-header">'+
+        '<span class="typo-panel-title">Typography</span>'+
+        '<button class="typo-close" onclick="window._typoClose()">✕</button>'+
+      '</div>'+
+      '<div class="typo-section-label">Size</div>'+
+      '<div class="typo-stepper">'+
+        '<button class="typo-step-btn" onclick="window._typoStep(-1)">−</button>'+
+        '<input id="typo-size-input" class="typo-size-input" type="number" min="'+MIN_SIZE+'" max="'+MAX_SIZE+'" value="'+currentSize+'" '+
+          'oninput="window._typoInputSize(this.value)" onchange="window._typoInputSize(this.value)">'+
+        '<span class="typo-size-unit">pt</span>'+
+        '<button class="typo-step-btn" onclick="window._typoStep(1)">+</button>'+
+      '</div>'+
+      '<div class="typo-presets">'+presetsHtml+'</div>'+
+      '<div class="typo-section-label">Font</div>'+
+      '<div class="typo-families">'+familiesHtml+'</div>';
+    document.body.appendChild(el);
+    _panel = el;
+    setTimeout(function(){el.classList.add('open');},10);
+  }
+
+  function _closePanel(){
+    if(!_panel) return;
+    _panel.classList.remove('open');
+    setTimeout(function(){ if(_panel){_panel.remove();_panel=null;} },220);
+    panelOpen = false;
+  }
+
+  window._typoSetSize    = function(sz){ setSize(sz); };
+  window._typoStep       = function(d){ setSize(currentSize+d); };
+  window._typoInputSize  = function(v){ var n=parseInt(v,10); if(!isNaN(n)) setSize(n); };
+  window._typoSetFamily  = function(fid){ currentFamily=fid; applyTypography(); };
+  window._typoClose      = function(){ _closePanel(); };
+
+  function togglePanel(){
+    if(panelOpen){ _closePanel(); return; }
+    panelOpen = true;
+    _buildPanel();
+  }
+
+  // Close when tapping outside
+  document.addEventListener('pointerdown', function(e){
+    if(!_panel || !panelOpen) return;
+    if(!_panel.contains(e.target) && e.target.id!=='fontSizeBtn') _closePanel();
+  }, true);
 
   function init(){
     try {
-      const saved = localStorage.getItem(KEY);
-      if(saved !== null) current = Math.min(4, Math.max(0, parseInt(saved)||2));
+      var savedSz = localStorage.getItem(SIZE_KEY);
+      if(savedSz !== null){ var n=parseInt(savedSz,10); if(n>=MIN_SIZE && n<=MAX_SIZE) currentSize=n; }
+      var savedFam = localStorage.getItem(FAMILY_KEY);
+      if(savedFam && FAMILIES.some(function(f){return f.id===savedFam;})) currentFamily=savedFam;
     } catch(e){}
-    applySize(current);
-    const btn = document.getElementById('fontSizeBtn');
-    if(btn) btn.onclick = function(){ applySize((current+1)%5); };
+    applyTypography();
+    var btn = document.getElementById('fontSizeBtn');
+    if(btn) btn.onclick = togglePanel;
   }
 
   if(document.readyState==='loading'){
