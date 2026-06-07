@@ -124,5 +124,38 @@ window.CULTURAL_CARDS = {
     sources:["Matthew 19 / Mark 10 / Luke 18 text","Standard NT scholarly consensus that no 'needle gate' is attested in 1st-century sources","Source gap: 'needle gate' is folklore, not in approved project files"],
     confidence:"strong-contextual",
     relatedVerses:["Matthew 19:16-30","Mark 10:17-31","Luke 18:18-30"]
+  },
+
+  "1 Kings 1:1-4":{
+    title:"Why they brought a young virgin to warm the king",
+    passage:"1 Kings 1:1-4",
+    cultural:"King David is old and failing — his body can no longer regulate its own temperature, a recognized sign of declining vitality in the ancient world. His servants' solution: find a young woman to lie beside him as a living heat source. This was a known ancient Near Eastern practice for the elderly and infirm; it is medical, not sexual. The text explicitly states in verse 4: 'the king knew her not.' The girl, Abishag the Shunammite, became a royal attendant and caretaker — not a wife, not a concubine.",
+    misunderstood:"Modern readers immediately read this as sexual. It is not. Ancient medicine regarded the body heat of a young, healthy person as genuinely restorative to an elderly one. There were no heating systems; body warmth was the remedy. Bathsheba was David's wife and queen-mother — her position was not threatened by a medical attendant. This arrangement was within understood ANE custom.",
+    matters:"Abishag's status matters enormously for what happens next. Because she attended David as part of the royal household — but was never formally made his wife — her position is ambiguous. This ambiguity becomes deadly when Adonijah asks for her after David's death (1 Kings 2:17-22).",
+    sources:["1 Kings 1:1-4 text","ANE medical background — body warmth as restorative (general scholarly background)","Edersheim general (not bundled)"],
+    confidence:"direct-source",
+    relatedVerses:["1 Kings 1:1-4","1 Kings 2:13-25"]
+  },
+
+  "1 Kings 1:50-53":{
+    title:"Grabbing the horns of the altar — what it meant and why it worked",
+    passage:"1 Kings 1:50-53",
+    cultural:"The altar of burnt offering had four raised projections at its corners called 'horns' (Exodus 27:2). The horns were the most sacred part of the altar — the place where the blood of sacrifice was applied (Lev 4:7,18,25). They represented the concentrated presence and power of God. To seize the horns of the altar was to throw yourself on God's mercy and demand sanctuary. It was a public, desperate plea: 'I claim the protection of YHWH himself.' In Israel's law (Exodus 21:12-14) the altar offered asylum to someone who killed accidentally — but NOT to a deliberate murderer.",
+    misunderstood:"This is not just grabbing a piece of furniture. In the ancient world, temples and altars were recognized places of asylum. To drag someone away from the horns was to override divine protection — it put the pursuer in the position of defying God, not just executing justice. Adonijah was using this public, religious theater to force Solomon's hand: 'Kill me here, and you kill me at God's altar in front of everyone.'",
+    matters:"Solomon's response is measured: 'If he be a worthy man, not a hair of him shall fall to the earth. But if wickedness be found in him, he shall die' (1 Kings 1:52). He grants conditional clemency — Adonijah is released and sent home. The altar sanctuary worked, temporarily. But Adonijah does not remain harmless.",
+    sources:["1 Kings 1:50-53 text","Exodus 27:2","Exodus 21:12-14","Leviticus 4:7,18,25","1 Kings 2:28 (Joab also seizes the altar horns)"],
+    confidence:"direct-source",
+    relatedVerses:["1 Kings 1:50-53","1 Kings 2:28-34","Exodus 21:12-14","Exodus 27:2","Psalm 118:27"]
+  },
+
+  "1 Kings 2:13-25":{
+    title:"Why asking for Abishag was asking for the throne — and why Solomon killed him",
+    passage:"1 Kings 2:13-25",
+    cultural:"In the ancient Near East, possession of the king's women — wives, concubines, and royal attendants — was a claim to the throne. This was not merely custom; it was political law written into how kingdoms transferred power. When Absalom publicly took David's concubines on the palace rooftop (2 Samuel 16:20-22), he was not acting out sexual desire — he was making a territorial announcement: 'I have inherited the kingdom.' When Adonijah asks to marry Abishag through Bathsheba as his intermediary, Solomon immediately understands what is really being said.",
+    misunderstood:"It looks like a romantic request for a beautiful woman. Solomon reads it as a coup attempt — and he is almost certainly right. 1 Kings 2:22 — Solomon responds to Bathsheba: 'Why do you ask Abishag the Shunammite for Adonijah? Ask for him also the kingdom — for he is my older brother.' Adonijah had already tried to seize the throne openly (1 Kings 1:5-10) and was only pardoned conditionally (1 Kings 1:52). This was his second attempt — using marriage as a legal mechanism to claim that he had inherited David's royal household.",
+    matters:"Abishag was not David's wife, but she was the last woman to attend him as king — she was associated with his royal person. To take her was to claim David's legacy. Solomon's execution of Adonijah is royal politics, not a killing for asking a question. In that world, a live rival claimant with a plausible inheritance argument is an ongoing existential threat to the throne and to the kingdom's stability.",
+    sources:["1 Kings 2:13-25 text","2 Samuel 16:20-22 (Absalom and the concubines)","2 Samuel 3:6-11 (Abner's relationship to Saul's concubine Rizpah as a throne claim)","ANE royal succession customs (general scholarly background)"],
+    confidence:"strong-contextual",
+    relatedVerses:["1 Kings 1:5-10","1 Kings 1:50-53","1 Kings 2:13-25","2 Samuel 16:20-22","2 Samuel 3:6-11"]
   }
 };

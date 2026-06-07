@@ -1262,7 +1262,411 @@ window.ENGLISH_BIBLE_DICT = {
   relatedVerses:["Leviticus 19:17","Psalm 141:5","Proverbs 9:8","Proverbs 27:5-6","Matthew 18:15","Luke 17:3","2 Timothy 4:2","Titus 1:13","Titus 2:15","Revelation 3:19"],
   relatedWords:["reproof","exhortation","admonition","correction"],category:"wisdom / community",
   sources:["Strong's H1605","Strong's G2008","Thayer's","BDB"],confidence:"direct-source"
+},
+"repent":{
+  word:"repent",
+  plain:"To turn away from sin and turn toward God — the verb behind repentance. Not just feeling sorry but actually changing direction.",
+  deep:"The verb form of repentance. Hebrew SHUV (H7725) — to turn, return — is the primary prophetic call across the OT: 'Turn back to YHWH.' Greek METANOEO (G3340) — to change one's mind and direction — is Jesus' own word (Matt 4:17; Mark 1:15). Repenting is not a one-time event at conversion; it is the ongoing posture of the believer (Rev 2:5,16,21; 3:3,19). Scripture distinguishes godly grief that produces repentance from worldly sorrow that doesn't (2 Cor 7:9-10).",
+  misunderstood:"'Repent' is not a synonym for 'say sorry.' Saying sorry without turning is worldly sorrow. Repentance bears observable fruit (Luke 3:8; Acts 26:20). It is also not the same as confession — see 'confess.'",
+  matters:"'Repent' is Jesus' first and last command to the churches (Matt 4:17; Rev 2-3). Where there is no repentance, there is no kingdom entrance.",
+  originals:[
+    {lang:"Greek",word:"μετανοέω",translit:"metanoeo",strongs:"G3340",note:"To change one's mind and direction — the verb form of metanoia."},
+    {lang:"Hebrew",word:"שׁוּב",translit:"shuv",strongs:"H7725",note:"To turn, return — the prophetic verb for repentance in the OT."},
+    {lang:"Hebrew",word:"נָחַם",translit:"nacham",strongs:"H5162",note:"To feel regret, relent, be moved with compassion."}
+  ],
+  rangeOfMeaning:["change of mind","change of direction","turning from sin","returning to God","ongoing posture of the kingdom citizen"],
+  notMean:"Not 'feeling bad.' Not penance. Not mere regret without behavioral change. NOT the same as confession.",
+  cultural:"In Greco-Roman culture the common word was metamellomai (feel regret). The NT consistently uses the deeper word metanoeo — a full change of mind — borrowed from the prophetic OT background of shuv.",
+  kingdomSignificance:"'Repent: for the kingdom of heaven is at hand' (Matt 3:2; 4:17). Repentance is the door. Christ commands it to every one of His churches in Revelation.",
+  relatedVerses:["Matthew 3:2","Matthew 4:17","Mark 1:15","Luke 3:8","Luke 13:3","Acts 2:38","Acts 3:19","Acts 17:30","2 Corinthians 7:9-10","Acts 26:20","Revelation 2:5","Revelation 3:19"],
+  relatedWords:["repentance","confess","turn","return","conversion","forsake"],
+  category:"salvation / grace",
+  sources:["Strong's G3340","Strong's H7725","Strong's H5162","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"confess":{
+  word:"confess",
+  plain:"To say aloud — before God or before people — what is true: agreeing with God about sin, or publicly declaring faith in Jesus.",
+  deep:"Confession is NOT repentance, though they often travel together. Hebrew YADAH (H3034) — to throw, acknowledge, praise — is used of the high priest placing both hands on the scapegoat and confessing all Israel's sins over it (Lev 16:21). It is also the root of TODAH (thanksgiving/praise). Greek HOMOLOGEO (G3670) literally means 'to say the same thing' — to agree with what God says. Two distinct NT uses: (1) CONFESSION OF SIN — agreeing with God's assessment of your sin; 1 John 1:9; James 5:16. (2) CONFESSION OF FAITH — publicly declaring Jesus is Lord; Romans 10:9-10; Matthew 10:32. The reason 1 John 1:9 works is not the speaking itself but the agreement with God's perspective — turning TOWARD the light, not away from it.",
+  misunderstood:"Confessing is NOT the same as repenting. Repentance = changing direction. Confession = agreeing with the truth about the sin. You can confess without turning (judas felt remorse and confessed, Matt 27:4, but did not turn to God). Biblical confession is the verbal, relational dimension of bringing sin into the light before God or a trusted community member.",
+  matters:"1 John 1:9 is the believer's ongoing cleansing. Romans 10:9-10 makes confessing Jesus Lord essential to salvation — it is the outward expression of inward faith.",
+  originals:[
+    {lang:"Greek",word:"ὁμολογέω",translit:"homologeo",strongs:"G3670",note:"To say the same thing, agree with, confess, declare publicly."},
+    {lang:"Greek",word:"ἐξομολογέω",translit:"exomologeo",strongs:"G1843",note:"To confess out, to acknowledge openly (Matt 3:6; Jas 5:16)."},
+    {lang:"Hebrew",word:"יָדָה",translit:"yadah",strongs:"H3034",note:"To throw, to acknowledge, to praise/confess; root of todah (thanksgiving)."},
+    {lang:"Hebrew",word:"וִדּוּי",translit:"viddui",strongs:"H3034",note:"The act of confession, as in Lev 16:21."}
+  ],
+  rangeOfMeaning:["agreeing with God about sin","acknowledging wrongdoing before community","declaring faith in Jesus publicly","praise/thanksgiving (yadah's range)"],
+  notMean:"Not repentance. Not mere verbal ritual. Not earning forgiveness — it receives it. Confession without agreement of heart is empty.",
+  cultural:"In Jewish law the viddui (confession) on Yom Kippur was the high priest's verbal transfer of Israel's sins onto the scapegoat (Lev 16:21). The practice of confessing to a priest is a later development; James 5:16 is mutual confession within the community.",
+  kingdomSignificance:"Romans 10:9-10 — 'if you confess with your mouth the Lord Jesus, and believe in your heart that God raised Him from the dead, you will be saved.' Confession is the public, relational side of faith. 1 John 1:9 is ongoing cleansing for believers walking in the light.",
+  relatedVerses:["Leviticus 16:21","Psalm 32:5","Psalm 51:3-4","Matthew 3:6","Matthew 10:32-33","John 12:42","Acts 19:18","Romans 10:9-10","1 John 1:9","James 5:16"],
+  relatedWords:["repent","repentance","forgiveness","acknowledge","declare","faith"],
+  category:"salvation / grace",
+  sources:["Strong's G3670","Strong's G1843","Strong's H3034","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"confession":{
+  word:"confession",
+  plain:"The act of confessing — either acknowledging sin before God, or publicly declaring Jesus as Lord.",
+  deep:"See 'confess' for the full treatment. Confession (homologia, G3671) in the NT covers both the believer's ongoing acknowledgment of sin before God (1 John 1:9) and the public declaration of faith (Heb 3:1; 4:14; 10:23 — 'hold fast the confession of our hope'). The confession of Jesus as Lord (Rom 10:9; Phil 2:11) was a politically charged act in Rome — Caesar demanded that confession; Christians gave it to Jesus instead.",
+  misunderstood:"Confession of sin is not the same as repentance. Confession is agreeing with the truth about what happened. Repentance is the turn away from it. Both are needed, but they are distinct acts. A person who confesses but does not turn has not yet repented.",
+  matters:"Hebrews speaks of 'holding fast the confession' (Heb 4:14; 10:23) as the ongoing act of the Christian life — publicly owning your faith even under pressure.",
+  originals:[
+    {lang:"Greek",word:"ὁμολογία",translit:"homologia",strongs:"G3671",note:"Confession, declaration, the act of saying the same thing."},
+    {lang:"Greek",word:"ἐξομολόγησις",translit:"exomologesis",strongs:"G1843",note:"Public, open acknowledgment."}
+  ],
+  rangeOfMeaning:["acknowledgment of sin","public declaration of faith","holding fast to a doctrinal commitment"],
+  notMean:"Not repentance. Not earning forgiveness. Not a ritual requirement without heart agreement.",
+  cultural:"In Rome, 'Caesar is Lord' (Kyrios Kaisar) was the required confession of imperial loyalty. The Christian confession 'Jesus is Lord' (Kyrios Iesous, Rom 10:9; Phil 2:11) was a direct counter-claim, costly in that context.",
+  kingdomSignificance:"Hebrews 3:1 calls Jesus 'the Apostle and High Priest of our confession.' Our confession of Him is inseparably linked to who He is and what He has done.",
+  relatedVerses:["Matthew 10:32-33","Romans 10:9-10","Philippians 2:11","Hebrews 3:1","Hebrews 4:14","Hebrews 10:23","1 John 1:9","James 5:16"],
+  relatedWords:["confess","repentance","faith","declaration","Lord"],
+  category:"salvation / grace",
+  sources:["Strong's G3671","Strong's G1843","Thayer's"],
+  confidence:"direct-source"
+},
+"renew":{
+  word:"renew",
+  plain:"To be made new again — God restoring freshness, life, and right orientation, especially to the mind and spirit.",
+  deep:"Hebrew CHADASH (H2318) — to make new, renew; root of CHODESH (new moon, month) — each new moon was a picture of renewal. Psalm 51:10: 'Create in me a clean heart, O God; and renew a right spirit within me.' Greek ANAKAINOO (G341) — to renew, make new again; ANAKAINOSIS (G342) — renewal of the inward person. The prefix ANA (again) + KAINOS (new in kind/quality, not just recent) = made new in quality, not just updated. 2 Corinthians 4:16: 'the inward man is renewed day by day' — renewal is daily, not once for all. It is distinct from regeneration (birth from above, one-time) and sanctification (the whole process); renewal specifically names the ongoing freshening of the mind and spirit.",
+  misunderstood:"Not self-improvement or willpower. Not the same as regeneration (new birth). Biblical renewal is God's active work in response to a person returning to Him, being in His Word (John 17:17; Ps 119:25), and yielding to the Spirit (Tit 3:5).",
+  matters:"Romans 12:2 — 'Be not conformed to this world, but be transformed by the renewing of your mind.' The renewed mind is the mechanism of discerning God's will and resisting worldly pressure.",
+  originals:[
+    {lang:"Greek",word:"ἀνακαινόω",translit:"anakainoo",strongs:"G341",note:"To renew, make new again in quality."},
+    {lang:"Hebrew",word:"חָדַשׁ",translit:"chadash",strongs:"H2318",note:"To make new, renew."}
+  ],
+  rangeOfMeaning:["daily refreshing of the inward person","renewal of the mind","renewal by the Holy Spirit","restoration to original vitality"],
+  notMean:"Not regeneration. Not willpower self-improvement. Not a one-time transaction.",
+  cultural:"Jewish liturgy centered on chadash — the new moon (Rosh Chodesh) was a monthly picture of God making things new again. Covenants were renewed (Joshua 24; 2 Chronicles 34). Renewal was built into the calendar.",
+  kingdomSignificance:"The kingdom citizen's mind must be renewed or it defaults to the world's patterns (Rom 12:2). Titus 3:5 — 'renewing of the Holy Spirit' is described as one of the two works at salvation — washing and renewing.",
+  relatedVerses:["Psalm 51:10","Isaiah 40:31","Lamentations 5:21","Romans 12:2","2 Corinthians 4:16","Ephesians 4:23","Colossians 3:10","Titus 3:5"],
+  relatedWords:["restore","transform","regeneration","sanctify","Spirit"],
+  category:"salvation / grace",
+  sources:["Strong's G341","Strong's G342","Strong's H2318","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"renewal":{
+  word:"renewal",
+  plain:"The ongoing work of God making the inner person new — Spirit-powered, not earned or self-generated.",
+  deep:"Greek ANAKAINOSIS (G342) — renewal, renovation of the inner self. Used twice in NT: Romans 12:2 ('renewing of your mind') and Titus 3:5 ('renewing of the Holy Spirit'). The noun names the process and reality, not a one-time event. Paul's testimony in 2 Corinthians 4:16 — 'though our outward man perish, yet the inward man is renewed day by day' — frames renewal as the daily, Spirit-sustained counterweight to physical decline and suffering.",
+  misunderstood:"Not a synonym for revival (though renewal may accompany revival). Not the same as regeneration (new birth, one-time). Renewal is the daily, ongoing process of the mind and spirit being brought back into freshness and alignment with God.",
+  matters:"Without mind-renewal, behavioral transformation is impossible; believers will simply be conformed to the world (Rom 12:2). The Spirit's renewal is listed alongside washing/regeneration as the twin work of salvation (Tit 3:5).",
+  originals:[
+    {lang:"Greek",word:"ἀνακαίνωσις",translit:"anakainosis",strongs:"G342",note:"Renewal, renovation; used in Romans 12:2 and Titus 3:5."}
+  ],
+  rangeOfMeaning:["renewing of the mind","Spirit-worked daily freshening","renovation of the inner person"],
+  notMean:"Not one-time. Not self-manufactured. Not revival as an event.",
+  cultural:"Jewish monthly renewal cycle (Rosh Chodesh) provided a cultural backdrop for the concept of periodic renewal. The prophets promised a new covenant written on the heart (Jer 31:31-34) — renewal of the deepest interior.",
+  kingdomSignificance:"Titus 3:5 lists renewal by the Holy Spirit as a salvation gift. Romans 12:2 makes mind-renewal the mechanism of living as a transformed kingdom citizen rather than a worldly one.",
+  relatedVerses:["Romans 12:2","2 Corinthians 4:16","Titus 3:5","Colossians 3:10","Jeremiah 31:31-34"],
+  relatedWords:["renew","transform","sanctify","Spirit","mind"],
+  category:"salvation / grace",
+  sources:["Strong's G342","Thayer's"],
+  confidence:"direct-source"
+},
+"forgive":{
+  word:"forgive",
+  plain:"To cancel a debt, release an offender from what they owe — both God's act toward us and ours toward each other.",
+  deep:"Hebrew SALACH (H5545) is the exclusive divine forgiveness word — its grammatical subject is always God, never humans. No human salachs another; it is a prerogative of God alone (Ps 130:4; Is 55:7). NASA (H5375) — to lift, carry away — describes the bearing of guilt and its removal (Gen 50:17; Ex 32:32). Greek APHIEMI (G863) — to send away, release, dismiss — is the most common NT word for forgive (Matt 6:12-14; Eph 4:32). CHARIZOMAI (G5483) — to give graciously, forgive — emphasizes the gift dimension (Col 2:13; Eph 4:32). The Lord's Prayer (Matt 6:12-15) makes receiving forgiveness conditional on extending it — not earning God's forgiveness, but maintaining the posture of a forgiven person.",
+  misunderstood:"Forgiveness is not the same as trust restored or consequences removed. God forgives fully; trust and consequences are separate categories. Forgiveness toward others is commanded regardless of whether the offender has apologized — it releases the forgiver, not just the forgiven.",
+  matters:"Matthew 6:14-15 — 'if you forgive not men their trespasses, neither will your Father forgive your trespasses.' Forgiveness given and received is the moral ecology of the kingdom.",
+  originals:[
+    {lang:"Hebrew",word:"סָלַח",translit:"salach",strongs:"H5545",note:"To forgive — used exclusively of God as subject."},
+    {lang:"Hebrew",word:"נָשָׂא",translit:"nasa",strongs:"H5375",note:"To lift, carry away — used of bearing/removing guilt."},
+    {lang:"Greek",word:"ἀφίημι",translit:"aphiemi",strongs:"G863",note:"To send away, release, forgive."},
+    {lang:"Greek",word:"χαρίζομαι",translit:"charizomai",strongs:"G5483",note:"To give graciously, forgive (gift dimension)."}
+  ],
+  rangeOfMeaning:["divine cancellation of sin-debt","release of the offender from obligation","removal and bearing away of guilt","the gracious gift of non-remembrance"],
+  notMean:"Not excusing. Not pretending the wrong didn't happen. Not necessarily restoring trust or removing consequences. Not forgetting (humans can't erase memory — forgiveness is a choice, not a feeling).",
+  cultural:"Hebrew debt law: debts were literally written on tablets; forgiveness was erasing the record. The shmita (sabbath year) included debt cancellation every seven years (Deut 15). Jesus' parable of the unmerciful servant (Matt 18:21-35) is built on this exact financial metaphor.",
+  kingdomSignificance:"The cross is the ground of all forgiveness. God forgives because Christ bore the debt (Col 2:14 — 'nailing it to the cross'). Believers forgive 'even as God for Christ's sake hath forgiven you' (Eph 4:32).",
+  relatedVerses:["Exodus 34:6-7","Psalm 103:3-12","Psalm 130:4","Isaiah 43:25","Isaiah 55:7","Matthew 6:12-15","Matthew 18:21-35","Luke 15:11-32","Acts 10:43","Ephesians 1:7","Ephesians 4:32","Colossians 2:13-14","1 John 1:9"],
+  relatedWords:["forgiveness","mercy","grace","atonement","cleanse"],
+  category:"salvation / grace",
+  sources:["Strong's H5545","Strong's H5375","Strong's G863","Strong's G5483","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"forgiveness":{
+  word:"forgiveness",
+  plain:"The cancellation of a debt — God releasing you from the guilt and penalty of sin; the record wiped clean.",
+  deep:"Hebrew SELICHAH (H5547) — forgiveness, readiness to forgive. Nehemiah 9:17: 'a God ready to forgive, gracious and merciful.' Greek APHESIS (G859) — release, sending away, forgiveness of sins; the noun behind aphiemi. Used throughout Acts (2:38; 13:38; 26:18) as the first gift of the gospel message. Hebrews 9:22 — 'without shedding of blood there is no forgiveness' — establishing that forgiveness has a cost that must be paid; Christ paid it once for all (Heb 10:12-18).",
+  misunderstood:"Forgiveness is not the same as ignoring sin or tolerating it. It is the judicial act of a righteous God absorbing the penalty through Christ's substitution. It is also not the same as full restoration of relationship — forgiveness is the foundation; trust must be rebuilt through demonstrated change.",
+  matters:"Acts 2:38 — 'Repent, and be baptized... for the forgiveness of your sins.' Forgiveness is the entry gift of the kingdom. Colossians 1:14 — 'in whom we have redemption, the forgiveness of sins.'",
+  originals:[
+    {lang:"Hebrew",word:"סְלִיחָה",translit:"selichah",strongs:"H5547",note:"Forgiveness, readiness to pardon."},
+    {lang:"Greek",word:"ἄφεσις",translit:"aphesis",strongs:"G859",note:"Release, sending away, forgiveness."}
+  ],
+  rangeOfMeaning:["cancellation of sin-debt","release from guilt and penalty","sending away of sin","God's readiness to pardon"],
+  notMean:"Not automatic. Not cheap. Not without a cost paid (Christ paid it). Not the same as restored trust.",
+  cultural:"The Day of Atonement (Yom Kippur) was Israel's annual picture of corporate forgiveness: sin confessed, transferred to the scapegoat, sent away into the wilderness — a vivid enactment of aphesis (sending away).",
+  kingdomSignificance:"Colossians 1:13-14 — believers are rescued from darkness into the kingdom and have 'the forgiveness of sins.' Forgiveness is the currency of the kingdom community (Matt 18:21-35).",
+  relatedVerses:["Psalm 130:4","Nehemiah 9:17","Isaiah 43:25","Luke 24:47","Acts 2:38","Acts 10:43","Acts 13:38","Ephesians 1:7","Colossians 1:14","Hebrews 9:22","Hebrews 10:18","1 John 1:9"],
+  relatedWords:["forgive","mercy","atonement","redemption","grace"],
+  category:"salvation / grace",
+  sources:["Strong's H5547","Strong's G859","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"cleanse":{
+  word:"cleanse",
+  plain:"To purify — to wash away defilement, ritual or moral, and make fit to approach God.",
+  deep:"Hebrew TAHER (H2891) — to be clean, to make clean; TAHOR (H2889) — pure, clean. The Levitical system built an entire ritual vocabulary around cleanness and uncleanness: clean animals, clean people, clean days. Blood, water, and fire were the purifying agents. Greek KATHARIZO (G2511) — to cleanse, make clean; source of 'cathartic.' 1 John 1:7 — 'the blood of Jesus Christ his Son cleanseth us from all sin.' Hebrews 9:14 — 'how much more shall the blood of Christ... purge your conscience.' Jesus' pattern: he touched the unclean and made them clean rather than being contaminated (Matt 8:3 — the leper).",
+  misunderstood:"Not merely external washing or ritual observance. The prophets constantly called Israel back from ritual cleansing without moral cleansing: Isaiah 1:16 — 'wash you, make you clean; put away the evil of your doings from before my eyes.' Both dimensions matter but moral cleansing is primary.",
+  matters:"Psalm 51:2,7,10 — David's prayer: 'Wash me thoroughly from mine iniquity... purge me with hyssop... create in me a clean heart.' Cleansing is the personal, interior work of God in the repentant soul.",
+  originals:[
+    {lang:"Hebrew",word:"טָהֵר",translit:"taher",strongs:"H2891",note:"To be clean, make clean — ritual and moral."},
+    {lang:"Greek",word:"καθαρίζω",translit:"katharizo",strongs:"G2511",note:"To cleanse, make clean (cathartic)."},
+    {lang:"Greek",word:"ἁγνίζω",translit:"hagnizo",strongs:"G48",note:"To purify oneself, hallow."}
+  ],
+  rangeOfMeaning:["ritual purification","moral cleansing","cleansing from sin by blood of Christ","cleansing of the conscience","purifying the heart"],
+  notMean:"Not only external or ritual. Not self-administered without divine action. Not a bypass for the moral dimension.",
+  cultural:"Levitical cleansing rituals (washings, blood sprinklings, hyssop — Lev 14-16; Num 19) were enacted pictures of moral and relational cleansing. Hyssop (Ps 51:7) was the plant used to apply the blood — David knew exactly what he was asking for.",
+  kingdomSignificance:"1 John 1:9 — 'the blood of Jesus Christ his Son cleanseth us from all sin' — cleansing is ongoing, available, and total. The kingdom citizen comes continually to the blood, not to self-improvement.",
+  relatedVerses:["Leviticus 14-16","Psalm 51:2,7","Isaiah 1:16","Ezekiel 36:25","Matthew 8:3","John 15:3","1 Corinthians 6:11","Ephesians 5:26","Hebrews 9:14","1 John 1:7,9"],
+  relatedWords:["purify","holy","atonement","blood","sanctify"],
+  category:"worship / temple",
+  sources:["Strong's H2891","Strong's G2511","Strong's G48","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"purify":{
+  word:"purify",
+  plain:"To make completely clean — removing all defilement so someone or something can stand in God's presence.",
+  deep:"Hebrew TAHER (H2891) and QADESH (H6942, to consecrate/sanctify) overlap in purification contexts. Greek HAGNIZO (G48) — to purify, make holy — is used for both ritual preparation (John 11:55; Acts 21:26) and moral purity (1 Pet 1:22 'ye have purified your souls'; 1 John 3:3 'purifies himself as He is pure'). KATHARIZO (G2511) — to cleanse. Hebrews 9:13-14 contrasts the purification of the flesh through animal blood with the purification of the conscience through Christ's blood.",
+  misunderstood:"Not just ritual washing. Not self-produced by human effort alone. Purification is a divine work that requires the agent of the blood of Christ (Heb 9:14) and the Word of God (Eph 5:26).",
+  matters:"James 4:8 — 'Purify your hearts, ye double-minded.' The double mind (divided loyalty between God and the world) is the thing that needs to be purified. Purity of heart is the condition for seeing God (Matt 5:8).",
+  originals:[
+    {lang:"Greek",word:"ἁγνίζω",translit:"hagnizo",strongs:"G48",note:"To purify, make holy; both ritual and moral."},
+    {lang:"Greek",word:"καθαρίζω",translit:"katharizo",strongs:"G2511",note:"To cleanse, purify."},
+    {lang:"Hebrew",word:"טָהֵר",translit:"taher",strongs:"H2891",note:"To be or make clean/pure."}
+  ],
+  rangeOfMeaning:["ritual purification for worship","moral purity of heart","purification of the conscience","cleansing from double-mindedness"],
+  notMean:"Not earned. Not external only. Not by human effort alone.",
+  cultural:"Jewish purification before Passover and festivals was extensive. John 11:55 — many went up to Jerusalem to 'purify themselves.' Acts 21:24-26 — Paul participated in purification rites. The NT does not abolish the concept but relocates it from ritual to interior.",
+  kingdomSignificance:"Matthew 5:8 — 'Blessed are the pure in heart: for they shall see God.' Purity of heart is a kingdom prerequisite for experiencing God. It is produced by the Spirit and the blood, not willpower.",
+  relatedVerses:["Psalm 24:3-4","Matthew 5:8","John 11:55","Acts 15:9","1 Peter 1:22","1 John 3:3","James 4:8","Titus 2:14","Hebrews 9:13-14"],
+  relatedWords:["cleanse","holy","sanctify","blood","heart"],
+  category:"worship / temple",
+  sources:["Strong's G48","Strong's G2511","Strong's H2891","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"humble":{
+  word:"humble",
+  plain:"To lower yourself before God — not self-promoting, not self-reliant. Also God's act of lowering the proud.",
+  deep:"Hebrew ANAV (H6041) — humble, meek, lowly; KANA (H3665) — to be humbled, subdued; the verb form of humility. Moses is described as 'very meek above all men' (Num 12:3 — anav). Greek TAPEINOO (G5013) — to humble, bring low; the verb form of tapeinophrosyne. 'Whoever exalts himself will be humbled, and whoever humbles himself will be exalted' (Matt 23:12) is a kingdom law, not merely a principle. Philippians 2:5-8 — Christ's self-emptying (kenosis) is the supreme model: 'He humbled himself and became obedient to death.' Christ doesn't recommend humility; He embodies it.",
+  misunderstood:"Humility is not low self-esteem, not self-deprecation, not weakness. C.S. Lewis: 'Humility is not thinking less of yourself but thinking of yourself less.' Biblical humility is God-centered, not self-centered. It is also not passivity — Moses was humble AND confronted Pharaoh, confronted Israel, and led with extraordinary authority.",
+  matters:"James 4:6 — 'God resists the proud, but gives grace to the humble.' The flow of grace is directed toward the humble. 1 Peter 5:5-6 — 'humble yourselves under the mighty hand of God, that he may exalt you in due time.'",
+  originals:[
+    {lang:"Greek",word:"ταπεινόω",translit:"tapeinoo",strongs:"G5013",note:"To humble, bring low — the verb."},
+    {lang:"Hebrew",word:"עָנָו",translit:"anav",strongs:"H6041",note:"Humble, meek, lowly."},
+    {lang:"Hebrew",word:"כָּנַע",translit:"kana",strongs:"H3665",note:"To be humbled, subdued, brought low."}
+  ],
+  rangeOfMeaning:["voluntary lowering before God","submission to God's authority","freedom from self-promotion","being brought low by God's discipline","Christlike servant posture"],
+  notMean:"Not self-hatred. Not weakness. Not passive. Not low self-esteem. Not pretending you have no gifts.",
+  cultural:"In Greco-Roman culture, tapeinoo was mostly negative — to be lowly, abased. The NT radically revalues it: God himself humbles himself in the incarnation (Phil 2:8). Paul wears the word as a badge (2 Cor 11:7; 12:21).",
+  kingdomSignificance:"Matthew 18:4 — 'whoever humbles himself as this little child is greatest in the kingdom.' Humility is the defining posture of kingdom citizens — the inverse of the world's honor culture.",
+  relatedVerses:["Numbers 12:3","2 Chronicles 7:14","Psalm 25:9","Proverbs 3:34","Proverbs 22:4","Matthew 18:4","Matthew 23:12","Luke 14:11","Philippians 2:5-8","James 4:6-10","1 Peter 5:5-6"],
+  relatedWords:["humility","meek","lowly","servant","submit"],
+  category:"moral conduct",
+  sources:["Strong's G5013","Strong's H6041","Strong's H3665","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"humility":{
+  word:"humility",
+  plain:"The settled posture of the heart that knows it depends entirely on God and does not grasp for status or supremacy.",
+  deep:"Greek TAPEINOPHROSYNE (G5012) — humility of mind, lowliness of spirit; literally 'lowly thinking' (tapeinos + phren = low + mind). Philippians 2:3 — 'in humility count others more significant than yourselves.' Colossians 3:12 — listed alongside compassion, kindness, gentleness, patience as clothing put on by the new person in Christ. Hebrew ANAVAH (H6038) — meekness, humility; Proverbs 22:4 — 'the reward of humility and the fear of the LORD is riches and honor and life.' Proverbs 11:2 — 'when pride comes, then comes disgrace, but with the humble is wisdom.'",
+  misunderstood:"False humility (Col 2:18,23) — external self-abasement while internally proud — is condemned. True humility is not performed for others but flows from an accurate assessment of who God is and who you are before Him. It is compatible with bold action and confident leadership.",
+  matters:"James 4:6 and 1 Peter 5:5 both quote Proverbs 3:34: 'God opposes the proud but gives grace to the humble.' The entire kingdom economy runs on this: grace flows to those low enough to receive it.",
+  originals:[
+    {lang:"Greek",word:"ταπεινοφροσύνη",translit:"tapeinophrosyne",strongs:"G5012",note:"Humility of mind, lowliness."},
+    {lang:"Hebrew",word:"עֲנָוָה",translit:"anavah",strongs:"H6038",note:"Meekness, humility."}
+  ],
+  rangeOfMeaning:["lowliness of mind","not grasping for status","accurate self-assessment before God","Christlike servant posture","kingdom greatness (the inversion of worldly greatness)"],
+  notMean:"Not false modesty. Not self-hatred. Not weakness. Not the absence of confidence.",
+  cultural:"Greco-Roman honor culture placed immense value on status, rank, and public recognition. Humility was considered shameful. Paul's revaluation — calling the church to outdo one another in showing honor (Rom 12:10) — was genuinely countercultural.",
+  kingdomSignificance:"Matthew 5:3 — 'poor in spirit' (the humble before God) receive the kingdom. Matthew 18:4 — the humble child is the greatest in the kingdom. The kingdom inverts every worldly honor ladder.",
+  relatedVerses:["Proverbs 3:34","Proverbs 11:2","Proverbs 22:4","Matthew 5:3","Matthew 18:4","Matthew 23:12","Romans 12:16","Ephesians 4:2","Philippians 2:3-8","Colossians 3:12","James 4:6-10","1 Peter 5:5-6"],
+  relatedWords:["humble","meek","servant","lowly","poor in spirit"],
+  category:"moral conduct",
+  sources:["Strong's G5012","Strong's H6038","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"restore":{
+  word:"restore",
+  plain:"To bring back to an original or better state — healing what was broken, returning what was lost, making whole.",
+  deep:"Hebrew SHUV (H7725) in the hiphil (causative) form — 'to cause to return, to restore'; SHALAM (H7999) — to make whole, complete, recompense (root of shalom). Psalm 23:3 — 'He restores my soul' (SHUV). Greek APOKATHISTEMI (G600) — to restore, set right again; used both of Jesus healing a withered hand (Mark 3:5) and of the eschatological restoration of all things (Acts 3:21). The verb carries the idea of returning to an original state plus making it right/whole. God's trajectory in Scripture is always toward restoration: Eden → New Eden; broken relationship → reconciliation; scattered people → gathered.",
+  misunderstood:"Restoration is not just repair back to a previous state. In Christ, restored things are often better than before (the prodigal gets a ring and a feast, not merely his old job back). Job's restoration was doubled. Restoration in Christ is upgrade, not just return.",
+  matters:"Acts 3:21 — 'the times of the restitution (apokatastasis) of all things which God hath spoken by the mouth of all his holy prophets.' The entire prophetic hope is restoration. Psalm 51:12 — 'Restore unto me the joy of thy salvation.'",
+  originals:[
+    {lang:"Greek",word:"ἀποκαθίστημι",translit:"apokathistemi",strongs:"G600",note:"To restore, set right, return to former state."},
+    {lang:"Hebrew",word:"שׁוּב",translit:"shuv",strongs:"H7725",note:"To return, restore (hiphil: cause to return)."},
+    {lang:"Hebrew",word:"שָׁלַם",translit:"shalam",strongs:"H7999",note:"To make whole, complete, restore — root of shalom."}
+  ],
+  rangeOfMeaning:["returning a person to wholeness","healing of physical infirmity","restoration of a broken relationship","restoring to a former position","eschatological restoration of all things"],
+  notMean:"Not mere repair. Not always a return to an identical former state — sometimes restoration is an improvement.",
+  cultural:"In ANE law, restitution (the legal form of restoration) required repaying what was taken, often with a penalty (Ex 22). Jesus' restoration goes beyond legal restitution to full relational and spiritual wholeness.",
+  kingdomSignificance:"Acts 3:19-21 — the prophetic restoration of all things is tied directly to Israel's repentance. The kingdom IS the restoration of the creation order under God's righteous reign.",
+  relatedVerses:["Psalm 23:3","Psalm 51:12","Isaiah 58:12","Ezekiel 36:24-28","Matthew 17:11","Mark 3:5","Acts 3:19-21","Galatians 6:1","Hebrews 13:20-21"],
+  relatedWords:["restoration","renewal","reconciliation","heal","return"],
+  category:"salvation / grace",
+  sources:["Strong's G600","Strong's H7725","Strong's H7999","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"restoration":{
+  word:"restoration",
+  plain:"The full return to rightness — everything broken made whole, everything lost brought back, everything scattered gathered.",
+  deep:"Greek APOKATASTASIS (G605) — restoration, reestablishment; used in Acts 3:21 'the times of the restitution (apokatastasis) of all things.' The word prefix APO (from, back) + KATHISTEMI (to set, establish) = to set back to original place. This is not just individual healing but cosmic — the full restoration of God's original intent for creation. The prophets look toward this: Isaiah 65-66 (new heaven and new earth), Ezekiel 36-37 (restoration of Israel), Romans 8:19-23 (creation's groan for liberation), Revelation 21-22 (all things new).",
+  misunderstood:"Restoration is not a return to an imperfect Eden; it is the arrival at the perfected end toward which Eden pointed. It is also not merely personal healing — it is the consummation of God's entire redemptive project.",
+  matters:"Acts 3:19-21 — Peter ties the timing of Christ's return to the restoration: 'Repent and be converted... that he may send Jesus Christ... until the times of the restoration of all things.' Personal repentance is part of the cosmic restoration program.",
+  originals:[
+    {lang:"Greek",word:"ἀποκατάστασις",translit:"apokatastasis",strongs:"G605",note:"Restoration, reestablishment — Acts 3:21."}
+  ],
+  rangeOfMeaning:["individual soul restoration","relational restoration","national/corporate restoration","cosmic eschatological restoration of creation"],
+  notMean:"Not restorative justice only. Not just personal healing. Not a return to an imperfect past.",
+  cultural:"The prophets spoke of Israel's restoration after exile as a type of the full cosmic restoration: Ezekiel 37 (dry bones), Isaiah 40-55 (second exodus), Amos 9:11-15. Jesus and the apostles read these as foreshadowing the final apokatastasis.",
+  kingdomSignificance:"The kingdom IS restoration. God's kingdom means God's original will being done — as in heaven, so on earth. Every act of restoration now is a foretaste and a sign of the kingdom coming in fullness.",
+  relatedVerses:["Acts 3:19-21","Isaiah 65:17-25","Ezekiel 36:24-36","Ezekiel 37","Amos 9:11-15","Matthew 17:11","Romans 8:19-23","Revelation 21:1-5"],
+  relatedWords:["restore","renewal","kingdom","all things new","reconciliation"],
+  category:"salvation / grace",
+  sources:["Strong's G605","Thayer's"],
+  confidence:"direct-source"
+},
+"reconcile":{
+  word:"reconcile",
+  plain:"To restore a broken relationship — to bring two estranged parties back into peace and fellowship.",
+  deep:"Greek KATALLASSO (G2644) — to reconcile; to exchange enmity for friendship, hostility for peace. From KATA (thoroughly) + ALLASSO (to change) — a thorough change in the relationship. Used exclusively in the NT for the restoration of the God-human relationship broken by sin (Rom 5:10; 2 Cor 5:18-20; Col 1:20-21). The direction is always God-ward: God in Christ reconciles the world to Himself; humans are called to BE reconciled (2 Cor 5:20). God is never described as needing to be reconciled to us — His righteous wrath was addressed at the cross; it is the human side that was alienated and must turn. APOKATALLASSO (G604) — to reconcile fully; used in Ephesians 2:16 (Jew and Gentile reconciled in one body) and Colossians 1:20.",
+  misunderstood:"The common misreading is that the cross changed God's attitude toward sinners. The NT consistently says the cross changed the legal/relational status of sinners, providing the basis for their reception into God's family. God's love for sinners predates the cross (John 3:16; Rom 5:8). What changed was the barrier — sin's penalty was paid.",
+  matters:"2 Corinthians 5:18-20 — the entire ministry of the church is described as the 'ministry of reconciliation.' Christians are 'ambassadors for Christ' with one message: 'be reconciled to God.'",
+  originals:[
+    {lang:"Greek",word:"καταλλάσσω",translit:"katallasso",strongs:"G2644",note:"To reconcile, exchange enmity for peace."},
+    {lang:"Greek",word:"ἀποκαταλλάσσω",translit:"apokatallasso",strongs:"G604",note:"To reconcile fully, completely."}
+  ],
+  rangeOfMeaning:["restoration of broken relationship","removal of enmity","peace-making between parties","bringing together what sin separated"],
+  notMean:"Not that God was angry and had to be appeased in the sense of a temperamental deity. Not that love came after the cross — love was the motive for the cross (John 3:16).",
+  cultural:"KATALLASSO was used in diplomatic and financial contexts: reconciling enemies, exchanging debts for peace. Paul uses the marketplace/diplomatic term and fills it with the meaning of the cross.",
+  kingdomSignificance:"Colossians 1:19-20 — God is reconciling ALL things to himself through Christ — not just individual souls but the entire cosmos. Ephesians 2:14-16 — the cross reconciles Jew and Gentile into one new humanity, the church.",
+  relatedVerses:["Romans 5:10-11","Romans 11:15","2 Corinthians 5:18-21","Ephesians 2:14-16","Colossians 1:19-22","Matthew 5:24"],
+  relatedWords:["reconciliation","atonement","peace","forgiveness","restore"],
+  category:"salvation / grace",
+  sources:["Strong's G2644","Strong's G604","Thayer's"],
+  confidence:"direct-source"
+},
+"reconciliation":{
+  word:"reconciliation",
+  plain:"The state of restored peace — the broken relationship between God and humanity repaired through Christ's death.",
+  deep:"Greek KATALLAGĒ (G2643) — reconciliation; the noun form of katallasso. Romans 5:11 — 'we also joy in God through our Lord Jesus Christ, by whom we have now received the reconciliation.' Romans 11:15 — 'the reconciling of the world.' 2 Corinthians 5:18-19 — 'the ministry of reconciliation... God was in Christ, reconciling the world to himself.' Reconciliation is the restoration of a relationship that sin had fractured. Before reconciliation: enemies by mind and by deeds (Col 1:21). After: children and heirs (Rom 8:16-17). The relational language is intentional — not just legal pardon but restored family status.",
+  misunderstood:"Reconciliation is sometimes reduced to 'getting along' or a vague peace. Biblical reconciliation is specific: enemies brought into family by the death of the Son. It is also the framework for human-human reconciliation in the church (Matt 5:24; 2 Cor 5:18-20).",
+  matters:"The entire Christian ministry is called a 'ministry of reconciliation' (2 Cor 5:18). The local church is to be a reconciled community that models and extends reconciliation to the world.",
+  originals:[
+    {lang:"Greek",word:"καταλλαγή",translit:"katallagē",strongs:"G2643",note:"Reconciliation, restoration of a broken relationship."}
+  ],
+  rangeOfMeaning:["God-human relationship restored","peace established where enmity was","the basis of Jew-Gentile unity","framework for all human-human forgiveness"],
+  notMean:"Not mere conflict reduction. Not a vague 'getting along.' Not something humans initiate with God.",
+  cultural:"Roman diplomatic reconciliation (foedus — treaty of peace) required a mediator and often a sacrifice to seal the peace. Christ is both the mediator (1 Tim 2:5) and the sacrifice (Heb 9:26).",
+  kingdomSignificance:"Colossians 1:20 — God's intention is to reconcile ALL things through Christ, 'whether things on earth or things in heaven.' Reconciliation is both personal (sinners and God) and cosmic (all creation).",
+  relatedVerses:["Matthew 5:24","Romans 5:10-11","Romans 11:15","2 Corinthians 5:18-21","Ephesians 2:14-16","Colossians 1:19-22"],
+  relatedWords:["reconcile","atonement","peace","forgiveness","restore"],
+  category:"salvation / grace",
+  sources:["Strong's G2643","Thayer's"],
+  confidence:"direct-source"
+},
+"mourn":{
+  word:"mourn",
+  plain:"To grieve deeply — the blessed grief of the kingdom is grief over sin that leads to turning and to comfort.",
+  deep:"Hebrew ABAL (H56) — to mourn, lament; used of national grief (Jer 4:28; Amos 8:8) and personal loss. Greek PENTHEO (G3996) — to mourn; the word used in the Beatitudes (Matt 5:4) and James 4:9. 2 Corinthians 7:10 — 'godly sorrow (LYPE) worketh repentance... but the sorrow of the world worketh death.' Godly grief is directed at the right object: sin, its consequences, its offense against God. Matthew 5:4 — 'Blessed are they that mourn: for they shall be comforted' — the mourning Jesus blesses is not grief in general, but the grief that comes from an honest encounter with one's own sin and the world's brokenness.",
+  misunderstood:"This is not emotional distress about circumstances. It is specifically the grief that faces sin squarely. The world's sorrow (metameleia — regret without repentance) produces death; godly sorrow (pentheo) produces repentance that leads to salvation. Mourning is not a permanent emotional state — it leads to comfort (the paraklesis — the Comforter's work).",
+  matters:"James 4:8-9 — 'Draw near to God and he will draw near to you. Cleanse your hands, you sinners, and purify your hearts, you double-minded. Be wretched and mourn and weep.' Mourning over sin is the appropriate response to encountering the holiness of God (Isa 6:5; Luke 5:8).",
+  originals:[
+    {lang:"Greek",word:"πενθέω",translit:"pentheo",strongs:"G3996",note:"To mourn, grieve deeply."},
+    {lang:"Hebrew",word:"אָבַל",translit:"abal",strongs:"H56",note:"To mourn, lament."}
+  ],
+  rangeOfMeaning:["grief over sin and its consequences","grief over the world's brokenness","the godly sorrow that leads to repentance","mourning for the lost","grief at one's own spiritual poverty"],
+  notMean:"Not mere sadness. Not depression. Not mourning about circumstances without reference to sin. Not a permanent emotional state — it resolves in comfort.",
+  cultural:"Public mourning in the ancient world was demonstrative: sackcloth and ashes (Jonah 3:6; Matt 11:21), tearing garments, loud weeping, fasting. Jesus' point in Matt 5:4 is that the interior grief he names is more significant than any external mourning ritual.",
+  kingdomSignificance:"Matthew 5:4 — mourning is a kingdom posture. Joel 2:12-13 — 'Turn to me with all your heart, with fasting, weeping, and mourning; rend your heart and not your garments.' God's call in the prophets is always interior grief, not exterior performance.",
+  relatedVerses:["Joel 2:12-13","Isaiah 6:5","Matthew 5:4","Luke 5:8","James 4:8-9","2 Corinthians 7:9-11"],
+  relatedWords:["repent","godly sorrow","weep","humble","grieve"],
+  category:"moral conduct",
+  sources:["Strong's G3996","Strong's H56","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"forsake":{
+  word:"forsake",
+  plain:"To leave entirely and not return — the active outward side of repentance. Also God's absolute promise: He will never forsake His people.",
+  deep:"Hebrew AZAB (H5800) — to leave, forsake, abandon; used of Israel forsaking God (Jer 2:13, 19 'you have forsaken the LORD your God'), and the prophetic promise that God will not forsake His inheritance (Ps 37:28; Deut 31:6). NATASH (H5203) — to spread out, abandon. Greek EGKATALEIPO (G1459) — to leave completely, abandon (Heb 13:5); KATALEIPO (G2641) — to leave behind. Isaiah 55:7 — 'Let the wicked forsake his way, and the unrighteous man his thoughts: and let him return unto the LORD.' Forsaking sin is the active behavioral expression of shuv (turning). It is the 'from' side of repentance: you turn FROM sin (forsake) and turn TO God (return).",
+  misunderstood:"'God has forsaken me' is a real human cry (Ps 22:1 — Jesus quotes it on the cross) but not a theological reality for the covenant people. God's Hebrews 13:5 promise ('I will never leave thee, nor forsake thee') is an absolute — five negatives stacked in the Greek for maximum emphasis: 'I will never, no never, no never leave you, nor ever forsake you.'",
+  matters:"Proverbs 28:13 — 'He who conceals his transgressions will not prosper, but whoever confesses and forsakes them will obtain mercy.' Forsaking (the turn from) + confessing (the acknowledgment) + returning (the turn toward) = full repentance.",
+  originals:[
+    {lang:"Hebrew",word:"עָזַב",translit:"azab",strongs:"H5800",note:"To leave, forsake, abandon."},
+    {lang:"Greek",word:"ἐγκαταλείπω",translit:"egkataleipo",strongs:"G1459",note:"To abandon completely; utterly leave."},
+    {lang:"Greek",word:"καταλείπω",translit:"kataleipo",strongs:"G2641",note:"To leave behind, forsake."}
+  ],
+  rangeOfMeaning:["leaving sin behind completely","abandoning idols","God's people forsaking the covenant","God's absolute promise not to forsake His own"],
+  notMean:"Not a temporary pause. Not something done halfheartedly. A partial forsaking is not forsaking.",
+  cultural:"Covenant language: to forsake a covenant partner (God or people) was the ultimate breach of covenant loyalty. The prophets' indictment of Israel was always covenant forsaking (AZAB). God's promise never to forsake is the bedrock of covenant security.",
+  kingdomSignificance:"Hebrews 13:5-6 — 'I will never leave you, nor forsake you, so that we can confidently say: The Lord is my helper; I will not fear.' Kingdom security rests on God's forsaking-refusal.",
+  relatedVerses:["Deuteronomy 31:6,8","Joshua 1:5","Psalm 37:25,28","Proverbs 28:13","Isaiah 55:7","Jeremiah 2:13","Matthew 27:46 (Ps 22:1)","Hebrews 13:5-6"],
+  relatedWords:["repent","abandon","return","confess","leave"],
+  category:"moral conduct",
+  sources:["Strong's H5800","Strong's G1459","Strong's G2641","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"convert":{
+  word:"convert",
+  plain:"To turn — to change direction completely, from sin toward God. Conversion is the visible outward evidence of inward repentance.",
+  deep:"Hebrew SHUV (H7725) — to turn, return; the very same word translated 'repent' in the OT. KJV often translates it 'convert.' Greek EPISTREPHO (G1994) — to turn toward, to return, to be converted; the verb form (Acts 3:19; 9:35; 14:15; 26:18,20; 1 Pet 2:25). The noun EPISTROPHE (G1995) — conversion — appears in Acts 15:3. Conversion and repentance are two views of the same event: metanoia names the interior turn of mind; epistrepho names the exterior behavioral turn. Both are used together (Acts 3:19 — 'Repent and be converted'; Acts 26:20 — 'repent and turn to God').",
+  misunderstood:"'Conversion' in modern use often means joining a religion or changing a denominational label. Biblical conversion is a complete direction-change: from the domain of darkness to the kingdom of God's Son (Col 1:13). It is not gradual drift toward God; it is a turn.",
+  matters:"Acts 3:19 — 'Repent ye therefore and be converted, that your sins may be blotted out.' Luke 22:32 — Jesus prays for Peter to be converted (same root) and then strengthen the brethren. Matthew 18:3 — 'unless you turn (strepho) and become like children, you will never enter the kingdom.'",
+  originals:[
+    {lang:"Greek",word:"ἐπιστρέφω",translit:"epistrepho",strongs:"G1994",note:"To turn toward, return, be converted."},
+    {lang:"Hebrew",word:"שׁוּב",translit:"shuv",strongs:"H7725",note:"To turn, return — also translated 'convert' in the OT."}
+  ],
+  rangeOfMeaning:["turning from sin to God","returning to the covenant","changing allegiance and direction","the behavioral expression of repentance"],
+  notMean:"Not a label change. Not changing religious affiliation without change of direction. Not gradual drift.",
+  cultural:"The Greek epistrepho was used of physical turning (turning around) and of political or religious allegiance changes. The NT uses it for the fundamental reorientation of a life toward God.",
+  kingdomSignificance:"Matthew 18:3 — entering the kingdom requires becoming like a child — a conversion of the heart's posture. Acts 26:18 — Paul's mission is 'to turn [people] from darkness to light and from the power of Satan to God.'",
+  relatedVerses:["Matthew 18:3","Luke 22:32","Acts 3:19","Acts 9:35","Acts 14:15","Acts 15:3","Acts 26:18,20","1 Thessalonians 1:9","1 Peter 2:25"],
+  relatedWords:["conversion","repent","return","forsake","turn"],
+  category:"salvation / grace",
+  sources:["Strong's G1994","Strong's H7725","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"conversion":{
+  word:"conversion",
+  plain:"The act and experience of turning completely from sin to God — a real U-turn, not a label or a minor adjustment.",
+  deep:"Greek EPISTROPHE (G1995) — conversion, a turning. Acts 15:3 — Paul and Barnabas 'declaring the conversion of the Gentiles' as they traveled; it caused great joy. The noun appears only once in the NT but the verb epistrepho appears frequently. Conversion in the apostolic message is not a graduation from one religion to another — it is the fundamental reorientation of a life away from self, idols, and sin and toward the living God. 1 Thessalonians 1:9 — 'how you turned to God from idols to serve the living and true God' — the simplest NT description of conversion: turning from (forsaking idols) and turning to (serving God).",
+  misunderstood:"In modern church culture, conversion is reduced to a prayer said, a hand raised, a card filled out. The apostolic picture is a whole-life turn: from idols to God, evidenced by a changed life (1 Thess 1:9-10; Acts 26:20 'turn to God and perform deeds worthy of repentance').",
+  matters:"The news of conversions of Gentiles brought great joy (Acts 15:3) — it was proof that God's kingdom was expanding to all nations. Conversion is the entry event that begins a life of discipleship.",
+  originals:[
+    {lang:"Greek",word:"ἐπιστροφή",translit:"epistrophe",strongs:"G1995",note:"Conversion, a turning (Acts 15:3)."}
+  ],
+  rangeOfMeaning:["entry-point turn from sin to God","forsaking idols to serve the living God","the beginning of discipleship","the visible fruit that repentance has occurred"],
+  notMean:"Not a religious label-change. Not a decision without direction-change. Not the end of the journey — it is the beginning.",
+  cultural:"Greco-Roman philosophers spoke of 'turning to philosophy' as a life reorientation. Paul uses the same vocabulary but the object is not philosophy but the living God, and the agent is not willpower but the Spirit.",
+  kingdomSignificance:"Conversion is the doorway into the kingdom — repentance opens the door, conversion walks through it. Acts 26:18 names the destination of conversion as receiving 'an inheritance among those who are sanctified by faith.'",
+  relatedVerses:["Acts 3:19","Acts 15:3","Acts 26:18-20","1 Thessalonians 1:9-10","Matthew 18:3"],
+  relatedWords:["convert","repent","repentance","return","forsake","turn"],
+  category:"salvation / grace",
+  sources:["Strong's G1995","Thayer's"],
+  confidence:"direct-source"
+},
+"sanctify":{
+  word:"sanctify",
+  plain:"To set apart for God — to make holy. Both a declaration God makes and a work He does in the person.",
+  deep:"Hebrew QADASH (H6942) — to sanctify, consecrate, set apart; the verb behind qodesh (holiness) and qadosh (holy). Used of days (Gen 2:3 — God sanctified the seventh day), places (Ex 3:5), objects (Ex 30:29), priests (Ex 28:41), and people (Ex 19:14). Greek HAGIAZO (G37) — to sanctify, make holy; same root as hagios (saint, holy one). John 17:17 — 'Sanctify them through thy truth; thy word is truth' — Jesus prays for the Father to sanctify the disciples through the Word. John 17:19 — 'for their sakes I sanctify myself, that they also might be sanctified.' Christ's sanctification of himself (consecration to the cross) is the ground for the believer's sanctification.",
+  misunderstood:"Sanctify/sanctification is both a one-time positional status (1 Cor 1:2 — 'sanctified in Christ Jesus, called to be saints') and an ongoing process (1 Thess 4:3 — 'this is the will of God, even your sanctification'). The confusion comes from treating it only as process (never arriving) or only as status (nothing changes). Both are true simultaneously.",
+  matters:"1 Thessalonians 5:23 — 'the very God of peace sanctify you wholly; and I pray God your whole spirit and soul and body be preserved blameless.' The scope of sanctification is total — spirit, soul, and body. Hebrews 12:14 — 'without sanctification, no man shall see the Lord.'",
+  originals:[
+    {lang:"Hebrew",word:"קָדַשׁ",translit:"qadash",strongs:"H6942",note:"To sanctify, consecrate, set apart as holy."},
+    {lang:"Greek",word:"ἁγιάζω",translit:"hagiazo",strongs:"G37",note:"To sanctify, make holy."}
+  ],
+  rangeOfMeaning:["setting apart for God's use","declaring holy (positional)","progressive transformation into holiness","consecration to a specific purpose","the sanctifying action of the cross"],
+  notMean:"Not self-improvement. Not optional. Not earned. Not the same as perfection (sinlessness) in this life.",
+  cultural:"In the ANE, to sanctify something was to move it from the common (chol) to the holy (qadesh) category — out of ordinary use and into God's exclusive use. The entire Levitical system enacted this distinction. NT applies it to people: believers are moved from common to holy by Christ.",
+  kingdomSignificance:"1 Peter 2:9 — 'a holy nation' — the church is a sanctified people. Hebrews 10:10 — 'we have been sanctified through the offering of the body of Jesus Christ once for all.' The kingdom is a holy community.",
+  relatedVerses:["Genesis 2:3","Exodus 19:14","Leviticus 20:7-8","John 17:17-19","1 Corinthians 1:2","1 Corinthians 6:11","1 Thessalonians 4:3-7","1 Thessalonians 5:23","Hebrews 10:10-14","Hebrews 12:14","1 Peter 1:15-16"],
+  relatedWords:["sanctification","holy","consecrate","set apart","purify"],
+  category:"worship / temple",
+  sources:["Strong's H6942","Strong's G37","Thayer's","BDB"],
+  confidence:"direct-source"
 }
 };
-
-
