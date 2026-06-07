@@ -2292,32 +2292,33 @@ body[data-reading-mode="read"] .verse-study-chip{
 .study-sheet-close:hover{ color:var(--fg); background:rgba(255,255,255,0.06); }
 .study-sheet-tabs{
   display:flex;
-  gap:4px;
+  gap:6px;
   overflow-x:auto;
-  padding:6px 12px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:8px 12px;
+  border-bottom:1px solid var(--line);
   scrollbar-width:none;
 }
 .study-sheet-tabs::-webkit-scrollbar{ display:none; }
 .study-tab{
   flex:0 0 auto;
-  border:1px solid var(--line);
-  background:var(--bg-2);
+  border:1.5px solid var(--line);
+  background:transparent;
   color:var(--fg-dim);
-  padding:7px 12px;
+  padding:7px 14px;
   border-radius:999px;
   font-size:12px;
-  font-weight:600;
+  font-weight:500;
   letter-spacing:0.03em;
   cursor:pointer;
   white-space:nowrap;
   transition:all .15s ease;
 }
-.study-tab:hover{ color:var(--fg); border-color:rgba(212,175,55,0.5); }
+.study-tab:hover{ color:var(--fg); border-color:rgba(212,175,55,0.55); background:rgba(212,175,55,0.08); }
 .study-tab.active{
-  background:rgba(212,175,55,0.18);
+  background:rgba(212,175,55,0.28);
   color:var(--gold);
-  border-color:rgba(212,175,55,0.55);
+  border-color:rgba(212,175,55,0.7);
+  font-weight:700;
 }
 .study-sheet-body{
   flex:1 1 auto;
@@ -2625,8 +2626,8 @@ body[data-reading-mode="read"] .verse-study-chip{
 @media (max-width: 680px){
   .verse-study-chip{ font-size:13px; padding:7px 14px; }
   .study-sheet-panel{ height:82vh; }
-  .study-sheet-tabs{ padding:6px 8px; }
-  .study-tab{ padding:8px 11px; font-size:12px; }
+  .study-sheet-tabs{ padding:6px 10px; gap:5px; }
+  .study-tab{ padding:7px 12px; font-size:12px; }
   .reading-mode-group{ overflow:hidden; }
   .reading-mode-btn{ padding:6px 8px; font-size:11px; }
 }
