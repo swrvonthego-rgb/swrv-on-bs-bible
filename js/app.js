@@ -2155,8 +2155,6 @@ function _reapplyTextHighlights(){
       return '<button class="hl-tb-btn" ontouchend="event.preventDefault();window._commitHL(\''+x.c+'\')" onclick="window._commitHL(\''+x.c+'\')"><span class="hl-tb-dot" style="background:'+x.bg+';"></span>'+x.l+'</button>';
     }).join('')+'<button class="hl-tb-clear" ontouchend="event.preventDefault();window._clearHL()" onclick="window._clearHL()">Remove</button>';
     document.body.appendChild(tb);_toolbar=tb;
-    var rect=range.getBoundingClientRect();
-    requestAnimationFrame(function(){ _positionToolbar(tb,rect); });
   }
 
   function _checkSelection(){

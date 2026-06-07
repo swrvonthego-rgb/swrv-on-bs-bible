@@ -2166,7 +2166,9 @@ mark.text-hl-purple{ background:rgba(180,127,255,0.38); }
 /* Floating highlight toolbar */
 /* Highlight toolbar — styled like iOS native selection menu */
 .hl-toolbar{
-  position:absolute; z-index:10000; pointer-events:all;
+  position:fixed; z-index:10000; pointer-events:all;
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  left:50%; transform:translateX(-50%);
   display:flex; align-items:stretch;
   background:rgba(30,30,32,0.97);
   backdrop-filter:blur(24px) saturate(180%);
