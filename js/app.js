@@ -1338,22 +1338,35 @@ function loadChapter(n, direction){
 
 function reloadCurrentChapter(){
   var btn=document.getElementById('reloadChapterBtn');
-  if(btn){btn.classList.add('spinning');setTimeout(function(){btn.classList.remove('spinning');},800);}
-  _loadBookScript(currentBook,function(){
-    _loadChapterCore(currentChapter);
-  });
+  if(btn){btn.classList.add('spinning');setTimeout(function(){btn.classList.remove('spinning');},600);}
+  var targetCh=currentChapter, targetBook=currentBook;
+  // Clear the cached loaded flag so _loadBookScript re-executes the script fresh
+  delete _bookScriptLoaded[targetBook];
+  if(window.BIBLE) delete window.BIBLE[targetBook];
+  // Silent jolt: go to adjacent chapter to kick the data load, then snap back
+  var joltCh=targetCh>1?targetCh-1:targetCh+1;
+  _loadChapterCore(joltCh);
+  setTimeout(function(){
+    _loadBookScript(targetBook,function(){
+      currentChapter=targetCh;
+      _loadChapterCore(targetCh);
+    });
+  },80);
 }
 
 // Auto-retry: if mainContent has no verses 1.5s after a chapter load, silently reload
-var _autoRetryTimer=null;
+var _autoRetryTimer=null,_autoRetryCount=0;
 function _scheduleAutoRetry(){
   clearTimeout(_autoRetryTimer);
-  _autoRetryTimer=setTimeout(function(){
+  _autoRetryCount=0;
+  _autoRetryTimer=setTimeout(function _retry(){
     var main=document.getElementById('mainContent');
     if(!main) return;
     var hasContent=main.querySelector('.verse')||main.querySelector('.chapter-title');
-    if(!hasContent){
+    if(!hasContent&&_autoRetryCount<3){
+      _autoRetryCount++;
       reloadCurrentChapter();
+      _autoRetryTimer=setTimeout(_retry,1500);
     }
   },1500);
 }
