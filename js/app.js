@@ -4195,6 +4195,48 @@ function _renderBookOverview(book){
     return { book: m[1].replace(/\s+/g,''), ch: parseInt(m[2],10), v: parseInt(m[3],10) };
   }
 
+  function _tabHasData(tab, state, v){
+    if(!v) return false;
+    const tryKeys = [state.ref, state.book+' '+state.chapter+':'+state.verse, state.book+' '+state.chapter];
+    function keyHit(obj){ if(!obj) return false; for(var k in obj){ for(var i=0;i<tryKeys.length;i++){ if(_keyMatchesRef(k,tryKeys[i])) return true; } } return false; }
+    switch(tab){
+      case 'culture':
+        return !!(v.cultural || (v.variants&&v.variants.length) || keyHit(window.CULTURAL_CARDS));
+      case 'kingdom':
+        return !!(v.kingdomLens || keyHit(window.INSTRUCTION_CARDS));
+      case 'people':
+        return !!((v.peopleInVerse&&v.peopleInVerse.length) || (v.placesInVerse&&v.placesInVerse.length));
+      case 'sources':
+        if(v.enochRef||v.josephusRef) return true;
+        if(window.CROSS_SOURCE_MAP&&window.CROSS_SOURCE_MAP[state.book]&&window.CROSS_SOURCE_MAP[state.book][state.chapter]) return true;
+        return false;
+      case 'crossrefs':
+        if(Array.isArray(window.PARALLEL_PASSAGES)){
+          for(var i=0;i<window.PARALLEL_PASSAGES.length;i++){
+            var p=window.PARALLEL_PASSAGES[i];
+            if(Array.isArray(p.passages)&&p.passages.some(function(s){return s.indexOf(state.book)===0;})) return true;
+          }
+        }
+        if(Array.isArray(window.PROPHECY_FULFILLMENT)){
+          for(var j=0;j<window.PROPHECY_FULFILLMENT.length;j++){
+            var pf=window.PROPHECY_FULFILLMENT[j];
+            if((pf.prophecy&&pf.prophecy.indexOf(state.book)===0)||(pf.fulfillment&&pf.fulfillment.indexOf(state.book)===0)) return true;
+          }
+        }
+        return false;
+      default: return true;
+    }
+  }
+
+  function _updateTabVisibility(state, v){
+    var dataTabs = ['culture','kingdom','people','sources','crossrefs'];
+    document.querySelectorAll('.study-tab[data-tab]').forEach(function(btn){
+      var tab = btn.getAttribute('data-tab');
+      if(dataTabs.indexOf(tab) === -1){ btn.style.display = ''; return; }
+      btn.style.display = _tabHasData(tab, state, v) ? '' : 'none';
+    });
+  }
+
   function openStudySheet(verseRef, opts){
     opts = opts || {};
     const parsed = parseRef(verseRef);
@@ -4207,8 +4249,11 @@ function _renderBookOverview(book){
     sheet.classList.add('open');
     document.body.classList.add('study-sheet-open');
     document.getElementById('studySheetRef').textContent = verseRef;
-    // Pick initial tab: 'define' if a word was tapped, else 'define' if available, else 'translations'.
-    const initialTab = opts.tab || 'define';
+    _updateTabVisibility(window._studySheetState, vData);
+    // Pick initial tab; if it's hidden fall back to 'define'
+    var initialTab = opts.tab || 'define';
+    var tabBtn = document.querySelector('.study-tab[data-tab="'+initialTab+'"]');
+    if(tabBtn && tabBtn.style.display === 'none') initialTab = 'define';
     switchStudyTab(initialTab);
   }
   window.openStudySheet = openStudySheet;
