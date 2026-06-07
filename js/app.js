@@ -2072,8 +2072,9 @@ function _reapplyTextHighlights(){
 }
 
 // Floating toolbar shown above a text selection
+// Uses selectionchange + debounce — the correct approach for iOS text handles
 (function(){
-  var _toolbar=null,_savedRange=null,_savedRef=null;
+  var _toolbar=null,_savedRange=null,_savedRef=null,_debounceTimer=null;
 
   function _refFromVerseEl(el){
     var v=el;
@@ -2090,52 +2091,92 @@ function _reapplyTextHighlights(){
     _savedRange=null;_savedRef=null;
   }
 
+  function _positionToolbar(tb,rect){
+    var tw=tb.offsetWidth||200,th=tb.offsetHeight||44;
+    var top=rect.top+window.scrollY-th-12;
+    var left=rect.left+window.scrollX+(rect.width/2)-(tw/2);
+    left=Math.max(8,Math.min(left,window.innerWidth-tw-8));
+    if(top<window.scrollY+60) top=rect.bottom+window.scrollY+12;
+    tb.style.top=top+'px';tb.style.left=left+'px';
+  }
+
   function _showToolbar(range,ref){
+    // Don't rebuild if same ref and selection
+    if(_toolbar&&_savedRef===ref) return;
     _removeToolbar();
     _savedRange=range.cloneRange();_savedRef=ref;
     var tb=document.createElement('div');
     tb.id='hlFloatBar';tb.className='hl-toolbar';
-    var colors=[{c:'yellow',bg:'#f5d000'},{c:'red',bg:'#ff5252'},{c:'green',bg:'#43d68a'},{c:'purple',bg:'#b47fff'}];
-    tb.innerHTML=colors.map(function(x){
-      return '<button class="hl-tb-swatch" style="background:'+x.bg+';" onclick="window._commitHL(\''+x.c+'\')" title="'+x.c+'"></button>';
-    }).join('')+'<button class="hl-tb-clear" onclick="window._clearHL()" title="Remove">✕</button>';
+    var colors=[{c:'yellow',bg:'#f5d000',l:'Yellow'},{c:'red',bg:'#ff5252',l:'Red'},{c:'green',bg:'#43d68a',l:'Green'},{c:'purple',bg:'#b47fff',l:'Purple'}];
+    // Use ontouchend for iOS reliability (fires before click delay)
+    tb.innerHTML='<span class="hl-tb-label">Highlight:</span>'+colors.map(function(x){
+      return '<button class="hl-tb-swatch" style="background:'+x.bg+';" ontouchend="event.preventDefault();window._commitHL(\''+x.c+'\')" onclick="window._commitHL(\''+x.c+'\')" title="'+x.l+'"></button>';
+    }).join('')+'<button class="hl-tb-clear" ontouchend="event.preventDefault();window._clearHL()" onclick="window._clearHL()" title="Remove highlight">✕</button>';
     document.body.appendChild(tb);_toolbar=tb;
     var rect=range.getBoundingClientRect();
-    requestAnimationFrame(function(){
-      var tw=tb.offsetWidth,th=tb.offsetHeight;
-      var top=rect.top+window.scrollY-th-10;
-      var left=rect.left+window.scrollX+(rect.width/2)-(tw/2);
-      left=Math.max(8,Math.min(left,window.innerWidth-tw-8));
-      if(top<window.scrollY+8) top=rect.bottom+window.scrollY+10;
-      tb.style.top=top+'px';tb.style.left=left+'px';
-    });
+    requestAnimationFrame(function(){ _positionToolbar(tb,rect); });
   }
 
   function _checkSelection(){
     var sel=window.getSelection();
-    if(!sel||sel.isCollapsed||!sel.toString().trim()){return;}
+    if(!sel||sel.isCollapsed||!sel.toString().trim()){
+      // Only remove toolbar if user clicked away, not while adjusting handles
+      return;
+    }
     var anchor=sel.anchorNode;
     var el=anchor&&(anchor.nodeType===3?anchor.parentElement:anchor);
     while(el&&el!==document.body){
       if(el.classList&&el.classList.contains('verse-text')){
         var ref=_refFromVerseEl(el);
-        if(ref) _showToolbar(sel.getRangeAt(0),ref);
-        return;
+        if(ref){ _showToolbar(sel.getRangeAt(0),ref); return; }
       }
       el=el.parentElement;
     }
+    // Selection is outside verse text — remove toolbar
+    _removeToolbar();
   }
+
+  // selectionchange fires continuously as handles move on iOS — debounce it
+  document.addEventListener('selectionchange',function(){
+    clearTimeout(_debounceTimer);
+    _debounceTimer=setTimeout(_checkSelection,500);
+  });
+
+  // Also catch mouse selection on desktop
+  document.addEventListener('mouseup',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    clearTimeout(_debounceTimer);
+    _debounceTimer=setTimeout(_checkSelection,50);
+  });
+
+  // Dismiss toolbar when tapping completely outside verse text AND toolbar
+  document.addEventListener('touchstart',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    var el=e.target;
+    while(el&&el!==document.body){
+      if(el.classList&&el.classList.contains('verse-text')) return; // tapping in verse — let selectionchange handle it
+      el=el.parentElement;
+    }
+    _removeToolbar();
+  },{passive:true});
+
+  document.addEventListener('mousedown',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    _removeToolbar();
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){ _removeToolbar(); window.getSelection().removeAllRanges(); }
+  });
 
   window._commitHL=function(color){
     if(!_savedRange||!_savedRef) return;
     var text=_savedRange.toString().trim();
     if(!text){_removeToolbar();return;}
-    // Find verse text element
     var refId=_savedRef.replace(/[^a-z0-9]/gi,'_');
     var verseEl=document.getElementById(refId);
     var textEl=verseEl&&verseEl.querySelector('.verse-text');
     if(textEl) _wrapTextInElement(textEl,text,color,_savedRef);
-    // Persist
     var stored=_getTextHighlights().filter(function(h){return!(h.ref===_savedRef&&h.text===text);});
     stored.push({ref:_savedRef,text:text,color:color,id:Date.now()});
     _saveTextHighlights(stored);
@@ -2144,18 +2185,14 @@ function _reapplyTextHighlights(){
   };
 
   window._clearHL=function(){
-    // Remove any <mark class="text-hl"> elements that overlap the saved range
     if(_savedRange){
       var container=_savedRange.commonAncestorContainer;
       var root=(container.nodeType===3?container.parentElement:container);
-      var marks=root.querySelectorAll?Array.from(root.querySelectorAll('mark.text-hl')):[];
-      // Also check if root itself is a mark
+      var marks=Array.from(root.querySelectorAll?root.querySelectorAll('mark.text-hl'):[]);
       if(root.tagName==='MARK'&&root.classList.contains('text-hl')) marks.unshift(root);
       marks.forEach(function(mark){
         var ref=mark.dataset.hlRef,text=mark.dataset.hlText;
-        if(ref&&text){
-          _saveTextHighlights(_getTextHighlights().filter(function(h){return!(h.ref===ref&&h.text===text);}));
-        }
+        if(ref&&text) _saveTextHighlights(_getTextHighlights().filter(function(h){return!(h.ref===ref&&h.text===text);}));
         var parent=mark.parentNode;
         while(mark.firstChild) parent.insertBefore(mark.firstChild,mark);
         parent.removeChild(mark);
@@ -2164,26 +2201,6 @@ function _reapplyTextHighlights(){
     window.getSelection().removeAllRanges();
     _removeToolbar();
   };
-
-  document.addEventListener('mouseup',function(e){
-    if(_toolbar&&_toolbar.contains(e.target)) return;
-    setTimeout(_checkSelection,30);
-  });
-  document.addEventListener('touchend',function(e){
-    if(_toolbar&&_toolbar.contains(e.target)) return;
-    setTimeout(_checkSelection,400);
-  });
-  document.addEventListener('mousedown',function(e){
-    if(_toolbar&&_toolbar.contains(e.target)) return;
-    _removeToolbar();
-  });
-  document.addEventListener('touchstart',function(e){
-    if(_toolbar&&_toolbar.contains(e.target)) return;
-    _removeToolbar();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape') _removeToolbar();
-  });
 })();
 
 /* ============================================================
@@ -3874,7 +3891,8 @@ function showModal(type){
     h+='<button id="memTabBtnNotes" onclick="document.getElementById(\'memTabBm\').style.display=\'none\';document.getElementById(\'memTabNotes\').style.display=\'\';document.getElementById(\'memTabBtnNotes\').classList.add(\'mem-tab-active\');document.getElementById(\'memTabBtnBm\').classList.remove(\'mem-tab-active\');" class="mem-tab">📝 Notes ('+noteEntries.length+')</button>';
     h+='</div>';
     h+='<div id="memTabBm">';
-    if(!bms.length){h+='<p style="color:var(--fg-mute);padding:8px 0;">No bookmarks yet. Tap 🔖 on any verse to save it here.</p>';}
+    if(!bms.length){h+='<div style="padding:12px 0;"><p style="color:var(--fg);font-size:14px;margin-bottom:10px;">Nothing saved yet.</p><div style="background:var(--bg-3);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--fg-mute);line-height:1.7;"><b style="color:var(--fg);">To bookmark a verse:</b><br>Scroll to any verse → tap the <b style="color:var(--gold);">🔖</b> button beneath it. It turns gold when saved. Tap again to remove.<br><br><b style="color:var(--fg);">To highlight text:</b><br>Long-press any word in a verse → drag the handles to select a phrase → a color bar appears above your selection → tap a color.<br><br><b style="color:var(--fg);">To add a note:</b><br>Tap the <b>📝 Note</b> button beneath any verse → type your note → Save.</div></div>';}
+
     else{bms.slice().reverse().forEach(function(bm){
       h+='<div class="mem-item" onclick="closeModal();_loadSavedPosition(\''+bm.book.replace(/'/g,"\\'")+'\','+bm.chapter+');">';
       h+='<div class="mem-item-ref">'+escapeHtml(bm.ref)+'</div>';
@@ -3883,7 +3901,7 @@ function showModal(type){
     });}
     h+='</div>';
     h+='<div id="memTabNotes" style="display:none;">';
-    if(!noteEntries.length){h+='<p style="color:var(--fg-mute);padding:8px 0;">No notes yet. Tap 📝 on any verse to write one.</p>';}
+    if(!noteEntries.length){h+='<p style="color:var(--fg-mute);padding:8px 0;">No notes yet. Beneath any verse tap <b>📝 Note</b> → write your note → Save. It will appear here.</p>';}
     else{noteEntries.forEach(function(entry){
       const nRef=entry[0],nText=entry[1];
       h+='<div class="mem-item" onclick="closeModal();openNote(\''+nRef.replace(/'/g,"\\'")+'\');">';

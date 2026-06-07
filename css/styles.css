@@ -162,7 +162,7 @@ header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));borde
 .chapter-title{color:var(--gold);font-size:26px;font-family:var(--font-display,inherit);margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:10px}
 .verse{margin-bottom:28px;padding:14px 0;border-bottom:1px dotted var(--bg-3)}
 .verse-num{display:inline-block;color:var(--gold);font-weight:700;margin-right:10px;font-size:14px;vertical-align:top;min-width:26px;font-family:-apple-system,sans-serif}
-.verse-text{display:inline;font-size:17px;line-height:1.75;color:var(--fg)}
+.verse-text{display:inline;font-size:17px;line-height:1.75;color:var(--fg);-webkit-user-select:text;user-select:text;cursor:text;}
 .definable{cursor:pointer;border-bottom:1px dotted var(--gold);transition:color 0.15s}
 .definable:hover{color:var(--gold)}
 .person-name{cursor:pointer;color:var(--people);font-weight:600;border-bottom:1px dotted var(--people);transition:all 0.15s}
@@ -2109,13 +2109,11 @@ body[data-reading-mode="scholar"] .study-layer{ display:revert; }
 .verse-study-chip:hover{ background:rgba(212,175,55,0.22); transform:translateY(-1px); }
 .verse-study-chip:active{ transform:translateY(0); }
 /* Bookmark chip */
-.verse-bm-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
-.verse-bm-chip.active{ color:var(--gold); border-color:rgba(212,175,55,0.5); }
-/* Highlight chip */
-.verse-hl-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
+.verse-bm-chip{ color:var(--fg); border-color:rgba(255,255,255,0.28); }
+.verse-bm-chip.active{ color:var(--gold); border-color:rgba(212,175,55,0.6); background:rgba(212,175,55,0.12); }
 /* Note chip */
-.verse-note-chip{ color:var(--fg-dim); border-color:rgba(255,255,255,0.12); }
-.verse-note-chip.has-note{ color:#7eb8f7; border-color:rgba(126,184,247,0.45); }
+.verse-note-chip{ color:var(--fg); border-color:rgba(255,255,255,0.28); }
+.verse-note-chip.has-note{ color:#7eb8f7; border-color:rgba(126,184,247,0.55); background:rgba(126,184,247,0.1); }
 /* Verse highlight backgrounds */
 .verse.verse-hl-yellow{ background:rgba(255,220,50,0.13); border-left:3px solid rgba(255,220,50,0.55); padding-left:8px; }
 .verse.verse-hl-green{ background:rgba(80,200,120,0.13); border-left:3px solid rgba(80,200,120,0.55); padding-left:8px; }
@@ -2145,7 +2143,8 @@ mark.text-hl-red{ background:rgba(255,82,82,0.38); }
 mark.text-hl-green{ background:rgba(67,214,138,0.35); }
 mark.text-hl-purple{ background:rgba(180,127,255,0.38); }
 /* Floating highlight toolbar */
-.hl-toolbar{ position:absolute; z-index:10000; background:var(--bg-2); border:1px solid var(--line); border-radius:999px; padding:7px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 20px rgba(0,0,0,0.6); pointer-events:all; }
+.hl-toolbar{ position:absolute; z-index:10000; background:var(--bg-2); border:1px solid var(--gold); border-radius:999px; padding:7px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 24px rgba(0,0,0,0.7); pointer-events:all; }
+.hl-tb-label{ color:var(--fg-mute); font-size:11px; font-family:-apple-system,sans-serif; white-space:nowrap; letter-spacing:0.04em; }
 .hl-tb-swatch{ width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); cursor:pointer; transition:transform .12s,border-color .12s; flex-shrink:0; }
 .hl-tb-swatch:hover{ transform:scale(1.2); border-color:#fff; }
 .hl-tb-clear{ background:var(--bg-3); border:1px solid var(--line); color:var(--fg-mute); border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:color .12s,border-color .12s; }
