@@ -1279,6 +1279,14 @@ body{
   font-size:18px;
   font-weight:900;
 }
+.nav-arrows .ch-reload-btn{
+  min-width:unset;
+  font-size:12px;
+  font-weight:normal;
+  padding:4px 9px;
+  color:rgba(212,175,55,0.65);
+  border-color:rgba(212,175,55,0.3);
+}
 .main{
   max-width:var(--reader-max);
   padding:24px 34px 96px;
@@ -1655,6 +1663,15 @@ body{
     min-height:40px;
     min-width:0;
     font-size:19px;
+  }
+  .nav-arrows .ch-reload-btn{
+    min-height:unset;
+    min-width:unset;
+    font-size:12px;
+    font-weight:normal;
+    padding:4px 9px;
+    align-self:center;
+    justify-self:start;
   }
 
   .study-nav-bar.mobile-collapsed{
