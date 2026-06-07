@@ -4963,10 +4963,13 @@ function _renderBookOverview(book){
         html += '<div class="sheet-section-label sheet-section-headline">SOURCES</div>';
         html += '<div style="display:flex;flex-direction:column;gap:5px;margin-top:4px;">';
         for(const src of card.sources){
-          // Extract Strong's ID if present so we can make it clickable
+          // Extract Strong's ID if present so we can make it clickable.
+          // BDB sources are rendered as plain text — their content is already
+          // included inside the Strong's popup, so a duplicate button would open the same thing.
           const _sidMatch = String(src).match(/\b([HG]\d{1,5})\b/);
           const _sid = _sidMatch ? _sidMatch[1] : null;
-          if(_sid){
+          const _isBDB = /brown.driver.briggs|bdb/i.test(String(src));
+          if(_sid && !_isBDB){
             html += '<button onclick="showStrongs(\''+_escape(_sid)+'\')" style="text-align:left;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--fg);font-family:inherit;line-height:1.4;">'
               + '<span style="color:var(--strongs);font-weight:700;font-size:10px;margin-right:6px;">'+_escape(_sid)+'</span>'
               + '<i style="color:var(--fg-mute);">'+_escape(src)+'</i>'
