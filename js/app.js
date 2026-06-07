@@ -2145,17 +2145,15 @@ function _reapplyTextHighlights(){
   }
 
   function _showToolbar(range,ref){
-    // Don't rebuild if same ref and selection
     if(_toolbar&&_savedRef===ref) return;
     _removeToolbar();
     _savedRange=range.cloneRange();_savedRef=ref;
     var tb=document.createElement('div');
     tb.id='hlFloatBar';tb.className='hl-toolbar';
     var colors=[{c:'yellow',bg:'#f5d000',l:'Yellow'},{c:'red',bg:'#ff5252',l:'Red'},{c:'green',bg:'#43d68a',l:'Green'},{c:'purple',bg:'#b47fff',l:'Purple'}];
-    // Use ontouchend for iOS reliability (fires before click delay)
-    tb.innerHTML='<span class="hl-tb-label">Highlight:</span>'+colors.map(function(x){
-      return '<button class="hl-tb-swatch" style="background:'+x.bg+';" ontouchend="event.preventDefault();window._commitHL(\''+x.c+'\')" onclick="window._commitHL(\''+x.c+'\')" title="'+x.l+'"></button>';
-    }).join('')+'<button class="hl-tb-clear" ontouchend="event.preventDefault();window._clearHL()" onclick="window._clearHL()" title="Remove highlight">✕</button>';
+    tb.innerHTML=colors.map(function(x){
+      return '<button class="hl-tb-btn" ontouchend="event.preventDefault();window._commitHL(\''+x.c+'\')" onclick="window._commitHL(\''+x.c+'\')"><span class="hl-tb-dot" style="background:'+x.bg+';"></span>'+x.l+'</button>';
+    }).join('')+'<button class="hl-tb-clear" ontouchend="event.preventDefault();window._clearHL()" onclick="window._clearHL()">Remove</button>';
     document.body.appendChild(tb);_toolbar=tb;
     var rect=range.getBoundingClientRect();
     requestAnimationFrame(function(){ _positionToolbar(tb,rect); });
@@ -2183,7 +2181,7 @@ function _reapplyTextHighlights(){
   // selectionchange fires continuously as handles move on iOS — debounce it
   document.addEventListener('selectionchange',function(){
     clearTimeout(_debounceTimer);
-    _debounceTimer=setTimeout(_checkSelection,500);
+    _debounceTimer=setTimeout(_checkSelection,300);
   });
 
   // Also catch mouse selection on desktop

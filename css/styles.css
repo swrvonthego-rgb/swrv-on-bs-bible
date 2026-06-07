@@ -2146,12 +2146,32 @@ mark.text-hl-red{ background:rgba(255,82,82,0.38); }
 mark.text-hl-green{ background:rgba(67,214,138,0.35); }
 mark.text-hl-purple{ background:rgba(180,127,255,0.38); }
 /* Floating highlight toolbar */
-.hl-toolbar{ position:absolute; z-index:10000; background:var(--bg-2); border:1px solid var(--gold); border-radius:999px; padding:7px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 24px rgba(0,0,0,0.7); pointer-events:all; }
-.hl-tb-label{ color:var(--fg-mute); font-size:11px; font-family:-apple-system,sans-serif; white-space:nowrap; letter-spacing:0.04em; }
-.hl-tb-swatch{ width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); cursor:pointer; transition:transform .12s,border-color .12s; flex-shrink:0; }
-.hl-tb-swatch:hover{ transform:scale(1.2); border-color:#fff; }
-.hl-tb-clear{ background:var(--bg-3); border:1px solid var(--line); color:var(--fg-mute); border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:color .12s,border-color .12s; }
-.hl-tb-clear:hover{ color:var(--fg); border-color:var(--fg); }
+/* Highlight toolbar — styled like iOS native selection menu */
+.hl-toolbar{
+  position:absolute; z-index:10000; pointer-events:all;
+  display:flex; align-items:stretch;
+  background:rgba(30,30,32,0.97);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-radius:14px;
+  box-shadow:0 6px 28px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.06) inset;
+  overflow:hidden; white-space:nowrap;
+}
+.hl-tb-btn{
+  display:flex; align-items:center; gap:6px;
+  padding:11px 15px;
+  background:none; border:none;
+  color:#fff; font-size:14px; font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  font-weight:500; cursor:pointer; flex-shrink:0;
+  border-right:1px solid rgba(255,255,255,0.12);
+  transition:background .1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.hl-tb-btn:last-child{ border-right:none; }
+.hl-tb-btn:active{ background:rgba(255,255,255,0.15); }
+.hl-tb-dot{ width:13px; height:13px; border-radius:50%; flex-shrink:0; }
+.hl-tb-clear{ display:flex; align-items:center; padding:11px 15px; background:none; border:none; border-left:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.5); font-size:13px; font-family:-apple-system,BlinkMacSystemFont,sans-serif; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background .1s; }
+.hl-tb-clear:active{ background:rgba(255,255,255,0.15); }
 
 /* In Scholar mode the chip is still useful (gives quick access to the sheet) but lower-key. */
 body[data-reading-mode="scholar"] .verse-study-chip{ opacity:0.7; font-size:11px; }
