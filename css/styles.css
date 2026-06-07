@@ -2138,6 +2138,19 @@ body[data-reading-mode="scholar"] .study-layer{ display:revert; }
 .mem-item-ref{ color:var(--gold); font-weight:700; font-size:13px; margin-bottom:4px; }
 .mem-item-text{ color:var(--fg-mute); font-size:13px; line-height:1.5; font-style:italic; }
 
+/* Text-selection highlight marks */
+mark.text-hl{ background:transparent; color:inherit; border-radius:2px; padding:1px 0; }
+mark.text-hl-yellow{ background:rgba(245,208,0,0.42); }
+mark.text-hl-red{ background:rgba(255,82,82,0.38); }
+mark.text-hl-green{ background:rgba(67,214,138,0.35); }
+mark.text-hl-purple{ background:rgba(180,127,255,0.38); }
+/* Floating highlight toolbar */
+.hl-toolbar{ position:absolute; z-index:10000; background:var(--bg-2); border:1px solid var(--line); border-radius:999px; padding:7px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 20px rgba(0,0,0,0.6); pointer-events:all; }
+.hl-tb-swatch{ width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); cursor:pointer; transition:transform .12s,border-color .12s; flex-shrink:0; }
+.hl-tb-swatch:hover{ transform:scale(1.2); border-color:#fff; }
+.hl-tb-clear{ background:var(--bg-3); border:1px solid var(--line); color:var(--fg-mute); border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:color .12s,border-color .12s; }
+.hl-tb-clear:hover{ color:var(--fg); border-color:var(--fg); }
+
 /* In Scholar mode the chip is still useful (gives quick access to the sheet) but lower-key. */
 body[data-reading-mode="scholar"] .verse-study-chip{ opacity:0.7; font-size:11px; }
 /* In Read mode the chip is the only inline study control — make it slightly more visible. */

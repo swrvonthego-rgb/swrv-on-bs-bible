@@ -1193,7 +1193,6 @@ function renderVerse(v){
   const _bERef=v.ref.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const _bEText=displayText.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ').substring(0,150);
   verseHtml.push('<button class="verse-study-chip verse-bm-chip" id="bm_'+_bRefId+'" onclick="toggleBookmark(\''+_bERef+'\',\''+_bEText+'\')" title="Bookmark this verse">🔖</button>');
-  verseHtml.push('<button class="verse-study-chip verse-hl-chip" onclick="showHighlightPicker(\''+_bERef+'\',this)" title="Highlight this verse">◐ Color</button>');
   verseHtml.push('<button class="verse-study-chip verse-note-chip" id="note_'+_bRefId+'" onclick="openNote(\''+_bERef+'\')" title="Add a note">📝 Note</button>');
 
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
@@ -2005,6 +2004,7 @@ function _applyUserAnnotations(){
     const btn=document.getElementById('bm_'+ref.replace(/[^a-z0-9]/gi,'_'));
     if(btn)btn.classList.add('active');
   });
+  _reapplyTextHighlights();
 }
 
 function _loadSavedPosition(book,chapter){
@@ -2022,6 +2022,169 @@ function _loadSavedPosition(book,chapter){
     });
   }
 }
+
+/* ============================================================
+   TEXT-SELECTION HIGHLIGHTING
+   Users select any text in a verse → floating color toolbar appears
+   → pick a color to highlight that exact phrase.
+   Highlights are stored in localStorage and re-applied on chapter load.
+   ------------------------------------------------------------ */
+function _getTextHighlights(){try{return JSON.parse(localStorage.getItem('swrv_text_hl')||'[]');}catch(e){return[];}}
+function _saveTextHighlights(a){localStorage.setItem('swrv_text_hl',JSON.stringify(a));}
+
+// Wrap target text inside el with a <mark> and save to storage
+function _wrapTextInElement(el, targetText, color, ref){
+  if(!el||!targetText) return false;
+  var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
+  var textNodes=[],node;
+  while((node=walker.nextNode())){
+    var p=node.parentElement,inMark=false;
+    while(p&&p!==el){if(p.tagName==='MARK'){inMark=true;break;}p=p.parentElement;}
+    if(!inMark) textNodes.push(node);
+  }
+  var pos=0,segments=textNodes.map(function(n){var s={node:n,start:pos,end:pos+n.textContent.length};pos=s.end;return s;});
+  var full=textNodes.map(function(n){return n.textContent;}).join('');
+  var idx=full.indexOf(targetText);
+  if(idx<0) return false;
+  var end=idx+targetText.length;
+  var inv=segments.filter(function(s){return s.end>idx&&s.start<end;});
+  if(!inv.length) return false;
+  var range=document.createRange();
+  range.setStart(inv[0].node,idx-inv[0].start);
+  range.setEnd(inv[inv.length-1].node,end-inv[inv.length-1].start);
+  var mark=document.createElement('mark');
+  mark.className='text-hl text-hl-'+color;
+  mark.dataset.hlColor=color;
+  mark.dataset.hlRef=ref||'';
+  mark.dataset.hlText=targetText;
+  try{range.surroundContents(mark);return true;}
+  catch(e){try{var c=range.extractContents();mark.appendChild(c);range.insertNode(mark);return true;}catch(e2){return false;}}
+}
+
+function _reapplyTextHighlights(){
+  _getTextHighlights().forEach(function(h){
+    var refId=h.ref.replace(/[^a-z0-9]/gi,'_');
+    var verseEl=document.getElementById(refId);
+    if(!verseEl) return;
+    var textEl=verseEl.querySelector('.verse-text');
+    if(textEl) _wrapTextInElement(textEl,h.text,h.color,h.ref);
+  });
+}
+
+// Floating toolbar shown above a text selection
+(function(){
+  var _toolbar=null,_savedRange=null,_savedRef=null;
+
+  function _refFromVerseEl(el){
+    var v=el;
+    while(v&&!v.classList.contains('verse')) v=v.parentElement;
+    if(!v||!v.id) return null;
+    var parts=v.id.split('_');
+    if(parts.length<3) return null;
+    var verse=parts[parts.length-1],ch=parts[parts.length-2],book=parts.slice(0,parts.length-2).join(' ');
+    return book+' '+ch+':'+verse;
+  }
+
+  function _removeToolbar(){
+    if(_toolbar){_toolbar.remove();_toolbar=null;}
+    _savedRange=null;_savedRef=null;
+  }
+
+  function _showToolbar(range,ref){
+    _removeToolbar();
+    _savedRange=range.cloneRange();_savedRef=ref;
+    var tb=document.createElement('div');
+    tb.id='hlFloatBar';tb.className='hl-toolbar';
+    var colors=[{c:'yellow',bg:'#f5d000'},{c:'red',bg:'#ff5252'},{c:'green',bg:'#43d68a'},{c:'purple',bg:'#b47fff'}];
+    tb.innerHTML=colors.map(function(x){
+      return '<button class="hl-tb-swatch" style="background:'+x.bg+';" onclick="window._commitHL(\''+x.c+'\')" title="'+x.c+'"></button>';
+    }).join('')+'<button class="hl-tb-clear" onclick="window._clearHL()" title="Remove">✕</button>';
+    document.body.appendChild(tb);_toolbar=tb;
+    var rect=range.getBoundingClientRect();
+    requestAnimationFrame(function(){
+      var tw=tb.offsetWidth,th=tb.offsetHeight;
+      var top=rect.top+window.scrollY-th-10;
+      var left=rect.left+window.scrollX+(rect.width/2)-(tw/2);
+      left=Math.max(8,Math.min(left,window.innerWidth-tw-8));
+      if(top<window.scrollY+8) top=rect.bottom+window.scrollY+10;
+      tb.style.top=top+'px';tb.style.left=left+'px';
+    });
+  }
+
+  function _checkSelection(){
+    var sel=window.getSelection();
+    if(!sel||sel.isCollapsed||!sel.toString().trim()){return;}
+    var anchor=sel.anchorNode;
+    var el=anchor&&(anchor.nodeType===3?anchor.parentElement:anchor);
+    while(el&&el!==document.body){
+      if(el.classList&&el.classList.contains('verse-text')){
+        var ref=_refFromVerseEl(el);
+        if(ref) _showToolbar(sel.getRangeAt(0),ref);
+        return;
+      }
+      el=el.parentElement;
+    }
+  }
+
+  window._commitHL=function(color){
+    if(!_savedRange||!_savedRef) return;
+    var text=_savedRange.toString().trim();
+    if(!text){_removeToolbar();return;}
+    // Find verse text element
+    var refId=_savedRef.replace(/[^a-z0-9]/gi,'_');
+    var verseEl=document.getElementById(refId);
+    var textEl=verseEl&&verseEl.querySelector('.verse-text');
+    if(textEl) _wrapTextInElement(textEl,text,color,_savedRef);
+    // Persist
+    var stored=_getTextHighlights().filter(function(h){return!(h.ref===_savedRef&&h.text===text);});
+    stored.push({ref:_savedRef,text:text,color:color,id:Date.now()});
+    _saveTextHighlights(stored);
+    window.getSelection().removeAllRanges();
+    _removeToolbar();
+  };
+
+  window._clearHL=function(){
+    // Remove any <mark class="text-hl"> elements that overlap the saved range
+    if(_savedRange){
+      var container=_savedRange.commonAncestorContainer;
+      var root=(container.nodeType===3?container.parentElement:container);
+      var marks=root.querySelectorAll?Array.from(root.querySelectorAll('mark.text-hl')):[];
+      // Also check if root itself is a mark
+      if(root.tagName==='MARK'&&root.classList.contains('text-hl')) marks.unshift(root);
+      marks.forEach(function(mark){
+        var ref=mark.dataset.hlRef,text=mark.dataset.hlText;
+        if(ref&&text){
+          _saveTextHighlights(_getTextHighlights().filter(function(h){return!(h.ref===ref&&h.text===text);}));
+        }
+        var parent=mark.parentNode;
+        while(mark.firstChild) parent.insertBefore(mark.firstChild,mark);
+        parent.removeChild(mark);
+      });
+    }
+    window.getSelection().removeAllRanges();
+    _removeToolbar();
+  };
+
+  document.addEventListener('mouseup',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    setTimeout(_checkSelection,30);
+  });
+  document.addEventListener('touchend',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    setTimeout(_checkSelection,400);
+  });
+  document.addEventListener('mousedown',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    _removeToolbar();
+  });
+  document.addEventListener('touchstart',function(e){
+    if(_toolbar&&_toolbar.contains(e.target)) return;
+    _removeToolbar();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') _removeToolbar();
+  });
+})();
 
 /* ============================================================
    PANEL LAYERING FIX — definition / Strong's popup always on top
