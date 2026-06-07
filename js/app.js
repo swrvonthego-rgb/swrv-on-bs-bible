@@ -10,9 +10,17 @@ function dismissSplash(){
   document.body.classList.remove('splash-active');
   setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
 }
-// Lock body scroll while splash is up
+// Returning users skip the splash entirely — auto-dismiss immediately
 (function(){
-  if(document.getElementById('splashCover')){
+  const splash = document.getElementById('splashCover');
+  if(!splash) return;
+  if(localStorage.getItem('swrv_has_visited')){
+    // Already visited — dismiss instantly, no ENTER button needed
+    splash.style.transition='none';
+    splash.style.display='none';
+    document.body.classList.remove('splash-active');
+    if(splash.parentNode) splash.parentNode.removeChild(splash);
+  } else {
     document.body.classList.add('splash-active');
   }
 })();
@@ -3936,30 +3944,41 @@ if(mode==='verse'){
 }
 
 if(typeof applyStudyLayerMode==='function') applyStudyLayerMode(window._studyLayerMode);
-// Smart init: new users always start at Genesis 1; returning users resume their saved position.
-// If the saved book's data isn't bundled (only Genesis is), load its script first.
+// Smart init: new users start at Genesis 1. Returning users resume instantly.
+// Always route through _loadBookScript so data is guaranteed loaded before render.
 (function(){
   var _firstVisit=!localStorage.getItem('swrv_has_visited');
   if(_firstVisit){
     localStorage.setItem('swrv_has_visited','1');
-    currentBook='Genesis';window.currentBook='Genesis';if(typeof _updateBookContext==='function')_updateBookContext();
+    currentBook='Genesis';window.currentBook='Genesis';
+    if(typeof _updateBookContext==='function')_updateBookContext();
     currentChapter=1;currentVerse=1;
-    if(typeof bookSelect!=='undefined'&&bookSelect)bookSelect.value='Genesis';
+    if(bookSelect)bookSelect.value='Genesis';
     if(typeof populateChapterSelect==='function')populateChapterSelect();
     if(typeof populateVerseSelect==='function')populateVerseSelect();
     _loadChapterCore(1);
-  }else if(currentBook==='Genesis'||_bookScriptLoaded[currentBook]||(window.BIBLE&&window.BIBLE[currentBook])){
-    _loadChapterCore(currentChapter);
-  }else{
-    const _main=document.getElementById('mainContent');
-    if(_main)_main.innerHTML='<p style="padding:30px;color:var(--fg-mute);">Resuming '+currentBook+' '+currentChapter+'…</p>';
-    _loadBookScript(currentBook,function(){
-      if(typeof bookSelect!=='undefined'&&bookSelect)bookSelect.value=currentBook;
-      if(typeof populateChapterSelect==='function')populateChapterSelect();
-      if(typeof populateVerseSelect==='function')populateVerseSelect();
-      _loadChapterCore(currentChapter);
-    });
+    return;
   }
+  // Returning user — show a resume pill while loading
+  var _resumeBookInfo=window.BIBLE_INDEX&&window.BIBLE_INDEX.find(function(b){return b.slug===currentBook;});
+  var _resumeLabel=(_resumeBookInfo&&_resumeBookInfo.display||currentBook)+' '+currentChapter;
+  var _pill=document.createElement('div');
+  _pill.id='resumePill';
+  _pill.innerHTML='<span>📖 Resuming <b>'+_resumeLabel+'</b>…</span>';
+  _pill.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-2);border:1px solid var(--gold);border-radius:999px;padding:10px 20px;font-size:13px;color:var(--fg);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);pointer-events:none;transition:opacity .4s;white-space:nowrap;';
+  document.body.appendChild(_pill);
+  function _dismissPill(){ _pill.style.opacity='0'; setTimeout(function(){if(_pill.parentNode)_pill.parentNode.removeChild(_pill);},400); }
+
+  // Update nav controls then load the book script (guaranteed async-safe)
+  if(bookSelect)bookSelect.value=currentBook;
+  if(typeof populateChapterSelect==='function')populateChapterSelect();
+  if(typeof populateVerseSelect==='function')populateVerseSelect();
+
+  _loadBookScript(currentBook,function(){
+    if(typeof _updateBookContext==='function'){window.currentBook=currentBook;_updateBookContext();}
+    _loadChapterCore(currentChapter);
+    _dismissPill();
+  });
 })();
 // Initialize mobile nav state: on phone widths, collapse the Book/Chapter/Verse
 // controls into a one-line summary; on desktop, this is a no-op.
