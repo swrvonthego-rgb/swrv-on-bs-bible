@@ -1668,5 +1668,342 @@ window.ENGLISH_BIBLE_DICT = {
   category:"worship / temple",
   sources:["Strong's H6942","Strong's G37","Thayer's","BDB"],
   confidence:"direct-source"
+},
+"condemnation":{
+  word:"condemnation",
+  plain:"The court's verdict of guilty — and the sentence attached to it. Not a feeling of shame. A legal status.",
+  deep:"Greek KATAKRIMA (G2631) — the condemnation, the penalty-verdict; KATAKRINŌ (G2632) — to pass judgment against, to condemn. These are legal terms rooted in the Greek and Roman courtroom. KATAKRIMA appears only three times in the NT — all in Romans 5-8 — and it is the most legally loaded word in Paul's vocabulary. Romans 5:16,18 — condemnation entered through Adam's sin; the counter-verdict is justification (dikaiōma). Romans 8:1 — the most cited verse: 'There is therefore now NO condemnation to them which are in Christ Jesus.' Paul is not saying 'don't feel bad about yourself.' He is reversing a legal verdict: the case was heard, the sentence fell — but on Christ instead. The condemned person walks free. KRISIS (G2920) and KRIMA (G2917) are the broader words for judgment and verdict; KATAKRIMA is specifically the adverse ruling.",
+  misunderstood:"Treating condemnation as a feeling of guilt or shame misses the forensic point. Many believers are released from the legal verdict (katakrima) but still live under shame (not a biblical category in the same sense). Romans 8:1 is about legal standing before God, not emotional state. The emotional relief flows from understanding the legal reality.",
+  matters:"Romans 8:1 is the logical conclusion of Paul's entire argument about justification by faith (Romans 3-7). Having established that Christ bore the condemnation, Paul announces the verdict: no katakrima for those in Christ. This is the foundation of assurance.",
+  originals:[
+    {lang:"Greek",word:"κατάκριμα",translit:"katakrima",strongs:"G2631",note:"The verdict-penalty of condemnation; adverse judicial sentence."},
+    {lang:"Greek",word:"κατακρίνω",translit:"katakrino",strongs:"G2632",note:"To pass judgment against, condemn, sentence."},
+    {lang:"Greek",word:"κρίμα",translit:"krima",strongs:"G2917",note:"Judgment, verdict (broader term)."}
+  ],
+  rangeOfMeaning:["legal verdict of guilty","the sentence/penalty attached to the verdict","judicial condemnation","the standing of the unredeemed before God's law"],
+  notMean:"Not mere shame or guilt feelings. Not God's attitude of disgust. Not irreversible for those in Christ.",
+  cultural:"Roman law was highly developed. A condemnatio was the formal adverse verdict in a legal proceeding. Paul's readers — Roman citizens and residents — would immediately hear the courtroom in katakrima. The good news: the verdict was reversed at Calvary.",
+  kingdomSignificance:"Romans 8:1-4 — the kingdom citizen lives under a reversed verdict. The law's condemnation that could not be defeated by human effort was defeated by God sending his Son 'in the likeness of sinful flesh' to bear it.",
+  relatedVerses:["Romans 5:16,18","Romans 8:1","Romans 8:3-4","John 3:17-18","John 5:24","1 Corinthians 11:32","2 Corinthians 3:9"],
+  relatedWords:["justified","righteousness","verdict","judgment","wrath"],
+  category:"salvation / grace",
+  sources:["Strong's G2631","Strong's G2632","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"eternal":{
+  word:"eternal",
+  plain:"Belonging to the age to come — not just 'lasting a very long time.' Eternal life is the life of the new creation, which you can enter NOW.",
+  deep:"Greek AIŌNIOS (G166) — from AIŌN (G165), meaning an age, era, a period of time with distinctive character. The English word 'eternal' suggests infinite duration. AIŌNIOS primarily suggests quality and belonging: what belongs to the AIŌN (the age). 'The present age' (aion houtos) is the age of sin and death. 'The age to come' (aion mellon) is the age of resurrection, new creation, and God's full reign. 'Eternal life' (ZOĒ AIŌNIOS) = the life of the coming age — qualitatively different life, not just endlessly prolonged current life. John 17:3 — 'this is eternal life: that they know you, the only true God, and Jesus Christ whom you have sent.' Jesus defines it as knowing God — a quality of relationship, not merely a duration. John 5:24 — 'whoever hears my word and believes him who sent me has ETERNAL LIFE and does not come into judgment.' Present tense: has. Now. Because the life of the age to come has broken into the present age through Christ. 'Eternal punishment' (Matt 25:46) = the punishment of the age to come; the text is parallel to 'eternal life' (same adjective) — duration is implied but not the primary meaning.",
+  misunderstood:"'Eternal life' is not just 'going to heaven and living forever.' It is the resurrection-quality life of God's new world, accessible NOW through union with Christ. This changes everything: you don't wait until death to begin eternal life — you enter it at new birth. The kingdom is already present; eternal life is already begun.",
+  matters:"The confusion between NEOS (new in time) and KAINOS (new in kind) applies here too: AIŌNIOS is not just 'very long time' (temporal) but 'belonging to a different order of existence' (qualitative). This changes how we read 'eternal life' throughout John's Gospel.",
+  originals:[
+    {lang:"Greek",word:"αἰώνιος",translit:"aionios",strongs:"G166",note:"Belonging to the age; of/for the (coming) age; eternal."},
+    {lang:"Greek",word:"αἰών",translit:"aion",strongs:"G165",note:"An age, era, period with distinctive character."}
+  ],
+  rangeOfMeaning:["belonging to the age to come","the life of the new creation","present possession of the kingdom citizen","the full eschatological life of God's new world"],
+  notMean:"Not just 'infinitely long.' Not beginning at physical death. Not a different location (heaven) as opposed to a different quality of life.",
+  cultural:"Jewish apocalyptic literature distinguished sharply between 'this age' (olam hazeh) and 'the age to come' (olam haba). NT writers use the same framework. 'Eternal life' = life of the olam haba / aion mellon, now entered through faith in Christ.",
+  kingdomSignificance:"John 5:24 — 'has eternal life' (present tense). The age to come has broken into the present age in the person of Jesus. Kingdom citizens live from the future — they already possess the life that will fully manifest at the resurrection.",
+  relatedVerses:["John 3:16,36","John 5:24","John 17:3","Matthew 25:46","Romans 6:23","1 John 5:11-13","Titus 3:7"],
+  relatedWords:["life","age","kingdom","resurrection","now"],
+  category:"eschatology / kingdom",
+  sources:["Strong's G165","Strong's G166","Thayer's","BDAG","N.T. Wright 'Surprised by Hope' (general background)"],
+  confidence:"direct-source"
+},
+"mystery":{
+  word:"mystery",
+  plain:"A secret that was hidden for ages but has now been fully disclosed — NOT something confusing or hard to understand.",
+  deep:"Greek MYSTĒRION (G3466) — from the Greek mystery religions (Eleusinian Mysteries, Orphic Mysteries, Mithraic Mysteries), where it meant esoteric secrets revealed only to initiated members. The word carried the sense of 'sacred secret known only to insiders.' Paul systematically co-opts the term and reverses its direction: the biblical mystery is not kept secret from most people but is a plan previously hidden that has now been made fully PUBLIC. Colossians 1:26-27 — 'the mystery hidden for ages and generations but NOW revealed to his saints... Christ in you, the hope of glory.' Romans 16:25-26 — 'the mystery kept secret for long ages but now disclosed.' Ephesians 3:3-6 — the mystery is that Gentiles and Jews are fellow heirs in one body. Matthew 13:11 — 'the mysteries of the kingdom of heaven have been given to you.' In each case: previously concealed, now disclosed through the gospel.",
+  misunderstood:"'Mystery' in English means something puzzling, incomprehensible, hard to figure out. MYSTĒRION means the opposite: the secret is out. God's hidden plan for the world is now announced. Understanding comes not from superior intellect but from receiving the revealed secret — the gospel of Christ.",
+  matters:"Revelation 10:7 — 'the mystery of God would be fulfilled.' The entire biblical narrative is heading toward the full disclosure of God's eternal plan. Every 'mystery' Paul mentions is a component of that plan now being made known.",
+  originals:[
+    {lang:"Greek",word:"μυστήριον",translit:"mysterion",strongs:"G3466",note:"A secret/hidden thing; in NT: God's previously hidden plan now revealed."}
+  ],
+  rangeOfMeaning:["the hidden plan of God now made public","the union of Jews and Gentiles in one body (Eph 3)","Christ in you (Col 1:27)","the mystery of lawlessness (2 Thess 2:7)","the mystery of the resurrection body (1 Cor 15:51)"],
+  notMean:"Not something confusing or intellectually difficult. Not esoteric knowledge kept from ordinary believers. Not a code to crack.",
+  cultural:"Mystery cult initiation was a multi-stage process. Lower initiates knew part of the secret; full initiates knew all. Paul subverts this entirely: the mystery is announced publicly to everyone — 'that I might make all men see what is the administration of the mystery' (Eph 3:9).",
+  kingdomSignificance:"The mystery of the kingdom (Matt 13:11) is that the kingdom has arrived in unexpected form — not through a conquering army but through a suffering servant. Those with ears to hear can receive this mystery now.",
+  relatedVerses:["Matthew 13:11","Romans 16:25-26","1 Corinthians 15:51","Ephesians 1:9-10","Ephesians 3:3-9","Colossians 1:26-27","Revelation 10:7"],
+  relatedWords:["reveal","hidden","gospel","wisdom","knowledge"],
+  category:"kingdom / revelation",
+  sources:["Strong's G3466","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"believe":{
+  word:"believe",
+  plain:"To trust, commit to, and entrust yourself completely — not just to mentally agree that something is true.",
+  deep:"Greek PISTEUŌ (G4100) — the verb form of PISTIS (faith, G4102) and the root of PISTOS (faithful, trustworthy, G4103). In the papyri of the first century, pisteuō was used in commercial and legal contexts: to entrust goods to someone, to commit funds to a trustworthy agent. It carries the weight of committed trust, not mere cognitive agreement. John consistently uses PISTEUŌ EIS (believe INTO, eis = into/toward) — a relational directional phrase. You believe INTO Christ, entrust yourself TO him, enter a relationship WITH him. This is different from believing ABOUT him. James 2:19 draws the line sharply: 'You believe that God is one; you do well. Even the demons believe — and shudder.' Demons have correct theological information. What they lack is commitment and surrender. That distinction is built into the Greek word itself.",
+  misunderstood:"'Believe in Jesus' has been reduced in Western culture to 'agree that Jesus existed and did certain things.' The Greek means something closer to 'stake your life on Jesus and entrust yourself to him.' The difference between believing a parachute exists and actually jumping with one strapped to your back.",
+  matters:"John 1:12 — 'to all who believed INTO him (pisteuo eis), he gave the right to become children of God.' The eis makes this about relational commitment, not cognitive assent. John 3:16 — 'whoever believes INTO him (pisteuo eis) shall not perish.'",
+  originals:[
+    {lang:"Greek",word:"πιστεύω",translit:"pisteuo",strongs:"G4100",note:"To trust, commit to, entrust oneself to; believe INTO."},
+    {lang:"Greek",word:"πίστις",translit:"pistis",strongs:"G4102",note:"Faith, trust, faithfulness."},
+    {lang:"Greek",word:"πιστός",translit:"pistos",strongs:"G4103",note:"Faithful, trustworthy, one who trusts."}
+  ],
+  rangeOfMeaning:["committed trust","entrusting oneself to another","relational loyalty and dependence","active faith that acts on what it believes"],
+  notMean:"Not merely cognitive assent. Not agreement about religious facts. Not a one-time past act with no ongoing commitment.",
+  cultural:"First-century commercial papyri (Oxyrhynchus, Chester Beatty) use pisteuō for entrusting property, money, and goods to a trustworthy agent. The trust is based on proven character, and it involves actual transfer — you actually hand over what you're entrusting.",
+  kingdomSignificance:"The kingdom is entered through faith (pistis). Jesus calls people not to agree about him but to follow him — to entrust their entire life's direction to him. Ephesians 1:13 — 'in whom you also, when you heard the word of truth and believed INTO him (pisteuo), were sealed with the Holy Spirit.'",
+  relatedVerses:["John 1:12","John 3:16","John 6:29","John 20:29","Romans 4:3,5","Romans 10:9-10","James 2:19","Ephesians 1:13"],
+  relatedWords:["faith","trust","commit","Lord","obedience"],
+  category:"salvation / grace",
+  sources:["Strong's G4100","Strong's G4102","Thayer's","BDAG","Moulton & Milligan 'Vocabulary of the Greek NT' (general background)"],
+  confidence:"direct-source"
+},
+"Messiah":{
+  word:"Messiah",
+  plain:"The Anointed One — the Hebrew title for the promised deliverer, prophet, priest, and king. Not a name. A title of the highest order.",
+  deep:"Hebrew MĀSHÎACH (H4899) — from MĀSHACH (H4886), to anoint with oil. Three roles were anointed in the OT: prophets (1 Kings 19:16), priests (Lev 8:12), and kings (1 Sam 16:13). The Messiah was expected to fulfill all three perfectly. Greek CHRISTOS (G5547) — exact translation of Mashiach: the Anointed One. 'Jesus Christ' = 'Jesus the Anointed One.' This was not understood as a surname until the meaning was lost. When Peter says 'You are the Christ, the Son of the living God' (Matt 16:16), he is declaring that Jesus is the long-awaited Anointed One of Israel — the one all the prophets, priests, and kings pointed to. Luke 4:18 — Jesus reads Isaiah 61 in Nazareth: 'The Spirit of the LORD is upon me, BECAUSE HE HAS ANOINTED ME.' He publicly claims the anointing. Daniel 9:25-26 — the 'Anointed One' of Daniel's prophecy, to be 'cut off.'",
+  misunderstood:"'Christ' has become a surname in English Christianity — 'Jesus Christ' sounds like a first and last name. This loses the explosive content of the title. Every time you say 'Jesus Christ,' you are saying 'Jesus the Anointed One' — the One uniquely commissioned and empowered by God to be Prophet, Priest, and King.",
+  matters:"The entire structure of the OT — its prophets, its priests, its kings — was a multi-century pointing toward the Anointed One. When Jesus accepts the title 'Christ/Messiah,' he is claiming to be the fulfillment of Israel's entire covenant history.",
+  originals:[
+    {lang:"Hebrew",word:"מָשִׁיחַ",translit:"mashiach",strongs:"H4899",note:"Anointed one; from mashach — to anoint with oil."},
+    {lang:"Greek",word:"Χριστός",translit:"Christos",strongs:"G5547",note:"Anointed one; Greek translation of Mashiach."}
+  ],
+  rangeOfMeaning:["anointed prophet","anointed priest","anointed king","the fulfillment of all three offices in one person","the expected deliverer of Israel"],
+  notMean:"Not a surname. Not a title Jesus chose for himself in isolation — it is the title Israel's whole history was building toward.",
+  cultural:"In the Second Temple period, Jewish expectation of the Messiah varied significantly: some expected a warrior-king like David, some a priestly figure, some a heavenly son of man (Daniel 7). Jesus confounded most expectations — arriving as a suffering servant before the conquering king.",
+  kingdomSignificance:"The arrival of the Messiah = the arrival of the kingdom. Matthew 12:28 — 'if I by the Spirit of God cast out demons, then the kingdom of God has come upon you.' The Anointed One brings the anointing kingdom.",
+  relatedVerses:["Psalm 2:2","Isaiah 61:1-3","Daniel 9:25-26","Luke 4:18-21","Matthew 16:16","John 1:41","Acts 2:36","Acts 4:26-27"],
+  relatedWords:["Christ","anointed","king","prophet","priest"],
+  category:"identity / God-facing",
+  sources:["Strong's H4899","Strong's H4886","Strong's G5547","Thayer's","BDB"],
+  confidence:"direct-source"
+},
+"baptism":{
+  word:"baptism",
+  plain:"Full immersion — to be plunged completely under and raised back up. A picture of death, burial, and resurrection with Christ.",
+  deep:"Greek BAPTIZŌ (G907) — to immerse, plunge, dip, submerge. The word was used outside the NT for dyeing cloth (plunge fabric in dye), for ships being overwhelmed and sinking, for pickling vegetables in brine. It is a word of complete immersion and saturation, not gentle application. BAPTISMA (G908) — the act of baptism; BAPTISTĒS (G910) — the baptizer (John the Baptist). Mark 1:4-5 — John's baptism was a Jewish ritual purification bath (mikveh) now loaded with eschatological meaning: repentance and preparation for the Messiah. Romans 6:3-4 — 'do you not know that all of us who were baptized INTO Christ were baptized INTO his death? We were therefore buried with him through baptism into death, so that just as Christ was raised from the dead... we too may walk in newness of life.' The physical act is a living picture of the spiritual reality: you go under (buried) and come up (raised). 1 Corinthians 10:2 — Israel was 'baptized into Moses' in the cloud and sea — the Red Sea crossing is an immersion event.",
+  misunderstood:"'Baptism' is often treated as a religious ceremony of unknown meaning or as the mechanism of salvation itself. The NT treats it as an enacted picture and pledge: it declares that you have died and been raised with Christ (Rom 6), and seals your identification with him. The mode — immersion — carries the meaning: you cannot picture death and resurrection by sprinkling.",
+  matters:"Galatians 3:27 — 'as many of you as were baptized INTO Christ have PUT ON Christ.' The immersion is into a person, not into a religion. Colossians 2:12 — 'buried with him in baptism, in which you were also raised with him through faith.'",
+  originals:[
+    {lang:"Greek",word:"βαπτίζω",translit:"baptizo",strongs:"G907",note:"To immerse, plunge, dip; overwhelm; submerge completely."},
+    {lang:"Greek",word:"βάπτισμα",translit:"baptisma",strongs:"G908",note:"The act of baptism; immersion."}
+  ],
+  rangeOfMeaning:["ritual immersion in water for purification","covenantal immersion identifying with Christ's death and resurrection","Spirit-baptism (being overwhelmed by the Spirit)","baptism of suffering (Luke 12:50)"],
+  notMean:"Not mere water sprinkling. Not the mechanism of salvation (Acts 10:44-48 — Gentiles were saved before baptism). Not an empty ritual.",
+  cultural:"Jewish mikvaoth (immersion baths) were ubiquitous in first-century Israel — John's audience understood ritual immersion. John's innovation was the meaning: repentance toward the coming kingdom, not just ritual cleansing.",
+  kingdomSignificance:"Baptism is the public sign of entering the covenant community of the kingdom. Matthew 28:19 — 'make disciples... baptizing them into the name of the Father and of the Son and of the Holy Spirit.' It is covenantal entry.",
+  relatedVerses:["Matthew 3:1-17","Matthew 28:19","Acts 2:38","Romans 6:3-4","1 Corinthians 10:2","Galatians 3:27","Colossians 2:11-12","1 Peter 3:21"],
+  relatedWords:["immerse","covenant","death","resurrection","Spirit"],
+  category:"worship / temple",
+  sources:["Strong's G907","Strong's G908","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"mediator":{
+  word:"mediator",
+  plain:"The authorized legal agent who stands between two parties and represents both — not just a messenger, but an accredited go-between.",
+  deep:"Greek MESITĒS (G3316) — from MESOS (middle) + the person-suffix. One who stands in the middle between two parties with legal authorization to act on behalf of both. The word appears in Koine Greek papyri in commercial and legal contexts: a mediator in a property dispute, a contractual intermediary. Galatians 3:19-20 — Moses was the MESITĒS of the Sinai covenant (the law came through angels, given through a mediator). Hebrews 8:6; 9:15; 12:24 — Jesus is the MESITĒS of a better, new covenant. He does not simply carry messages between God and humanity; he is the authorized representative of BOTH — fully God and fully man — qualified to act on behalf of both parties. 1 Timothy 2:5 — 'For there is one God, and one mediator between God and men, the man Christ Jesus; who gave himself a ransom for all.'",
+  misunderstood:"A mediator is not merely a peacemaker or a go-between in the casual sense. A legal mediator has standing with BOTH parties and is empowered to negotiate, commit, and seal agreements on their behalf. Christ's mediation is not diplomatic nicety — it is the only qualified representation before God that humanity has.",
+  matters:"The exclusivity of Christ's mediation (1 Tim 2:5: 'one mediator') is the basis for the exclusivity of the gospel. Not because God is narrow but because only Christ has the standing to represent both parties — divine and human — in the same person.",
+  originals:[
+    {lang:"Greek",word:"μεσίτης",translit:"mesites",strongs:"G3316",note:"Mediator, go-between, legal intermediary."}
+  ],
+  rangeOfMeaning:["authorized legal intermediary","covenant go-between","the one who secures the covenant by representing both parties"],
+  notMean:"Not merely a peacemaker. Not a spiritual translator. Not an optional extra.",
+  cultural:"Roman and Hellenistic legal practice relied on mediators (MESITAI) in contract disputes, property transfers, and treaty negotiations. Both parties were bound by the mediator's acts. Christ's one-time act of mediation (Heb 9:12) permanently secures the new covenant.",
+  kingdomSignificance:"Hebrews 12:24 — 'Jesus the mediator of a new covenant, and the blood of sprinkling that speaks better than the blood of Abel.' The kingdom is mediated through Christ alone.",
+  relatedVerses:["Galatians 3:19-20","1 Timothy 2:5","Hebrews 7:22","Hebrews 8:6","Hebrews 9:15","Hebrews 12:24"],
+  relatedWords:["covenant","advocate","intercession","reconcile","ransom"],
+  category:"salvation / grace",
+  sources:["Strong's G3316","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"advocate":{
+  word:"advocate",
+  plain:"Your defense attorney before God AND the one Jesus sent to walk alongside you in daily life — both dimensions are in one Greek word.",
+  deep:"Greek PARAKLĒTOS (G3875) — from PARA (alongside) + KALEŌ (to call). One called to stand alongside. In Greek legal contexts, a PARAKLĒTOS was a defense attorney called to stand beside the accused — one who speaks on behalf of the defendant before a judge. Four times in John's Gospel (14:16,26; 15:26; 16:7) Jesus uses this word for the Holy Spirit he will send. Once in 1 John 2:1 it is applied to Jesus himself: 'if anyone sins, we have an ADVOCATE (paraklētos) with the Father, Jesus Christ the righteous.' So we have two paraklētoi: the Spirit alongside us in the world, and Jesus our advocate before the Father. English translations vary because the word is too rich for one English word: 'Comforter' (KJV), 'Counselor' (NIV), 'Advocate' (NRSV), 'Helper' (ESV). None fully captures it.",
+  misunderstood:"Western Christians often read the Holy Spirit as a vague spiritual force or an emotion. The word is a person with a role: defense attorney, helper, teacher, comforter, and the one who convicts the world (John 16:8). The legal dimension — someone standing beside you with authority — is consistently underplayed.",
+  matters:"John 14:16 — Jesus says the Father will give 'ANOTHER paraklētos' — implying that Jesus himself has been their paraklētos until now, and the Spirit continues that role. The disciple is never without an advocate.",
+  originals:[
+    {lang:"Greek",word:"παράκλητος",translit:"parakletos",strongs:"G3875",note:"One called alongside; defense attorney; helper, comforter."}
+  ],
+  rangeOfMeaning:["legal defense attorney","helper in daily life","teacher and guide","comforter in suffering","the one who convicts the world of sin","intercessor before God (Jesus in 1 John 2:1)"],
+  notMean:"Not a vague spiritual feeling. Not an optional extra in the Christian life. Not separable from the person of Christ.",
+  cultural:"Greek rhetorical culture prized having a skilled PARAKLĒTOS in legal proceedings. Socrates notably refused to use a paraklētos in his defense before the Athenian court. The disciples, by contrast, are promised the greatest possible paraklētos.",
+  kingdomSignificance:"Acts 1:8 — 'you will receive power when the Holy Spirit comes' is the fulfillment of the paraklētos promise. The kingdom advances through Spirit-empowered, Spirit-counseled, Spirit-defended people.",
+  relatedVerses:["John 14:16,26","John 15:26","John 16:7-11","1 John 2:1","Romans 8:26-27","Hebrews 7:25"],
+  relatedWords:["Spirit","mediator","intercession","comforter","helper"],
+  category:"Holy Spirit",
+  sources:["Strong's G3875","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"firstborn":{
+  word:"firstborn",
+  plain:"A title of supremacy, honor, and inheritance — NOT necessarily chronological first birth. The firstborn is the heir and the one who carries the family name forward.",
+  deep:"Greek PRŌTOTOKOS (G4416) — firstborn; PRŌTOS (first) + TIKTO (to give birth). In the ANE and Jewish world, 'firstborn' was a title of status, privilege, and responsibility, not merely a statement of birth sequence. Exodus 4:22 — 'Israel is my son, my FIRSTBORN.' Israel was not God's only nation; it was his chosen/preeminent nation. Psalm 89:27 — God will make David 'my firstborn, the highest of the kings of the earth' — David was the youngest of Jesse's sons. Colossians 1:15 — 'the FIRSTBORN of all creation' — this does NOT mean Jesus was created first; in context it means he is the heir and supreme Lord over all creation. The very next verses (Col 1:16-17) explain: 'all things were created by him and for him... he is before all things and in him all things hold together.' Colossians 1:18 — 'the FIRSTBORN from the dead' — the first one raised into the new resurrection life, the heir of the new creation.",
+  misunderstood:"Colossians 1:15 has been misread as teaching that Jesus was the first created being. The context (v.16-17) directly contradicts that: the firstborn created all things, including the beings that would otherwise have preceded him. 'Firstborn' is a rank title. Psalm 89:27 proves it: David was the last-born of Jesse yet was named God's 'firstborn.'",
+  matters:"Christ as firstborn means he is the heir of everything — all creation is his by inheritance (Heb 1:2). Believers are 'the church of the firstborn' (Heb 12:23) — we share in his heir-status through adoption.",
+  originals:[
+    {lang:"Greek",word:"πρωτότοκος",translit:"prototokos",strongs:"G4416",note:"Firstborn; title of supremacy, heirship, preeminence."},
+    {lang:"Hebrew",word:"בְּכוֹר",translit:"bekor",strongs:"H1060",note:"Firstborn; title of primacy and inheritance-right."}
+  ],
+  rangeOfMeaning:["heir of the family","preeminent one","the one who carries the family name","title of rank rather than birth order","eschatological heir of the new creation"],
+  notMean:"Not 'first being created.' Not necessarily oldest chronologically. The title can be granted to whomever the father designates.",
+  cultural:"In Roman law, the firstborn (primogenitus) received the double portion and family headship. In Israel, the firstborn could forfeit the status (Esau to Jacob, Gen 25:29-34) or have it transferred (1 Chron 5:1-2 — Reuben's firstborn rights transferred to Joseph's sons).",
+  kingdomSignificance:"Romans 8:29 — God predestined believers 'to be conformed to the image of his Son, in order that he might be the FIRSTBORN among many brothers.' The kingdom is a family; Christ is the firstborn heir; believers are the siblings who share in the inheritance.",
+  relatedVerses:["Exodus 4:22","Psalm 89:27","Colossians 1:15-18","Romans 8:29","Hebrews 1:2,6","Hebrews 12:23","Revelation 1:5"],
+  relatedWords:["heir","inheritance","preeminent","creation","resurrection"],
+  category:"identity / God-facing",
+  sources:["Strong's G4416","Strong's H1060","Thayer's","BDAG","BDB"],
+  confidence:"direct-source"
+},
+"abide":{
+  word:"abide",
+  plain:"To remain in — to dwell, stay, and make your home in Christ. John's most important word for the life of discipleship.",
+  deep:"Greek MENŌ (G3306) — to remain, stay, dwell, abide; used 40+ times in John's Gospel and letters (compared to ~19 in all other NT books combined). This is John's technical word for the covenant-relationship of mutual indwelling between Christ and the believer. John 15:4-5 — 'Abide in me, and I in you. As the branch cannot bear fruit by itself, unless it abides in the vine, neither can you, unless you abide in me... whoever abides in me and I in him, he it is that bears much fruit.' MENŌ implies not just presence but settled, rooted dwelling — the kind of staying that produces stability and fruit. 1 John 2:6 — 'whoever says he abides in him ought to walk in the same way he walked.' 1 John 2:24 — 'let what you heard from the beginning abide in you. If what you heard from the beginning abides in you, then you too will abide in the Son and in the Father.' John 14:23 — 'if anyone loves me, he will keep my word, and my Father will love him, and we will COME TO HIM and MAKE OUR HOME (menō) with him.'",
+  misunderstood:"'Abide' in old English could mean 'tolerate' ('I can't abide that') which is the opposite of the NT meaning. The Greek is about intimate, settled, productive dwelling. 'Remaining in Christ' is not passive — it requires active maintenance of the relationship through the word, prayer, and obedience.",
+  matters:"John 15:5 — 'apart from me you can do nothing.' Abiding is not optional for fruitfulness; it is the condition. Every fruit of the Christian life flows from this settled dwelling in Christ.",
+  originals:[
+    {lang:"Greek",word:"μένω",translit:"meno",strongs:"G3306",note:"To remain, stay, dwell, abide; settle into and stay."}
+  ],
+  rangeOfMeaning:["remaining in relationship with Christ","settled mutual indwelling","the word of God dwelling in the believer","the Spirit abiding permanently (1 John 2:27)","bearing fruit from the position of the vine"],
+  notMean:"Not passive waiting. Not casual proximity. Not temporary presence.",
+  cultural:"MENŌ was used in Greek for a soldier holding position, a building standing firm, a person remaining faithful to a promise. The staying-power of the word is built in. John uses it for the most important kind of staying: the believer remaining in Christ under pressure, trial, and temptation.",
+  kingdomSignificance:"The kingdom is the domain of the King. Abiding in Christ is abiding in the King — the fruit of the kingdom (love, joy, peace — Gal 5:22-23) only grows in those who remain in him.",
+  relatedVerses:["John 14:23","John 15:4-11","1 John 2:6,24","1 John 2:27-28","1 John 3:6,24","1 John 4:13-16"],
+  relatedWords:["remain","dwell","union","fruit","Spirit"],
+  category:"discipleship",
+  sources:["Strong's G3306","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"adoption":{
+  word:"adoption",
+  plain:"Full legal sonship — in Roman law, adopted children had ALL the rights of natural-born sons, with past debts wiped out and a new family identity.",
+  deep:"Greek HUIOTHESIA (G5206) — adoption as sons; from HUIOS (son) + TITHĒMI (to place, set). The legal placing of a person in the position of son. Roman adoption law — the backdrop Paul's Gentile readers would know — was remarkable: when a Roman paterfamilias adopted a son, the adopted son's past legal identity was erased. All previous debts were canceled. The adopted son became fully and completely the son of the new father in every legal sense — with full inheritance rights, equal to any natural-born children. Romans 8:15 — 'you received the Spirit of ADOPTION (huiothesia) as sons, by whom we cry Abba Father.' Romans 8:23 — 'we groan inwardly as we wait eagerly for adoption as sons, the redemption of our bodies' — there is a present dimension (Spirit of adoption now) and a future dimension (full bodily adoption at the resurrection). Galatians 4:4-7 — 'God sent forth his Son... to redeem those under the law, so that we might receive adoption as sons (huiothesia). And because you are sons, God has sent the Spirit of his Son into our hearts, crying Abba Father. So you are no longer a slave but a SON, and if a son, then an HEIR.'",
+  misunderstood:"Adoption is sometimes treated as second-class compared to 'natural' relationship. In Roman law and in Paul's theology, it is the opposite: adoption is the legal act that gives FULL status with ALL rights. Nothing is withheld. The Spirit of adoption is the Spirit by which we know we are fully, legally, permanently sons.",
+  matters:"Romans 8:15 — the Spirit of adoption is contrasted with 'the spirit of slavery leading back to fear.' Adopted sons have no reason to be afraid — their status is secured by legal act, not by performance. Ephesians 1:5 — God 'predestined us for ADOPTION as sons through Jesus Christ.'",
+  originals:[
+    {lang:"Greek",word:"υἱοθεσία",translit:"huiothesia",strongs:"G5206",note:"Adoption as sons; legal placement in full son-status."}
+  ],
+  rangeOfMeaning:["full legal sonship with all inheritance rights","past debts erased in adoption","the present possession of son-status through the Spirit","the future bodily adoption at resurrection"],
+  notMean:"Not second-class. Not conditional. Not reversible by performance. Not temporary.",
+  cultural:"Roman adoption was used by powerful families to secure succession. The Emperor Augustus was Julius Caesar's adopted son — adoption made him the legal heir of everything. Paul uses this powerful Roman legal concept to describe every believer's status in God's family.",
+  kingdomSignificance:"Kingdom citizens are heirs (Gal 4:7; Romans 8:17 — 'heirs of God and co-heirs with Christ'). The kingdom is an inheritance given to children, not earned by workers (Matt 25:34; Luke 12:32). Sonship IS the basis of inheritance.",
+  relatedVerses:["Romans 8:14-17,23","Romans 9:4","Galatians 4:4-7","Ephesians 1:5","John 1:12","1 John 3:1-2"],
+  relatedWords:["son","heir","inheritance","Spirit","Abba"],
+  category:"identity / God-facing",
+  sources:["Strong's G5206","Thayer's","BDAG","Roman law background (general)"],
+  confidence:"direct-source"
+},
+"logos":{
+  word:"logos",
+  plain:"The rational ordering principle of all reality AND the personal creative Word of God — who became a human being: Jesus.",
+  deep:"Greek LOGOS (G3056) — word, reason, rational principle, speech, account, the ordering mind. This word carried enormous freight in the first-century Mediterranean world from TWO directions: (1) GREEK PHILOSOPHY: Heraclitus (500 BC) identified logos as the rational fire underlying all reality. The Stoics (300 BC onward) developed this into a fully articulated doctrine: the logos is the rational principle ordering the cosmos, present in all things, accessible by reason. The logos was IMPERSONAL — a force, a principle, not a person. (2) JEWISH SCRIPTURE: The 'Word of the LORD' (davar YHWH, H1697) throughout the OT is God's active, powerful, creative speech: Genesis 1 — 'God SAID... and it was.' Psalm 33:6 — 'By the WORD of the LORD the heavens were made.' The Word of God is not passive description — it is the active force of God accomplishing his will. Both backgrounds converge in John 1:1-14 — 'In the beginning was the LOGOS, and the LOGOS was with God, and the LOGOS was God... and the LOGOS became flesh and dwelt among us.' To Greek ears: the rational ordering principle of the universe is not a force — it is a PERSON. To Jewish ears: God's creative Word is not just God's activity — it is a personal being distinct from and yet one with the Father. Both frameworks are simultaneously exploded and fulfilled.",
+  misunderstood:"'Word' in English suggests a text, a sentence, a book. LOGOS is far richer: the full expression of a mind, the complete self-communication of a rational being. When John says Jesus is the LOGOS, he means Jesus is the full, complete, personal expression of everything God is and thinks and says. Hebrews 1:3 makes the same point differently: Jesus is 'the radiance of God's glory and the EXACT IMPRINT of his nature.'",
+  matters:"John 1:14 — 'the LOGOS became flesh and TABERNACLED (eskēnōsen — the word echoes the tabernacle/tent of meeting) among us.' The one through whom all things were made took up residence in the creation he made. The entire OT was his story from the beginning.",
+  originals:[
+    {lang:"Greek",word:"λόγος",translit:"logos",strongs:"G3056",note:"Word, reason, rational principle, the full expression of a mind."},
+    {lang:"Hebrew",word:"דָּבָר",translit:"dabar",strongs:"H1697",note:"Word, speech, matter, God's active creative speech."}
+  ],
+  rangeOfMeaning:["the divine reason ordering all creation","God's creative and revealing speech","the personal second person of the Trinity","the full self-expression of God","Jesus Christ as the living Word"],
+  notMean:"Not just the Bible (though Scripture is the written Word). Not a title Jesus chose — it is what he IS. Not an impersonal force.",
+  cultural:"The Stoic logos doctrine was widespread in the first-century educated world. John's prologue engaged this worldview head-on: yes, there is a logos ordering reality — but it is not an impersonal principle; it is a Person who loved and died and rose again.",
+  kingdomSignificance:"John 1:12 — 'to all who received him, to those who believed in his name, he gave the right to become children of God.' The Logos is not a philosophical category — he is the king who makes family members of those who receive him.",
+  relatedVerses:["John 1:1-18","Hebrews 1:1-3","Revelation 19:13","Colossians 1:15-17","Psalm 33:6","Genesis 1"],
+  relatedWords:["Word","Christ","Messiah","image","Son"],
+  category:"identity / God-facing",
+  sources:["Strong's G3056","Strong's H1697","Thayer's","BDAG","BDB"],
+  confidence:"direct-source"
+},
+"witness":{
+  word:"witness",
+  plain:"One who personally saw something and now testifies to it — the word our word martyr comes from. Personal eyewitness testimony, not secondhand religious opinion.",
+  deep:"Greek MARTYS (G3144) — witness, one who testifies to what they have personally seen or experienced. Related MARTYRIA (G3141) — testimony; MARTYREŌ (G3140) — to testify, bear witness. The English word MARTYR comes directly from MARTYS — because in the early church, witnesses to Jesus often died for their testimony, and the word shifted to mean 'one who dies for their faith.' Acts 1:8 — 'you shall be my WITNESSES (martyres) in Jerusalem, and in all Judea and Samaria, and to the end of the earth.' These are people who SAW the risen Christ — they are reporting what they personally experienced, not passing on a religious tradition. Acts 1:22 — the replacement for Judas must be someone who has been with them from John's baptism to the resurrection, 'a WITNESS with us of his resurrection.' Hebrews 12:1 — 'surrounded by so great a cloud of WITNESSES (martyron)' — not spectators watching us, but testifiers who have already given their testimony by living and dying faithfully.",
+  misunderstood:"'Witnessing' in modern church culture often means telling people about Jesus in a scripted presentation. The Greek word is about testifying to what you personally know — the changed life, the answered prayer, the encounter with the risen Christ. It is personal testimony, not a technique.",
+  matters:"The disciples' testimony in Acts rests entirely on personal encounter with the risen Jesus (Acts 2:32; 3:15; 5:32; 10:39-41). 1 John 1:1 — 'what we have seen with our eyes, what we have looked at and touched with our hands, concerning the word of life.' This is a witness deposing before a court.",
+  originals:[
+    {lang:"Greek",word:"μάρτυς",translit:"martys",strongs:"G3144",note:"Witness, testifier — the root of our word martyr."},
+    {lang:"Greek",word:"μαρτυρία",translit:"martyria",strongs:"G3141",note:"Testimony, witness-bearing."}
+  ],
+  rangeOfMeaning:["eyewitness to events","legal deposer before a court","one who dies confirming their testimony (martyr)","the testimony itself"],
+  notMean:"Not secondhand religious opinion. Not evangelistic technique. Not vague spiritual encouragement.",
+  cultural:"Roman courts (and Jewish courts) required witnesses who could attest to personal knowledge. Hearsay was not valid. The disciples' insistence on personal witness (Acts 1:21-22; 1 Cor 15:5-8 listing those who saw the risen Christ) has the character of legal deposition.",
+  kingdomSignificance:"Revelation 1:5 — Jesus is 'the faithful WITNESS (martys).' His testimony about the Father is primary and authoritative. His people bear witness to him in the same way — by reporting what they personally know.",
+  relatedVerses:["Acts 1:8","Acts 1:21-22","Acts 2:32","1 Corinthians 15:5-8","Hebrews 12:1","1 John 1:1-3","Revelation 1:5","Revelation 11:3"],
+  relatedWords:["testimony","martyr","testify","seen","know"],
+  category:"discipleship",
+  sources:["Strong's G3144","Strong's G3141","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"power":{
+  word:"power",
+  plain:"NT Greek has TWO different words both translated 'power' in English — and they mean completely different things.",
+  deep:"Greek DYNAMIS (G1411) — inherent energy, raw ability, the power that does things; the root of our words 'dynamite' and 'dynamic.' Acts 1:8 — 'you will receive POWER (dynamis) when the Holy Spirit comes upon you.' This is energy, ability, the Spirit's own active force working through the believer. EXOUSIA (G1849) — authority, the legal and delegated RIGHT to act; the power of position and commission. Matthew 28:18 — 'All AUTHORITY (exousia) has been given to me in heaven and on earth.' Luke 10:19 — 'I have given you AUTHORITY (exousia) to tread on serpents and scorpions and over all the power (dynamis) of the enemy.' Both appear together in Luke 4:36 — 'with AUTHORITY (exousia) and POWER (dynamis) he commands the unclean spirits.' A police officer has exousia (the badge, the legal commission to act) but if the criminal is physically stronger, lacks dynamis. A weightlifter has dynamis but if not commissioned, has no exousia. Jesus has both absolutely. He delegates both to his people (Acts 1:8 for dynamis; Luke 10:19 for exousia).",
+  misunderstood:"When the NT says 'power,' English readers hear dynamis (raw energy). When it says 'authority,' English readers hear something bureaucratic. The combination — legal authority AND operative energy — is unique to the kingdom. Many believers have been given exousia they don't know they have; others seek dynamis without the authority to use it properly.",
+  matters:"Revelation 12:10 — 'now the salvation and the power (dynamis) and the kingdom of our God and the authority (exousia) of his Christ have come.' Both dimensions of power are established at Christ's victory.",
+  originals:[
+    {lang:"Greek",word:"δύναμις",translit:"dynamis",strongs:"G1411",note:"Inherent power, ability, energy; root of 'dynamite.'"},
+    {lang:"Greek",word:"ἐξουσία",translit:"exousia",strongs:"G1849",note:"Authority, delegated right to act, official power."}
+  ],
+  rangeOfMeaning:["inherent miraculous ability (dynamis)","delegated royal authority (exousia)","the force of the Spirit in ministry","the legal right of the kingdom citizen to act"],
+  notMean:"Not interchangeable. Not merely physical strength. Not positional authority without operative ability.",
+  cultural:"Roman military command (imperium — authority to command) was exousia-like; the actual combat ability of the legions was dynamis-like. Caesar claimed both. The NT claims both for Christ — and his delegated commission gives both to his people.",
+  kingdomSignificance:"Luke 10:17-19 — the seventy returned saying 'even the demons submit to us in your name.' Jesus gave exousia over demons. Acts 1:8 gives dynamis from the Spirit. Kingdom advance requires both: the legal commission AND the Spirit's operative power.",
+  relatedVerses:["Matthew 28:18","Luke 10:17-19","Acts 1:8","Acts 3:12","Romans 1:16","1 Corinthians 1:18","Ephesians 1:19-21","Revelation 12:10"],
+  relatedWords:["authority","Spirit","commission","strength","kingdom"],
+  category:"kingdom / mission",
+  sources:["Strong's G1411","Strong's G1849","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"crown":{
+  word:"crown",
+  plain:"NT Greek has TWO different words for crown — a victor's wreath and a royal diadem — and they mean completely different things.",
+  deep:"Greek STEPHANOS (G4735) — the victor's wreath of laurel, olive, celery, or pine awarded to winners of the Greek games (Olympian, Isthmian, Pythian). This was the prize of ATHLETIC VICTORY, not a symbol of royalty. DIADĒMA (G1238) — the royal crown or diadem worn by kings, symbolizing sovereign rule. In the NT, STEPHANOS is used for: the crown of thorns on Jesus' head (Matt 27:29 — the soldiers mocked him with a victor's wreath), the rewards promised to faithful believers (Rev 2:10; James 1:12; 1 Cor 9:25), and Christ's crown of glory (Rev 14:14). DIADĒMA is used exclusively for: the dragon's heads bearing diadems (Rev 12:3), the beast's heads (Rev 13:1), and most significantly for Christ returning in Revelation 19:12 — 'on his head are MANY DIADEMS.' Christ bears both: the victor's crown (stephanos) from his resurrection victory AND the diadems (diadēma) of supreme royal rule.",
+  misunderstood:"All crowns look the same to English readers. When Paul says 'I have fought the good fight... there is laid up for me a CROWN (stephanos) of righteousness' (2 Tim 4:7-8), he is using the athletic victor's prize. The believer's rewards are not royal crowns of rulership — they are victor's wreaths of achievement. Christ's royal diadems are his alone by right of who he is.",
+  matters:"1 Corinthians 9:25 — 'every athlete exercises self-control in all things. They do it to receive a perishable wreath (stephanos), but we an imperishable.' Paul directly contrasts the Isthmian games' stephanos with the believer's eternal reward.",
+  originals:[
+    {lang:"Greek",word:"στέφανος",translit:"stephanos",strongs:"G4735",note:"Victor's wreath; athletic prize for winning."},
+    {lang:"Greek",word:"διάδημα",translit:"diadema",strongs:"G1238",note:"Royal crown; diadem of sovereign authority."}
+  ],
+  rangeOfMeaning:["athlete's victory wreath (stephanos)","believer's reward for faithfulness","crown of thorns (mock victor's wreath)","royal diadem of sovereign rule"],
+  notMean:"Stephanos is not a royal crown. Diadēma is not an athletic prize. The distinction is precise.",
+  cultural:"The Isthmian Games (held near Corinth every two years) were massively popular in Paul's day. Corinthian believers would immediately picture the victor's wreath when Paul used stephanos. The crown was perishable — pine or celery; the spiritual reward is imperishable.",
+  kingdomSignificance:"Revelation 19:12 — Christ returns with MANY DIADEMS. He is not one king among many; he is the King of kings whose royal authority is absolute and complete. Meanwhile, believers receive stephanos — the prize for a race well run.",
+  relatedVerses:["Matthew 27:29","1 Corinthians 9:25","James 1:12","Revelation 2:10","Revelation 14:14","2 Timothy 4:8","Revelation 19:12"],
+  relatedWords:["reward","victory","king","athlete","faithful"],
+  category:"eschatology / kingdom",
+  sources:["Strong's G4735","Strong's G1238","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"intercession":{
+  word:"intercession",
+  plain:"Legal representation before God — one with authority appearing before the Judge on your behalf. Christ does this constantly. So does the Spirit.",
+  deep:"Greek ENTYGCHANŌ (G1793) — to meet with, to intercede; from ENTYGCHANŌ — to come upon, to approach (in a petitioning sense). HYPERENTYGCHANŌ (G5242 variant) — to intercede with more than words, beyond speech. Romans 8:26-27 — 'the Spirit himself INTERCEDES for us with groanings too deep for words... the Spirit INTERCEDES for the saints according to the will of God.' Romans 8:34 — 'Christ Jesus... who is at the right hand of God, who indeed INTERCEDES for us.' Hebrews 7:25 — 'he always lives to make INTERCESSION for them.' The picture: Christ ascended and enthroned at the right hand of the Father is continuously presenting his completed work as the basis of the believer's acceptance before God. The Spirit within the believer simultaneously brings the believer's own prayers — even the inarticulate ones — before God with his authority. The believer is represented from BOTH sides: Christ at the Father's right hand, the Spirit within the believer's heart.",
+  misunderstood:"Intercession is often reduced to 'praying for others' in a general sense. The NT picture is more specific: authorized legal representation before God by someone with the standing to appear there. The Spirit and Christ both intercede — the believer is never unrepresented before God.",
+  matters:"Romans 8:26-34 is one of the most reassuring passages in the NT: in our weakness, the Spirit intercedes. Christ intercedes. All things work together for good. Nothing can separate us from the love of God. The double intercession of Spirit and Son is the basis of unbreakable security.",
+  originals:[
+    {lang:"Greek",word:"ἐντυγχάνω",translit:"entygchanon",strongs:"G1793",note:"To intercede, plead for, appear before on behalf of."},
+    {lang:"Greek",word:"ὑπερεντυγχάνω",translit:"hyperentygchanon",strongs:"G5242",note:"To intercede beyond/above ordinary petition; with inexpressible intensity."}
+  ],
+  rangeOfMeaning:["pleading before God on behalf of another","Christ's continuous presentation of his work before the Father","the Spirit's groaning intercession for believers","prayer of authorized representation"],
+  notMean:"Not God speaking to himself. Not a formality. Not occasional — Hebrews 7:25 says 'always.'",
+  cultural:"In Roman legal culture, appearing before a magistrate on someone's behalf required standing — only those with authority could present petitions. Christ's intercession is effective because he is the one who paid the price; the Spirit's is effective because he is the one who knows the Father's will.",
+  kingdomSignificance:"Hebrews 4:16 — 'let us therefore come BOLDLY to the throne of grace, that we may obtain mercy and find grace to help in time of need.' The boldness is grounded in the fact that we have a high priest (Jesus) who intercedes for us (Heb 7:25; 8:1-2).",
+  relatedVerses:["Romans 8:26-27,34","Hebrews 7:25","Hebrews 4:14-16","1 John 2:1","John 17 (Jesus' own intercessory prayer)"],
+  relatedWords:["advocate","mediator","prayer","Spirit","priest"],
+  category:"Holy Spirit",
+  sources:["Strong's G1793","Thayer's","BDAG"],
+  confidence:"direct-source"
+},
+"born again":{
+  word:"born again",
+  plain:"Born from ABOVE — a supernatural new-creation event produced by the Spirit of God, not a second physical birth or self-improvement.",
+  deep:"Greek ANŌTHEN (G509) — from above; again; anew. The word is deliberately ambiguous: it means BOTH 'again' (a second time) AND 'from above' (from heaven). In John 3:3, Jesus tells Nicodemus he must be born ANŌTHEN. Nicodemus hears 'again' and responds with the absurdity of a second physical birth (John 3:4). Jesus clarifies: 'Flesh gives birth to flesh, but Spirit gives birth to spirit' (John 3:6). The birth must be FROM ABOVE — from the Spirit of God. This is not a human process that can be initiated or repeated by human effort. John 3:8 — 'The wind blows where it wishes... so it is with everyone who is born of the Spirit.' The Spirit's work is sovereign, unseen, mysterious — like wind. It cannot be controlled, manufactured, or predicted. The result is a new kind of person: new creation (2 Cor 5:17), new heart (Ezek 36:26), participant in the divine nature (2 Pet 1:4).",
+  misunderstood:"'Born again' has become a cultural label in America — a political/demographic category. It has been reduced to the prayer said or the hand raised at an altar call. The Greek forces the question: was this birth from above? Is the Spirit's work evident? A new birth has observable characteristics: new life, new love, new desire, new direction (1 John 2:29; 3:9-10; 4:7; 5:1,4,18).",
+  matters:"John 3:5-7 — 'unless one is born of water and the Spirit, he cannot enter the kingdom of God.' New birth is the entry requirement for the kingdom, not a religious label.",
+  originals:[
+    {lang:"Greek",word:"ἄνωθεν",translit:"anothen",strongs:"G509",note:"From above; again; anew — deliberately ambiguous in John 3."},
+    {lang:"Greek",word:"γεννάω",translit:"gennao",strongs:"G1080",note:"To beget, give birth; used for spiritual new birth in John and 1 John."}
+  ],
+  rangeOfMeaning:["regeneration by the Spirit","new creation life","birth from heaven (not from human descent)","the Spirit's sovereign work producing new nature"],
+  notMean:"Not a prayer formula. Not a religious experience that can be manufactured. Not reincarnation. Not self-improvement.",
+  cultural:"Hellenistic mystery religion spoke of initiates being 'reborn' through secret rituals. Pharisees called converts to Judaism 'newborn children.' John's picture is different: the Spirit does what no ritual and no lineage can do — he creates new life from above.",
+  kingdomSignificance:"John 3:3,5 — 'unless one is born again (from above), he cannot SEE the kingdom... cannot ENTER the kingdom.' New birth is not an upgrade to the current self — it is the creation of a new self capable of perceiving and inhabiting the kingdom.",
+  relatedVerses:["John 3:1-8","1 Peter 1:3,23","1 John 2:29","1 John 3:9","1 John 4:7","1 John 5:1,4","James 1:18","Titus 3:5","2 Corinthians 5:17"],
+  relatedWords:["regeneration","Spirit","new creation","kingdom","from above"],
+  category:"salvation / grace",
+  sources:["Strong's G509","Strong's G1080","Thayer's","BDAG"],
+  confidence:"direct-source"
 }
 };

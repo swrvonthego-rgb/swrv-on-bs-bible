@@ -382,6 +382,11 @@
 <script src="js/search.js?v=20260603final"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
+<script>
+// All 66 books are freely available — no paywall. Defined here so preload-bible.js
+// and search.js can call isBookLocked() without crashing.
+window.isBookLocked = function(slug) { return false; };
+</script>
 <script src="js/preload-bible.js?v=20260603final" defer></script>
 
 
