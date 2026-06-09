@@ -157,5 +157,71 @@ window.CULTURAL_CARDS = {
     sources:["1 Kings 2:13-25 text","2 Samuel 16:20-22 (Absalom and the concubines)","2 Samuel 3:6-11 (Abner's relationship to Saul's concubine Rizpah as a throne claim)","ANE royal succession customs (general scholarly background)"],
     confidence:"strong-contextual",
     relatedVerses:["1 Kings 1:5-10","1 Kings 1:50-53","1 Kings 2:13-25","2 Samuel 16:20-22","2 Samuel 3:6-11"]
+  },
+
+  "Matthew 3:4":{
+    title:"John the Baptist's food and clothing — a deliberate Elijah costume and Nazirite lifestyle",
+    passage:"Matthew 3:1-6",
+    cultural:"Every detail of John's appearance and diet was a message. (1) CAMEL-HAIR GARMENT + LEATHER BELT: 2 Kings 1:8 describes Elijah as 'a hairy man with a leather belt around his waist.' This is identical to John's description in Matthew 3:4. John was deliberately dressing as the returning Elijah — and his audience knew Malachi 4:5 ('I will send you Elijah the prophet before the great and terrible day of the LORD'). The clothing was a walking theological claim. (2) LOCUSTS: Leviticus 11:22 explicitly lists locusts, beetles, grasshoppers, and crickets as clean food. Locusts were a real food source for desert people and the poor — protein-rich, easily available in the wilderness, salted or dried. This is not metaphor or asceticism theater; it was a subsistence diet. (3) WILD HONEY: Bees in the Judean wilderness made honey in rock crevices and tree hollows (Deuteronomy 32:13; 1 Samuel 14:25-27). This was freely available and clean. (4) NAZIRITE VOW: Luke 1:15 specifies John 'shall drink neither wine nor strong drink' — the Nazirite vow (Numbers 6:1-8). Like Samson and Samuel before him, John was consecrated to God from the womb. (5) THE WILDERNESS AND JORDAN: In biblical typology, the wilderness is where God meets Israel and tests them (Exodus, Numbers), where prophets receive their call (Moses, Elijah, Jesus), and where the new exodus begins. Isaiah 40:3 — 'The voice of one crying in the wilderness: prepare the way of the LORD.' Israel originally entered the Promised Land by crossing the Jordan; John stands at the Jordan calling Israel to re-enter — to start over.",
+    misunderstood:"People assume John was simply eccentric or severely ascetic. But every element was a theological sign that first-century Jews would immediately read: this man is Elijah returned (Mal 4:5), a Nazirite consecrated from birth, calling Israel to a new crossing of the Jordan, enacting Isaiah 40. His strange food was clean Levitical food; his strange clothing was a prophetic uniform. Jesus confirms the reading: 'This is Elijah who was to come' (Matt 11:14).",
+    matters:"John the Baptist was not a warm-up act. He was the culmination of the entire OT prophetic tradition — the last prophet, wearing Elijah's mantle, standing at the Jordan, calling the nation to repentance before the King arrived. The kingdom announcement begins here.",
+    sources:["Matthew 3:1-6 text","2 Kings 1:8 (Elijah's garment)","Malachi 4:5 (Elijah prophecy)","Leviticus 11:22 (locusts as clean food)","Numbers 6:1-8 (Nazirite vow)","Luke 1:15 (John's Nazirite consecration)","Isaiah 40:3 (voice in the wilderness)","Deuteronomy 32:13 (wild honey from rock)","1 Samuel 14:25-27 (wild honey in the wilderness)"],
+    confidence:"direct-source",
+    relatedVerses:["Matthew 3:1-6","Matthew 11:7-15","Mark 1:1-8","Luke 1:13-17","Luke 3:1-6","2 Kings 1:8","Malachi 4:5","Numbers 6:1-8","Isaiah 40:3"]
+  },
+
+  "Matthew 11:18-19":{
+    title:"John came neither eating nor drinking / Jesus came eating and drinking — both rejected",
+    passage:"Matthew 11:16-19",
+    cultural:"Jesus draws an ironic contrast. John the Baptist practiced extreme asceticism — fasted, drank no wine, lived in the wilderness. The religious authorities dismissed him: 'He has a demon.' Jesus came doing the opposite — eating at tables, attending weddings, drinking wine, accepting dinner invitations from Pharisees and sinners alike. The same authorities dismissed him: 'A glutton and a winebibber, a friend of tax collectors and sinners.' The Pharisees' rejection was not about the behavior itself — it was about predetermined resistance. They were like children in the marketplace who refuse to play any game: 'We played the flute for you, and you didn't dance; we played a dirge, and you didn't mourn.' The phrase 'glutton and winebibber' (phagos kai oinopotes) echoes the legal language of Deuteronomy 21:20 — the 'stubborn and rebellious son' who is 'a glutton and a drunkard,' subject to death by stoning. This was not casual social criticism; it was a veiled legal accusation.",
+    misunderstood:"Neither John's fasting nor Jesus' eating was the real issue for critics. The issue was authority and threat. The criticism was a strategy of predetermined dismissal: no matter what form the messenger took, the message would be refused.",
+    matters:"'Wisdom is justified of her children' (Matt 11:19). The Kingdom comes in multiple modes — fasting and feasting, wilderness and table. God's servants look different from each other. What identifies the kingdom is not the servant's style but the fruit of the work.",
+    sources:["Matthew 11:16-19 text","Luke 7:31-35 text","Deuteronomy 21:18-21 (the 'glutton and drunkard' legal charge)","Standard NT scholarship on honor-shame critique and legal slander"],
+    confidence:"strong-contextual",
+    relatedVerses:["Matthew 11:16-19","Luke 7:31-35","Matthew 9:14-17","Luke 5:33-35","John 2:1-11","Deuteronomy 21:18-21"]
+  },
+
+  "Matthew 9:10-13":{
+    title:"Eating with tax collectors and sinners — why sharing a meal was a covenant statement",
+    passage:"Matthew 9:10-13",
+    cultural:"In first-century Mediterranean culture — a high-context honor-shame society — sharing a meal was not casual. It was one of the most powerful social acts available. To eat with someone was to declare publicly: 'I accept you. I am in solidarity with you. My honor and yours are bound together at this table.' Who you ate with defined who you were. (This is exactly why Peter's withdrawal from the Gentile table at Antioch was a serious theological crisis — Galatians 2:11-14.) Tax collectors (telonai) were not merely people with a bad job. They were collaborators with Rome, who purchased the right to collect taxes and routinely overcharged. They were ritually unclean from constant contact with Gentiles and were socially excommunicated — barred from synagogue, from giving testimony in court, from normal commerce. Sinners (hamartolos) in this context were people who had publicly, repeatedly violated Torah — not ordinary people who made ordinary mistakes.",
+    misunderstood:"Jesus was not simply being 'kind' to people society rejected. He was making a covenantal declaration in the most powerful cultural language available: 'These people belong at my table. I identify with them.' When the Pharisees attacked him for this, they were reading his act correctly. Jesus was claiming the authority to include the excluded — and to do it at the table, where inclusion meant the most.",
+    matters:"'I am not come to call the righteous, but sinners to repentance' (v.13). This is the kingdom mission statement at a dinner table. Jesus is not lowering the standard — he is using the old covenant's social grammar to announce something new: the King eats with his people, including the ones the religious system had written off.",
+    sources:["Matthew 9:10-13 text","Luke 5:29-32 text","Galatians 2:11-14 (table fellowship and Gentile inclusion)","Jeremias 'Jerusalem in the Time of Jesus' (tax collectors' social status)","Standard NT scholarship on honor-shame and Mediterranean table fellowship"],
+    confidence:"strong-contextual",
+    relatedVerses:["Matthew 9:10-13","Luke 5:27-32","Luke 15:1-2","Luke 19:1-10","Galatians 2:11-14","Mark 2:15-17"]
+  },
+
+  "John 13:23":{
+    title:"The disciple leaning on Jesus' breast — how Roman reclining tables actually worked",
+    passage:"John 13:21-25",
+    cultural:"Ancient formal dining used the triclinium layout: a U-shaped arrangement of three reclining couches around a central table. Diners did not sit upright in chairs — they reclined on their left side, propped on their left elbow, leaving the right hand free to eat. In this posture, the person on the couch directly to your right was effectively positioned at your back or chest. The most honored guest reclined immediately to the host's left — what the text calls the 'bosom' position. John 13:23 says the Beloved Disciple was 'en tō kolpō tou Iēsou' — 'in the bosom of Jesus,' meaning the honored position immediately at Jesus' left. When Peter, sitting elsewhere, signals to this disciple to ask Jesus who the betrayer is (v.24), the disciple simply leans back against Jesus to whisper the question (v.25). This is not a strange embrace; it is the natural geometry of triclinium reclining.",
+    misunderstood:"Modern readers imagine people sitting upright at a long table, with someone leaning over awkwardly. The triclinium layout makes the physical description completely ordinary: leaning back to whisper to the person at whose left you are reclining is exactly how you would address the host at a formal Roman or Hellenistic dinner.",
+    matters:"The Beloved Disciple held the most honored position at the Last Supper. Jesus deliberately placed his closest confidant at his left. The physical description is real seating geography, not sentimentality.",
+    sources:["John 13:21-25 text","Standard NT scholarship on Greco-Roman triclinium dining (Blomberg 'Contagious Holiness')","Luke 14:7-11 (Jesus teaches about seating positions at banquets — his audience knew the rank system)","Jeremias 'Eucharistic Words of Jesus'"],
+    confidence:"strong-contextual",
+    relatedVerses:["John 13:21-30","Luke 7:36-38","Luke 14:7-11","Matthew 26:20","Mark 14:17-18"]
+  },
+
+  "Luke 10:39":{
+    title:"Mary sat at Jesus' feet — the posture of a male rabbinic student, not a female servant",
+    passage:"Luke 10:38-42",
+    cultural:"'Sitting at someone's feet' was not a casual listening position. In first-century Jewish culture it was the specific, recognized posture of a male student receiving Torah instruction from a rabbi. Paul says he was 'taught at the feet of Gamaliel' (Acts 22:3) — same idiom, same posture. Torah study was exclusively the domain of men. Women were not permitted to sit under rabbis for formal instruction; they were expected to manage the household and leave study to the men. Mary of Bethany sits at Jesus' feet in the exact posture of a male rabbinic student — receiving his teaching, not serving. Martha, doing the culturally required thing, is frustrated and asks Jesus to send Mary back to help her. Jesus refuses: 'Mary has chosen the good portion, and it will not be taken away from her' (Luke 10:42).",
+    misunderstood:"This scene is usually read as 'contemplation vs. busyness' — two personality types. The actual confrontation is much sharper: it is about whether women have the right to receive Torah instruction directly from a rabbi. Martha's complaint is reasonable by the cultural rules. Jesus' ruling breaks those rules — and he does it on purpose. He gives Mary access to the same teaching that male disciples received.",
+    matters:"Jesus is the rabbi who teaches women. He assigns Mary the same right of access to the Word that men had. The kingdom reorders who gets to hear from God. This is directly confirmed when Mary of Bethany anoints Jesus before his burial (John 12:1-8) — she had understood what the Twelve had not.",
+    sources:["Luke 10:38-42 text","Acts 22:3 ('taught at the feet of Gamaliel' — same idiom)","Witherington 'Women in the Ministry of Jesus'","Jeremias 'Jerusalem in the Time of Jesus' on women and Torah study","John 12:1-8 (Mary's anointing — evidence she understood his death)"],
+    confidence:"strong-contextual",
+    relatedVerses:["Luke 10:38-42","John 11:1-46","John 12:1-8","Acts 22:3","Galatians 3:28"]
+  },
+
+  "Mark 14:3":{
+    title:"The alabaster jar of spikenard — a woman's entire inheritance poured out on the Messiah",
+    passage:"Mark 14:3-9",
+    cultural:"'Alabaster' (alabastros) was the standard sealed container for expensive perfumes. 'Spikenard' (nardos pistikos — pure nard) was an aromatic ointment imported from the Himalayas via the Spice Road — among the most expensive perfumes in the ancient world. Mark 14:5 records the disciples objecting that it could have been sold for 'more than three hundred denarii' — approximately one year's wages for a day laborer. In first-century Judea, a woman's alabaster jar of expensive ointment was commonly part of her dowry — her portable wealth, her future security, her most valuable personal possession. To break the jar and pour out all of it was to give everything with no way to take it back. The breaking of the jar (Mark 14:3) was deliberate — once broken, nothing is held in reserve.",
+    misunderstood:"Modern readers see extravagance or waste. The disciples see the same thing and say so. Jesus reframes it entirely: this woman has anointed the Messiah — 'Christ/Messiah' literally means 'the anointed one' — before his burial, while the disciples still did not believe he would die. Their logic ('this could have helped the poor') is correct economic reasoning. It is also the logic that prevents people from giving everything to the King. She did not calculate.",
+    matters:"'She has anointed my body beforehand for burial' (v.8). 'Wherever this gospel is proclaimed in the whole world, what she has done will also be told, in memory of her' (v.9). This woman understood the mission when the Twelve did not. The most extravagant offering in the Passion narrative came from a woman whose name most readers have forgotten.",
+    sources:["Mark 14:3-9 text","Matthew 26:6-13 text","John 12:1-8 (identified as Mary of Bethany)","Standard NT scholarship on spikenard costs and alabaster vessels","Jeremias 'Jerusalem in the Time of Jesus' on perfume trade and dowry customs"],
+    confidence:"strong-contextual",
+    relatedVerses:["Mark 14:3-9","Matthew 26:6-13","Luke 7:36-50","John 12:1-8","Luke 10:38-42"]
   }
 };
