@@ -4657,9 +4657,12 @@ function _renderBookOverview(book){
     if(dict&&dict.cultural) parts.push('Cultural background: '+dict.cultural);
     if(dict&&dict.kingdomSignificance) parts.push('Kingdom significance: '+dict.kingdomSignificance);
     if(oldDef){
+      if(oldDef.visual&&!parts.some(function(p){return p.includes(String(oldDef.visual).slice(0,40));})) parts.push('Picture it like this: '+oldDef.visual);
+      if(oldDef.wordplay&&!parts.some(function(p){return p.includes(String(oldDef.wordplay).slice(0,40));})) parts.push('Wordplay: '+oldDef.wordplay);
       if(oldDef.ane&&!parts.some(function(p){return p.includes(String(oldDef.ane).slice(0,40));})) parts.push('Ancient-world context: '+oldDef.ane);
       if(oldDef.theology) parts.push(oldDef.theology);
       if(oldDef.kingdom&&!parts.some(function(p){return p.includes(String(oldDef.kingdom).slice(0,40));})) parts.push('Kingdom significance: '+oldDef.kingdom);
+      if(oldDef.marriage&&!parts.some(function(p){return p.includes(String(oldDef.marriage).slice(0,40));})) parts.push('Marriage: '+oldDef.marriage);
     }
     // STRONGS_SENSE_MAP: deep contextual sense for this Strong's ID
     const _sId = card && card.exactWordUsedHere && card.exactWordUsedHere.strongs;
@@ -5318,9 +5321,12 @@ function _renderBookOverview(book){
         // Section label → icon + accent color + background pill
         const _DC_LABELS = [
           {prefix:'Etymology:',          icon:'🔤', accent:'var(--enoch)',   bg:'rgba(0,170,200,0.09)'},
+          {prefix:'Picture it like this:',icon:'🖼️',accent:'#7a9bd6',      bg:'rgba(122,155,214,0.09)'},
+          {prefix:'Wordplay:',           icon:'🔁', accent:'#d6857a',       bg:'rgba(214,133,122,0.09)'},
           {prefix:'Cultural background:',icon:'🌍', accent:'#5aad7a',       bg:'rgba(90,173,122,0.09)'},
           {prefix:'Kingdom significance:',icon:'👑',accent:'var(--gold)',   bg:'rgba(212,175,55,0.09)'},
           {prefix:'Ancient-world context:',icon:'🏺',accent:'#c87a2a',     bg:'rgba(200,120,42,0.09)'},
+          {prefix:'Marriage:',           icon:'💍', accent:'#c9a050',       bg:'rgba(201,160,80,0.09)'},
           {prefix:'Lexical senses:',     icon:'📖', accent:'var(--strongs)',bg:'rgba(155,135,210,0.09)'},
           {prefix:'BDB lexical senses:', icon:'📚', accent:'var(--enoch)',  bg:'rgba(0,170,200,0.07)'},
           {prefix:'Greek lexical range:',icon:'🇬🇷',accent:'var(--strongs)',bg:'rgba(155,135,210,0.07)'},
