@@ -137,5 +137,141 @@ window.PEOPLES = {"Cush":{"altName":"Kush, Chus","biblical":"Son of Ham (Gen 10:
   "appearance": "From Cyrene — which in the first century was a major North African city with a significant Jewish community. Cyreneans were typically Berber or African with Jewish diaspora presence.",
   "notable": "NOT Simon Peter. NOT Simon the Zealot. NOT Simon the Lord's brother. A single appearance in the narrative — but Mark's reference to his sons suggests his family became believers.",
   "sources": "Matthew 27:32; Mark 15:21; Luke 23:26; Romans 16:13 (possibly his son Rufus); Strong's G4613."
+},
+
+"Gideon": {
+  "altName": "Gideon (Hebrew: Gidon — feller/hewer); also called Jerubbaal (let Baal contend, Judg 6:32)",
+  "biblical": "Judge of Israel from the tribe of Manasseh. Called by the angel of the LORD while threshing wheat in a winepress (hiding from Midianite raiders). He tested God twice with a fleece — asking for dew on the fleece and not on the ground, then the reverse (Judg 6:36-40). God whittled his army from 32,000 down to 300 men to make clear that the victory was God's, not Israel's. Defeated the Midianites with torches, jars, and trumpets — no conventional weapons. Refused the offer of kingship: 'I will not rule over you, nor shall my son rule over you. The LORD shall rule over you' (Judg 8:23). Later sinned by making an ephod that became an idol.",
+  "region": "Ophrah in Manasseh, central Canaan.",
+  "appearance": "Afro-Asiatic Semitic Israelite warrior. Described as coming from the weakest clan in Manasseh, the least in his father's house.",
+  "diet": "Iron Age Canaanite diet — grain, olives, figs, occasionally meat.",
+  "notable": "Hebrews 11:32 lists him among the heroes of faith. His story is a pattern: God chooses the least likely, strips the army down to a remnant, wins the battle himself, so no human can boast. A prophetic template repeated throughout scripture.",
+  "sources": "Judges 6-8; Hebrews 11:32; Strong's H1439."
+},
+
+"Samson": {
+  "altName": "Shimshon (Hebrew) — possibly from shemesh (sun)",
+  "biblical": "Judge of Israel from the tribe of Dan. Consecrated as a Nazirite from birth (Judg 13:5) — like John the Baptist, set apart by God before he was born. His supernatural strength was tied to the Nazirite vow (no razor to his head). He violated the vow repeatedly — touching a dead lion, attending a drinking feast, consorting with foreign women. Delilah (a Philistine) extracted the secret of his strength by repeated pressure and delivered him to the Philistines, who blinded him and made him grind grain. His final act: leaning on the pillars of the Philistine temple during a feast, praying, and bringing down the building — killing more Philistines in his death than in his life (Judg 16:30).",
+  "region": "Between Zorah and Eshtaol in Dan's territory, in the Shephelah foothills.",
+  "appearance": "Afro-Asiatic Semitic Israelite. He wore long uncut hair as part of the Nazirite vow — not because long hair was the source of strength, but because the uncut hair was the SIGN of an unbroken covenant with God. When Delilah cut it, the vow was broken and God's Spirit departed.",
+  "diet": "Iron Age Israelite diet; Nazirite restrictions (no wine or grape products).",
+  "notable": "Hebrews 11:32 includes him among the faithful. His story is a tragedy and a mercy: a man of supernatural calling who squandered it through weakness for foreign women, yet whose final prayer was answered. DO NOT READ the story as being about hair — it is about the covenant. The hair was only the sign.",
+  "sources": "Judges 13-16; Hebrews 11:32; Strong's H8123."
+},
+
+"Hannah": {
+  "altName": "Channah (Hebrew) — grace/favor",
+  "biblical": "Wife of Elkanah of the tribe of Ephraim. Barren for many years while her co-wife Peninnah had children and provoked her relentlessly. Hannah wept and refused to eat. At Shiloh she prayed silently and so intensely that Eli the priest assumed she was drunk (1 Sam 1:13-14). She vowed to give her son to God for life if God would open her womb. God heard — she conceived Samuel. She kept her vow: when Samuel was weaned she brought him to Eli at Shiloh and left him there. Her prayer of thanksgiving (1 Sam 2:1-10) is the literary and theological source of Mary's Magnificat (Luke 1:46-55) — both speak of God reversing the fortunes of the lowly.",
+  "region": "Ramathaim-zophim (Ramah) in the hill country of Ephraim.",
+  "appearance": "Afro-Asiatic Semitic woman.",
+  "diet": "Iron Age Israelite diet.",
+  "notable": "Mother of Samuel the prophet. The theological weight of her story: barrenness that God opens is a recurring sign of divine election in scripture (Sarah, Rebekah, Rachel, Elizabeth). Hannah is the model of persistent, honest, vow-keeping prayer.",
+  "sources": "1 Samuel 1-2; Strong's H2584."
+},
+
+"Job": {
+  "altName": "Iyov (Hebrew) — possibly 'persecuted' or 'where is my father'",
+  "biblical": "A righteous man in the land of Uz, east of Israel — possibly Edomite territory. Described as 'blameless and upright, fearing God and turning away from evil' (Job 1:1). God allows the adversary (the satan — meaning 'the accuser,' a heavenly function, not yet a proper name in this text) to strip him of everything: children, wealth, health. Job's three friends argue that suffering proves hidden sin. Job refuses to accept a false confession. God ultimately vindicates Job against the friends: 'you have not spoken of me what is right, as my servant Job has' (Job 42:7). Job is restored with twice what he had before.",
+  "region": "Land of Uz — likely southeastern of Israel, possibly Edomite or Arabian territory.",
+  "appearance": "Afro-Asiatic Semitic man from the ancient Near East. The book predates Moses; Job is not an Israelite.",
+  "diet": "Wealthy pastoralist — oxen, donkeys, sheep, camels.",
+  "notable": "The oldest book in the Bible in terms of subject matter. The book of Job confronts theodicy — why do the righteous suffer? — without giving a simple answer. God's response (chapters 38-41) is not an explanation but a revelation: I am God and you are not. James 5:11 cites 'the patience of Job.' Ezekiel 14:14,20 names Job alongside Noah and Daniel as exemplars of righteousness.",
+  "sources": "Job 1-42; Ezekiel 14:14,20; James 5:11; Strong's H347."
+},
+
+"Esther": {
+  "altName": "Hadassah (Hebrew — myrtle); Persian name Esther (possibly from Ishtar or Persian stara — star)",
+  "biblical": "Jewish woman living in Susa during the Persian Empire under King Ahasuerus (Xerxes I, 486-465 BC). Orphaned; raised by her older cousin Mordecai. Chosen as queen after Vashti was deposed. When Haman (the Agagite, of Amalekite descent) plotted to exterminate all Jews in the empire, Mordecai urged Esther to appeal to the king — 'who knows whether you have not come to the kingdom for such a time as this?' (Esth 4:14). Esther fasted three days and risked death by approaching the king unsummoned. Her courageous intervention saved her people. Haman was hanged on the gallows he built for Mordecai. The Feast of Purim commemorates this deliverance.",
+  "region": "Susa (Shushan), Persian capital — modern Iran.",
+  "appearance": "Jewish woman of the diaspora. The text says she was 'lovely in form and appearance' (Esth 2:7). As a descendant of Benjamin's tribe, she would have been Afro-Asiatic Semitic.",
+  "diet": "Persian court diet — though she initially refused the king's food (Esth 2:9 implies she kept Jewish dietary customs).",
+  "notable": "The book of Esther never mentions God by name — yet the entire story demonstrates divine providence. DO NOT CONFUSE Esther with simply a romance story — it is a diaspora survival narrative about a people on the edge of genocide, and the courage of one woman who used her position to save them.",
+  "sources": "Esther 1-10; Strong's H635."
+},
+
+"Lazarus": {
+  "altName": "Lazaros (Greek) — from Hebrew Eleazar (God has helped)",
+  "biblical": "DO NOT CONFUSE: TWO men named Lazarus in the NT — (1) LAZARUS OF BETHANY: brother of Mary and Martha, close friend of Jesus. Fell ill and died. Jesus deliberately waited (John 11:6) before coming, then called him from the tomb after four days — 'Lazarus, come forth!' (John 11:43). The miracle of raising a four-day-dead man (when decay was expected) triggered the council's decision to kill Jesus (John 11:53). (2) LAZARUS IN THE PARABLE: the poor man covered in sores at the rich man's gate (Luke 16:20-31) — Jesus' only named character in a parable. This Lazarus dies and goes to Abraham's bosom; the rich man goes to Hades. These are TWO DIFFERENT PEOPLE — one historical, one parabolic.",
+  "region": "Bethany, about two miles from Jerusalem on the eastern slope of the Mount of Olives.",
+  "appearance": "Afro-Asiatic Semitic Jew, first-century Judea.",
+  "notable": "The raising of Lazarus (John 11) is the seventh and climactic sign in John's Gospel — and the one that directly triggers the crucifixion. The council says: if we leave him alone, everyone will believe in him (John 11:48). Jesus wept (John 11:35 — the shortest verse in the Bible) — showing grief even while knowing what he was about to do.",
+  "sources": "John 11:1-44; John 12:1-11; Luke 16:19-31; Strong's G2976."
+},
+
+"Martha": {
+  "altName": "Martha (Aramaic) — lady/mistress of the house",
+  "biblical": "Sister of Mary of Bethany and Lazarus. One of Jesus' closest friends. Active, practical, a host. When Jesus visited, Martha served while Mary sat at Jesus' feet — Martha asked Jesus to tell Mary to help her; Jesus gently rebuked the rebuke (Luke 10:38-42). When Lazarus died, Martha ran out to meet Jesus before he reached the village and declared: 'I believe that you are the Messiah, the Son of God, who is coming into the world' (John 11:27) — one of the great confessions of faith in the Gospels, from a woman, outside Jerusalem, before Peter's confession in some Gospel timelines.",
+  "region": "Bethany, near Jerusalem.",
+  "appearance": "Afro-Asiatic Semitic Jewish woman.",
+  "diet": "Judean household diet — bread, olive oil, lentils, vegetables, occasionally fish or meat.",
+  "notable": "DO NOT reduce Martha to 'the busy one who missed the point.' She makes the most explicit Messianic confession in John's Gospel before the crucifixion. Her service was genuine; Jesus corrected her anxiety about it, not her service itself. She is a model of both practical devotion and bold faith.",
+  "sources": "Luke 10:38-42; John 11:1-44; John 12:2; Strong's G3136."
+},
+
+"Nicodemus": {
+  "altName": "Nikodemos (Greek) — conqueror of the people",
+  "biblical": "A Pharisee and member of the Sanhedrin (the ruling Jewish council). Came to Jesus at night — either for secrecy or because night was when serious Torah study happened. Jesus told him 'you must be born anothen' (John 3:3 — Greek for BOTH again AND from above), launching a conversation about spiritual rebirth. Nicodemus took it literally: 'Can a man enter his mother's womb again?' John 3:16-21 flows from this conversation. Later, Nicodemus cautiously defended Jesus before the council: 'Does our law judge a man without first hearing him?' (John 7:50-51). After the crucifixion, he and Joseph of Arimathea buried Jesus, bringing 75 pounds of spices (John 19:39-40) — an extravagant, public act that ended his secrecy.",
+  "region": "Jerusalem.",
+  "appearance": "Afro-Asiatic Semitic Jewish scholar, member of the Sanhedrin — Jerusalem's elite governing body.",
+  "diet": "Affluent Jerusalem Pharisee's diet.",
+  "notable": "Nicodemus moved from secret night visits to public burial of Jesus with 75 pounds of spices. His arc is one of the quiet conversion stories in John's Gospel — a powerful man slowly won over.",
+  "sources": "John 3:1-21; John 7:50-51; John 19:39-42; Strong's G3530."
+},
+
+"Zacchaeus": {
+  "altName": "Zakchaios (Greek) — from Hebrew Zakkai (pure/innocent)",
+  "biblical": "Chief tax collector in Jericho — meaning he supervised other tax collectors and took a percentage of their collections. One of the wealthiest men in the region, and among the most socially despised. He was short in stature and climbed a sycamore tree to see Jesus as he passed through Jericho (Luke 19:1-10). Jesus stopped, looked up, and said 'Zacchaeus, hurry and come down, for I must stay at your house today.' The crowd was offended: 'He has gone to be the guest of a man who is a sinner.' Zacchaeus responded with immediate repentance: 'Half of my goods I give to the poor. And if I have defrauded anyone of anything, I restore it fourfold.' Jesus declared: 'Today salvation has come to this house, since he also is a son of Abraham.'",
+  "region": "Jericho — the lowest city in the world, in the Jordan Valley. The last city before Jerusalem on the ascent from the east.",
+  "appearance": "Afro-Asiatic Semitic Jewish man, described as short in stature.",
+  "diet": "Wealthy Jericho diet — the city was famous for balsam, date palms, and trade revenue.",
+  "notable": "Zacchaeus is the last conversion story before Jesus enters Jerusalem for the final week. His fourfold restitution (Luke 19:8) exceeds the Mosaic requirement (Exod 22:1 required fourfold restitution only for stolen livestock). His response was extravagant. Salvation came to him not because he climbed a tree but because Jesus invited himself in.",
+  "sources": "Luke 19:1-10; Strong's G2195."
+},
+
+"Lydia": {
+  "altName": "Lydia (Greek) — a woman from Lydia (region of western Asia Minor, modern Turkey)",
+  "biblical": "A dealer in purple cloth from Thyatira (in Lydia, Asia Minor) who lived in Philippi (Macedonia, northern Greece). She was a worshipper of God — a Gentile who had attached herself to Jewish monotheism. Paul found her at the riverside gathering where women prayed on the Sabbath (Acts 16:13-15). The Lord opened her heart to pay attention to Paul's message. She was baptized with her household — the first recorded European convert to Christ. She immediately urged Paul's group to stay at her home: 'If you have judged me to be faithful to the Lord, come to my house and stay.' The Philippian church apparently met at her home.",
+  "region": "Originally from Thyatira (modern Turkey); settled in Philippi (northern Greece).",
+  "appearance": "A woman from the Lydian region of Asia Minor — Mediterranean/Anatolian appearance.",
+  "diet": "Hellenistic merchant's diet of the Roman Empire.",
+  "notable": "First recorded convert in Europe. The purple cloth trade was lucrative — purple dye (from murex shellfish) was expensive, associated with royalty and wealth. Lydia was a businesswoman of means. The Philippian church she hosted became Paul's most personally beloved church (Phil 1:3-8).",
+  "sources": "Acts 16:13-15, 40; Philippians 1:3-8; Strong's G3070."
+},
+
+"Priscilla": {
+  "altName": "Priskilla (Greek diminutive of Prisca); also called Prisca. Always mentioned alongside her husband Aquila.",
+  "biblical": "A Jewish woman who, with her husband Aquila, was expelled from Rome under Claudius's edict against Jews (~AD 49, Acts 18:2). They settled in Corinth and made tents — Paul, also a tentmaker, stayed with them and worked alongside them. When Paul left Corinth, they went with him to Ephesus. They heard Apollos (a gifted Alexandrian orator) preaching accurately about John's baptism but not yet knowing about Pentecost — and 'they took him aside and explained to him the way of God more accurately' (Acts 18:26). Priscilla is consistently named FIRST (before Aquila) in four of six NT references — unusual in a patriarchal culture, suggesting she was the more prominent teacher of the two.",
+  "region": "Rome; Corinth; Ephesus — a tent-making missionary couple who traveled with Paul.",
+  "appearance": "Jewish woman of the diaspora. Roman-empire Mediterranean appearance.",
+  "notable": "Paul calls her a 'fellow worker in Christ Jesus' who 'risked their necks for my life' (Rom 16:3-4). A married couple who ran a church in their home, taught a prominent preacher, and mentored multiple congregations. One of the clearest examples of a woman in a teaching role in the early church.",
+  "sources": "Acts 18:2,18,26; Romans 16:3-4; 1 Corinthians 16:19; 2 Timothy 4:19; Strong's G4252."
+},
+
+"Timothy": {
+  "altName": "Timotheos (Greek) — honoring God / valued by God",
+  "biblical": "Paul's closest disciple and most trusted co-worker. Born in Lystra (Asia Minor) to a Jewish mother named Eunice and a Greek father. His grandmother Lois also believed (2 Tim 1:5). Paul circumcised him before their travels (Acts 16:3) — not for salvation but for effectiveness with Jewish audiences, since his father was Greek and he was known to be uncircumcised. Paul sent him repeatedly on difficult missions: to Thessalonica (1 Thess 3:2), to Corinth (1 Cor 4:17), to Philippi (Phil 2:19-23). Paul calls him 'my true child in the faith' (1 Tim 1:2) and 'my beloved child' (2 Tim 1:2). Two of Paul's letters are addressed to Timothy directly.",
+  "region": "Lystra in Asia Minor (modern Turkey); traveled throughout the Roman Empire with Paul.",
+  "appearance": "Half-Jewish, half-Greek. Afro-Asiatic Semitic and Greek-Mediterranean heritage.",
+  "diet": "Paul advised him to drink a little wine for his stomach's sake (1 Tim 5:23) — suggesting Timothy was either ascetic or had chronic health issues.",
+  "notable": "Paul's instructions to Timothy (1-2 Timothy) are the most personal pastoral letters in the NT. Timothy was apparently timid by temperament (2 Tim 1:7 'God gave us a spirit not of fear but of power'). He was in Ephesus leading the church when Paul wrote 1 Timothy. He was with Paul in Rome during Paul's final imprisonment (2 Tim 4:9 — 'come to me quickly').",
+  "sources": "Acts 16:1-3; 1 Corinthians 4:17; Philippians 2:19-23; 1-2 Timothy; Hebrews 13:23; Strong's G5095."
+},
+
+"Cornelius": {
+  "altName": "Kornelios (Greek/Latin) — a Roman centurion name",
+  "biblical": "Roman centurion stationed at Caesarea Maritima. Described as 'devout and God-fearing' — a Gentile who prayed to the God of Israel, gave generously to Jews, and was respected by the Jewish community, but had not been circumcised or formally converted. An angel appeared to him and told him to send for Simon Peter in Joppa (Acts 10). Simultaneously, Peter received the vision of the sheet with unclean animals ('what God has made clean, do not call common'). When Cornelius's men arrived, Peter went with them. As Peter preached in Cornelius's house, the Holy Spirit fell on the Gentiles BEFORE baptism (Acts 10:44-46) — the so-called 'Gentile Pentecost.' They were baptized immediately. This event permanently changed the mission of the church: God was accepting Gentiles without circumcision.",
+  "region": "Caesarea Maritima — the Roman administrative capital of Judea on the Mediterranean coast.",
+  "appearance": "Italian Roman soldier — Mediterranean/European appearance, in Roman military uniform.",
+  "notable": "Cornelius's conversion is the pivotal turning point in Acts: the gospel explicitly moves to Gentiles with divine confirmation. Peter's report to Jerusalem (Acts 11) and the Jerusalem Council (Acts 15) both trace back to this moment. Paul would later argue theologically what God demonstrated historically here.",
+  "sources": "Acts 10:1-11:18; Strong's G2883."
+},
+
+"Jonah": {
+  "altName": "Yonah (Hebrew) — dove",
+  "biblical": "Prophet from Gath-hepher in Galilee, son of Amittai. Active during the reign of Jeroboam II of Israel (~793-753 BC). God commanded him to preach judgment to Nineveh (capital of Assyria — Israel's most feared enemy). Jonah fled by ship in the opposite direction. God sent a storm; Jonah confessed he was the cause and asked to be thrown overboard. A great fish swallowed him and he prayed from its belly (Jonah 2). He was vomited onto land and went to Nineveh. He preached, and the entire city — king to cattle — repented and fasted. God relented from the judgment. Jonah was furious. He sat outside the city under a vine God provided. God then let a worm kill the vine and confronted Jonah's anger: 'You pity the plant but not 120,000 people?'",
+  "region": "Gath-hepher in Galilee; fled to Joppa; Nineveh (modern Mosul, Iraq).",
+  "appearance": "Afro-Asiatic Semitic Israelite prophet.",
+  "notable": "Jesus referred to Jonah twice: (1) 'The sign of Jonah' — three days in the fish's belly as a sign of his own three days in the earth (Matt 12:40). (2) The people of Nineveh repented at Jonah's preaching — a greater one is here and Israel is not repenting (Matt 12:41; Luke 11:29-32). The book of Jonah is not primarily about a fish — it is about a prophet who hated God's mercy toward his enemies, and God's confrontation of that hatred. The fish is incidental.",
+  "sources": "Jonah 1-4; 2 Kings 14:25; Matthew 12:39-41; Luke 11:29-32; Strong's H3124."
 }
 };
