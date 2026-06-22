@@ -27,12 +27,96 @@
 <link rel="stylesheet" href="css/styles.css?v=20260603final">
 </head>
 <body data-theme="vintage">
-<!-- SWRV Kingdom Bible — splash cover (shows on load, dismissed by Enter) -->
-<div id="splashCover" class="splash-cover" role="dialog" aria-label="SWRV Kingdom Bible cover">
-  <div class="splash-cover-inner">
-    <img src="assets/cover.png" alt="SWRV Kingdom Bible — God Is Love" class="splash-cover-img">
-    <button class="splash-enter-btn" onclick="dismissSplash()">ENTER</button>
+<!-- SWRV Kingdom Bible — lead-in intro page (first-time visitors only) -->
+<div id="splashCover" class="splash-cover" role="dialog" aria-label="SWRV Kingdom Bible introduction">
+
+  <!-- Top bar: wordmark + Enter button -->
+  <div class="splash-topbar">
+    <div class="splash-wordmark">SWRV</div>
+    <button class="splash-enter-corner-btn" onclick="dismissSplash()">Enter the Bible &rsaquo;</button>
   </div>
+
+  <!-- Scrollable body -->
+  <div class="splash-body">
+
+    <!-- Hero -->
+    <div class="splash-hero">
+      <img src="assets/cover.png" alt="SWRV Kingdom Bible" class="splash-hero-img">
+      <div class="splash-hero-text">
+        <h1 class="splash-title">Kingdom Bible</h1>
+        <p class="splash-tagline">Understand what the Bible <em>actually</em> meant — not what tradition says it means.</p>
+        <p class="splash-sub">All 66 books. Every study tool. Free.</p>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="splash-features">
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">📖</span>
+        <div>
+          <strong>Full 66-Book Scripture</strong>
+          <p>Read any book, chapter, and verse — all available, all free, offline once loaded.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">🔤</span>
+        <div>
+          <strong>Original-Language Word Definitions</strong>
+          <p>Tap any word — <em>repent</em>, <em>believe</em>, <em>eternal</em>, <em>grace</em>, <em>confess</em> — and get what the Hebrew or Greek word actually meant to the people who first read it. Not the Sunday-school version.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">⚖️</span>
+        <div>
+          <strong>Repent ≠ Confess</strong>
+          <p>Two different Greek words. <em>Repent</em> (metanoeo) means to turn. <em>Confess</em> (homologeo) means to agree. The app shows the difference so you stop mixing them up.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">🏛️</span>
+        <div>
+          <strong>Cultural Context Cards</strong>
+          <p>Why did Adonijah grab the altar horns? Why did Solomon kill him for asking for a wife? Why was eating with sinners a scandal? Every passage with a hidden cultural meaning is explained from the ancient world — ANE law, Roman customs, first-century honor-shame culture.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">👤</span>
+        <div>
+          <strong>Accurate People Profiles</strong>
+          <p>Every major biblical figure includes what they <em>actually</em> looked like: skin color, physical features, what they ate, how they dressed, and the cultural world they lived in. No European paintings. No Hollywood casting. The real Afro-Asiatic Semitic people of the ancient Near East, described from the text and the historical record.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">🔀</span>
+        <div>
+          <strong>Confusion Alerts for Repeated Names</strong>
+          <p>There are four different Herods, two Johns, three Jameses, multiple Simons and Marys. The app tells you exactly which one you're reading about and what each one did — so you're never lost in a name again.</p>
+        </div>
+      </div>
+
+      <div class="splash-feature">
+        <span class="splash-feat-icon">📶</span>
+        <div>
+          <strong>Full Offline Support</strong>
+          <p>Works without internet once loaded. Add it to your home screen and it runs like a native app.</p>
+        </div>
+      </div>
+
+    </div><!-- /splash-features -->
+
+    <!-- Bottom CTA -->
+    <div class="splash-cta">
+      <button class="splash-enter-btn" onclick="dismissSplash()">Open Kingdom Bible</button>
+      <p class="splash-cta-note">No account. No paywall. No ads.</p>
+    </div>
+
+  </div><!-- /splash-body -->
 </div>
 
 
