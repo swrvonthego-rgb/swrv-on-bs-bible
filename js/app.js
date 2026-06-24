@@ -6,16 +6,16 @@
 function dismissSplash(){
   const splash = document.getElementById('splashCover');
   if(!splash) return;
+  sessionStorage.setItem('swrv_entered', '1');
   splash.classList.add('dismissed');
   document.body.classList.remove('splash-active');
   setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
 }
-// Returning users skip the splash entirely — auto-dismiss immediately
+// Show landing page on every new session; skip only within same tab session
 (function(){
   const splash = document.getElementById('splashCover');
   if(!splash) return;
-  if(localStorage.getItem('swrv_has_visited')){
-    // Already visited — dismiss instantly, no ENTER button needed
+  if(sessionStorage.getItem('swrv_entered')){
     splash.style.transition='none';
     splash.style.display='none';
     document.body.classList.remove('splash-active');

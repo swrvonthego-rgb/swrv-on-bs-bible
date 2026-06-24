@@ -28,96 +28,102 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body data-theme="vintage">
-<!-- SWRV Kingdom Bible — lead-in intro page (first-time visitors only) -->
-<div id="splashCover" class="splash-cover" role="dialog" aria-label="SWRV Kingdom Bible introduction">
+<!-- SWRV Kingdom Bible — immersive landing page (shows every visit) -->
+<div id="splashCover" class="splash-cover" role="dialog" aria-label="SWRV Kingdom Bible">
 
-  <!-- Top bar: wordmark + Enter button -->
-  <div class="splash-topbar">
-    <div class="splash-wordmark">SWRV</div>
-    <button class="splash-enter-corner-btn" onclick="dismissSplash()">Enter the Bible &rsaquo;</button>
-  </div>
+  <!-- Fixed top nav -->
+  <nav class="landing-nav">
+    <div class="landing-brand-group">
+      <div class="landing-brand-name">SWRV OTG</div>
+      <div class="landing-brand-domain">SWRVONTHEGO.PRO</div>
+    </div>
+    <button class="landing-launch-btn" onclick="dismissSplash()">→ Open Bible</button>
+  </nav>
 
-  <!-- Scrollable body -->
-  <div class="splash-body">
+  <!-- Scrollable content -->
+  <div class="landing-body">
+
+    <!-- Portfolio label -->
+    <div class="landing-portfolio-label">— SWRV OTG PORTFOLIO</div>
 
     <!-- Hero -->
-    <div class="splash-hero">
-      <img src="assets/cover.png" alt="SWRV Kingdom Bible" class="splash-hero-img">
-      <div class="splash-hero-text">
-        <h1 class="splash-title">Kingdom Bible</h1>
-        <p class="splash-tagline">Understand what the Bible <em>actually</em> meant — not what tradition says it means.</p>
-        <p class="splash-sub">All 66 books. Every study tool. Free.</p>
+    <div class="landing-hero">
+      <div class="landing-hero-text">
+        <h1 class="landing-headline">
+          KINGDOM<br>
+          <span class="landing-headline-gold">BIBLE</span>
+        </h1>
+        <p class="landing-desc">A multi-source Bible study tool built for people who want to understand what the scripture <em>actually</em> meant to the people who first read it — original Hebrew and Greek word definitions, cultural context from the ancient Near East, accurate people profiles, and Kingdom theology. All 66 books. Every study tool. Free.</p>
+        <div class="landing-cta-row">
+          <button class="landing-open-btn" onclick="dismissSplash()">📖 Open Live App</button>
+          <button class="landing-share-btn" onclick="if(navigator.share){navigator.share({title:'SWRV Kingdom Bible',url:location.href})}else{navigator.clipboard&&navigator.clipboard.writeText(location.href);alert('Link copied!')}">Share This Bible →</button>
+        </div>
+      </div>
+
+      <!-- Phone mockup -->
+      <div class="landing-mockup-wrap">
+        <div class="landing-phone-frame">
+          <img src="assets/cover.png" alt="SWRV Kingdom Bible app" class="landing-phone-img">
+        </div>
       </div>
     </div>
 
-    <!-- Features -->
-    <div class="splash-features">
+    <!-- Who uses this -->
+    <div class="landing-section">
+      <div class="landing-section-label">WHO USES THIS</div>
+      <p class="landing-section-sub">Built for anyone who wants depth — not just devotionals.</p>
+      <div class="landing-cards">
 
-      <div class="splash-feature">
-        <span class="splash-feat-icon">📖</span>
-        <div>
-          <strong>Full 66-Book Scripture</strong>
-          <p>Read any book, chapter, and verse — all available, all free, offline once loaded.</p>
+        <div class="landing-card">
+          <div class="landing-card-icon">🔍</div>
+          <div class="landing-card-title">Seekers</div>
+          <div class="landing-card-body">New to faith or returning after doubt. Wants to know what the Bible actually says — not tradition's version.</div>
         </div>
-      </div>
 
-      <div class="splash-feature">
-        <span class="splash-feat-icon">🔤</span>
-        <div>
-          <strong>Original-Language Word Definitions</strong>
-          <p>Tap any word — <em>repent</em>, <em>believe</em>, <em>eternal</em>, <em>grace</em>, <em>confess</em> — and get what the Hebrew or Greek word actually meant to the people who first read it. Not the Sunday-school version.</p>
+        <div class="landing-card">
+          <div class="landing-card-icon">⛪</div>
+          <div class="landing-card-title">Ministers</div>
+          <div class="landing-card-body">Sermon preparation, Bible study leadership. Needs original-language depth without a seminary library.</div>
         </div>
-      </div>
 
-      <div class="splash-feature">
-        <span class="splash-feat-icon">⚖️</span>
-        <div>
-          <strong>Repent ≠ Confess</strong>
-          <p>Two different Greek words. <em>Repent</em> (metanoeo) means to turn. <em>Confess</em> (homologeo) means to agree. The app shows the difference so you stop mixing them up.</p>
+        <div class="landing-card">
+          <div class="landing-card-icon">📚</div>
+          <div class="landing-card-title">Students</div>
+          <div class="landing-card-body">Bible college, theology courses, or self-study. Multi-source verse comparison and Strong's lexicon built in.</div>
         </div>
-      </div>
 
-      <div class="splash-feature">
-        <span class="splash-feat-icon">🏛️</span>
-        <div>
-          <strong>Cultural Context Cards</strong>
-          <p>Why did Adonijah grab the altar horns? Why did Solomon kill him for asking for a wife? Why was eating with sinners a scandal? Every passage with a hidden cultural meaning is explained from the ancient world — ANE law, Roman customs, first-century honor-shame culture.</p>
+        <div class="landing-card">
+          <div class="landing-card-icon">🌍</div>
+          <div class="landing-card-title">Cultural Learners</div>
+          <div class="landing-card-body">Wants to understand the Afro-Asiatic Semitic world the Bible came from — not a Eurocentric retelling.</div>
         </div>
+
       </div>
-
-      <div class="splash-feature">
-        <span class="splash-feat-icon">👤</span>
-        <div>
-          <strong>Accurate People Profiles</strong>
-          <p>Every major biblical figure includes what they <em>actually</em> looked like: skin color, physical features, what they ate, how they dressed, and the cultural world they lived in. No European paintings. No Hollywood casting. The real Afro-Asiatic Semitic people of the ancient Near East, described from the text and the historical record.</p>
-        </div>
-      </div>
-
-      <div class="splash-feature">
-        <span class="splash-feat-icon">🔀</span>
-        <div>
-          <strong>Confusion Alerts for Repeated Names</strong>
-          <p>There are four different Herods, two Johns, three Jameses, multiple Simons and Marys. The app tells you exactly which one you're reading about and what each one did — so you're never lost in a name again.</p>
-        </div>
-      </div>
-
-      <div class="splash-feature">
-        <span class="splash-feat-icon">📶</span>
-        <div>
-          <strong>Full Offline Support</strong>
-          <p>Works without internet once loaded. Add it to your home screen and it runs like a native app.</p>
-        </div>
-      </div>
-
-    </div><!-- /splash-features -->
-
-    <!-- Bottom CTA -->
-    <div class="splash-cta">
-      <button class="splash-enter-btn" onclick="dismissSplash()">Open Kingdom Bible</button>
-      <p class="splash-cta-note">No account. No paywall. No ads.</p>
     </div>
 
-  </div><!-- /splash-body -->
+    <!-- What's inside -->
+    <div class="landing-section">
+      <div class="landing-section-label">WHAT'S INSIDE</div>
+      <div class="landing-features-list">
+        <div class="landing-feat"><span class="landing-feat-icon">📖</span><div><strong>Full 66-Book Scripture</strong><p>All books, all chapters, all verses — offline capable as a PWA.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">🔤</span><div><strong>Original-Language Definitions</strong><p>Tap any word. See the Hebrew or Greek behind it with full lexicon depth.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">🏛️</span><div><strong>Cultural Context Cards</strong><p>Ancient Near East customs, honor-shame dynamics, Roman law explained per verse.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">👤</span><div><strong>Accurate People Profiles</strong><p>Biblical figures described from the historical record — skin, dress, food, culture.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">📍</span><div><strong>Map Links for Every Place</strong><p>Tap any location — Mount Hermon, Sinai, Babylon — to open it on Google or Apple Maps.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">🔊</span><div><strong>Read-Aloud (TTS)</strong><p>Listen chapter by chapter with voice selection — great for driving or commuting.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">📝</span><div><strong>Personal Notes</strong><p>Sign in with Google or email. Your notes and reading progress sync across devices.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">📶</span><div><strong>Works Offline</strong><p>Install it to your home screen. Runs like a native app, no internet required after first load.</p></div></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div class="landing-footer-brand">SWRV OTG</div>
+      <div class="landing-footer-sub">Full-Service Branding, Content &amp; App Development — Villa Rica, GA</div>
+      <a class="landing-footer-link" href="https://swrvonthego.pro" target="_blank" rel="noopener">swrvonthego.pro →</a>
+    </footer>
+
+  </div><!-- /landing-body -->
 </div>
 
 
