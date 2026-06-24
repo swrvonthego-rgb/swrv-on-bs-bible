@@ -25,6 +25,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=20260603final">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — lead-in intro page (first-time visitors only) -->
@@ -155,6 +156,7 @@
     <button class="icon-btn" onclick="showModal('glossary')" title="What does ANE mean? KJV? LXX? Tap to find out.">📖 Glossary</button>
     <button id="auditBtn" class="icon-btn" onclick="showModal('audit')">🔍 Audit</button>
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
+    <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤 Sign In</button>
   </div>
 </header>
 <div class="ch-picker-bar study-nav-bar" id="studyNavBar" aria-label="Bible navigation controls">
@@ -435,6 +437,7 @@
       <button class="study-tab" data-tab="people" onclick="switchStudyTab('people')" role="tab">People</button>
       <button class="study-tab" data-tab="sources" onclick="switchStudyTab('sources')" role="tab">Sources</button>
       <button class="study-tab" data-tab="crossrefs" onclick="switchStudyTab('crossrefs')" role="tab">Cross Refs</button>
+      <button class="study-tab" data-tab="notes" onclick="switchStudyTab('notes')" role="tab">📝 Notes</button>
     </div>
     <div class="study-sheet-body" id="studySheetBody"></div>
   </div>
@@ -455,6 +458,90 @@
     <button class="icon-btn" onclick="selectAllLayerFilters()" title="Turn every study layer ON">Select All</button>
     <button class="icon-btn" onclick="deselectAllLayerFilters()" title="Turn every study layer OFF">Deselect All</button>
     <button class="icon-btn" onclick="resetLayerFilters()" title="Restore defaults">Reset</button>
+  </div>
+</div>
+
+<!-- ============ RESUME READING BAR ============ -->
+<div class="resume-bar" id="resumeBar" style="display:none;">
+  <span class="resume-bar-icon">📖</span>
+  <span class="resume-bar-text" id="resumeBarText">Resume reading</span>
+  <button class="resume-bar-btn" onclick="resumeReading()">Resume</button>
+  <button class="resume-bar-dismiss" onclick="dismissResumeBar()" aria-label="Dismiss">✕</button>
+</div>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuthModal()"></div>
+<div class="auth-modal" id="authModal" role="dialog" aria-label="Sign in">
+  <button class="auth-modal-x" onclick="closeAuthModal()" aria-label="Close">✕</button>
+
+  <!-- LOGIN view -->
+  <div class="auth-view" id="authView_login">
+    <div class="auth-brand">SWRV Kingdom Bible</div>
+    <div class="auth-title">Sign in to sync your reading</div>
+    <div class="auth-sub">Save reading progress, notes, and bookmarks across all your devices.</div>
+
+    <button class="auth-google-btn" onclick="authSignInGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <input class="auth-input" id="authEmail" type="email" placeholder="Email address" autocomplete="email">
+    <input class="auth-input" id="authPass" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="auth-error" id="authError" style="display:none;"></div>
+    <button class="auth-primary-btn" id="authEmailBtn" onclick="authSignInEmail()">Sign In</button>
+    <div class="auth-switch">No account? <button class="auth-link-btn" onclick="authSwitchToSignup()">Create one</button></div>
+  </div>
+
+  <!-- SIGN UP view -->
+  <div class="auth-view" id="authView_signup" style="display:none;">
+    <div class="auth-brand">SWRV Kingdom Bible</div>
+    <div class="auth-title">Create your account</div>
+
+    <button class="auth-google-btn" onclick="authSignInGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      Sign up with Google
+    </button>
+
+    <div class="auth-divider"><span>or sign up with email</span></div>
+
+    <input class="auth-input" id="authSignupEmail" type="email" placeholder="Email address" autocomplete="email">
+    <input class="auth-input" id="authSignupPass" type="password" placeholder="Password (6+ characters)" autocomplete="new-password">
+    <input class="auth-input" id="authSignupPass2" type="password" placeholder="Confirm password" autocomplete="new-password">
+    <div class="auth-error" id="authSignupError" style="display:none;"></div>
+    <button class="auth-primary-btn" id="authSignupBtn" onclick="authSignUpEmail()">Create Account</button>
+    <div class="auth-switch">Already have an account? <button class="auth-link-btn" onclick="authSwitchToLogin()">Sign in</button></div>
+  </div>
+
+  <!-- CHECK EMAIL view -->
+  <div class="auth-view" id="authView_check-email" style="display:none;">
+    <div class="auth-brand">✉️</div>
+    <div class="auth-title">Check your email</div>
+    <div class="auth-sub">We sent a confirmation link to your email. Click it to activate your account, then come back and sign in.</div>
+    <button class="auth-primary-btn" onclick="authSwitchToLogin()">Back to Sign In</button>
+  </div>
+</div>
+
+<!-- ============ ACCOUNT MODAL (shown when already signed in) ============ -->
+<div class="auth-overlay" id="accountOverlay" onclick="closeAccountModal()"></div>
+<div class="auth-modal" id="accountModal" role="dialog" aria-label="Account">
+  <button class="auth-modal-x" onclick="closeAccountModal()" aria-label="Close">✕</button>
+  <div class="auth-brand">Your Account</div>
+  <div class="account-name" id="accountName"></div>
+  <div class="account-email" id="accountEmail"></div>
+  <div style="margin-top:24px;">
+    <button class="auth-primary-btn" onclick="authSignOut()" style="background:rgba(200,60,60,0.15);border-color:rgba(200,60,60,0.5);color:#e05050;">Sign Out</button>
   </div>
 </div>
 
@@ -493,6 +580,9 @@
      unenriched (silently swallowed by try/catch). Loading it before app.js fixes
      that latent bug — Genesis 1-4 enrichments now show on initial load. -->
 <script src="js/enrichments.js?v=20260603final"></script>
+
+<!-- ============ AUTH + USER DATA — Supabase auth, progress, notes ============ -->
+<script src="js/auth.js?v=20260624auth1"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js?v=20260603final"></script>

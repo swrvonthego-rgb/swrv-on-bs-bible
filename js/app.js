@@ -1374,6 +1374,7 @@ function _scheduleAutoRetry(){
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;window.currentChapter=n;window.currentVerse=currentVerse;localStorage.setItem('swrv_chapter',n);
+  if(typeof window.authSaveProgress==='function') window.authSaveProgress(currentBook, n, null);
   const bookData=_getCurrentBookData();
   const tempCh=bookData&&bookData[n];
   if(tempCh&&tempCh.verses){
@@ -4381,6 +4382,7 @@ function _renderBookOverview(book){
       case 'people': html = renderTabPeople(state, v, lf); break;
       case 'sources': html = renderTabSources(state, v, lf); break;
       case 'crossrefs': html = renderTabCrossRefs(state, v, lf); break;
+      case 'notes': html = renderTabNotes(state, v); break;
       default: html = '<div class="sheet-empty">Unknown tab.</div>';
     }
     body.innerHTML = html;
@@ -5689,6 +5691,88 @@ function _renderBookOverview(book){
     if(!html) html = '<div class="sheet-empty">No parallel or prophecy links tagged for this verse.</div>';
     return html;
   }
+
+  // ---------- Notes tab ----------
+  var _noteCache = {}; // keyed by "book|chapter|verse"
+
+  function renderTabNotes(state, v){
+    const user = typeof window.authGetUser === 'function' ? window.authGetUser() : null;
+    if(!user){
+      return '<div class="sheet-empty" style="text-align:center;padding:24px 16px;">' +
+        '<div style="font-size:28px;margin-bottom:12px;">📝</div>' +
+        '<div style="margin-bottom:14px;line-height:1.5;">Sign in to save personal notes for this verse.</div>' +
+        '<button class="auth-primary-btn" style="max-width:200px;" onclick="openAuthModal()">Sign In</button>' +
+        '</div>';
+    }
+    const cacheKey = state.book + '|' + state.chapter + '|' + (state.verse||'');
+    const cached = _noteCache[cacheKey] || { loaded: false, id: null, body: '' };
+
+    if(!cached.loaded){
+      // Load async and re-render when ready
+      _noteCache[cacheKey] = { loaded: false, id: null, body: '', loading: true };
+      (async function(){
+        const note = await window.authLoadNote(state.book, state.chapter, state.verse != null ? state.verse : null);
+        _noteCache[cacheKey] = { loaded: true, id: note ? note.id : null, body: note ? (note.body||'') : '' };
+        // Re-render if this tab is still active
+        const activeTab = document.querySelector('.study-tab.active');
+        if(activeTab && activeTab.getAttribute('data-tab') === 'notes'){
+          const body = document.getElementById('studySheetBody');
+          if(body) body.innerHTML = renderTabNotes(state, v);
+          _wireNotesEvents(state);
+        }
+      })();
+      return '<div class="sheet-empty">Loading notes…</div>';
+    }
+
+    const noteBody = cached.body || '';
+    return '<div class="notes-tab">' +
+      '<div class="notes-ref-label">📝 Notes for ' + _escape(state.ref) + '</div>' +
+      '<textarea class="notes-textarea" id="noteTextarea" placeholder="Write your note here…" rows="8">' + _escape(noteBody) + '</textarea>' +
+      '<div class="notes-actions">' +
+        '<button class="notes-save-btn" id="notesSaveBtn" onclick="window._saveNote()">Save Note</button>' +
+        (cached.id ? '<button class="notes-delete-btn" id="notesDeleteBtn" onclick="window._deleteNote()">Delete</button>' : '') +
+      '</div>' +
+      '<div class="notes-status" id="notesStatus"></div>' +
+    '</div>';
+  }
+
+  function _wireNotesEvents(state){
+    // Expose save/delete to global scope with closure over current state
+    window._saveNote = async function(){
+      const ta = document.getElementById('noteTextarea');
+      const body = ta ? ta.value : '';
+      const statusEl = document.getElementById('notesStatus');
+      const btn = document.getElementById('notesSaveBtn');
+      if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+      const cacheKey = state.book + '|' + state.chapter + '|' + (state.verse||'');
+      const cached = _noteCache[cacheKey] || {};
+      const id = await window.authSaveNote(state.book, state.chapter, state.verse != null ? state.verse : null, body, cached.id || null);
+      _noteCache[cacheKey] = { loaded: true, id: id || cached.id, body: body };
+      if(btn){ btn.disabled = false; btn.textContent = 'Save Note'; }
+      if(statusEl){ statusEl.textContent = 'Saved ✓'; setTimeout(function(){ statusEl.textContent=''; }, 2000); }
+    };
+    window._deleteNote = async function(){
+      const cacheKey = state.book + '|' + state.chapter + '|' + (state.verse||'');
+      const cached = _noteCache[cacheKey] || {};
+      if(!cached.id) return;
+      if(!confirm('Delete this note?')) return;
+      await window.authDeleteNote(cached.id);
+      _noteCache[cacheKey] = { loaded: true, id: null, body: '' };
+      const body = document.getElementById('studySheetBody');
+      if(body) body.innerHTML = renderTabNotes(state);
+      _wireNotesEvents(state);
+    };
+  }
+
+  // Patch switchStudyTab to wire notes events after render
+  const _origSwitchStudyTab = window.switchStudyTab;
+  window.switchStudyTab = function(tab){
+    _origSwitchStudyTab(tab);
+    if(tab === 'notes'){
+      var state = window._studySheetState;
+      if(state) _wireNotesEvents(state);
+    }
+  };
 
   // ---------- Bootstrap on load ----------
   function bootUx(){
