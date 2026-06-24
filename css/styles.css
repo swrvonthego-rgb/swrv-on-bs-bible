@@ -3523,3 +3523,46 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   .font-size-btn { bottom: 20px; }
   .font-size-popover { bottom: 68px; }
 }
+
+/* === Place card map buttons === */
+.place-map-row {
+  margin: 10px 0 6px;
+}
+.place-map-note {
+  font-size: 11px;
+  color: var(--fg-dim);
+  font-style: italic;
+  margin-bottom: 7px;
+  line-height: 1.45;
+}
+.place-map-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.place-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  background: rgba(212,175,55,0.08);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.place-map-btn:hover, .place-map-btn:active {
+  background: rgba(212,175,55,0.22);
+}
+.place-map-btn.apple {
+  border-color: var(--fg-dim);
+  color: var(--fg-dim);
+  background: rgba(120,120,120,0.07);
+}
+.place-map-btn.apple:hover, .place-map-btn.apple:active {
+  background: rgba(120,120,120,0.16);
+}

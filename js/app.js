@@ -2503,11 +2503,33 @@ function showPlace(name){
   popup.classList.add('people');
   const html = [];
   html.push('<div class="def-word">📍 ' + escapeHtml(name) + '</div>');
-  if(p.biblical) html.push('<div class="def-section"><div class="def-section-label">Biblical</div><div class="def-section-text">' + escapeHtml(p.biblical) + '</div></div>');
-  if(p.region) html.push('<div class="def-section"><div class="def-section-label">Region</div><div class="def-section-text">' + escapeHtml(p.region) + '</div></div>');
-  if(p.geography) html.push('<div class="def-section"><div class="def-section-label">Geography</div><div class="def-section-text">' + escapeHtml(p.geography) + '</div></div>');
-  if(p.kingdom) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance</div><div class="def-section-text">' + escapeHtml(p.kingdom) + '</div></div>');
-  if(p.sources) html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text">' + escapeHtml(p.sources) + '</div></div>');
+
+  // Map button — opens Apple Maps on iOS, Google Maps everywhere else
+  const coords = window.PLACE_COORDS && window.PLACE_COORDS[name];
+  if(coords){
+    const q = encodeURIComponent(name + ', biblical site');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Apple Maps uses maps.apple.com; Google Maps works on all platforms
+    const googleUrl = 'https://www.google.com/maps/search/?api=1&query=' + coords.lat + ',' + coords.lng + '&query_place_id=' + q;
+    const appleUrl  = 'https://maps.apple.com/?q=' + q + '&ll=' + coords.lat + ',' + coords.lng + '&z=10';
+    const mapUrl    = isIOS ? appleUrl : googleUrl;
+    const noteText  = coords.note ? '<div class="place-map-note">' + escapeHtml(coords.note) + '</div>' : '';
+    html.push(
+      '<div class="place-map-row">' +
+        noteText +
+        '<div class="place-map-btns">' +
+          '<a class="place-map-btn" href="' + googleUrl + '" target="_blank" rel="noopener">🗺 Google Maps</a>' +
+          '<a class="place-map-btn apple" href="' + appleUrl + '" target="_blank" rel="noopener">🍎 Apple Maps</a>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  if(p.biblical)  html.push('<div class="def-section"><div class="def-section-label">Biblical</div><div class="def-section-text">'           + escapeHtml(p.biblical)  + '</div></div>');
+  if(p.region)    html.push('<div class="def-section"><div class="def-section-label">Region</div><div class="def-section-text">'             + escapeHtml(p.region)    + '</div></div>');
+  if(p.geography) html.push('<div class="def-section"><div class="def-section-label">Geography</div><div class="def-section-text">'          + escapeHtml(p.geography) + '</div></div>');
+  if(p.kingdom)   html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance</div><div class="def-section-text">' + escapeHtml(p.kingdom) + '</div></div>');
+  if(p.sources)   html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text">'            + escapeHtml(p.sources)   + '</div></div>');
   document.getElementById('defContent').innerHTML = html.join('');
   popup.classList.add('show');
   document.getElementById('defOverlay').classList.add('show');

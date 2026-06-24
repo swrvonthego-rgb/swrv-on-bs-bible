@@ -41,6 +41,7 @@ const CORE_ASSETS = [
   './data/religion-context-cards.js?v=20260522deepword3',
   './data/peoples.js?v=20260522deepword3',
   './data/places.js?v=20260522deepword3',
+  './data/place-coords.js?v=20260624coords1',
   './data/themes.js?v=20260522deepword3',
   // Core data + audit + index
   './data/audit.js?v=20260522deepword3',
