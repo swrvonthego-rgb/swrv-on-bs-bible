@@ -1,0 +1,9 @@
+node_modules/
+.git/
+.github/
+.claude/
+.wrangler/
+package.json
+package-lock.json
+wrangler.jsonc
+capacitor.config.json
