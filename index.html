@@ -228,7 +228,10 @@
 
 <div class="modal" id="modal" onclick="if(event.target===this) closeModal()">
   <div class="modal-inner">
-    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-x-btn" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
     <div class="modal-body" id="modalBody"></div>
     <button class="modal-close" onclick="closeModal()">Close</button>
   </div>
@@ -451,6 +454,35 @@
     <button class="icon-btn" onclick="selectAllLayerFilters()" title="Turn every study layer ON">Select All</button>
     <button class="icon-btn" onclick="deselectAllLayerFilters()" title="Turn every study layer OFF">Deselect All</button>
     <button class="icon-btn" onclick="resetLayerFilters()" title="Restore defaults">Reset</button>
+  </div>
+</div>
+
+<!-- ============ FONT SIZE CONTROL ============ -->
+<button class="font-size-btn" id="fontSizeBtn" onclick="toggleFontSizePopover()" title="Adjust text size" aria-label="Text size">Aa</button>
+<div class="font-size-popover" id="fontSizePopover">
+  <div class="font-size-popover-label">Text Size</div>
+  <div class="font-size-row">
+    <button class="font-size-step" onclick="changeFontSize(-1)" aria-label="Smaller">A−</button>
+    <div class="font-size-current" id="fontSizeCurrent">100%</div>
+    <button class="font-size-step" onclick="changeFontSize(1)" aria-label="Larger">A+</button>
+  </div>
+  <button class="font-size-reset" onclick="resetFontSize()">Reset to default</button>
+</div>
+
+<!-- ============ TTS PLAYER BAR ============ -->
+<div class="tts-bar" id="ttsBar">
+  <div class="tts-bar-top">
+    <span class="tts-bar-label">▶ Listening</span>
+    <span class="tts-bar-verse" id="ttsBarVerse">—</span>
+    <button class="tts-close-btn" onclick="ttsStop()" aria-label="Stop and close">✕</button>
+  </div>
+  <div class="tts-bar-controls">
+    <button class="tts-btn" onclick="ttsPrevChapter()" title="Previous chapter" aria-label="Previous chapter">⏮</button>
+    <button class="tts-btn" onclick="ttsRestart()" title="Restart chapter" aria-label="Restart">↩</button>
+    <button class="tts-btn tts-play-pause" id="ttsPlayPause" onclick="ttsToggle()" aria-label="Play / Pause">▶</button>
+    <button class="tts-btn" onclick="ttsSkipVerse(1)" title="Skip verse" aria-label="Next verse">⏭</button>
+    <button class="tts-btn" onclick="ttsNextChapter()" title="Next chapter" aria-label="Next chapter">⏭⏭</button>
+    <button class="tts-speed-btn" id="ttsSpeedBtn" onclick="ttsCycleSpeed()" title="Playback speed">1×</button>
   </div>
 </div>
 

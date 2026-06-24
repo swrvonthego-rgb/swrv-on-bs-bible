@@ -3230,3 +3230,296 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   padding: 8px;
   font-family: 'SF Pro Text', -apple-system, sans-serif;
 }
+
+/* ============================================================
+   SHEET LIST — bullet alignment fix
+   ============================================================ */
+.sheet-list {
+  margin: 4px 0 0 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+.sheet-list li {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--fg);
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+/* ============================================================
+   STUDY SHEET TABS — prevent clip, ensure pill shape
+   ============================================================ */
+.study-sheet-tabs {
+  padding: 8px 14px 8px;
+  gap: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.study-sheet-tabs::before,
+.study-sheet-tabs::after {
+  content: '';
+  flex: 0 0 2px;
+}
+.study-tab {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  white-space: nowrap;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============================================================
+   MODAL — X close button at top right
+   ============================================================ */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid var(--hairline, var(--line));
+}
+.modal-header .modal-title {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  flex: 1 1 auto;
+}
+.modal-x-btn {
+  flex: 0 0 auto;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: inherit;
+  line-height: 1;
+  padding: 0;
+  margin-top: 2px;
+}
+.modal-x-btn:hover { background: rgba(255,255,255,0.08); color: var(--fg); border-color: var(--gold); }
+
+/* ============================================================
+   FONT SIZE CONTROLS — floating button + popover
+   ============================================================ */
+.font-size-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 14px;
+  z-index: 200;
+  background: var(--bg-2, #1e1a14);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.font-size-btn:hover { border-color: var(--gold); color: var(--gold); }
+.font-size-popover {
+  position: fixed;
+  bottom: 128px;
+  right: 10px;
+  z-index: 201;
+  background: var(--bg-2, #1e1a14);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: none;
+  min-width: 200px;
+}
+.font-size-popover.open { display: block; }
+.font-size-popover-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.font-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.font-size-step {
+  background: var(--bg-3, #2a2420);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  flex: 0 0 auto;
+  transition: all 0.12s;
+  padding: 0;
+}
+.font-size-step:hover { border-color: var(--gold); color: var(--gold); }
+.font-size-current {
+  flex: 1 1 auto;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.font-size-reset {
+  margin-top: 8px;
+  width: 100%;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  font-size: 11px;
+  padding: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.font-size-reset:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ============================================================
+   TTS PLAYER BAR
+   ============================================================ */
+.tts-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: var(--bg-2, #1e1a14);
+  border-top: 1px solid var(--line);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+}
+.tts-bar.active { display: flex; }
+.tts-bar-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tts-bar-verse {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--fg-mute);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tts-bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tts-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--fg);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  line-height: 1;
+}
+.tts-btn:hover { border-color: var(--gold); color: var(--gold); }
+.tts-btn.tts-play-pause {
+  background: var(--gold);
+  color: #0e0a06;
+  border-color: var(--gold);
+  font-size: 18px;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.tts-btn.tts-play-pause:hover { background: var(--gold-bright, #f5d060); }
+.tts-speed-btn {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  min-width: 42px;
+  text-align: center;
+}
+.tts-speed-btn:hover { border-color: var(--gold); color: var(--gold); }
+.tts-close-btn {
+  background: none;
+  border: none;
+  color: var(--fg-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-family: inherit;
+}
+.tts-bar-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Listen button in chapter title */
+.tts-listen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.4);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  vertical-align: middle;
+  transition: all 0.15s;
+  letter-spacing: 0.02em;
+}
+.tts-listen-btn:hover { background: rgba(212,175,55,0.22); }
+
+/* Highlight the verse currently being read */
+.verse-tts-active .verse-text {
+  background: rgba(212,175,55,0.12);
+  border-radius: 4px;
+  outline: 1.5px solid rgba(212,175,55,0.4);
+}
+@media (min-width: 900px) {
+  .tts-bar { padding: 12px 24px; }
+  .font-size-btn { bottom: 20px; }
+  .font-size-popover { bottom: 68px; }
+}

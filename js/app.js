@@ -1392,7 +1392,7 @@ function _loadChapterCore(n){
   const main=document.getElementById('mainContent');
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
   if(mode==='chapter'){
-    const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
+    const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'<button class="tts-listen-btn" onclick="ttsPlayChapter()" title="Listen to this chapter aloud">🔊 Listen</button></h1>'];
     if(window._renderChapterIntro){ html.push(window._renderChapterIntro(currentBook, currentChapter)); }
     html.push(renderChapterDeepStudyBanner(ch, verseNums));
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
@@ -6238,3 +6238,179 @@ window.openAllThreadsBrowser = function(){
   overlay.classList.add('show');
   if(window.__raiseDefPopup) window.__raiseDefPopup();
 };
+
+/* ============================================================
+   FONT SIZE CONTROL
+   ============================================================ */
+(function(){
+  var STEPS = [70, 80, 90, 100, 110, 120, 135, 150];
+  var idx = 3; // default = 100%
+  function apply(){
+    var pct = STEPS[idx];
+    document.documentElement.style.setProperty('--user-font-scale', pct/100);
+    // Apply directly to key reading elements
+    var base = pct / 100;
+    document.documentElement.style.fontSize = (16 * base) + 'px';
+    var el = document.getElementById('fontSizeCurrent');
+    if(el) el.textContent = pct + '%';
+    try{ localStorage.setItem('swrv_font_idx', idx); } catch(e){}
+  }
+  try{
+    var saved = parseInt(localStorage.getItem('swrv_font_idx'));
+    if(!isNaN(saved) && saved >= 0 && saved < STEPS.length) idx = saved;
+  } catch(e){}
+  window.changeFontSize = function(dir){
+    idx = Math.max(0, Math.min(STEPS.length - 1, idx + dir));
+    apply();
+  };
+  window.resetFontSize = function(){
+    idx = 3;
+    apply();
+  };
+  window.toggleFontSizePopover = function(){
+    var pop = document.getElementById('fontSizePopover');
+    if(pop) pop.classList.toggle('open');
+  };
+  document.addEventListener('click', function(e){
+    var pop = document.getElementById('fontSizePopover');
+    var btn = document.getElementById('fontSizeBtn');
+    if(pop && pop.classList.contains('open') && !pop.contains(e.target) && e.target !== btn){
+      pop.classList.remove('open');
+    }
+  });
+  // Apply saved preference immediately
+  if(idx !== 3) apply();
+})();
+
+/* ============================================================
+   TEXT-TO-SPEECH (TTS)
+   ============================================================ */
+(function(){
+  var synth = window.speechSynthesis;
+  if(!synth){ console.warn('TTS: speechSynthesis not supported'); return; }
+
+  var _verses = [];      // [{num, text}] for current chapter
+  var _cursor = 0;       // current verse index
+  var _speed = 1.0;
+  var _paused = false;
+  var _active = false;
+  var _speeds = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5];
+  var _speedIdx = 2;
+
+  function _bar(){ return document.getElementById('ttsBar'); }
+  function _pp(){ return document.getElementById('ttsPlayPause'); }
+  function _verseEl(){ return document.getElementById('ttsBarVerse'); }
+  function _speedEl(){ return document.getElementById('ttsSpeedBtn'); }
+
+  function _getVerses(){
+    var els = document.querySelectorAll('.verse');
+    var out = [];
+    els.forEach(function(el){
+      var numEl = el.querySelector('.verse-num, [class*="verse-num"]');
+      var textEl = el.querySelector('.verse-text, [class*="verse-text"]');
+      if(!textEl) return;
+      var num = numEl ? numEl.textContent.trim() : '';
+      // Strip red-letter spans, study chips etc — get clean text
+      var clone = textEl.cloneNode(true);
+      clone.querySelectorAll('.verse-study-chip,.verse-bm-chip,.verse-note-chip').forEach(function(c){ c.remove(); });
+      var text = clone.textContent.trim();
+      if(text) out.push({num: num, text: text, el: el});
+    });
+    return out;
+  }
+
+  function _highlightVerse(idx){
+    document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
+    if(_verses[idx] && _verses[idx].el){
+      _verses[idx].el.classList.add('verse-tts-active');
+      _verses[idx].el.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    var vEl = _verseEl();
+    if(vEl) vEl.textContent = _verses[idx] ? (_verses[idx].num ? 'v. '+_verses[idx].num : '') : '';
+  }
+
+  function _speakVerse(idx){
+    if(!_active || idx >= _verses.length){ _done(); return; }
+    _cursor = idx;
+    _highlightVerse(idx);
+    synth.cancel();
+    var utt = new SpeechSynthesisUtterance(_verses[idx].text);
+    utt.rate = _speed;
+    utt.onend = function(){ if(_active && !_paused) _speakVerse(_cursor + 1); };
+    utt.onerror = function(){ if(_active) _speakVerse(_cursor + 1); };
+    synth.speak(utt);
+    _pp() && (_pp().textContent = '⏸');
+  }
+
+  function _done(){
+    _active = false;
+    _paused = false;
+    synth.cancel();
+    document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
+    _bar() && _bar().classList.remove('active');
+  }
+
+  window.ttsPlayChapter = function(){
+    _verses = _getVerses();
+    if(!_verses.length){ alert('No verse text found on this page.'); return; }
+    _active = true;
+    _paused = false;
+    _bar() && _bar().classList.add('active');
+    _speakVerse(0);
+  };
+
+  window.ttsToggle = function(){
+    if(!_active){ ttsPlayChapter(); return; }
+    if(synth.paused){
+      synth.resume();
+      _paused = false;
+      _pp() && (_pp().textContent = '⏸');
+    } else {
+      synth.pause();
+      _paused = true;
+      _pp() && (_pp().textContent = '▶');
+    }
+  };
+
+  window.ttsStop = function(){
+    _done();
+  };
+
+  window.ttsRestart = function(){
+    _active = true;
+    _paused = false;
+    _speakVerse(0);
+  };
+
+  window.ttsSkipVerse = function(dir){
+    var next = _cursor + dir;
+    if(next < 0) next = 0;
+    _active = true;
+    _paused = false;
+    _speakVerse(next);
+  };
+
+  window.ttsPrevChapter = function(){
+    ttsStop();
+    if(typeof prevChapter === 'function') prevChapter();
+    setTimeout(function(){ ttsPlayChapter(); }, 400);
+  };
+
+  window.ttsNextChapter = function(){
+    ttsStop();
+    if(typeof nextChapter === 'function') nextChapter();
+    setTimeout(function(){ ttsPlayChapter(); }, 400);
+  };
+
+  window.ttsCycleSpeed = function(){
+    _speedIdx = (_speedIdx + 1) % _speeds.length;
+    _speed = _speeds[_speedIdx];
+    var label = _speed === 1.0 ? '1×' : _speed + '×';
+    _speedEl() && (_speedEl().textContent = label);
+    // Restart current verse at new speed
+    if(_active && !_paused) _speakVerse(_cursor);
+  };
+
+  // Stop TTS if user navigates away
+  document.addEventListener('swrv-chapter-change', function(){ _done(); });
+})();
