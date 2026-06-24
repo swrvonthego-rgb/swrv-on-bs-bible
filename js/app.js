@@ -6389,19 +6389,75 @@ window.openAllThreadsBrowser = function(){
 })();
 
 /* ============================================================
-   TEXT-TO-SPEECH (TTS)
+   TEXT-TO-SPEECH (TTS) — with voice selection
    ============================================================ */
 (function(){
   var synth = window.speechSynthesis;
   if(!synth){ console.warn('TTS: speechSynthesis not supported'); return; }
 
-  var _verses = [];      // [{num, text}] for current chapter
-  var _cursor = 0;       // current verse index
+  var _verses = [];
+  var _cursor = 0;
   var _speed = 1.0;
   var _paused = false;
   var _active = false;
   var _speeds = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5];
   var _speedIdx = 2;
+  var _voice = null; // selected SpeechSynthesisVoice
+
+  // Voice preference rank — higher = preferred
+  var VOICE_KEYWORDS = [
+    'google',           // Chrome / Google voices are high quality
+    'microsoft',        // Edge / Microsoft neural voices
+    'neural',
+    'natural',
+    'premium',
+    'enhanced',
+    'eloquence',
+    'siri',
+    'samantha',         // macOS
+    'alex',             // macOS
+    'daniel',           // macOS UK
+    'karen',            // macOS AU
+    'moira',            // macOS IE
+    'tessa'             // macOS ZA
+  ];
+
+  var SAVED_VOICE_KEY = 'swrv_tts_voice';
+
+  function _rankVoice(v){
+    var name = (v.name || '').toLowerCase();
+    // Prefer English
+    if(!/en[-_]/i.test(v.lang)) return 0;
+    // Online voices tend to be higher quality
+    var score = v.localService ? 1 : 3;
+    for(var i=0; i<VOICE_KEYWORDS.length; i++){
+      if(name.indexOf(VOICE_KEYWORDS[i]) !== -1) score += (VOICE_KEYWORDS.length - i) * 2;
+    }
+    return score;
+  }
+
+  function _getBestVoice(){
+    var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
+    if(!voices.length) return null;
+    voices.sort(function(a,b){ return _rankVoice(b) - _rankVoice(a); });
+    return voices[0];
+  }
+
+  function _loadVoice(){
+    var saved = localStorage.getItem(SAVED_VOICE_KEY);
+    var voices = synth.getVoices();
+    if(saved && voices.length){
+      var match = voices.find(function(v){ return v.name === saved; });
+      if(match){ _voice = match; return; }
+    }
+    _voice = _getBestVoice();
+  }
+
+  // Voices load async — wire up once available
+  if(synth.onvoiceschanged !== undefined){
+    synth.onvoiceschanged = function(){ if(!_voice) _loadVoice(); };
+  }
+  setTimeout(function(){ if(!_voice) _loadVoice(); }, 300);
 
   function _bar(){ return document.getElementById('ttsBar'); }
   function _pp(){ return document.getElementById('ttsPlayPause'); }
@@ -6416,7 +6472,6 @@ window.openAllThreadsBrowser = function(){
       var textEl = el.querySelector('.verse-text, [class*="verse-text"]');
       if(!textEl) return;
       var num = numEl ? numEl.textContent.trim() : '';
-      // Strip red-letter spans, study chips etc — get clean text
       var clone = textEl.cloneNode(true);
       clone.querySelectorAll('.verse-study-chip,.verse-bm-chip,.verse-note-chip').forEach(function(c){ c.remove(); });
       var text = clone.textContent.trim();
@@ -6442,6 +6497,7 @@ window.openAllThreadsBrowser = function(){
     synth.cancel();
     var utt = new SpeechSynthesisUtterance(_verses[idx].text);
     utt.rate = _speed;
+    if(_voice) utt.voice = _voice;
     utt.onend = function(){ if(_active && !_paused) _speakVerse(_cursor + 1); };
     utt.onerror = function(){ if(_active) _speakVerse(_cursor + 1); };
     synth.speak(utt);
@@ -6457,6 +6513,7 @@ window.openAllThreadsBrowser = function(){
   }
 
   window.ttsPlayChapter = function(){
+    if(!_voice) _loadVoice();
     _verses = _getVerses();
     if(!_verses.length){ alert('No verse text found on this page.'); return; }
     _active = true;
@@ -6478,9 +6535,7 @@ window.openAllThreadsBrowser = function(){
     }
   };
 
-  window.ttsStop = function(){
-    _done();
-  };
+  window.ttsStop = function(){ _done(); };
 
   window.ttsRestart = function(){
     _active = true;
@@ -6513,10 +6568,37 @@ window.openAllThreadsBrowser = function(){
     _speed = _speeds[_speedIdx];
     var label = _speed === 1.0 ? '1×' : _speed + '×';
     _speedEl() && (_speedEl().textContent = label);
-    // Restart current verse at new speed
     if(_active && !_paused) _speakVerse(_cursor);
   };
 
-  // Stop TTS if user navigates away
+  // Voice picker — opens popover listing all English voices
+  window.ttsOpenVoicePicker = function(){
+    var pop = document.getElementById('ttsVoicePopover');
+    if(!pop) return;
+    var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
+    voices.sort(function(a,b){ return _rankVoice(b) - _rankVoice(a); });
+    var html = '<div class="tts-voice-picker-title">Choose a voice</div>';
+    voices.forEach(function(v){
+      var active = _voice && _voice.name === v.name;
+      html += '<button class="tts-voice-opt'+(active?' active':'')+'" onclick="ttsSelectVoice(\''+v.name.replace(/'/g,"\\'")+'\')" title="'+v.lang+'">'+
+        (active ? '🔊 ' : '') + v.name + '<span class="tts-voice-lang">'+v.lang+'</span></button>';
+    });
+    if(!voices.length) html += '<div style="padding:10px;color:#888;">No English voices found on this device.</div>';
+    pop.innerHTML = html;
+    pop.classList.toggle('show');
+  };
+
+  window.ttsSelectVoice = function(name){
+    var voices = synth.getVoices();
+    var match = voices.find(function(v){ return v.name === name; });
+    if(match){
+      _voice = match;
+      localStorage.setItem(SAVED_VOICE_KEY, name);
+      if(_active) _speakVerse(_cursor);
+    }
+    var pop = document.getElementById('ttsVoicePopover');
+    if(pop) pop.classList.remove('show');
+  };
+
   document.addEventListener('swrv-chapter-change', function(){ _done(); });
 })();

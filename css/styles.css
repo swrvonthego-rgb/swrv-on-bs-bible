@@ -3845,3 +3845,65 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 .place-map-btn.apple:hover, .place-map-btn.apple:active {
   background: rgba(120,120,120,0.16);
 }
+
+/* === TTS voice picker === */
+.tts-voice-btn {
+  background: none;
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 15px;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-left: 4px;
+  line-height: 1;
+}
+.tts-voice-btn:hover { background: rgba(212,175,55,0.12); }
+.tts-voice-popover {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 12px;
+  background: var(--bg-2, #1a1610);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 260px;
+  max-width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  z-index: 10000;
+}
+.tts-voice-popover.show { display: block; }
+.tts-voice-picker-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--fg-dim);
+  padding: 4px 8px 8px;
+}
+.tts-voice-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  gap: 8px;
+}
+.tts-voice-opt:hover { background: rgba(212,175,55,0.1); }
+.tts-voice-opt.active { background: rgba(212,175,55,0.14); color: var(--gold); font-weight: 600; }
+.tts-voice-lang {
+  font-size: 10px;
+  color: var(--fg-dim);
+  flex-shrink: 0;
+}

@@ -571,7 +571,9 @@
     <button class="tts-btn" onclick="ttsSkipVerse(1)" title="Skip verse" aria-label="Next verse">⏭</button>
     <button class="tts-btn" onclick="ttsNextChapter()" title="Next chapter" aria-label="Next chapter">⏭⏭</button>
     <button class="tts-speed-btn" id="ttsSpeedBtn" onclick="ttsCycleSpeed()" title="Playback speed">1×</button>
+    <button class="tts-voice-btn" onclick="ttsOpenVoicePicker()" title="Change reading voice">🎙</button>
   </div>
+  <div class="tts-voice-popover" id="ttsVoicePopover"></div>
 </div>
 
 <!-- ============ ENRICHMENTS — must load AFTER data, BEFORE app ============ -->
