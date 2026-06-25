@@ -1677,34 +1677,106 @@ function showDef(word, opts){
   const popup=document.getElementById('defPopup');
   popup.classList.remove('people','strongs');
   const html=[];
+
+  // ── TIER 1: Plain meaning first — what this word means, right now ──
   html.push('<div class="def-word">'+escapeHtml(word)+'</div>');
-  if(def.hebrew)html.push('<div class="def-hebrew">'+def.hebrew+'</div>');
-  if(def.translit)html.push('<div class="def-translit">'+escapeHtml(def.translit)+'</div>');
-  if(def.strongs){
-    // Recognize both Hebrew (H1234) and Greek (G1234) Strong's IDs
-    const hId=def.strongs.match(/H\d+/)?.[0];
-    const gId=def.strongs.match(/G\d+/)?.[0];
-    const sId=hId||gId;
-    if(sId)html.push('<div class="def-strongs" onclick="showStrongs(\''+sId+'\')" title="Tap for full Strong\'s entry">Strong\'s '+escapeHtml(def.strongs)+' →</div>');
-    else html.push('<div class="def-strongs">Strong\'s '+escapeHtml(def.strongs)+'</div>');
+
+  // Best plain-English sentence first: prefer deep.plain (context-aware), fall back to def.plain
+  const topPlain = (deep && deep.plain) || def.plain;
+  if(topPlain) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(topPlain)+'</div></div>');
+
+  // Context-specific meaning for this exact verse (if verse strongs tags matched)
+  if(deep){
+    const picked = _contextSenseFor(word, opts);
+    if(picked){
+      const sId=(picked.strongs||'').match(/[HG]\d+/)?.[0] || picked.pickedStrongs;
+      html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ In this verse specifically</div>');
+      html.push('<div class="def-section-text"');
+      if(sId) html.push(' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"');
+      html.push('>');
+      html.push(escapeHtml(picked.gloss||''));
+      html.push('</div></div>');
+    }
   }
-  if(def.plain)html.push('<div class="def-section plain-section"><div class="def-section-label">In Plain English</div><div class="def-section-text plain-text">'+escapeHtml(def.plain)+'</div></div>');
-  if(def.root)html.push('<div class="def-section"><div class="def-section-label">Root</div><div class="def-section-text">'+escapeHtml(def.root)+'</div></div>');
+
+  // "What it means" — legacy def field
+  if(def.def) html.push('<div class="def-section"><div class="def-section-label">What it means</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
+
+  // Deep dictionary: "What this word really means" (only if different from topPlain)
+  if(deep && deep.deep) html.push('<div class="def-section"><div class="def-section-label">What this word really means</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
+
+  // ── TIER 2: Enrichment — picture it, context, why it matters ──
+  if(def.visual) html.push('<div class="def-section"><div class="def-section-label">Picture it like this</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
   if(def.senses&&def.senses.length){
     html.push('<div class="def-section"><div class="def-section-label">All the ways this word is used</div><ul class="def-list">');
     for(const s of def.senses)html.push('<li>'+escapeHtml(s)+'</li>');
     html.push('</ul></div>');
   }
-  if(def.def)html.push('<div class="def-section"><div class="def-section-label">What it means</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
-  if(def.visual)html.push('<div class="def-section"><div class="def-section-label">Picture it like this</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
-  if(def.ane)html.push('<div class="def-section"><div class="def-section-label">What life looked like back then</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
-  if(def.kingdom)html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters today</div><div class="def-section-text">'+escapeHtml(def.kingdom)+'</div></div>');
-  if(def.theology)html.push('<div class="def-section"><div class="def-section-label">Going deeper</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
-  if(def.psychology)html.push('<div class="def-section"><div class="def-section-label">Heart, soul, and mind</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
-  if(def.warning)html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up — translation issue</div><div class="def-section-text">'+escapeHtml(def.warning)+'</div></div>');
-  if(def.greek)html.push('<div class="def-section"><div class="def-section-label">Greek (LXX/NT)</div><div class="def-section-text">'+escapeHtml(def.greek)+'</div></div>');
-  if(def.aramaic)html.push('<div class="def-section"><div class="def-section-label">Aramaic</div><div class="def-section-text">'+escapeHtml(def.aramaic)+'</div></div>');
-  // BDB + Strong's enrichment
+  if(deep && deep.rangeOfMeaning && deep.rangeOfMeaning.length){
+    html.push('<div class="def-section"><div class="def-section-label">Full range of meanings</div><ul class="def-list">');
+    for(const r of deep.rangeOfMeaning) html.push('<li>'+escapeHtml(r)+'</li>');
+    html.push('</ul></div>');
+  }
+  if(def.ane) html.push('<div class="def-section"><div class="def-section-label">What life looked like back then</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
+  if(deep && deep.cultural) html.push('<div class="def-section"><div class="def-section-label">Historical background</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
+  if(def.kingdom) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters today</div><div class="def-section-text">'+escapeHtml(def.kingdom)+'</div></div>');
+  if(deep && deep.kingdomSignificance) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom significance</div><div class="def-section-text">'+escapeHtml(deep.kingdomSignificance)+'</div></div>');
+  if(deep && deep.matters) html.push('<div class="def-section"><div class="def-section-label">Why this matters</div><div class="def-section-text">'+escapeHtml(deep.matters)+'</div></div>');
+  if(def.theology) html.push('<div class="def-section"><div class="def-section-label">Going deeper</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
+  if(def.psychology) html.push('<div class="def-section"><div class="def-section-label">Heart, soul, and mind</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
+
+  // Warnings / mistranslations
+  if(def.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up — translation issue</div><div class="def-section-text">'+escapeHtml(def.warning)+'</div></div>');
+  if(deep && deep.notMean) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ This does NOT mean</div><div class="def-section-text">'+escapeHtml(deep.notMean)+'</div></div>');
+  if(deep && deep.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(deep.misunderstood)+'</div></div>');
+
+  // ── TIER 3: Cross-references ──
+  if(def.cross) html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
+  if(deep && deep.relatedVerses && deep.relatedVerses.length){
+    html.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  }
+  if(deep && deep.relatedWords && deep.relatedWords.length){
+    html.push('<div class="def-section"><div class="def-section-label">Related words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
+  }
+
+  // ── TIER 4: Technical / scholarly — for those who want to go further ──
+  if(def.root) html.push('<div class="def-section"><div class="def-section-label">Root word</div><div class="def-section-text">'+escapeHtml(def.root)+'</div></div>');
+
+  // Original-language words (deep.originals)
+  if(deep && deep.originals && deep.originals.length){
+    html.push('<div class="def-section"><div class="def-section-label">Original words — tap to explore</div>');
+    for(const o of deep.originals){
+      const sId=(o.strongs||'').match(/[HG]\d+/)?.[0];
+      const onclick = sId ? ' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"' : '';
+      html.push('<div class="def-section-text" style="margin-top:6px;border-left:2px solid var(--gold);padding-left:8px;"'+onclick+'><b>'+escapeHtml(o.lang||'')+': '+(o.word||'')+'</b>');
+      if(o.translit) html.push(' <i>('+escapeHtml(o.translit)+')</i>');
+      if(o.strongs) html.push(' <span style="color:var(--gold);font-size:11px;">'+escapeHtml(o.strongs)+'</span>');
+      if(o.note) html.push('<br><span style="font-size:13px;">'+escapeHtml(o.note)+'</span>');
+      html.push('</div>');
+    }
+    html.push('</div>');
+  }
+
+  if(def.greek) html.push('<div class="def-section"><div class="def-section-label">Greek (LXX/NT)</div><div class="def-section-text">'+escapeHtml(def.greek)+'</div></div>');
+  if(def.aramaic) html.push('<div class="def-section"><div class="def-section-label">Aramaic</div><div class="def-section-text">'+escapeHtml(def.aramaic)+'</div></div>');
+
+  // Hebrew / transliteration / Strong's — technical identifiers pushed to bottom
+  if(def.hebrew || def.translit || def.strongs){
+    html.push('<div class="def-section" style="border-top:1px dashed var(--line);margin-top:8px;padding-top:8px;">');
+    html.push('<div class="def-section-label" style="font-size:10px;letter-spacing:0.12em;">Original Language Reference</div>');
+    if(def.hebrew) html.push('<div class="def-hebrew" style="margin-top:4px;">'+def.hebrew+'</div>');
+    if(def.translit) html.push('<div class="def-translit">'+escapeHtml(def.translit)+'</div>');
+    if(def.strongs){
+      const hId=def.strongs.match(/H\d+/)?.[0];
+      const gId=def.strongs.match(/G\d+/)?.[0];
+      const sId=hId||gId;
+      if(sId) html.push('<div class="def-strongs" onclick="showStrongs(\''+sId+'\')" title="Tap for full Strong\'s entry">Strong\'s '+escapeHtml(def.strongs)+' →</div>');
+      else html.push('<div class="def-strongs">Strong\'s '+escapeHtml(def.strongs)+'</div>');
+    }
+    html.push('</div>');
+  }
+
+  // BDB Scholar's Dictionary
   if(def.strongs){
     const sId=def.strongs.match(/H\d+/)?.[0];
     if(sId){
@@ -1723,6 +1795,8 @@ function showDef(word, opts){
       }
     }
   }
+
+  // Strong's Concise (1894)
   if(def.strongsData){
     const sd=def.strongsData;
     html.push('<div class="def-section">');
@@ -1731,25 +1805,15 @@ function showDef(word, opts){
     if(sd.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>King James Version:</b> <i>'+escapeHtml(sd.kjv_def)+'</i></div>');
     html.push('</div>');
   }
-  if(def.cross)html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
-  // ---- Deep English Bible Dictionary block (if available) ----
-  if(deep){
-    // Context-sense disambiguation: if the verse's strongsTags pick a specific
-    // Hebrew/Greek variant of this word, surface it FIRST so the reader sees
-    // which underlying word is operative in this verse.
-    const picked = _contextSenseFor(word, opts);
-    if(picked){
-      const sId=(picked.strongs||'').match(/[HG]\d+/)?.[0] || picked.pickedStrongs;
-      html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Context-Specific Meaning '+(picked.isDefault?'(default — no per-verse tag matched)':'(matched per-verse tag '+(picked.pickedStrongs||'')+')')+'</div>');
-      html.push('<div class="def-section-text"');
-      if(sId) html.push(' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"');
-      html.push('><b>'+escapeHtml(picked.lang||'')+': '+(picked.word||'')+'</b>');
-      if(picked.translit) html.push(' <i>('+escapeHtml(picked.translit)+')</i>');
-      if(picked.pickedStrongs) html.push(' <span style="color:var(--gold);font-size:11px;">'+escapeHtml(picked.pickedStrongs)+'</span>');
-      html.push('<br>'+escapeHtml(picked.gloss||'')+'</div></div>');
-    }
-    html.push(_renderEnglishDictBlock(deep));
+
+  // Sources / confidence (deep)
+  if(deep && deep.sources && deep.sources.length){
+    html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+deep.sources.map(escapeHtml).join(' · ')+'</div></div>');
   }
+  if(deep && deep.confidence){
+    html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(deep.confidence)+(deep.category?' · <span class="def-section-label">Category:</span> '+escapeHtml(deep.category):'')+'</div>');
+  }
+
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
