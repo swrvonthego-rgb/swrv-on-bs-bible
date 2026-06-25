@@ -6461,29 +6461,31 @@ window.openAllThreadsBrowser = function(){
 
   var _verses = [];
   var _cursor = 0;
-  var _speed = 1.0;
+  var _speed = 0.85;
   var _paused = false;
   var _active = false;
-  var _speeds = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5];
+  var _speeds = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
   var _speedIdx = 2;
   var _voice = null; // selected SpeechSynthesisVoice
 
   // Voice preference rank — higher = preferred
+  // Prioritize warm, natural-sounding voices over robotic/compact ones
   var VOICE_KEYWORDS = [
-    'google',           // Chrome / Google voices are high quality
-    'microsoft',        // Edge / Microsoft neural voices
+    'google us english',    // Chrome's best natural voice
+    'samantha',             // macOS — warm, natural female
+    'karen',                // macOS AU — clear and calm
+    'daniel',               // macOS UK — rich male voice
+    'moira',                // macOS IE — gentle female
+    'tessa',                // macOS ZA — calm female
+    'google',               // Other Google voices
+    'microsoft',            // Edge / Microsoft neural voices
     'neural',
     'natural',
     'premium',
     'enhanced',
     'eloquence',
     'siri',
-    'samantha',         // macOS
-    'alex',             // macOS
-    'daniel',           // macOS UK
-    'karen',            // macOS AU
-    'moira',            // macOS IE
-    'tessa'             // macOS ZA
+    'alex'                  // macOS — moved lower (sounds formal)
   ];
 
   var SAVED_VOICE_KEY = 'swrv_tts_voice';
@@ -6561,8 +6563,14 @@ window.openAllThreadsBrowser = function(){
     synth.cancel();
     var utt = new SpeechSynthesisUtterance(_verses[idx].text);
     utt.rate = _speed;
+    utt.pitch = 0.92;   // slightly lower than default (1.0) — warmer, less sharp
+    utt.volume = 1.0;
     if(_voice) utt.voice = _voice;
-    utt.onend = function(){ if(_active && !_paused) _speakVerse(_cursor + 1); };
+    utt.onend = function(){
+      if(!_active || _paused) return;
+      // Natural breath between verses — 600ms pause feels like a reader turning the page
+      setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 600);
+    };
     utt.onerror = function(){ if(_active) _speakVerse(_cursor + 1); };
     synth.speak(utt);
     _pp() && (_pp().textContent = '⏸');
