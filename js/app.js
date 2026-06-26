@@ -6453,11 +6453,10 @@ window.openAllThreadsBrowser = function(){
 })();
 
 /* ============================================================
-   TEXT-TO-SPEECH (TTS) — 4-persona voice system
+   TEXT-TO-SPEECH (TTS) — ElevenLabs neural voices + browser fallback
    ============================================================ */
 (function(){
   var synth = window.speechSynthesis;
-  if(!synth){ console.warn('TTS: speechSynthesis not supported'); return; }
 
   /* ── 4 named reading personas ── */
   var VOICE_PERSONAS = [
@@ -6466,16 +6465,11 @@ window.openAllThreadsBrowser = function(){
       label: 'The Teacher',
       desc: 'Male · Deep & Authoritative',
       icon: '📖',
-      rate: 0.80,
-      pitch: 0.85,
-      targets: [
-        'Google UK English Male',
-        'Daniel',
-        'Microsoft Mark - English (United States)',
-        'Microsoft David - English (United States)',
-        'Microsoft David Desktop - English (United States)',
-        'Alex', 'Fred', 'Ralph'
-      ],
+      elVoiceId: 'onwK4e9ZLuTAKqWW03F9', // ElevenLabs: Daniel
+      elStability: 0.82,
+      elSimilarity: 0.80,
+      rate: 0.80, pitch: 0.85,
+      fallbackTargets: ['Google UK English Male','Daniel','Microsoft Mark - English (United States)','Alex'],
       gender: 'male'
     },
     {
@@ -6483,15 +6477,11 @@ window.openAllThreadsBrowser = function(){
       label: 'The Narrator',
       desc: 'Male · Warm & Storytelling',
       icon: '🎙️',
-      rate: 0.85,
-      pitch: 0.95,
-      targets: [
-        'Microsoft David - English (United States)',
-        'Microsoft David Desktop - English (United States)',
-        'Alex', 'Tom',
-        'Google UK English Male',
-        'Daniel', 'Fred', 'Ralph'
-      ],
+      elVoiceId: 'TxGEqnHWrfWFTfGW9XjX', // ElevenLabs: Josh
+      elStability: 0.65,
+      elSimilarity: 0.75,
+      rate: 0.85, pitch: 0.95,
+      fallbackTargets: ['Microsoft David - English (United States)','Alex','Google UK English Male','Daniel'],
       gender: 'male'
     },
     {
@@ -6499,16 +6489,11 @@ window.openAllThreadsBrowser = function(){
       label: 'The Shepherd',
       desc: 'Female · Gentle & Calming',
       icon: '🕊️',
-      rate: 0.78,
-      pitch: 1.0,
-      targets: [
-        'Google US English',
-        'Samantha',
-        'Microsoft Zira - English (United States)',
-        'Microsoft Jenny - English (United States)',
-        'Microsoft Aria - English (United States)',
-        'Victoria', 'Moira'
-      ],
+      elVoiceId: '21m00Tcm4TlvDq8ikWAM', // ElevenLabs: Rachel
+      elStability: 0.78,
+      elSimilarity: 0.75,
+      rate: 0.78, pitch: 1.0,
+      fallbackTargets: ['Google US English','Samantha','Microsoft Zira - English (United States)','Microsoft Jenny - English (United States)'],
       gender: 'female'
     },
     {
@@ -6516,50 +6501,45 @@ window.openAllThreadsBrowser = function(){
       label: 'The Prophet',
       desc: 'Female · Clear & Expressive',
       icon: '🔥',
-      rate: 0.85,
-      pitch: 0.93,
-      targets: [
-        'Google UK English Female',
-        'Karen', 'Moira',
-        'Microsoft Hazel - English (Great Britain)',
-        'Tessa', 'Victoria',
-        'Samantha', 'Google US English'
-      ],
+      elVoiceId: 'AZnzlk1XvdvUeBnXmlld', // ElevenLabs: Domi
+      elStability: 0.60,
+      elSimilarity: 0.70,
+      rate: 0.85, pitch: 0.93,
+      fallbackTargets: ['Google UK English Female','Karen','Moira','Microsoft Hazel - English (Great Britain)','Tessa'],
       gender: 'female'
     }
   ];
 
-  var _verses  = [];
-  var _cursor  = 0;
-  var _paused  = false;
-  var _active  = false;
-  var _persona = VOICE_PERSONAS[2]; // default: The Shepherd
-  var _voice   = null;
-  var _speeds  = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
+  var _verses   = [];
+  var _cursor   = 0;
+  var _paused   = false;
+  var _active   = false;
+  var _persona  = VOICE_PERSONAS[2]; // default: The Shepherd
+  var _fbVoice  = null;              // fallback browser voice
+  var _audio    = null;              // current HTMLAudioElement (ElevenLabs)
+  var _speeds   = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
   var _speedIdx = 2;
+  var _elOk     = true;             // becomes false if /api/tts is unreachable
 
   var SAVED_PERSONA_KEY = 'swrv_tts_persona';
 
-  /* ── Voice resolution — find best available voice for a persona ── */
-  function _voiceForPersona(p){
+  /* ── Fallback browser voice resolution ── */
+  function _fbVoiceForPersona(p){
+    if(!synth) return null;
     var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
     if(!voices.length) return null;
-    for(var i = 0; i < p.targets.length; i++){
-      var t = p.targets[i].toLowerCase();
-      var exact = voices.find(function(v){ return v.name.toLowerCase() === t; });
-      if(exact) return exact;
+    for(var i = 0; i < p.fallbackTargets.length; i++){
+      var t = p.fallbackTargets[i].toLowerCase();
+      var m = voices.find(function(v){ return v.name.toLowerCase() === t; }) ||
+              voices.find(function(v){ return v.name.toLowerCase().indexOf(t) !== -1; });
+      if(m) return m;
     }
-    for(var j = 0; j < p.targets.length; j++){
-      var tt = p.targets[j].toLowerCase();
-      var partial = voices.find(function(v){ return v.name.toLowerCase().indexOf(tt) !== -1; });
-      if(partial) return partial;
-    }
-    var maleRe   = /\bmale\b|david|mark|alex|daniel|tom|fred|ralph|james|paul|richard/;
-    var femaleRe = /\bfemale\b|samantha|karen|moira|victoria|zira|jenny|aria|hazel|tessa/;
-    var gendered = voices.filter(function(v){
+    var maleRe   = /\bmale\b|david|mark|alex|daniel|tom|fred|ralph/;
+    var femaleRe = /\bfemale\b|samantha|karen|moira|victoria|zira|jenny|aria/;
+    var g = voices.filter(function(v){
       return p.gender === 'male' ? maleRe.test(v.name.toLowerCase()) : femaleRe.test(v.name.toLowerCase());
     });
-    return gendered.length ? gendered[0] : (voices[0] || null);
+    return g.length ? g[0] : voices[0];
   }
 
   function _updateSpeedLabel(){
@@ -6569,10 +6549,9 @@ window.openAllThreadsBrowser = function(){
 
   function _applyPersona(p){
     _persona = p;
-    _voice   = _voiceForPersona(p);
-    // Snap speed to closest step to persona's natural rate
-    var best = 0, bestDiff = Infinity;
-    _speeds.forEach(function(s, i){ var d = Math.abs(s - p.rate); if(d < bestDiff){ bestDiff = d; best = i; } });
+    _fbVoice = _fbVoiceForPersona(p);
+    var best = 0, bd = Infinity;
+    _speeds.forEach(function(s, i){ var d = Math.abs(s - p.rate); if(d < bd){ bd = d; best = i; } });
     _speedIdx = best;
     _updateSpeedLabel();
   }
@@ -6583,7 +6562,7 @@ window.openAllThreadsBrowser = function(){
     _applyPersona(p);
   }
 
-  if(synth.onvoiceschanged !== undefined){
+  if(synth && synth.onvoiceschanged !== undefined){
     synth.onvoiceschanged = function(){ _loadPersona(); };
   }
   setTimeout(function(){ _loadPersona(); }, 300);
@@ -6621,7 +6600,7 @@ window.openAllThreadsBrowser = function(){
       .trim();
   }
 
-  /* ── Playback ── */
+  /* ── Verse highlight ── */
   function _highlightVerse(idx){
     document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
     if(_verses[idx] && _verses[idx].el){
@@ -6632,17 +6611,83 @@ window.openAllThreadsBrowser = function(){
     if(vEl) vEl.textContent = _verses[idx] ? (_verses[idx].num ? 'v. '+_verses[idx].num : '') : '';
   }
 
+  /* ── ElevenLabs audio playback ── */
+  function _stopAudio(){
+    if(_audio){
+      _audio.onended = null; _audio.onerror = null;
+      _audio.pause();
+      try { URL.revokeObjectURL(_audio.src); } catch(e){}
+      _audio = null;
+    }
+    if(synth) synth.cancel();
+  }
+
   function _speakVerse(idx){
     if(!_active || idx >= _verses.length){ _done(); return; }
     _cursor = idx;
     _highlightVerse(idx);
-    synth.cancel();
+    _stopAudio();
+
+    var text = _prepText(_verses[idx].text);
+
+    if(_elOk){
+      // Show loading pulse while waiting for audio
+      _pp() && (_pp().textContent = '⏳');
+
+      fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          voice_id: _persona.elVoiceId,
+          stability: _persona.elStability,
+          similarity_boost: _persona.elSimilarity
+        })
+      })
+      .then(function(res){
+        if(!res.ok) throw new Error('tts-' + res.status);
+        return res.blob();
+      })
+      .then(function(blob){
+        if(!_active || _paused) return;
+        var blobUrl = URL.createObjectURL(blob);
+        _audio = new Audio(blobUrl);
+        _audio.playbackRate = _speeds[_speedIdx];
+        _audio.onended = function(){
+          try { URL.revokeObjectURL(blobUrl); } catch(e){}
+          _audio = null;
+          if(_active && !_paused)
+            setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 700);
+        };
+        _audio.onerror = function(){
+          try { URL.revokeObjectURL(blobUrl); } catch(e){}
+          _audio = null;
+          if(_active) _speakVerse(_cursor + 1);
+        };
+        _audio.play();
+        _pp() && (_pp().textContent = '⏸');
+      })
+      .catch(function(err){
+        // If key not configured yet, fall back silently to browser voice
+        if(err.message.indexOf('tts-500') !== -1 || err.message.indexOf('tts-401') !== -1){
+          _elOk = false;
+        }
+        _speakVerseFallback(idx);
+      });
+    } else {
+      _speakVerseFallback(idx);
+    }
+  }
+
+  /* ── Browser speech fallback ── */
+  function _speakVerseFallback(idx){
+    if(!synth || !_active || idx >= _verses.length) return;
     var utt = new SpeechSynthesisUtterance(_prepText(_verses[idx].text));
     utt.rate   = _speeds[_speedIdx];
     utt.pitch  = _persona ? _persona.pitch : 0.92;
     utt.volume = 1.0;
-    if(_voice) utt.voice = _voice;
-    utt.onend = function(){
+    if(_fbVoice) utt.voice = _fbVoice;
+    utt.onend  = function(){
       if(!_active || _paused) return;
       setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 700);
     };
@@ -6651,17 +6696,16 @@ window.openAllThreadsBrowser = function(){
     _pp() && (_pp().textContent = '⏸');
   }
 
+  /* ── Stop all ── */
   function _done(){
-    _active = false;
-    _paused = false;
-    synth.cancel();
+    _active = false; _paused = false;
+    _stopAudio();
     document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
     _bar() && _bar().classList.remove('active');
   }
 
   /* ── Public API ── */
   window.ttsPlayChapter = function(){
-    if(!_voice) _loadPersona();
     _verses = _getVerses();
     if(!_verses.length){ alert('No verse text found on this page.'); return; }
     _active = true; _paused = false;
@@ -6671,12 +6715,12 @@ window.openAllThreadsBrowser = function(){
 
   window.ttsToggle = function(){
     if(!_active){ ttsPlayChapter(); return; }
-    if(synth.paused){
-      synth.resume(); _paused = false;
-      _pp() && (_pp().textContent = '⏸');
-    } else {
-      synth.pause(); _paused = true;
-      _pp() && (_pp().textContent = '▶');
+    if(_audio){
+      if(_audio.paused){ _audio.play(); _paused = false; _pp() && (_pp().textContent = '⏸'); }
+      else { _audio.pause(); _paused = true; _pp() && (_pp().textContent = '▶'); }
+    } else if(synth){
+      if(synth.paused){ synth.resume(); _paused = false; _pp() && (_pp().textContent = '⏸'); }
+      else { synth.pause(); _paused = true; _pp() && (_pp().textContent = '▶'); }
     }
   };
 
@@ -6705,7 +6749,8 @@ window.openAllThreadsBrowser = function(){
   window.ttsCycleSpeed = function(){
     _speedIdx = (_speedIdx + 1) % _speeds.length;
     _updateSpeedLabel();
-    if(_active && !_paused) _speakVerse(_cursor);
+    if(_audio) _audio.playbackRate = _speeds[_speedIdx];
+    if(_active && !_paused && !_audio) _speakVerse(_cursor);
   };
 
   /* ── Persona picker ── */
@@ -6715,13 +6760,12 @@ window.openAllThreadsBrowser = function(){
     var html = '<div class="tts-persona-title">Choose a Reading Voice</div>';
     html += '<div class="tts-persona-grid">';
     VOICE_PERSONAS.forEach(function(p){
-      var isActive  = _persona && _persona.id === p.id;
-      var resolved  = _voiceForPersona(p);
+      var isActive = _persona && _persona.id === p.id;
       html += '<button class="tts-persona-card' + (isActive ? ' active' : '') + '" onclick="ttsSelectPersona(\'' + p.id + '\')">';
       html += '<span class="tts-persona-icon">' + p.icon + '</span>';
       html += '<span class="tts-persona-name">' + p.label + '</span>';
       html += '<span class="tts-persona-desc">' + p.desc + '</span>';
-      html += '<span class="tts-persona-voice">' + (resolved ? resolved.name : 'No matching voice on this device') + '</span>';
+      html += '<span class="tts-persona-voice">ElevenLabs neural</span>';
       html += '</button>';
     });
     html += '</div>';
@@ -6734,7 +6778,7 @@ window.openAllThreadsBrowser = function(){
     if(!p) return;
     localStorage.setItem(SAVED_PERSONA_KEY, id);
     _applyPersona(p);
-    if(_active) _speakVerse(_cursor);
+    if(_active){ _stopAudio(); _speakVerse(_cursor); }
     var pop = document.getElementById('ttsVoicePopover');
     if(pop) pop.classList.remove('show');
   };

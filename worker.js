@@ -86,6 +86,50 @@ export default {
       }
     }
     
+    // ============= ELEVENLABS TTS RELAY =============
+    if (url.pathname === '/api/tts' && request.method === 'POST') {
+      if (!env.ELEVENLABS_API_KEY) {
+        return new Response(JSON.stringify({ error: 'ELEVENLABS_API_KEY not configured' }), {
+          status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+      try {
+        const { text, voice_id, stability = 0.75, similarity_boost = 0.75 } = await request.json();
+        if (!text || !voice_id) {
+          return new Response(JSON.stringify({ error: 'text and voice_id required' }), {
+            status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+        const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+          method: 'POST',
+          headers: {
+            'xi-api-key': env.ELEVENLABS_API_KEY,
+            'Content-Type': 'application/json',
+            'Accept': 'audio/mpeg'
+          },
+          body: JSON.stringify({
+            text,
+            model_id: 'eleven_turbo_v2',
+            voice_settings: { stability, similarity_boost, style: 0.35, use_speaker_boost: true }
+          })
+        });
+        if (!elRes.ok) {
+          const err = await elRes.text();
+          return new Response(JSON.stringify({ error: err }), {
+            status: elRes.status, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+        return new Response(elRes.body, {
+          status: 200,
+          headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', ...corsHeaders }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'TTS relay failed', detail: err.message }), {
+          status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+    }
+
     // ============= STATIC ASSETS =============
     // Fall through to Cloudflare's static asset binding
     return env.ASSETS.fetch(request);
