@@ -6453,91 +6453,156 @@ window.openAllThreadsBrowser = function(){
 })();
 
 /* ============================================================
-   TEXT-TO-SPEECH (TTS) — with voice selection
+   TEXT-TO-SPEECH (TTS) — 4-persona voice system
    ============================================================ */
 (function(){
   var synth = window.speechSynthesis;
   if(!synth){ console.warn('TTS: speechSynthesis not supported'); return; }
 
-  var _verses = [];
-  var _cursor = 0;
-  var _speed = 0.85;
-  var _paused = false;
-  var _active = false;
-  var _speeds = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
-  var _speedIdx = 2;
-  var _voice = null; // selected SpeechSynthesisVoice
-
-  // Voice preference rank — higher = preferred
-  // Prioritize warm, natural-sounding voices over robotic/compact ones
-  var VOICE_KEYWORDS = [
-    'google us english',    // Chrome's best natural voice
-    'samantha',             // macOS — warm, natural female
-    'karen',                // macOS AU — clear and calm
-    'daniel',               // macOS UK — rich male voice
-    'moira',                // macOS IE — gentle female
-    'tessa',                // macOS ZA — calm female
-    'google',               // Other Google voices
-    'microsoft',            // Edge / Microsoft neural voices
-    'neural',
-    'natural',
-    'premium',
-    'enhanced',
-    'eloquence',
-    'siri',
-    'alex'                  // macOS — moved lower (sounds formal)
+  /* ── 4 named reading personas ── */
+  var VOICE_PERSONAS = [
+    {
+      id: 'teacher',
+      label: 'The Teacher',
+      desc: 'Male · Deep & Authoritative',
+      icon: '📖',
+      rate: 0.80,
+      pitch: 0.85,
+      targets: [
+        'Google UK English Male',
+        'Daniel',
+        'Microsoft Mark - English (United States)',
+        'Microsoft David - English (United States)',
+        'Microsoft David Desktop - English (United States)',
+        'Alex', 'Fred', 'Ralph'
+      ],
+      gender: 'male'
+    },
+    {
+      id: 'narrator',
+      label: 'The Narrator',
+      desc: 'Male · Warm & Storytelling',
+      icon: '🎙️',
+      rate: 0.85,
+      pitch: 0.95,
+      targets: [
+        'Microsoft David - English (United States)',
+        'Microsoft David Desktop - English (United States)',
+        'Alex', 'Tom',
+        'Google UK English Male',
+        'Daniel', 'Fred', 'Ralph'
+      ],
+      gender: 'male'
+    },
+    {
+      id: 'shepherd',
+      label: 'The Shepherd',
+      desc: 'Female · Gentle & Calming',
+      icon: '🕊️',
+      rate: 0.78,
+      pitch: 1.0,
+      targets: [
+        'Google US English',
+        'Samantha',
+        'Microsoft Zira - English (United States)',
+        'Microsoft Jenny - English (United States)',
+        'Microsoft Aria - English (United States)',
+        'Victoria', 'Moira'
+      ],
+      gender: 'female'
+    },
+    {
+      id: 'prophet',
+      label: 'The Prophet',
+      desc: 'Female · Clear & Expressive',
+      icon: '🔥',
+      rate: 0.85,
+      pitch: 0.93,
+      targets: [
+        'Google UK English Female',
+        'Karen', 'Moira',
+        'Microsoft Hazel - English (Great Britain)',
+        'Tessa', 'Victoria',
+        'Samantha', 'Google US English'
+      ],
+      gender: 'female'
+    }
   ];
 
-  var SAVED_VOICE_KEY = 'swrv_tts_voice';
+  var _verses  = [];
+  var _cursor  = 0;
+  var _paused  = false;
+  var _active  = false;
+  var _persona = VOICE_PERSONAS[2]; // default: The Shepherd
+  var _voice   = null;
+  var _speeds  = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
+  var _speedIdx = 2;
 
-  function _rankVoice(v){
-    var name = (v.name || '').toLowerCase();
-    // Prefer English
-    if(!/en[-_]/i.test(v.lang)) return 0;
-    // Online voices tend to be higher quality
-    var score = v.localService ? 1 : 3;
-    for(var i=0; i<VOICE_KEYWORDS.length; i++){
-      if(name.indexOf(VOICE_KEYWORDS[i]) !== -1) score += (VOICE_KEYWORDS.length - i) * 2;
-    }
-    return score;
-  }
+  var SAVED_PERSONA_KEY = 'swrv_tts_persona';
 
-  function _getBestVoice(){
+  /* ── Voice resolution — find best available voice for a persona ── */
+  function _voiceForPersona(p){
     var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
     if(!voices.length) return null;
-    voices.sort(function(a,b){ return _rankVoice(b) - _rankVoice(a); });
-    return voices[0];
-  }
-
-  function _loadVoice(){
-    var saved = localStorage.getItem(SAVED_VOICE_KEY);
-    var voices = synth.getVoices();
-    if(saved && voices.length){
-      var match = voices.find(function(v){ return v.name === saved; });
-      if(match){ _voice = match; return; }
+    for(var i = 0; i < p.targets.length; i++){
+      var t = p.targets[i].toLowerCase();
+      var exact = voices.find(function(v){ return v.name.toLowerCase() === t; });
+      if(exact) return exact;
     }
-    _voice = _getBestVoice();
+    for(var j = 0; j < p.targets.length; j++){
+      var tt = p.targets[j].toLowerCase();
+      var partial = voices.find(function(v){ return v.name.toLowerCase().indexOf(tt) !== -1; });
+      if(partial) return partial;
+    }
+    var maleRe   = /\bmale\b|david|mark|alex|daniel|tom|fred|ralph|james|paul|richard/;
+    var femaleRe = /\bfemale\b|samantha|karen|moira|victoria|zira|jenny|aria|hazel|tessa/;
+    var gendered = voices.filter(function(v){
+      return p.gender === 'male' ? maleRe.test(v.name.toLowerCase()) : femaleRe.test(v.name.toLowerCase());
+    });
+    return gendered.length ? gendered[0] : (voices[0] || null);
   }
 
-  // Voices load async — wire up once available
+  function _updateSpeedLabel(){
+    var s = _speeds[_speedIdx];
+    _speedEl() && (_speedEl().textContent = (s === 1.0 ? '1×' : s + '×'));
+  }
+
+  function _applyPersona(p){
+    _persona = p;
+    _voice   = _voiceForPersona(p);
+    // Snap speed to closest step to persona's natural rate
+    var best = 0, bestDiff = Infinity;
+    _speeds.forEach(function(s, i){ var d = Math.abs(s - p.rate); if(d < bestDiff){ bestDiff = d; best = i; } });
+    _speedIdx = best;
+    _updateSpeedLabel();
+  }
+
+  function _loadPersona(){
+    var saved = localStorage.getItem(SAVED_PERSONA_KEY);
+    var p = VOICE_PERSONAS.find(function(x){ return x.id === saved; }) || VOICE_PERSONAS[2];
+    _applyPersona(p);
+  }
+
   if(synth.onvoiceschanged !== undefined){
-    synth.onvoiceschanged = function(){ if(!_voice) _loadVoice(); };
+    synth.onvoiceschanged = function(){ _loadPersona(); };
   }
-  setTimeout(function(){ if(!_voice) _loadVoice(); }, 300);
+  setTimeout(function(){ _loadPersona(); }, 300);
 
-  function _bar(){ return document.getElementById('ttsBar'); }
-  function _pp(){ return document.getElementById('ttsPlayPause'); }
+  /* ── DOM helpers ── */
+  function _bar()    { return document.getElementById('ttsBar'); }
+  function _pp()     { return document.getElementById('ttsPlayPause'); }
   function _verseEl(){ return document.getElementById('ttsBarVerse'); }
   function _speedEl(){ return document.getElementById('ttsSpeedBtn'); }
 
+  /* ── Verse collection ── */
   function _getVerses(){
     var els = document.querySelectorAll('.verse');
     var out = [];
     els.forEach(function(el){
-      var numEl = el.querySelector('.verse-num, [class*="verse-num"]');
+      var numEl  = el.querySelector('.verse-num, [class*="verse-num"]');
       var textEl = el.querySelector('.verse-text, [class*="verse-text"]');
       if(!textEl) return;
-      var num = numEl ? numEl.textContent.trim() : '';
+      var num   = numEl ? numEl.textContent.trim() : '';
       var clone = textEl.cloneNode(true);
       clone.querySelectorAll('.verse-study-chip,.verse-bm-chip,.verse-note-chip').forEach(function(c){ c.remove(); });
       var text = clone.textContent.trim();
@@ -6546,6 +6611,17 @@ window.openAllThreadsBrowser = function(){
     return out;
   }
 
+  /* ── Natural text preprocessing ── */
+  function _prepText(text){
+    return text
+      .replace(/\bLORD\b/g, 'the Lord')
+      .replace(/\bGOD\b/g, 'God')
+      .replace(/;/g, '.')
+      .replace(/—/g, ', ')
+      .trim();
+  }
+
+  /* ── Playback ── */
   function _highlightVerse(idx){
     document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
     if(_verses[idx] && _verses[idx].el){
@@ -6561,15 +6637,14 @@ window.openAllThreadsBrowser = function(){
     _cursor = idx;
     _highlightVerse(idx);
     synth.cancel();
-    var utt = new SpeechSynthesisUtterance(_verses[idx].text);
-    utt.rate = _speed;
-    utt.pitch = 0.92;   // slightly lower than default (1.0) — warmer, less sharp
+    var utt = new SpeechSynthesisUtterance(_prepText(_verses[idx].text));
+    utt.rate   = _speeds[_speedIdx];
+    utt.pitch  = _persona ? _persona.pitch : 0.92;
     utt.volume = 1.0;
     if(_voice) utt.voice = _voice;
     utt.onend = function(){
       if(!_active || _paused) return;
-      // Natural breath between verses — 600ms pause feels like a reader turning the page
-      setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 600);
+      setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 700);
     };
     utt.onerror = function(){ if(_active) _speakVerse(_cursor + 1); };
     synth.speak(utt);
@@ -6584,12 +6659,12 @@ window.openAllThreadsBrowser = function(){
     _bar() && _bar().classList.remove('active');
   }
 
+  /* ── Public API ── */
   window.ttsPlayChapter = function(){
-    if(!_voice) _loadVoice();
+    if(!_voice) _loadPersona();
     _verses = _getVerses();
     if(!_verses.length){ alert('No verse text found on this page.'); return; }
-    _active = true;
-    _paused = false;
+    _active = true; _paused = false;
     _bar() && _bar().classList.add('active');
     _speakVerse(0);
   };
@@ -6597,29 +6672,21 @@ window.openAllThreadsBrowser = function(){
   window.ttsToggle = function(){
     if(!_active){ ttsPlayChapter(); return; }
     if(synth.paused){
-      synth.resume();
-      _paused = false;
+      synth.resume(); _paused = false;
       _pp() && (_pp().textContent = '⏸');
     } else {
-      synth.pause();
-      _paused = true;
+      synth.pause(); _paused = true;
       _pp() && (_pp().textContent = '▶');
     }
   };
 
-  window.ttsStop = function(){ _done(); };
-
-  window.ttsRestart = function(){
-    _active = true;
-    _paused = false;
-    _speakVerse(0);
-  };
+  window.ttsStop    = function(){ _done(); };
+  window.ttsRestart = function(){ _active = true; _paused = false; _speakVerse(0); };
 
   window.ttsSkipVerse = function(dir){
     var next = _cursor + dir;
     if(next < 0) next = 0;
-    _active = true;
-    _paused = false;
+    _active = true; _paused = false;
     _speakVerse(next);
   };
 
@@ -6637,37 +6704,37 @@ window.openAllThreadsBrowser = function(){
 
   window.ttsCycleSpeed = function(){
     _speedIdx = (_speedIdx + 1) % _speeds.length;
-    _speed = _speeds[_speedIdx];
-    var label = _speed === 1.0 ? '1×' : _speed + '×';
-    _speedEl() && (_speedEl().textContent = label);
+    _updateSpeedLabel();
     if(_active && !_paused) _speakVerse(_cursor);
   };
 
-  // Voice picker — opens popover listing all English voices
+  /* ── Persona picker ── */
   window.ttsOpenVoicePicker = function(){
     var pop = document.getElementById('ttsVoicePopover');
     if(!pop) return;
-    var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
-    voices.sort(function(a,b){ return _rankVoice(b) - _rankVoice(a); });
-    var html = '<div class="tts-voice-picker-title">Choose a voice</div>';
-    voices.forEach(function(v){
-      var active = _voice && _voice.name === v.name;
-      html += '<button class="tts-voice-opt'+(active?' active':'')+'" onclick="ttsSelectVoice(\''+v.name.replace(/'/g,"\\'")+'\')" title="'+v.lang+'">'+
-        (active ? '🔊 ' : '') + v.name + '<span class="tts-voice-lang">'+v.lang+'</span></button>';
+    var html = '<div class="tts-persona-title">Choose a Reading Voice</div>';
+    html += '<div class="tts-persona-grid">';
+    VOICE_PERSONAS.forEach(function(p){
+      var isActive  = _persona && _persona.id === p.id;
+      var resolved  = _voiceForPersona(p);
+      html += '<button class="tts-persona-card' + (isActive ? ' active' : '') + '" onclick="ttsSelectPersona(\'' + p.id + '\')">';
+      html += '<span class="tts-persona-icon">' + p.icon + '</span>';
+      html += '<span class="tts-persona-name">' + p.label + '</span>';
+      html += '<span class="tts-persona-desc">' + p.desc + '</span>';
+      html += '<span class="tts-persona-voice">' + (resolved ? resolved.name : 'No matching voice on this device') + '</span>';
+      html += '</button>';
     });
-    if(!voices.length) html += '<div style="padding:10px;color:#888;">No English voices found on this device.</div>';
+    html += '</div>';
     pop.innerHTML = html;
     pop.classList.toggle('show');
   };
 
-  window.ttsSelectVoice = function(name){
-    var voices = synth.getVoices();
-    var match = voices.find(function(v){ return v.name === name; });
-    if(match){
-      _voice = match;
-      localStorage.setItem(SAVED_VOICE_KEY, name);
-      if(_active) _speakVerse(_cursor);
-    }
+  window.ttsSelectPersona = function(id){
+    var p = VOICE_PERSONAS.find(function(x){ return x.id === id; });
+    if(!p) return;
+    localStorage.setItem(SAVED_PERSONA_KEY, id);
+    _applyPersona(p);
+    if(_active) _speakVerse(_cursor);
     var pop = document.getElementById('ttsVoicePopover');
     if(pop) pop.classList.remove('show');
   };
