@@ -434,16 +434,19 @@
       <div class="study-sheet-ref" id="studySheetRef">—</div>
       <button class="study-sheet-close" onclick="closeStudySheet()" title="Close (Esc)" aria-label="Close study panel">✕</button>
     </div>
-    <div class="study-sheet-tabs" id="studySheetTabs" role="tablist">
-      <button class="study-tab active" data-tab="define" onclick="switchStudyTab('define')" role="tab">Define</button>
-      <button class="study-tab" data-tab="original" onclick="switchStudyTab('original')" role="tab">Original</button>
-      <button class="study-tab" data-tab="translations" onclick="switchStudyTab('translations')" role="tab">Translations</button>
-      <button class="study-tab" data-tab="culture" onclick="switchStudyTab('culture')" role="tab">Culture</button>
-      <button class="study-tab" data-tab="kingdom" onclick="switchStudyTab('kingdom')" role="tab">Kingdom</button>
-      <button class="study-tab" data-tab="people" onclick="switchStudyTab('people')" role="tab">People</button>
-      <button class="study-tab" data-tab="sources" onclick="switchStudyTab('sources')" role="tab">Sources</button>
-      <button class="study-tab" data-tab="crossrefs" onclick="switchStudyTab('crossrefs')" role="tab">Cross Refs</button>
-      <button class="study-tab" data-tab="notes" onclick="switchStudyTab('notes')" role="tab">📝 Notes</button>
+    <div class="study-tabs-wrap">
+      <div class="study-sheet-tabs" id="studySheetTabs" role="tablist">
+        <button class="study-tab active" data-tab="define" onclick="switchStudyTab('define')" role="tab">Define</button>
+        <button class="study-tab" data-tab="original" onclick="switchStudyTab('original')" role="tab">Original</button>
+        <button class="study-tab" data-tab="translations" onclick="switchStudyTab('translations')" role="tab">Translations</button>
+        <button class="study-tab" data-tab="culture" onclick="switchStudyTab('culture')" role="tab">Culture</button>
+        <button class="study-tab" data-tab="kingdom" onclick="switchStudyTab('kingdom')" role="tab">Kingdom</button>
+        <button class="study-tab" data-tab="people" onclick="switchStudyTab('people')" role="tab">People</button>
+        <button class="study-tab" data-tab="sources" onclick="switchStudyTab('sources')" role="tab">Sources</button>
+        <button class="study-tab" data-tab="crossrefs" onclick="switchStudyTab('crossrefs')" role="tab">Cross Refs</button>
+        <button class="study-tab" data-tab="notes" onclick="switchStudyTab('notes')" role="tab">📝 Notes</button>
+      </div>
+      <div class="study-tabs-arrow" id="studyTabsArrow" aria-hidden="true">›</div>
     </div>
     <div class="study-sheet-body" id="studySheetBody"></div>
   </div>

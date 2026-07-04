@@ -4424,6 +4424,27 @@ function _renderBookOverview(book){
   }
   window.closeStudySheet = closeStudySheet;
 
+  // ---- Tab row scroll arrow ----
+  (function(){
+    var tabsEl = document.getElementById('studySheetTabs');
+    var arrowEl = document.getElementById('studyTabsArrow');
+    function _updateArrow(){
+      if(!tabsEl || !arrowEl) return;
+      var atEnd = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 6;
+      arrowEl.classList.toggle('hidden', atEnd);
+    }
+    if(tabsEl){
+      tabsEl.addEventListener('scroll', _updateArrow, { passive:true });
+      // re-check whenever the sheet opens (tabs may change width)
+      var origOpen = window.openStudySheet;
+      window.openStudySheet = function(){
+        origOpen.apply(this, arguments);
+        requestAnimationFrame(_updateArrow);
+      };
+      _updateArrow();
+    }
+  })();
+
   function switchStudyTab(tab){
     document.querySelectorAll('.study-tab').forEach(function(t){
       const active = t.getAttribute('data-tab')===tab;
