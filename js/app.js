@@ -723,7 +723,7 @@ function setNavBarHidden(hidden){
   }
   if(btn){
     btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-    btn.textContent = hidden ? '⇩ Show nav' : '⇧ Hide nav';
+    btn.textContent = hidden ? 'Show ▴' : 'Hide ▾';
     btn.setAttribute('title', hidden ? 'Show the Book / Chapter / Verse / Canonical row' : 'Hide the Book / Chapter / Verse / Canonical row');
   }
   try{ localStorage.setItem('swrv_nav_hidden', hidden ? '1' : '0'); }catch(e){}
@@ -4423,6 +4423,22 @@ function _renderBookOverview(book){
     document.body.classList.remove('study-sheet-open');
   }
   window.closeStudySheet = closeStudySheet;
+
+  // ---- Header-actions scroll arrow ----
+  (function(){
+    var actEl = document.querySelector('.header-actions');
+    var arrEl = document.getElementById('headerActionsArrow');
+    function _upd(){
+      if(!actEl || !arrEl) return;
+      var atEnd = actEl.scrollLeft + actEl.clientWidth >= actEl.scrollWidth - 6;
+      arrEl.classList.toggle('hidden', atEnd);
+    }
+    if(actEl){
+      actEl.addEventListener('scroll', _upd, { passive:true });
+      window.addEventListener('resize', _upd);
+      _upd();
+    }
+  })();
 
   // ---- Tab row scroll arrow ----
   (function(){
