@@ -543,26 +543,98 @@ header.app-header {
   font-weight: 500;
 }
 
+/* Premium brand logo */
 .brand-logo {
-  border-radius: 10px;
-  box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,0.15);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #d4af37 0%, #f7e07a 38%, #9a6e1e 100%) !important;
+  box-shadow:
+    0 0 0 1.5px rgba(212,175,55,0.55),
+    0 0 14px rgba(212,175,55,0.30),
+    0 4px 12px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.35);
   font-family: var(--apple-font);
-  font-weight: 800;
-  letter-spacing: 0.3px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 11px;
+  color: #1a0e00 !important;
+  position: relative;
+  overflow: hidden;
 }
+.brand-logo::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%; width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: skewX(-20deg);
+  animation: brand-shimmer 4s ease-in-out infinite;
+}
+@keyframes brand-shimmer {
+  0%,70%  { left: -60%; opacity: 0; }
+  72%     { opacity: 1; }
+  86%     { left: 130%; opacity: 0; }
+  100%    { left: 130%; opacity: 0; }
+}
+.brand-logo-text { position: relative; z-index: 1; }
 
 .brand-title {
   font-family: var(--apple-font);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 15px;
   letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--gold) 30%, #f7e07a 65%, #c8952a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .brand-sub {
   font-family: var(--apple-font);
   font-size: 10px;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   font-weight: 600;
+  opacity: 0.7;
+}
+
+/* Header-actions scroll wrapper + arrow */
+.header-actions-wrap {
+  position: relative;
+  margin-left: auto;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+}
+.header-actions-wrap .header-actions {
+  margin-left: 0;
+}
+.header-actions-arrow {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 54px;
+  background: linear-gradient(to right, transparent, rgba(14,10,18,0.95) 68%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  pointer-events: none;
+  color: var(--gold);
+  font-size: 22px;
+  font-weight: 700;
+  transition: opacity .18s ease;
+  z-index: 5;
+}
+.header-actions-arrow.hidden { opacity: 0; }
+
+/* Hide/Show nav toggle — visually distinct */
+.nav-hide-btn {
+  color: var(--gold) !important;
+  border-color: rgba(212,175,55,0.40) !important;
+  background: rgba(212,175,55,0.08) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+.nav-hide-btn:hover {
+  background: rgba(212,175,55,0.18) !important;
+  border-color: var(--gold) !important;
 }
 
 /* === BUTTONS: iOS-style with depth and press feedback === */
