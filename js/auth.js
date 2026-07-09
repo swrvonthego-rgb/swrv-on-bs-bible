@@ -113,7 +113,32 @@
         b.innerHTML = googleSVG + ' ' + (label||'Continue with Google');
       });
     }
+    // signInWithOAuth builds the authorize URL client-side and navigates the
+    // whole page to it. If the Google provider isn't enabled on the Supabase
+    // project, the browser lands on a raw JSON error page ("Unsupported
+    // provider: provider is not enabled") — so check the public settings
+    // endpoint FIRST and only redirect when Google is actually enabled.
     try {
+      var googleEnabled = true; // assume enabled if the check itself fails
+      try {
+        var ctrl = ('AbortController' in window) ? new AbortController() : null;
+        if(ctrl) setTimeout(function(){ ctrl.abort(); }, 5000);
+        var res = await fetch(SUPABASE_URL + '/auth/v1/settings', {
+          headers: { 'apikey': SUPABASE_ANON },
+          signal: ctrl ? ctrl.signal : undefined
+        });
+        if(res.ok){
+          var settings = await res.json();
+          googleEnabled = !!(settings && settings.external && settings.external.google);
+        }
+      } catch(ignore){ /* network/timeout — fall through and attempt sign-in */ }
+
+      if(!googleEnabled){
+        _resetGoogleBtns('Continue with Google');
+        _showAuthError('Google sign-in isn\'t enabled yet. Please use email sign-in below — your progress and notes work the same either way.');
+        return;
+      }
+
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: window.location.origin + window.location.pathname }

@@ -33,6 +33,7 @@ export default {
       return new Response(JSON.stringify({
         status: 'ok',
         hasGroqKey: !!env.GROQ_API_KEY,
+        hasElevenLabsKey: !!env.ELEVENLABS_API_KEY,
         timestamp: new Date().toISOString()
       }), {
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
