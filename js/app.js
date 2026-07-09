@@ -3292,6 +3292,211 @@ function openEnochReader(section, chapter){
 }
 
 // === STRONG'S READER (rebuilt — input stable, list updates independently) ===
+
+// ============================================================
+// APOCRYPHA / DEUTEROCANONICAL READER
+// Generic reader for: Jubilees, Tobit, Judith, Wisdom, Sirach,
+//                     1 Maccabees, 2 Maccabees
+// ============================================================
+var _APOCRYPHA_META = {
+  jubilees: {
+    global: 'JUBILEES', icon: '📜', title: 'Book of Jubilees',
+    credit: 'tr. R.H. Charles (1913) · Public Domain',
+    blurb: 'Retells Genesis and Exodus with added detail on the calendar, Watchers, and patriarchal covenants. Also called "The Little Genesis." 50 chapters.',
+    color: '#c9a227'
+  },
+  tobit: {
+    global: 'TOBIT', icon: '📖', title: 'Book of Tobit',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'A righteous Israelite in exile, his blind father Tobit, and the angel Raphael. Models prayer, fasting, and covenantal faithfulness. 14 chapters.',
+    color: 'var(--gold)'
+  },
+  judith: {
+    global: 'JUDITH', icon: '⚔️', title: 'Book of Judith',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'A widow of faith defeats Holofernes, the Assyrian general, through wisdom and courage. 16 chapters.',
+    color: 'var(--gold)'
+  },
+  wisdom: {
+    global: 'WISDOM', icon: '🌿', title: 'Wisdom of Solomon',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'Divine wisdom, the immortality of the soul, critique of idolatry, and the Exodus retold as wisdom theology. Quoted by NT authors. 19 chapters.',
+    color: 'var(--gold)'
+  },
+  sirach: {
+    global: 'SIRACH', icon: '✍️', title: 'Sirach (Ecclesiasticus)',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'Practical wisdom for daily life, worship, speech, and relationships. Often called "the Proverbs of the Apocrypha." Prologue + 51 chapters.',
+    color: 'var(--gold)'
+  },
+  maccabees1: {
+    global: 'MACCABEES1', icon: '⚔️', title: '1 Maccabees',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'The Maccabean revolt against Antiochus IV Epiphanes (167–134 BC). Fills the 400-year gap between Malachi and Matthew. 16 chapters.',
+    color: 'var(--gold)'
+  },
+  maccabees2: {
+    global: 'MACCABEES2', icon: '✨', title: '2 Maccabees',
+    credit: 'Brenton Septuagint Translation (1851) · Public Domain',
+    blurb: 'Parallel history of the revolt with deeper theology: resurrection of the dead, martyrdom, and prayers for the departed. 15 chapters.',
+    color: 'var(--gold)'
+  }
+};
+
+function openApocryphaReader(bookKey, chapter){
+  var meta = _APOCRYPHA_META[bookKey];
+  if(!meta){ console.warn('Unknown apocrypha book:', bookKey); return; }
+  var data = window[meta.global];
+  var title = document.getElementById('modalTitle');
+  var body  = document.getElementById('modalBody');
+  title.textContent = meta.icon + ' ' + meta.title;
+  var h = _libraryBackBtn();
+
+  if(!data){
+    h += '<div style="padding:20px;text-align:center;color:var(--fg-dim);">Loading '+escapeHtml(meta.title)+' data…<br><small>If this persists, reload the page.</small></div>';
+    body.innerHTML = h;
+    return;
+  }
+
+  var chapters = Object.keys(data).sort(function(a,b){
+    // "prologue" sorts first, then numeric
+    if(a==='prologue') return -1;
+    if(b==='prologue') return 1;
+    return parseInt(a)-parseInt(b);
+  });
+
+  if(chapter === undefined || chapter === null){
+    // Chapter list view
+    h += '<div style="font-size:13px;color:var(--fg-mute);margin-bottom:10px;">'+escapeHtml(meta.credit)+'</div>';
+    h += '<div style="font-size:13px;color:var(--fg-dim);margin-bottom:14px;">'+escapeHtml(meta.blurb)+'</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    for(var i=0;i<chapters.length;i++){
+      var ch = chapters[i];
+      var label = ch==='prologue'?'Prologue':'Ch '+ch;
+      h += '<button class="icon-btn" style="min-width:56px;" onclick="openApocryphaReader(\''+bookKey+'\',\''+ch+'\')">'+label+'</button>';
+    }
+    h += '</div>';
+    body.innerHTML = h;
+    return;
+  }
+
+  // Chapter reading view
+  var chData = data[String(chapter)];
+  if(!chData){ body.innerHTML = h+'<p style="color:var(--fg-dim);">Chapter not found.</p>'; return; }
+  var chIdx = chapters.indexOf(String(chapter));
+  var chLabel = chapter==='prologue'?'Prologue':'Chapter '+chapter;
+  h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">';
+  h += '<button class="icon-btn" onclick="openApocryphaReader(\''+bookKey+'\')">← '+escapeHtml(meta.title)+'</button>';
+  if(chIdx>0) h+='<button class="icon-btn" onclick="openApocryphaReader(\''+bookKey+'\',\''+chapters[chIdx-1]+'\')">← '+(chapters[chIdx-1]==='prologue'?'Prologue':'Ch '+chapters[chIdx-1])+'</button>';
+  if(chIdx<chapters.length-1) h+='<button class="icon-btn" onclick="openApocryphaReader(\''+bookKey+'\',\''+chapters[chIdx+1]+'\')">'+( chapters[chIdx+1]==='prologue'?'Prologue':'Ch '+chapters[chIdx+1])+' →</button>';
+  h += '</div>';
+  h += '<h3 style="color:var(--gold);margin-bottom:12px;">'+escapeHtml(meta.icon+' '+meta.title+' · '+chLabel)+'</h3>';
+
+  var verses = Object.keys(chData).sort(function(a,b){ return parseInt(a)-parseInt(b); });
+  for(var j=0;j<verses.length;j++){
+    var v = verses[j];
+    h += '<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">'+v+'</span>';
+    h += '<span style="line-height:1.65;font-size:15px;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '</div>';
+  }
+
+  // Bottom prev/next nav
+  h += '<div style="display:flex;gap:8px;justify-content:space-between;margin-top:16px;flex-wrap:wrap;">';
+  if(chIdx>0) h+='<button class="icon-btn" onclick="openApocryphaReader(\''+bookKey+'\',\''+chapters[chIdx-1]+'\')">← '+(chapters[chIdx-1]==='prologue'?'Prologue':'Ch '+chapters[chIdx-1])+'</button>';
+  else h+='<span></span>';
+  if(chIdx<chapters.length-1) h+='<button class="icon-btn" onclick="openApocryphaReader(\''+bookKey+'\',\''+chapters[chIdx+1]+'\')">'+( chapters[chIdx+1]==='prologue'?'Prologue':'Ch '+chapters[chIdx+1])+' →</button>';
+  h += '</div>';
+  body.innerHTML = h;
+}
+window.openApocryphaReader = openApocryphaReader;
+
+// ============================================================
+// DEAD SEA SCROLLS READER
+// ============================================================
+function openDSSReader(scrollKey, sectionKey){
+  var data = window.DSS;
+  var title = document.getElementById('modalTitle');
+  var body  = document.getElementById('modalBody');
+  title.textContent = '📜 Dead Sea Scrolls';
+  var h = _libraryBackBtn();
+
+  if(!data){
+    h += '<div style="padding:20px;text-align:center;color:var(--fg-dim);">DSS data not loaded.</div>';
+    body.innerHTML = h;
+    return;
+  }
+
+  if(!scrollKey){
+    // Scroll list
+    h += '<div style="font-size:13px;color:var(--fg-mute);margin-bottom:10px;">Qumran Scrolls · c. 250 BCE – 68 CE · Scholarly translations and summaries</div>';
+    h += '<div style="font-size:13px;color:var(--fg-dim);margin-bottom:14px;">Discovered 1947–1956 near the Dead Sea. Includes the oldest known Biblical manuscripts plus sectarian writings. Critical context for Second Temple Judaism and the world Jesus entered.</div>';
+    h += '<div style="display:grid;gap:10px;">';
+    for(var sk in data){
+      var scroll = data[sk];
+      h += '<div class="people-card" style="border-left-color:var(--gold);cursor:pointer;" onclick="openDSSReader(\''+escapeHtml(sk)+'\')">';
+      h += '<div class="people-card-name" style="color:var(--gold);">📜 '+escapeHtml(scroll.title||sk)+'</div>';
+      h += '<div style="color:var(--fg-mute);font-size:12px;margin-top:3px;">'+escapeHtml(scroll.date||'')+'</div>';
+      h += '<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">'+escapeHtml(scroll.significance||'')+'</div>';
+      h += '</div>';
+    }
+    h += '</div>';
+    body.innerHTML = h;
+    return;
+  }
+
+  var scroll = data[scrollKey];
+  if(!scroll){ body.innerHTML = h+'<p>Scroll not found.</p>'; return; }
+
+  if(!sectionKey){
+    // Section list within scroll
+    h += '<div style="margin-bottom:10px;"><button class="icon-btn" onclick="openDSSReader()">← All Scrolls</button></div>';
+    h += '<h3 style="color:var(--gold);margin-bottom:6px;">📜 '+escapeHtml(scroll.title||scrollKey)+'</h3>';
+    h += '<div style="font-size:12px;color:var(--fg-mute);margin-bottom:6px;">'+escapeHtml(scroll.date||'')+'</div>';
+    h += '<div style="font-size:13px;color:var(--fg-dim);margin-bottom:14px;">'+escapeHtml(scroll.significance||'')+'</div>';
+    if(scroll.sections){
+      h += '<div style="display:grid;gap:8px;">';
+      for(var sec in scroll.sections){
+        var sData = scroll.sections[sec];
+        var sTitle = typeof sData==='object' && sData.title ? sData.title : sec;
+        h += '<div class="people-card" style="border-left-color:var(--gold);cursor:pointer;" onclick="openDSSReader(\''+escapeHtml(scrollKey)+'\',\''+escapeHtml(sec)+'\')">';
+        h += '<div class="people-card-name" style="color:var(--gold);">'+escapeHtml(sTitle)+'</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    } else {
+      // No sub-sections — show passages directly
+      for(var k in scroll){
+        if(k==='title'||k==='date'||k==='significance') continue;
+        h += '<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+        h += '<div style="line-height:1.65;">'+escapeHtml(String(scroll[k]))+'</div>';
+        h += '</div>';
+      }
+    }
+    body.innerHTML = h;
+    return;
+  }
+
+  // Section reading view
+  var secData = scroll.sections && scroll.sections[sectionKey];
+  if(!secData){ body.innerHTML = h+'<p>Section not found.</p>'; return; }
+  h += '<div style="margin-bottom:10px;display:flex;gap:8px;">';
+  h += '<button class="icon-btn" onclick="openDSSReader(\''+escapeHtml(scrollKey)+'\')">← '+escapeHtml(scroll.title||scrollKey)+'</button>';
+  h += '</div>';
+  h += '<h3 style="color:var(--gold);margin-bottom:12px;">'+escapeHtml((typeof secData==='object'&&secData.title)?secData.title:sectionKey)+'</h3>';
+  var passages = typeof secData==='object' ? secData : {};
+  for(var p in passages){
+    if(p==='title') continue;
+    h += '<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
+    h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">'+escapeHtml(p)+'</span>';
+    h += '<span style="line-height:1.65;">'+escapeHtml(String(passages[p]))+'</span>';
+    h += '</div>';
+  }
+  body.innerHTML = h;
+}
+window.openDSSReader = openDSSReader;
+
+// === STRONG'S READER (rebuilt — input stable, list updates independently) ===
 window._STRONGS_PAGE = window._STRONGS_PAGE || {H:0, G:0};
 window._STRONGS_FILTER = window._STRONGS_FILTER || {H:'', G:''};
 function openStrongsReader(lang, page){
@@ -3839,12 +4044,48 @@ function showModal(type){
     h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Bible + 1 Enoch + Josephus interleaved as events unfolded. Tap any waypoint to jump directly into that source. Reference: Chronological Study Bible (Thomas Nelson).</div>';
     h+='</div>';
     h+='</div>';
-    h+='<h4 style="color:var(--gold);margin-top:12px;">📖 Bible Texts & Apocryphal Books</h4>';
+    h+='<h4 style="color:var(--gold);margin-top:12px;">📖 Approved Library — Companion Texts</h4>';
     h+='<div style="display:grid;gap:8px;">';
+    // 1 Enoch
     h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openEnochReader()">';
     h+='<div class="people-card-name" style="color:var(--gold);">📜 1 Enoch — Book of Enoch</div>';
     h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">tr. R.H. Charles (1917) · Public Domain</div>';
     h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Watchers · Parables · Astronomy · Dreams · Epistle. Parallel to Genesis 5-6; quoted in Jude 14-15.</div>';
+    h+='</div>';
+    // Jubilees
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openApocryphaReader(\'jubilees\')">';
+    h+='<div class="people-card-name" style="color:var(--gold);">📜 Book of Jubilees — Little Genesis</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">tr. R.H. Charles (1913) · Public Domain</div>';
+    h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Retells Genesis & Exodus with expanded calendar, Watchers, and covenant details. 50 chapters.</div>';
+    h+='</div>';
+    h+='</div>';
+    // Deuterocanonical / Apocrypha
+    h+='<h4 style="color:var(--gold);margin-top:18px;">📚 Deuterocanonical Books (Septuagint / LXX)</h4>';
+    h+='<div style="font-size:12px;color:var(--fg-dim);margin-bottom:10px;">Included in the LXX and used in the early church. Present in Catholic and Orthodox Bibles. Brenton translation (1851), public domain.</div>';
+    h+='<div style="display:grid;gap:8px;">';
+    var _apocBooks = [
+      {key:'tobit',    icon:'📖', t:'Book of Tobit',            sub:'14 chapters · Prayer, exile, the angel Raphael'},
+      {key:'judith',   icon:'⚔️', t:'Book of Judith',           sub:'16 chapters · A widow defeats an empire'},
+      {key:'wisdom',   icon:'🌿', t:'Wisdom of Solomon',        sub:'19 chapters · Divine wisdom, idolatry, Exodus retold'},
+      {key:'sirach',   icon:'✍️', t:'Sirach (Ecclesiasticus)',  sub:'Prologue + 51 chapters · Practical wisdom like Proverbs'},
+      {key:'maccabees1',icon:'⚔️',t:'1 Maccabees',             sub:'16 chapters · The revolt — gap between Malachi & Matthew'},
+      {key:'maccabees2',icon:'✨',t:'2 Maccabees',             sub:'15 chapters · Resurrection, martyrdom, theological depth'}
+    ];
+    for(var _ab=0;_ab<_apocBooks.length;_ab++){
+      var _b = _apocBooks[_ab];
+      h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openApocryphaReader(\''+_b.key+'\')">';
+      h+='<div class="people-card-name" style="color:var(--gold);">'+_b.icon+' '+escapeHtml(_b.t)+'</div>';
+      h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">'+escapeHtml(_b.sub)+'</div>';
+      h+='</div>';
+    }
+    h+='</div>';
+    // Dead Sea Scrolls
+    h+='<h4 style="color:var(--gold);margin-top:18px;">📜 Dead Sea Scrolls</h4>';
+    h+='<div style="display:grid;gap:8px;">';
+    h+='<div class="people-card" style="border-left-color:var(--gold);" onclick="openDSSReader()">';
+    h+='<div class="people-card-name" style="color:var(--gold);">📜 Dead Sea Scrolls — Key Texts</div>';
+    h+='<div style="color:var(--fg-mute);font-size:12px;margin-top:4px;">c. 250 BCE – 68 CE · Qumran · Scholarly translations</div>';
+    h+='<div style="color:var(--fg-dim);font-size:12px;margin-top:4px;">Community Rule · War Scroll · Thanksgiving Hymns · Damascus Document · Genesis Apocryphon · Temple Scroll · Pesher Habakkuk</div>';
     h+='</div>';
     h+='</div>';
     h+='<h4 style="color:var(--gold);margin-top:18px;">🔤 Hebrew & Greek Lexicons (integrated)</h4>';
