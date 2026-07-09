@@ -1,20 +1,31 @@
-# Cloudflare Pages Only
+# Cloudflare Workers Deployment
 
-This project is intended to deploy as a static Cloudflare Pages site.
+This project deploys as a **Cloudflare Worker with static assets** via `wrangler.jsonc`.
 
-Target:
-- Cloudflare Pages project: `swrv-on-bs-bible-site`
-- URL: `swrv-on-bs-bible-site.pages.dev`
+## Configuration
 
-Do not deploy this app with Wrangler unless a future server-side Worker is intentionally added.
-The old Worker config was renamed to `wrangler.toml.disabled` to prevent accidental Worker deploys.
+- **Worker script**: `worker.js` (handles `/api/tts`, `/api/groq`, `/api/health`)
+- **Static assets**: served from `.` via the `ASSETS` binding
+- **Config file**: `wrangler.jsonc`
 
-For Cloudflare Pages, use:
-- Framework preset: None / Static site
-- Build command: none
-- Output directory: `/` or project root, depending on Cloudflare UI
-- Production branch: main
+## Deploy
 
-If this is later converted to Vite/React, then use:
-- Build command: npm run build
-- Output directory: dist
+```bash
+npx wrangler deploy
+```
+
+## Required secrets (set once via CLI)
+
+```bash
+npx wrangler secret put ELEVENLABS_API_KEY
+npx wrangler secret put GROQ_API_KEY
+```
+
+## Routes
+
+| Path | Handler |
+|------|---------|
+| `/api/tts` | Worker → ElevenLabs TTS relay |
+| `/api/groq` | Worker → Groq AI relay |
+| `/api/health` | Worker → JSON health check |
+| `/*` | `env.ASSETS.fetch()` → static files |

@@ -132,6 +132,9 @@ export default {
 
     // ============= STATIC ASSETS =============
     // Fall through to Cloudflare's static asset binding
+    if (!env.ASSETS) {
+      return new Response('Static assets binding not configured', { status: 500 });
+    }
     return env.ASSETS.fetch(request);
   }
 };

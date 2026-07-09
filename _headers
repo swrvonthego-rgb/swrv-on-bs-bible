@@ -1,0 +1,33 @@
+# Cloudflare Workers Assets — cache control headers
+
+# Immutable JS data files — long cache (content-addressed by deploy)
+/data/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/lexicons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/sources/*
+  Cache-Control: public, max-age=86400
+
+# CSS and JS — versioned via ?v= query strings
+/css/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# Assets (icons, images)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML — always revalidate so updates land immediately
+/index.html
+  Cache-Control: no-cache
+
+/*.html
+  Cache-Control: no-cache
+
+# Service worker — must not be cached
+/sw.js
+  Cache-Control: no-store, no-cache

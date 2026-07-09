@@ -1,0 +1,25 @@
+# Cloudflare Workers Assets — exclude non-public files
+worker.js
+wrangler.jsonc
+wrangler.toml.disabled
+.assetsignore
+package.json
+package-lock.json
+capacitor.config.json
+.git
+.gitignore
+node_modules
+tools/
+*.md
+AUDIT_FULL_CANON_REPORT.md
+AUDIT_FIX_NOTES.md
+BLINDSPOT_AUDIT_REPORT.md
+CLOUDFLARE_PAGES_ONLY.md
+COMPLETE_CORRECTION_NOTES.md
+COMPLETE_PASS_NOTES.md
+DEEP_WORD_STUDY_REPORT.md
+DEFINITION_INTEGRITY_FIX_NOTES.md
+PEOPLE_MOBILE_AUDIT_FIX_NOTES.md
+READING_FLOW_AUDIT_FIX_NOTES.md
+SEARCH_SCOPE_FIX_NOTES.md
+README.md
