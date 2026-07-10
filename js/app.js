@@ -3296,7 +3296,9 @@ function openEnochReader(section, chapter){
 // ============================================================
 // APOCRYPHA / DEUTEROCANONICAL READER
 // Generic reader for: Jubilees, Tobit, Judith, Wisdom, Sirach,
-//                     1 Maccabees, 2 Maccabees
+//                     1 Maccabees, 2 Maccabees, Baruch (+ Letter
+//                     of Jeremiah), Prayer of Azariah, Susanna,
+//                     Bel and the Dragon, Prayer of Manasseh
 // ============================================================
 var _APOCRYPHA_META = {
   jubilees: {
@@ -3339,6 +3341,36 @@ var _APOCRYPHA_META = {
     global: 'MACCABEES2', icon: '✨', title: '2 Maccabees',
     credit: 'Brenton Septuagint Translation (1851) · Public Domain',
     blurb: 'Parallel history of the revolt with deeper theology: resurrection of the dead, martyrdom, and prayers for the departed. 15 chapters.',
+    color: 'var(--gold)'
+  },
+  baruch: {
+    global: 'BARUCH', icon: '📜', title: 'Baruch + Letter of Jeremiah',
+    credit: 'KJV Apocrypha tradition (1611) · Public Domain',
+    blurb: 'Confession, wisdom, and hope from Jeremiah\'s scribe in Babylon. Chapter 6 is the Letter of Jeremiah against idols, bound with Baruch in the Geneva Bible. 6 chapters.',
+    color: 'var(--gold)'
+  },
+  azariah: {
+    global: 'AZARIAH', icon: '🔥', title: 'Prayer of Azariah & Song of the Three',
+    credit: 'KJV Apocrypha tradition (1611) · Public Domain',
+    blurb: 'The prayer in the furnace and the song of praise of the three Hebrews (Daniel 3). Follows Daniel 3:23 in the Greek text. 68 verses.',
+    color: 'var(--gold)'
+  },
+  susanna: {
+    global: 'SUSANNA', icon: '⚖️', title: 'History of Susanna',
+    credit: 'KJV Apocrypha tradition (1611) · Public Domain',
+    blurb: 'False witnesses condemn a righteous woman; young Daniel exposes them by cross-examination. Greek Daniel chapter 13. 64 verses.',
+    color: 'var(--gold)'
+  },
+  bel: {
+    global: 'BEL', icon: '🐉', title: 'Bel and the Dragon',
+    credit: 'KJV Apocrypha tradition (1611) · Public Domain',
+    blurb: 'Daniel exposes the fraud of Bel\'s priests and destroys the dragon; the lions\' den revisited. Greek Daniel chapter 14. 42 verses.',
+    color: 'var(--gold)'
+  },
+  manasseh: {
+    global: 'MANASSEH', icon: '🙏', title: 'Prayer of Manasseh',
+    credit: 'KJV Apocrypha tradition (1611) · Public Domain',
+    blurb: 'The repentance prayer of Judah\'s most wicked king from Babylonian captivity (2 Chronicles 33:11-13). 15 verses.',
     color: 'var(--gold)'
   }
 };
@@ -4069,7 +4101,12 @@ function showModal(type){
       {key:'wisdom',   icon:'🌿', t:'Wisdom of Solomon',        sub:'19 chapters · Divine wisdom, idolatry, Exodus retold'},
       {key:'sirach',   icon:'✍️', t:'Sirach (Ecclesiasticus)',  sub:'Prologue + 51 chapters · Practical wisdom like Proverbs'},
       {key:'maccabees1',icon:'⚔️',t:'1 Maccabees',             sub:'16 chapters · The revolt — gap between Malachi & Matthew'},
-      {key:'maccabees2',icon:'✨',t:'2 Maccabees',             sub:'15 chapters · Resurrection, martyrdom, theological depth'}
+      {key:'maccabees2',icon:'✨',t:'2 Maccabees',             sub:'15 chapters · Resurrection, martyrdom, theological depth'},
+      {key:'baruch',   icon:'📜', t:'Baruch + Letter of Jeremiah', sub:'6 chapters · Confession & hope from Jeremiah\'s scribe; ch. 6 against idols'},
+      {key:'azariah',  icon:'🔥', t:'Prayer of Azariah & Song of the Three', sub:'68 verses · The furnace prayer and song (Daniel 3)'},
+      {key:'susanna',  icon:'⚖️', t:'History of Susanna',      sub:'64 verses · Daniel exposes false witnesses (Greek Daniel 13)'},
+      {key:'bel',      icon:'🐉', t:'Bel and the Dragon',      sub:'42 verses · Idol fraud exposed (Greek Daniel 14)'},
+      {key:'manasseh', icon:'🙏', t:'Prayer of Manasseh',      sub:'15 verses · The wicked king\'s repentance (2 Chr 33)'}
     ];
     for(var _ab=0;_ab<_apocBooks.length;_ab++){
       var _b = _apocBooks[_ab];
