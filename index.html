@@ -604,14 +604,14 @@
 <!-- In the original monolith this came AFTER app.js, which left the first render
      unenriched (silently swallowed by try/catch). Loading it before app.js fixes
      that latent bug — Genesis 1-4 enrichments now show on initial load. -->
-<script src="js/enrichments.js?v=20260603final"></script>
+<script src="js/enrichments.js?v=20260721search1"></script>
 
 <!-- ============ AUTH + USER DATA — Supabase auth, progress, notes ============ -->
 <script src="js/auth.js?v=20260709auth3"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js?v=20260710geneva2"></script>
-<script src="js/search.js?v=20260603final"></script>
+<script src="js/search.js?v=20260721search1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
 <script>
@@ -619,7 +619,7 @@
 // and search.js can call isBookLocked() without crashing.
 window.isBookLocked = function(slug) { return false; };
 </script>
-<script src="js/preload-bible.js?v=20260603final" defer></script>
+<script src="js/preload-bible.js?v=20260721search1" defer></script>
 
 
 <script>

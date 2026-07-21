@@ -8,7 +8,7 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260710-geneva2';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260721-search1';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -16,9 +16,9 @@ const CORE_ASSETS = [
   './css/styles.css',
   // Active JS bundle
   './js/app.js?v=20260710geneva2',
-  './js/search.js?v=20260522deepword3',
-  './js/preload-bible.js?v=20260522deepword3',
-  './js/enrichments.js?v=20260522deepword3',
+  './js/search.js?v=20260721search1',
+  './js/preload-bible.js?v=20260721search1',
+  './js/enrichments.js?v=20260721search1',
   // PWA icons + splash
   './assets/cover.png',
   './assets/icons/icon-180.png',
@@ -159,6 +159,15 @@ self.addEventListener('fetch', e => {
   }
 
   // Static assets stay cache-first for offline speed.
+  // IMPORTANT: never fall back to index.html for script/style/font/JSON asset
+  // requests. Returning the HTML shell for a .js request makes the browser try
+  // to parse HTML as JavaScript — a syntax error that silently breaks whatever
+  // that file defines (this is what was killing the search: search.js would
+  // resolve to index.html on a flaky fetch and openSearch was never defined).
+  const dest = e.request.destination;
+  const isCodeAsset = dest === 'script' || dest === 'style' || dest === 'font' ||
+                      /\.(js|css|json|woff2?|ttf)(\?|$)/i.test(new URL(e.request.url).pathname);
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
@@ -168,7 +177,13 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
         }
         return resp;
-      }).catch(() => caches.match('./index.html'));
+      }).catch(() => {
+        // For code assets, fail honestly (network error) instead of handing
+        // back HTML. For images/other, index.html fallback is harmless enough,
+        // but for code it must never happen.
+        if (isCodeAsset) return Response.error();
+        return caches.match('./index.html');
+      });
     })
   );
 });
