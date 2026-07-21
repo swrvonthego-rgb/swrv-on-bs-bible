@@ -511,11 +511,18 @@
     }
 
     // === 9. English Bible-Word Dictionary (deep entries) ===
+    // NOTE: curated dictionary fields are sometimes authored as a plain string
+    // where an array is expected (e.g. rangeOfMeaning). asList() coerces both
+    // shapes so one malformed entry can never throw and abort the whole index —
+    // a single bad .join() here previously took down all of search.
+    const asList = (x) => Array.isArray(x) ? x : (x == null ? [] : [x]);
     if(window.ENGLISH_BIBLE_DICT){
       for(const key in window.ENGLISH_BIBLE_DICT){
+        try {
         const e = window.ENGLISH_BIBLE_DICT[key];
-        const originalsText = (e.originals||[]).map(function(o){return [o.lang,o.word,o.translit,o.strongs,o.note].filter(Boolean).join(' ');}).join(' ');
-        const bits = [key,e.word,e.plain,e.deep,e.misunderstood,e.matters,e.cultural,e.kingdomSignificance,e.notMean,(e.rangeOfMeaning||[]).join(' '),(e.relatedWords||[]).join(' '),(e.relatedVerses||[]).join(' '),originalsText,e.category].filter(Boolean).join(' ').toLowerCase();
+        if(!e || typeof e !== 'object') continue;
+        const originalsText = asList(e.originals).map(function(o){return [o.lang,o.word,o.translit,o.strongs,o.note].filter(Boolean).join(' ');}).join(' ');
+        const bits = [key,e.word,e.plain,e.deep,e.misunderstood,e.matters,e.cultural,e.kingdomSignificance,e.notMean,asList(e.rangeOfMeaning).join(' '),asList(e.relatedWords).join(' '),asList(e.relatedVerses).join(' '),originalsText,e.category].filter(Boolean).join(' ').toLowerCase();
         idx.push({
           type:'english_dict',
           category:'Dictionary / Glossary',
@@ -529,6 +536,7 @@
           action: { type:'definition', key: key }
         });
         log.english_dict = (log.english_dict||0) + 1;
+        } catch(err){ console.warn('SWRV Search: skipped malformed dict entry "'+key+'":', err && err.message); }
       }
     }
 

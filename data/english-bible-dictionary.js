@@ -2017,7 +2017,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Hebrew", word:"שָׁמַיִם", translit:"shamayim", strongs:"H8064", meaning:"heavens (always plural) — sky, atmosphere, cosmic space, dwelling of God"},
     {lang:"Greek", word:"οὐρανός", translit:"ouranos", strongs:"G3772", meaning:"heaven, sky, the realm above — used for atmosphere, cosmos, and God\'s dwelling"}
   ],
-  rangeOfMeaning: "The sky and atmosphere; the cosmic realm of stars; the dwelling place of God; a reverent substitute for \'God\' in the phrase \'kingdom of heaven\'",
+  rangeOfMeaning:["The sky and atmosphere","the cosmic realm of stars","the dwelling place of God","a reverent substitute for \'God\' in the phrase \'kingdom of heaven\'"],
   notMean: "Not primarily the place Christians float after death; not a kingdom located spatially \'up in the sky\'; not the final destination replacing earth",
   cultural: "Jewish cosmology (reflected in 1 Enoch, 2 Enoch, the Talmud, and Paul) described multiple layered heavens. Matthew\'s Jewish audience understood \'kingdom of heaven\' as a divine circumlocution — a piety practice, not a location claim. The Roman world spoke of the emperor\'s divine rule descending from heaven — Jesus\' announcement of a different kingdom from heaven was politically loaded.",
   kingdomSignificance: "The kingdom of heaven is the central announcement of Jesus\' ministry. Heaven is not the destination — it is the source of the coming rule. The prayer \'your kingdom come, your will be done on earth as it is in heaven\' (Matt 6:10) is a prayer for heavenly reality to invade earthly reality, not for people to escape earth for heaven.",
@@ -2040,7 +2040,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Greek", word:"ᾅδης", translit:"Hades", strongs:"G86", meaning:"the realm of the dead, equivalent to Sheol — temporary, gives up the dead at final judgment"},
     {lang:"Greek", word:"τάρταρος", translit:"Tartaros", strongs:"G5020", meaning:"the deepest abyss — used once for the imprisonment of fallen angels (2 Pet 2:4)"}
   ],
-  rangeOfMeaning: "Sheol: the shadowy realm of the dead (OT); Hades: Greek equivalent of Sheol (NT); Gehenna: symbol of ultimate divine judgment drawn from the Valley of Hinnom; Tartarus: the deepest abyss for fallen angels",
+  rangeOfMeaning:["Sheol: the shadowy realm of the dead (OT)","Hades: Greek equivalent of Sheol (NT)","Gehenna: symbol of ultimate divine judgment drawn from the Valley of Hinnom","Tartarus: the deepest abyss for fallen angels"],
   notMean: "\'Hell\' as a single concept does not exist in the original languages. Sheol is not primarily a place of torment. Gehenna is not the afterlife destination of ordinary sinners — it is a symbol of ultimate destruction drawn from a real Jerusalem landmark.",
   cultural: "The Valley of Hinnom (ge-hinnom → Gehenna) was directly visible from Jerusalem. First-century Jews knew it as the defiled site of Molech worship that Josiah had turned into a refuse heap. Jesus\' audience heard \'Gehenna\' and pictured a specific smoking, worm-filled valley — not an abstract spiritual realm. This makes his use visceral and concrete, not metaphysical.",
   kingdomSignificance: "The reality of judgment is consistently affirmed in Scripture — the kingdom of God excludes what destroys and corrupts. But understanding which biblical word is being used, and what it meant in its cultural context, is necessary for faithful reading. The gospel is not merely fire insurance — but the fire Jesus warns about is real and serious.",
@@ -2060,7 +2060,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Hebrew", word:"שְׁאוֹל", translit:"Sheol", strongs:"H7585", meaning:"the underworld, realm of the dead — used for the common destination of the dead, both righteous and wicked"}
   ],
-  rangeOfMeaning: "The underworld; the realm of the dead; the grave; the pit; the place of diminished shadowy existence after death",
+  rangeOfMeaning:["The underworld","the realm of the dead","the grave","the pit","the place of diminished shadowy existence after death"],
   notMean: "Not exclusively a place of punishment for the wicked; not the same as Gehenna (the garbage dump Jesus uses as a symbol of judgment); not equivalent to the later Christian concept of \'hell\'",
   cultural: "Sheol reflects a common ancient Near Eastern understanding of the underworld shared with Mesopotamian (the Netherworld in the Epic of Gilgamesh and the Descent of Inanna) and Canaanite cultures (Mot, the god of death, ruled a realm called the Pit). Israel\'s theology distinguished itself by affirming YHWH\'s sovereignty even over Sheol — God can redeem from it — while still describing it in similar terms.",
   kingdomSignificance: "The resurrection of Jesus from Sheol/Hades (Acts 2:27-31) is the decisive event that transforms the OT picture of Sheol. Jesus holds the keys of Death and Hades (Rev 1:18). At the final judgment, Death and Hades give up their dead (Rev 20:13). The kingdom hope is not escape from Sheol into a disembodied heaven — it is resurrection from Sheol into renewed embodied life.",
@@ -2081,7 +2081,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Greek", word:"γέεννα", translit:"Gehenna", strongs:"G1067", meaning:"Valley of Hinnom — transliteration of Hebrew ge-hinnom; used by Jesus as the symbol of divine judgment and destruction"},
     {lang:"Hebrew", word:"גֵּיא הִנֹּם", translit:"ge-hinnom", strongs:"H1516+H2011", meaning:"Valley of Hinnom — the physical valley southwest of Jerusalem"}
   ],
-  rangeOfMeaning: "The physical Valley of Hinnom outside Jerusalem; the site of ancient child sacrifice; the city refuse area with perpetual fire; Jesus\' symbol of ultimate divine judgment and destruction",
+  rangeOfMeaning:["The physical Valley of Hinnom outside Jerusalem","the site of ancient child sacrifice","the city refuse area with perpetual fire","Jesus\' symbol of ultimate divine judgment and destruction"],
   notMean: "Not the same as Sheol or Hades (the realm of the dead); not a spiritual realm separate from the physical world; not a concept borrowed from Greek mythology — it was a Hebrew geographical and historical reality",
   cultural: "The Valley of Hinnom runs along the base of Jerusalem\'s southwestern and southern walls, joining the Kidron Valley at the southeast corner. It is still visible today. Ancient Canaanite worship of Molech, including child sacrifice by fire, occurred there. The name became so associated with defilement and judgment that by the first century, ge-hinnom (Gehenna) had become a byword for divine punishment.",
   kingdomSignificance: "Gehenna represents the ultimate consequence of rejecting God\'s kingdom — not a geographical destination, but a symbol of total destruction and divine judgment. Jesus\' warnings about Gehenna are urgent calls to enter the kingdom now, while there is time, rather than end up on the rubbish heap of history.",
@@ -2101,7 +2101,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Greek", word:"ᾅδης", translit:"Hades", strongs:"G86", meaning:"the realm of the dead — equivalent to Hebrew Sheol; temporary holding place for the dead before final judgment"}
   ],
-  rangeOfMeaning: "The realm of the dead; the underworld; the power of death (in the phrase \'gates of Hades\'); the intermediate state between death and resurrection",
+  rangeOfMeaning:["The realm of the dead","the underworld","the power of death (in the phrase \'gates of Hades\')","the intermediate state between death and resurrection"],
   notMean: "Not the same as Gehenna; not the final state of the wicked; not equivalent to the popular concept of \'hell\' as a permanent place of conscious torment — Hades is destroyed at the final judgment (Rev 20:14)",
   cultural: "In Greek culture Hades was a well-understood concept — the shadowy underworld ruled by the god Hades (also called Pluto), where the dead went as shades. The NT authors, writing in Greek, used this familiar term for the Hebrew Sheol. Jewish writers before the NT (including the Septuagint translators) consistently rendered Sheol as Hades, establishing this equivalence for Greek-speaking Jews.",
   kingdomSignificance: "Jesus holds the keys of Death and Hades (Rev 1:18) — meaning he has authority over the realm of the dead itself. The resurrection is the key that unlocks Hades. The kingdom promise is not escape from death to a disembodied heaven, but resurrection FROM death and Hades into renewed embodied life.",
@@ -2121,7 +2121,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Greek", word:"ἀνάστασις", translit:"anastasis", strongs:"G386", meaning:"resurrection, a standing up again — specifically bodily rising from the dead"}
   ],
-  rangeOfMeaning: "Bodily rising from the dead; the eschatological resurrection of all the dead for judgment; specifically Jesus\' own rising as the \'firstfruits\' (1 Cor 15:20) of the general resurrection",
+  rangeOfMeaning:["Bodily rising from the dead","the eschatological resurrection of all the dead for judgment","specifically Jesus\' own rising as the \'firstfruits\' (1 Cor 15:20) of the general resurrection"],
   notMean: "Not the soul floating to heaven; not spiritual immortality of the soul (a Greek concept, not the biblical one); not resuscitation (returning to mortal life as Lazarus did) — resurrection is transformed, imperishable, glorified bodily life",
   cultural: "Pharisees believed in a future bodily resurrection (Acts 23:6-8); Sadducees denied it (Matt 22:23). Greek philosophers generally rejected it — the soul\'s immortality, yes; the body\'s resurrection, no. Jewish apocalyptic literature (Daniel 12:2, 4 Maccabees, 2 Maccabees 7) developed resurrection hope as the answer to martyrdom — if the righteous die for God\'s name, God must vindicate them beyond death.",
   kingdomSignificance: "The resurrection of Jesus is the inauguration of the new creation. He is the \'firstborn from the dead\' (Col 1:18), the \'firstfruits\' (1 Cor 15:20) of the coming harvest. The kingdom of God is not a disembodied spiritual realm — it is the renewal of all things, beginning with Jesus\' resurrection and consummating in the resurrection of all his people and the renewal of creation.",
@@ -2142,7 +2142,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Hebrew", word:"תּוֹרָה", translit:"Torah", strongs:"H8451", meaning:"teaching, instruction — the entire Pentateuch, or specifically the commandments within it"},
     {lang:"Greek", word:"νόμος", translit:"nomos", strongs:"G3551", meaning:"law — in NT context usually the Mosaic Law/Sinai covenant"}
   ],
-  rangeOfMeaning: "Teaching/instruction (Torah); the entire Pentateuch; the Mosaic covenant given at Sinai; the 613 commandments; divine moral principles transcending any single covenant",
+  rangeOfMeaning:["Teaching/instruction (Torah)","the entire Pentateuch","the Mosaic covenant given at Sinai","the 613 commandments","divine moral principles transcending any single covenant"],
   notMean: "Not a list of rules Christians must follow to be saved; not abolished by Jesus (Matt 5:17); not purely a system of external performance — the prophets and Jesus consistently pointed to inner transformation as the law\'s true aim (Jer 31:31-34, Matt 22:37-40)",
   cultural: "In the Second Temple period, Torah observance was the primary marker of Jewish identity in a Gentile world. For diaspora Jews surrounded by paganism, keeping kosher, observing the Sabbath, and circumcision were survival acts of covenant faithfulness. The NT debates about \'the law\' must be read in this social context — they are debates about Jew-Gentile relations in the new covenant community, not abstract debates about morality.",
   kingdomSignificance: "The kingdom of God does not nullify moral order — it fulfills and deepens it. Jesus\' summary (love God, love neighbor — Matt 22:37-40) says ALL the Law and the Prophets hang on these. The Spirit writing the law on hearts (Jer 31:33, 2 Cor 3:3) is the new covenant\'s fulfillment of what the external Torah always pointed toward.",
@@ -2163,7 +2163,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Hebrew", word:"שַׁבָּת", translit:"Shabbat", strongs:"H7676", meaning:"rest, cessation — the seventh day of the week set apart for rest and worship"},
     {lang:"Greek", word:"σάββατον", translit:"sabbaton", strongs:"G4521", meaning:"Sabbath — transliteration of Hebrew Shabbat; the seventh day; also used for a week"}
   ],
-  rangeOfMeaning: "The seventh day of the week (Saturday); cessation from work; the covenant sign between God and Israel; the principle of rhythmic rest built into creation; the ultimate rest in Christ (Heb 4)",
+  rangeOfMeaning:["The seventh day of the week (Saturday)","cessation from work","the covenant sign between God and Israel","the principle of rhythmic rest built into creation","the ultimate rest in Christ (Heb 4)"],
   notMean: "Not merely \'Sunday\' (the Lord\'s Day is Sunday, the first day — a different day); not abolished by Jesus; not primarily a rule about religious performance — its heart is rest, freedom, and human flourishing",
   cultural: "In the ancient Near East, all seven days were work days — especially for slaves. The Sabbath was countercultural: even slaves and animals rested (Deut 5:14). Neighboring cultures found this Jewish practice bizarre and lazy. To Jews in the diaspora, keeping Sabbath in a non-Jewish world was a visible, costly act of covenant loyalty. Greco-Roman writers mocked it; Jews maintained it as identity-defining.",
   kingdomSignificance: "The Sabbath is the kingdom in miniature — a weekly enacted parable of the world as it should be: rest from exploitation, freedom from slavery, time for God and neighbor. Jesus\' healings on the Sabbath are not violations but fulfillments — he brings the Sabbath shalom that the day was always pointing toward.",
@@ -2183,7 +2183,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Hebrew", word:"פֶּסַח", translit:"Pesach", strongs:"H6453", meaning:"Passover — the feast, or the Passover sacrifice/lamb; from pasach, to pass over/protect"}
   ],
-  rangeOfMeaning: "The Passover feast (annual commemoration of the Exodus); the Passover sacrifice/lamb itself; God\'s act of passing over the blood-marked houses; by extension, Jesus as the fulfillment (1 Cor 5:7)",
+  rangeOfMeaning:["The Passover feast (annual commemoration of the Exodus)","the Passover sacrifice/lamb itself","God\'s act of passing over the blood-marked houses","by extension, Jesus as the fulfillment (1 Cor 5:7)"],
   notMean: "Not merely a Jewish historical ceremony irrelevant to Christians; not a symbol Jesus created from scratch — he reinterpreted an existing covenant ceremony; the protection of Passover did not come from Israel\'s performance but from the lamb\'s blood",
   cultural: "Passover was (and remains) the most important feast in the Jewish calendar. In Jesus\' day, Jerusalem\'s population swelled enormously as pilgrims came for Passover — estimates suggest hundreds of thousands. Tens of thousands of lambs were slaughtered in the Temple courts. The political charge was intense — Passover was a yearly reenactment of liberation from imperial oppression, which made Roman authorities nervous. Jesus chose to act and be arrested at this charged political-theological moment.",
   kingdomSignificance: "The Exodus is the OT\'s paradigm of redemption — God hears the cries of his oppressed people and delivers them through blood, water, and wilderness. Jesus\' death and resurrection follows this pattern: the blood of the Passover lamb (death), baptism (crossing the sea), and the wilderness community of the church. The kingdom of God is the new Exodus — freedom not from Egypt but from sin, death, and the powers of this age.",
@@ -2204,7 +2204,7 @@ window.ENGLISH_BIBLE_DICT = {
     {lang:"Hebrew", word:"מוּלָה", translit:"mulah", strongs:"H4139", meaning:"circumcision — from mul, to circumcise"},
     {lang:"Greek", word:"περιτομή", translit:"peritome", strongs:"G4061", meaning:"circumcision — the physical act; also used for the circumcised community (the Jews)"}
   ],
-  rangeOfMeaning: "The physical surgical act; the covenant sign of the Abrahamic covenant; membership in the covenant community (\'the circumcision\' as a group); circumcision of the heart (inner transformation by the Spirit)",
+  rangeOfMeaning:["The physical surgical act","the covenant sign of the Abrahamic covenant","membership in the covenant community (\'the circumcision\' as a group)","circumcision of the heart (inner transformation by the Spirit)"],
   notMean: "Not the basis of salvation even in the OT (faith was Abraham\'s basis before circumcision); not merely a hygienic or ethnic custom — it was a theologically loaded covenant identity mark; not something Paul dismisses as meaningless — he says it \'has value\' for Jews who keep the law (Rom 2:25)",
   cultural: "Circumcision marked Jewish males as distinctively different in the Greco-Roman world, where public nudity in athletics was common. Jewish men were visibly different in the gymnasium and baths. Some Hellenized Jews underwent epispasm (surgical reversal) to avoid social stigma — which 1 Maccabees 1:15 treats as apostasy. Circumcision was a socially costly covenant mark, not a casual ritual.",
   kingdomSignificance: "The question of circumcision is ultimately the question of who belongs to God\'s people and on what basis. The kingdom of God is for \'every nation, tribe, people and language\' (Rev 7:9) — not through Gentiles becoming Jews, but through the Abrahamic blessing flowing to all nations through the Seed of Abraham (Gal 3:16, 29).",
@@ -2224,7 +2224,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Hebrew", word:"מִשְׁכָּן", translit:"mishkan", strongs:"H4908", meaning:"dwelling place, tabernacle — from shakan, to dwell; God\'s portable tent-sanctuary in the wilderness"}
   ],
-  rangeOfMeaning: "The portable tent-sanctuary built in the wilderness; God\'s dwelling among Israel; the pattern for the later Jerusalem Temple; theologically, the prototype of all subsequent God-with-us presence (incarnation, church, new Jerusalem)",
+  rangeOfMeaning:["The portable tent-sanctuary built in the wilderness","God\'s dwelling among Israel","the pattern for the later Jerusalem Temple","theologically, the prototype of all subsequent God-with-us presence (incarnation, church, new Jerusalem)"],
   notMean: "Not a place people built to go find God — God commanded it to be built so he could come and live with them; not merely a ritual facility — it was a theological statement about God\'s character as Emmanuel (God with us)",
   cultural: "Ancient Near Eastern kings had portable tent-shrines that traveled with the army — the god\'s dwelling was with the king and his military forces. The tabernacle follows this pattern: YHWH the divine warrior travels with his people, his sanctuary at the center of the camp. Egyptian reliefs show Ramesses II with a similar portable tent-shrine in military campaigns — the tabernacle subverts this image by making the camping deity the liberator of slaves rather than the patron of empire.",
   kingdomSignificance: "The tabernacle is the kingdom in miniature — God dwelling with his people, the creation restored around his presence. Eden had the garden as the meeting place of God and humanity. The tabernacle restored this. The Temple extended it. The incarnation perfected it. The new Jerusalem consummates it — \'the dwelling of God is with man, and he will dwell with them\' (Rev 21:3).",
@@ -2244,7 +2244,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Aramaic (in Greek text)", word:"μαμωνᾶς", translit:"mamonas", strongs:"G3126", meaning:"mammon — wealth, riches, property; Aramaic māmōn; personified by Jesus as a competing master"}
   ],
-  rangeOfMeaning: "Wealth, money, material possessions; riches as a potential master/lord; the organizing principle of a life devoted to financial security and accumulation",
+  rangeOfMeaning:["Wealth, money, material possessions","riches as a potential master/lord","the organizing principle of a life devoted to financial security and accumulation"],
   notMean: "Not money itself as inherently evil; not a literal spiritual being (Jesus is personifying, not identifying a demon named Mammon); not only about extreme wealth — the mammon orientation can grip any economic level",
   cultural: "In the Roman economy, wealth was power, security, honor, and social identity. Patronage systems meant that wealth created webs of obligation and loyalty — the wealthy man was literally the dominus (master) of those who depended on him. Jesus\' audience understood master-slave, patron-client relationships as the grammar of society. Against this background, the claim that wealth functions as a master demanding total loyalty would have been immediately legible.",
   kingdomSignificance: "The kingdom of God requires a reorientation of ultimate trust and loyalty. Mammon promises what only God can truly give — security, significance, sufficiency. Jesus\' teachings on money (more than almost any other topic in the Synoptics) consistently expose the ways wealth functions as a competing kingdom with its own logic, its own promises, and its own demands on the human heart.",
@@ -2264,7 +2264,7 @@ window.ENGLISH_BIBLE_DICT = {
   originals: [
     {lang:"Greek", word:"κόλπος", translit:"kolpos", strongs:"G2859", meaning:"bosom, chest, lap — the position of honor at a reclining banquet; used for the intimate position next to a person of honor"}
   ],
-  rangeOfMeaning: "The physical bosom/chest; the honored reclining position at a banquet next to a distinguished person; by metaphor, the place of comfort and honor where the righteous dead await resurrection in the company of Abraham",
+  rangeOfMeaning:["The physical bosom/chest","the honored reclining position at a banquet next to a distinguished person","by metaphor, the place of comfort and honor where the righteous dead await resurrection in the company of Abraham"],
   notMean: "Not a precise doctrinal description of what the afterlife looks like; not a separate compartment of Hades described in detail elsewhere; not the same as heaven or Paradise in the technical sense — it is a Jewish idiom for the blessed state of the righteous dead",
   cultural: "The triclinium banquet (reclining dining) was universal in the Greco-Roman world and well-established in Jewish practice. The honored guest reclined next to the host \'in his bosom.\' Jewish intertestamental literature (Testament of Abraham) describes the righteous gathered to Abraham after death in banquet imagery — Jesus is drawing on imagery his audience already understood.",
   kingdomSignificance: "The parable depicts the great reversal of the kingdom: \'The last shall be first and the first shall be last\' (Matt 20:16). Those who are poor, marginalized, and overlooked in this age are honored in the age to come. Those who used wealth to exclude the poor from their table will find themselves excluded. Abraham\'s bosom is the kingdom banquet — the feast where all the excluded have a place of honor.",

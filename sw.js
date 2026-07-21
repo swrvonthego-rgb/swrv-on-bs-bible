@@ -8,7 +8,7 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260721-search1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260721-study1';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,7 @@ const CORE_ASSETS = [
   './css/styles.css',
   // Active JS bundle
   './js/app.js?v=20260710geneva2',
-  './js/search.js?v=20260721search1',
+  './js/search.js?v=20260721study1',
   './js/preload-bible.js?v=20260721search1',
   './js/enrichments.js?v=20260721search1',
   // PWA icons + splash
@@ -27,7 +27,8 @@ const CORE_ASSETS = [
   // Red Letter data — Jesus's direct words
   './data/red-letters.js',
   // Deep Definition Bible Engine — new layers
-  './data/english-bible-dictionary.js?v=20260522deepword3',
+  './data/english-bible-dictionary.js?v=20260721study1',
+  './data/study-adam-eve.js?v=20260721study1',
   './data/strongs-sense-map.js?v=20260522deepword3',
   './data/foundational-word-families.js?v=20260522deepword3',
   './data/concept-completeness-pack.js?v=20260522deepword3',
