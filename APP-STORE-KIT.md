@@ -137,6 +137,13 @@ Typical review time is 1-3 days.
 - [ ] `ELEVENLABS_API_KEY` added as a Cloudflare Worker secret, so read-aloud
       uses real voices (otherwise it falls back to the device voice — still
       works, just robotic). Verify at `/api/health` → `hasElevenLabsKey: true`.
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` added as a Worker secret so in-app "Delete
+      My Account" fully removes the login record (Supabase → Project Settings
+      → API → service_role key). Without it, deletion still erases the user's
+      notes/bookmarks/progress and signs them out, but the auth record removal
+      falls back to an email request — add the key for a clean one-tap delete.
+- [ ] Account deletion is reachable: Sign in → account button → **Delete My
+      Account** (Apple requires this for any app with sign-in).
 - [ ] Privacy policy live at the URL above (it deploys with the site).
 - [ ] App opens offline after first load (airplane-mode test).
 - [ ] Sign-in works (email at minimum; Google only if you enabled the provider
