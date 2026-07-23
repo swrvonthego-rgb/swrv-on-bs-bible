@@ -25,11 +25,18 @@ jobs:
       # validates it at deploy time and refuses to publish anything at all if
       # it's a placeholder.
       - name: Apply D1 schema
+        # continue-on-error: this step must NEVER be able to block the actual
+        # Worker deploy below it, no matter what goes wrong here. (Run #36
+        # learned this the hard way: the naive grep matched the literal text
+        # "d1_databases" inside this file's own explanatory comment, so it
+        # tried to run schema against a database that doesn't exist yet, that
+        # failed, and the whole job aborted before wrangler deploy ever ran.)
+        continue-on-error: true
         run: |
-          if grep -q '"d1_databases"' wrangler.jsonc; then
+          if grep -v '^\s*//' wrangler.jsonc | grep -q '"d1_databases"'; then
             wrangler d1 execute swrv-bible-db --remote --file=schema.sql
           else
-            echo "D1 database not provisioned yet (no d1_databases binding in wrangler.jsonc) - skipping schema apply"
+            echo "D1 database not provisioned yet (no active d1_databases binding in wrangler.jsonc) - skipping schema apply"
           fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
