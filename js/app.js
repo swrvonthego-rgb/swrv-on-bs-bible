@@ -6935,7 +6935,7 @@ window.openAllThreadsBrowser = function(){
       // Show loading pulse while waiting for audio
       _pp() && (_pp().textContent = '⏳');
 
-      fetch('/api/tts', {
+      fetch((window.SWRV_API_BASE||'') + '/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

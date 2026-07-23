@@ -2,7 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<!-- API base: on the web this is same-origin (''), but inside a native
+     Capacitor/iOS build the origin is capacitor://localhost, so API calls
+     (/api/tts read-aloud, /api/groq) must target the live Cloudflare Worker
+     by absolute URL or they resolve to nothing in the app bundle. -->
+<script>
+window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol === 'file:' || location.protocol === 'ionic:')
+  ? 'https://swrv-on-bs-bible.swrvonthego.workers.dev'
+  : '';
+</script>
 <title>SWRV Kingdom Bible</title>
 <meta name="description" content="The SWRV Kingdom Bible — multi-source Bible study with Kingdom theology, ANE context, peoples profiles, cultural insights, Strong's Hebrew/Greek lexicons, Enoch and Josephus.">
 
@@ -612,7 +621,7 @@
 <script src="js/auth.js?v=20260709auth3"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260710geneva2"></script>
+<script src="js/app.js?v=20260721appstore1"></script>
 <script src="js/search.js?v=20260721study1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
