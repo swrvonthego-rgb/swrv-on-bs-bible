@@ -5,18 +5,20 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS"
-  },
+  }
   // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
-  // database_id is a placeholder until `wrangler d1 create swrv-bible-db` runs
-  // once (via the Cloudflare connector or the dashboard) and the real id is
-  // pasted in here. Until then env.DB is undefined and every /api/auth,
-  // /api/notes, /api/bookmarks, /api/progress, /api/delete-account route
-  // safely responds 501 "not configured yet" instead of crashing.
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "swrv-bible-db",
-      "database_id": "REPLACE_WITH_REAL_D1_DATABASE_ID"
-    }
-  ]
+  // IMPORTANT: `wrangler deploy` validates every declared binding's id at
+  // deploy time and refuses to publish ANYTHING if a d1_databases entry's
+  // database_id isn't a real, existing database — a placeholder string here
+  // breaks every future deploy, not just the D1 feature. So this binding
+  // stays fully absent until `wrangler d1 create swrv-bible-db` has run once
+  // and produced a real id. Add this block back in then, with that real id:
+  //
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "swrv-bible-db", "database_id": "<real-id-here>" }
+  // ]
+  //
+  // Until it's added, env.DB is undefined and every /api/auth, /api/notes,
+  // /api/bookmarks, /api/progress, /api/delete-account route safely responds
+  // 501 "not configured yet" instead of crashing (see worker.js).
 }
