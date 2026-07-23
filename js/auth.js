@@ -1,42 +1,40 @@
-// SWRV Kingdom Bible — Supabase Auth + User Data
-// Handles: Google/email sign-in, reading progress, notes, bookmarks
+// SWRV Kingdom Bible — Native Auth + User Data (Cloudflare Worker + D1)
+// Replaces Supabase entirely: email/password + Google OAuth, notes, bookmarks,
+// reading progress, account deletion. Sessions are signed tokens issued by
+// the Worker, stored in localStorage, sent as "Authorization: Bearer <token>".
 
 (function(){
-  const SUPABASE_URL = 'https://lbtyfrcfwgyauzefvwqd.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidHlmcmNmd2d5YXV6ZWZ2d3FkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNjI0MjksImV4cCI6MjA5NzgzODQyOX0.CqlmUmjP3FtRVPu3FqFx5RTEtqgNk8reIMt0rXJhiog';
+  const TOKEN_KEY = 'swrv_session_token';
+  function apiBase(){ return window.SWRV_API_BASE || ''; }
 
-  let sb = null;
   let currentUser = null;
 
-  function initSupabase(){
-    if(typeof window.supabase === 'undefined'){
-      window._supabaseLoadFailed = true;
-      console.warn('Supabase SDK not loaded — sign-in will be unavailable');
-      return;
+  function getToken(){ try { return localStorage.getItem(TOKEN_KEY); } catch(e){ return null; } }
+  function setToken(t){ try { if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch(e){} }
+
+  async function apiFetch(path, opts){
+    opts = opts || {};
+    const headers = Object.assign({}, opts.headers||{});
+    const token = getToken();
+    if(token) headers['Authorization'] = 'Bearer ' + token;
+    if(opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    try {
+      const res = await fetch(apiBase() + path, Object.assign({}, opts, { headers }));
+      let data = null;
+      try { data = await res.json(); } catch(e){}
+      return { ok: res.ok, status: res.status, data: data || {} };
+    } catch(e){
+      return { ok:false, status:0, data:{ error: 'Could not reach the server. Check your connection and try again.' } };
     }
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    sb.auth.onAuthStateChange(function(event, session){
-      currentUser = session ? session.user : null;
-      _updateAuthUI();
-      if(currentUser && event === 'SIGNED_IN'){
-        _onSignIn();
-      }
-    });
-    sb.auth.getSession().then(function(res){
-      currentUser = res.data && res.data.session ? res.data.session.user : null;
-      _updateAuthUI();
-      if(currentUser) _loadResumePrompt();
-    });
   }
 
   // ---- UI helpers ----
 
   function _updateAuthUI(){
     const btn = document.getElementById('authHeaderBtn');
-    const avatar = document.getElementById('authAvatar');
     if(!btn) return;
     if(currentUser){
-      const name = (currentUser.user_metadata && (currentUser.user_metadata.full_name || currentUser.user_metadata.name)) || currentUser.email || 'You';
+      const name = currentUser.name || currentUser.email || 'You';
       const initials = name.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
       btn.innerHTML = '<span class="auth-avatar-initials">'+_esc(initials)+'</span>';
       btn.title = 'Signed in as ' + name + ' — tap to manage account';
@@ -53,13 +51,9 @@
   // ---- Auth modal ----
 
   window.openAuthModal = function(){
-    if(currentUser){
-      _showAccountModal();
-      return;
-    }
+    if(currentUser){ _showAccountModal(); return; }
     const m = document.getElementById('authModal');
     if(m){ m.classList.add('show'); document.getElementById('authOverlay').classList.add('show'); }
-    // Reset to login view
     _showAuthView('login');
   };
 
@@ -92,90 +86,46 @@
   window.authSwitchToSignup = function(){ _showAuthView('signup'); };
   window.authSwitchToLogin  = function(){ _showAuthView('login'); };
 
-  // Google OAuth
-  window.authSignInGoogle = async function(){
-    if(!sb){
-      _showAuthError(
-        window._supabaseLoadFailed
-          ? 'Network issue — sign-in service could not load. Try refreshing the page, or use email sign-in below.'
-          : 'Sign-in is still initializing. Wait a moment, then try again.'
-      );
-      return;
-    }
-    _clearAuthError();
-    // Show loading state on the button
-    var gBtns = document.querySelectorAll('.auth-google-btn');
-    var googleSVG = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>';
-    gBtns.forEach(function(b){ b.disabled=true; b.innerHTML = googleSVG + ' Connecting…'; });
-    function _resetGoogleBtns(label){
-      gBtns.forEach(function(b){
-        b.disabled=false;
-        b.innerHTML = googleSVG + ' ' + (label||'Continue with Google');
-      });
-    }
-    // signInWithOAuth builds the authorize URL client-side and navigates the
-    // whole page to it. If the Google provider isn't enabled on the Supabase
-    // project, the browser lands on a raw JSON error page ("Unsupported
-    // provider: provider is not enabled") — so check the public settings
-    // endpoint FIRST and only redirect when Google is actually enabled.
-    try {
-      var googleEnabled = true; // assume enabled if the check itself fails
-      try {
-        var ctrl = ('AbortController' in window) ? new AbortController() : null;
-        if(ctrl) setTimeout(function(){ ctrl.abort(); }, 5000);
-        var res = await fetch(SUPABASE_URL + '/auth/v1/settings', {
-          headers: { 'apikey': SUPABASE_ANON },
-          signal: ctrl ? ctrl.signal : undefined
-        });
-        if(res.ok){
-          var settings = await res.json();
-          googleEnabled = !!(settings && settings.external && settings.external.google);
-        }
-      } catch(ignore){ /* network/timeout — fall through and attempt sign-in */ }
-
-      if(!googleEnabled){
-        _resetGoogleBtns('Continue with Google');
-        _showAuthError('Google sign-in isn\'t enabled yet. Please use email sign-in below — your progress and notes work the same either way.');
-        return;
-      }
-
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname }
-      });
-      if(error){
-        _resetGoogleBtns('Continue with Google');
-        var msg = error.message || 'Google sign-in failed.';
-        if(msg.toLowerCase().includes('provider') || msg.toLowerCase().includes('not enabled') || msg.toLowerCase().includes('not configured')){
-          msg = 'Google sign-in isn\'t enabled yet. Please use email sign-in below, or contact the app owner to enable Google OAuth.';
-        }
-        _showAuthError(msg);
-      }
-      // If no error, Supabase is redirecting the user to Google — button stays disabled
-    } catch(e) {
-      _resetGoogleBtns('Continue with Google');
-      _showAuthError('Could not reach sign-in service. Check your connection and try again, or use email sign-in.');
-    }
+  // Google OAuth — full-page redirect to the Worker's own /api/auth/google/start,
+  // which redirects to Google, then back to the Worker's callback, which
+  // finally redirects here with ?auth_token=... in the URL (see
+  // _handleOAuthRedirect below). No third-party auth vendor in the loop.
+  //
+  // NOTE (native/iOS build): once this app is wrapped in Capacitor, Google's
+  // redirect lands on the Worker's own https origin, not the app's
+  // capacitor://localhost bundle origin — so the token wouldn't land in the
+  // native shell's localStorage automatically. That needs an in-app browser
+  // (@capacitor/app deep link + a custom URL scheme callback) wired in once
+  // the actual Xcode project exists. The live web/PWA app (what's deployed
+  // today) works correctly as written here.
+  window.authSignInGoogle = function(){
+    document.querySelectorAll('.auth-google-btn').forEach(function(b){
+      b.disabled = true;
+      b.innerHTML = b.innerHTML.replace(/Continue with Google/i, 'Connecting…');
+    });
+    window.location.href = apiBase() + '/api/auth/google/start';
   };
 
   // Email sign-in
   window.authSignInEmail = async function(){
-    if(!sb) return;
     _clearAuthError();
     const email = document.getElementById('authEmail').value.trim();
     const pass  = document.getElementById('authPass').value;
     if(!email || !pass){ _showAuthError('Please fill in email and password.'); return; }
     const btn = document.getElementById('authEmailBtn');
     if(btn) btn.disabled = true;
-    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    const { ok, data } = await apiFetch('/api/auth/login', { method:'POST', body: JSON.stringify({ email, password: pass }) });
     if(btn) btn.disabled = false;
-    if(error){ _showAuthError(error.message); return; }
+    if(!ok){ _showAuthError(data.error || 'Sign-in failed.'); return; }
+    setToken(data.token);
+    currentUser = data.user;
+    _updateAuthUI();
     window.closeAuthModal();
+    _onSignIn();
   };
 
   // Email sign-up
   window.authSignUpEmail = async function(){
-    if(!sb) return;
     _clearAuthError();
     const email = document.getElementById('authSignupEmail').value.trim();
     const pass  = document.getElementById('authSignupPass').value;
@@ -185,77 +135,45 @@
     if(pass.length < 6){ _showAuthError('Password must be at least 6 characters.', true); return; }
     const btn = document.getElementById('authSignupBtn');
     if(btn) btn.disabled = true;
-    const { error } = await sb.auth.signUp({ email, password: pass });
+    const { ok, data } = await apiFetch('/api/auth/signup', { method:'POST', body: JSON.stringify({ email, password: pass }) });
     if(btn) btn.disabled = false;
-    if(error){ _showAuthError(error.message, true); return; }
-    _showAuthView('check-email');
+    if(!ok){ _showAuthError(data.error || 'Sign-up failed.', true); return; }
+    setToken(data.token);
+    currentUser = data.user;
+    _updateAuthUI();
+    window.closeAuthModal();
+    _onSignIn();
   };
 
   // Sign out
   window.authSignOut = async function(){
-    if(!sb) return;
-    await sb.auth.signOut();
-    _closeAccountModal();
+    setToken(null);
     currentUser = null;
+    _closeAccountModal();
     _updateAuthUI();
   };
 
-  // Delete account + all associated data (Apple App Store requirement 5.1.1(v))
+  // Delete account + all associated data (Apple 5.1.1(v) requirement)
   window.authDeleteAccount = async function(){
-    var errEl = document.getElementById('accountDeleteError');
+    const errEl = document.getElementById('accountDeleteError');
     function showErr(m){ if(errEl){ errEl.textContent = m; errEl.style.display='block'; } }
     if(errEl){ errEl.textContent=''; errEl.style.display='none'; }
-    if(!sb || !currentUser){ showErr('You are not signed in.'); return; }
-
-    // Two-step confirm — this is irreversible
+    if(!currentUser){ showErr('You are not signed in.'); return; }
     if(!window.confirm('Delete your account and everything in it — notes, bookmarks, and reading progress? This cannot be undone.')) return;
     if(!window.confirm('Final confirmation: permanently delete your SWRV Kingdom Bible account?')) return;
-
-    var apiBase = window.SWRV_API_BASE || '';
-    try {
-      // 1) Remove the user's own data rows (RLS allows deleting your own rows)
-      var uid = currentUser.id;
-      await Promise.all([
-        sb.from('notes').delete().eq('user_id', uid),
-        sb.from('bookmarks').delete().eq('user_id', uid),
-        sb.from('reading_progress').delete().eq('user_id', uid)
-      ]);
-
-      // 2) Remove the auth account itself (needs a server-side admin key)
-      var sess = await sb.auth.getSession();
-      var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : null;
-      var accountRemoved = false;
-      if(token){
-        try {
-          var res = await fetch(apiBase + '/api/delete-account', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
-          });
-          accountRemoved = res.ok;
-        } catch(e){ accountRemoved = false; }
-      }
-
-      // 3) Sign out locally regardless — the user's data is already gone
-      await sb.auth.signOut();
-      currentUser = null;
-      _closeAccountModal();
-      _updateAuthUI();
-
-      if(accountRemoved){
-        alert('Your account and all your data have been deleted.');
-      } else {
-        // Data is deleted and you are signed out; the login record removal is queued.
-        alert('Your notes, bookmarks, and progress have been deleted and you have been signed out. If you also want your login record fully removed, email contact@swrvonthego.pro and it will be erased.');
-      }
-    } catch(e){
-      showErr('Could not complete deletion. Please try again, or email contact@swrvonthego.pro to delete your account.');
-    }
+    const { ok, data } = await apiFetch('/api/delete-account', { method:'POST' });
+    if(!ok){ showErr(data.error || 'Could not complete deletion. Please try again, or email contact@swrvonthego.pro.'); return; }
+    setToken(null);
+    currentUser = null;
+    _closeAccountModal();
+    _updateAuthUI();
+    alert('Your account and all your data have been deleted.');
   };
 
   function _showAccountModal(){
     const m = document.getElementById('accountModal');
     if(!m) return;
-    const name = currentUser ? ((currentUser.user_metadata && (currentUser.user_metadata.full_name || currentUser.user_metadata.name)) || currentUser.email || 'Account') : '';
+    const name = currentUser ? (currentUser.name || currentUser.email || 'Account') : '';
     const email = currentUser ? currentUser.email : '';
     const nameEl = document.getElementById('accountName');
     const emailEl = document.getElementById('accountEmail');
@@ -277,17 +195,16 @@
 
   function _onSignIn(){
     _loadResumePrompt();
-    // Refresh notes tab if study sheet is open
     if(document.getElementById('studySheet') && document.getElementById('studySheet').classList.contains('open')){
       if(typeof window.switchStudyTab === 'function') window.switchStudyTab('notes');
     }
   }
 
   async function _loadResumePrompt(){
-    if(!sb || !currentUser) return;
-    const { data, error } = await sb.from('reading_progress').select('book,chapter,verse').eq('user_id', currentUser.id).order('updated_at', { ascending: false }).limit(1).single();
-    if(error || !data) return;
-    _showResumeBar(data.book, data.chapter, data.verse);
+    if(!currentUser) return;
+    const { ok, data } = await apiFetch('/api/progress/latest');
+    if(!ok || !data.progress) return;
+    _showResumeBar(data.progress.book, data.progress.chapter, data.progress.verse);
   }
 
   function _showResumeBar(book, chapter, verse){
@@ -317,11 +234,8 @@
 
   // Called by app.js whenever the user navigates to a chapter
   window.authSaveProgress = async function(book, chapter, verse){
-    if(!sb || !currentUser) return;
-    await sb.from('reading_progress').upsert(
-      { user_id: currentUser.id, book: book, chapter: chapter, verse: verse || null, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,book' }
-    );
+    if(!currentUser) return;
+    await apiFetch('/api/progress', { method:'POST', body: JSON.stringify({ book, chapter, verse: verse || null }) });
   };
 
   // ---- Notes ----
@@ -329,52 +243,71 @@
   window.authGetUser = function(){ return currentUser; };
 
   window.authLoadNote = async function(book, chapter, verse){
-    if(!sb || !currentUser) return null;
-    const query = sb.from('notes').select('id,body').eq('user_id', currentUser.id).eq('book', book).eq('chapter', chapter);
-    if(verse != null) query.eq('verse', verse); else query.is('verse', null);
-    const { data } = await query.order('updated_at', { ascending: false }).limit(1).single();
-    return data || null;
+    if(!currentUser) return null;
+    const q = '?book='+encodeURIComponent(book)+'&chapter='+encodeURIComponent(chapter)+(verse!=null?'&verse='+encodeURIComponent(verse):'');
+    const { ok, data } = await apiFetch('/api/notes'+q);
+    return ok ? data.note : null;
   };
 
   window.authSaveNote = async function(book, chapter, verse, body, noteId){
-    if(!sb || !currentUser) return null;
-    if(noteId){
-      const { data, error } = await sb.from('notes').update({ body, updated_at: new Date().toISOString() }).eq('id', noteId).eq('user_id', currentUser.id).select('id').single();
-      return data ? data.id : null;
-    } else {
-      const { data, error } = await sb.from('notes').insert({ user_id: currentUser.id, book, chapter, verse: verse != null ? verse : null, body }).select('id').single();
-      return data ? data.id : null;
-    }
+    if(!currentUser) return null;
+    const { ok, data } = await apiFetch('/api/notes', { method:'POST', body: JSON.stringify({ book, chapter, verse: verse!=null?verse:null, body, noteId: noteId||null }) });
+    return ok ? data.id : null;
   };
 
   window.authDeleteNote = async function(noteId){
-    if(!sb || !currentUser) return;
-    await sb.from('notes').delete().eq('id', noteId).eq('user_id', currentUser.id);
+    if(!currentUser) return;
+    await apiFetch('/api/notes', { method:'DELETE', body: JSON.stringify({ noteId }) });
   };
 
   // ---- Bookmarks ----
 
   window.authToggleBookmark = async function(book, chapter, verse, label){
-    if(!sb || !currentUser){ window.openAuthModal(); return; }
-    // Check if already bookmarked
-    const q = sb.from('bookmarks').select('id').eq('user_id', currentUser.id).eq('book', book).eq('chapter', chapter);
-    if(verse != null) q.eq('verse', verse); else q.is('verse', null);
-    const { data } = await q.limit(1).single();
-    if(data){
-      await sb.from('bookmarks').delete().eq('id', data.id);
-      return false;
-    } else {
-      await sb.from('bookmarks').insert({ user_id: currentUser.id, book, chapter, verse: verse!=null?verse:null, label: label||null });
-      return true;
-    }
+    if(!currentUser){ window.openAuthModal(); return; }
+    const { ok, data } = await apiFetch('/api/bookmarks', { method:'POST', body: JSON.stringify({ book, chapter, verse: verse!=null?verse:null, label: label||null }) });
+    return ok ? data.bookmarked : false;
   };
 
   // ---- Init ----
 
+  // Google's callback redirects back here with ?auth_token=... (or
+  // ?auth_error=...) in the URL. Grab it, store it, and scrub it from the
+  // visible URL/history immediately so a session token never lingers there.
+  function _handleOAuthRedirect(){
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('auth_token');
+    const err = params.get('auth_error');
+    if(!token && !err) return;
+    params.delete('auth_token'); params.delete('auth_error');
+    const clean = window.location.pathname + (params.toString() ? '?'+params.toString() : '') + window.location.hash;
+    window.history.replaceState({}, '', clean);
+    if(token){
+      setToken(token);
+    } else if(err){
+      setTimeout(function(){ window.openAuthModal(); _showAuthError(err); }, 300);
+    }
+  }
+
+  async function initAuth(){
+    _handleOAuthRedirect();
+    const token = getToken();
+    if(!token){ _updateAuthUI(); return; }
+    const { ok, data } = await apiFetch('/api/auth/me');
+    if(ok && data.user){
+      currentUser = data.user;
+      _updateAuthUI();
+      _loadResumePrompt();
+    } else {
+      setToken(null);
+      currentUser = null;
+      _updateAuthUI();
+    }
+  }
+
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initSupabase);
+    document.addEventListener('DOMContentLoaded', initAuth);
   } else {
-    initSupabase();
+    initAuth();
   }
 
 })();

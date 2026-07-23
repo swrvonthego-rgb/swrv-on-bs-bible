@@ -9,7 +9,9 @@
   },
   "server": {
     "allowNavigation": [
-      "www.swrvonthego.pro"
+      "www.swrvonthego.pro",
+      "swrv-on-bs-bible.swrvonthego.workers.dev",
+      "accounts.google.com"
     ]
   }
 }

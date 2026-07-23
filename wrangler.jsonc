@@ -5,5 +5,18 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS"
-  }
+  },
+  // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
+  // database_id is a placeholder until `wrangler d1 create swrv-bible-db` runs
+  // once (via the Cloudflare connector or the dashboard) and the real id is
+  // pasted in here. Until then env.DB is undefined and every /api/auth,
+  // /api/notes, /api/bookmarks, /api/progress, /api/delete-account route
+  // safely responds 501 "not configured yet" instead of crashing.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swrv-bible-db",
+      "database_id": "REPLACE_WITH_REAL_D1_DATABASE_ID"
+    }
+  ]
 }

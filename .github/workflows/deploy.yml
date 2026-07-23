@@ -16,16 +16,32 @@ jobs:
       - name: Install Wrangler globally
         run: npm install -g wrangler@latest
 
+      # Applies schema.sql to the D1 database on every deploy. Every statement
+      # in schema.sql is CREATE TABLE/INDEX IF NOT EXISTS, so this is safe to
+      # run on every push — it's a no-op once tables already exist. Skipped
+      # automatically until the D1 binding in wrangler.jsonc has a real
+      # database_id (see the comment there).
+      - name: Apply D1 schema
+        run: |
+          if grep -q "REPLACE_WITH_REAL_D1_DATABASE_ID" wrangler.jsonc; then
+            echo "D1 database not provisioned yet (wrangler.jsonc still has the placeholder id) - skipping schema apply"
+          else
+            wrangler d1 execute swrv-bible-db --remote --file=schema.sql
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
+
       - name: Deploy to Cloudflare Workers
         run: wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
-      # Pushes API keys from GitHub repo secrets onto the Worker so /api/tts
-      # (ElevenLabs voice) and /api/groq work. Add the keys once under
-      # Settings → Secrets and variables → Actions; any secret left unset is
-      # skipped so the deploy never fails on a missing key.
+      # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
+      # once under Settings → Secrets and variables → Actions; any secret left
+      # unset is skipped so the deploy never fails on a missing key, and the
+      # matching feature just responds "not configured yet" until it's added.
       - name: Sync Worker secrets
         run: |
           if [ -n "$ELEVENLABS_API_KEY" ]; then
@@ -38,14 +54,26 @@ jobs:
           else
             echo "GROQ_API_KEY not set in GitHub secrets - skipping"
           fi
-          if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "$SUPABASE_SERVICE_ROLE_KEY" | wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+          if [ -n "$SESSION_SECRET" ]; then
+            echo "$SESSION_SECRET" | wrangler secret put SESSION_SECRET
           else
-            echo "SUPABASE_SERVICE_ROLE_KEY not set in GitHub secrets - skipping (in-app account deletion needs it)"
+            echo "SESSION_SECRET not set in GitHub secrets - skipping (sign-in/sessions need it)"
+          fi
+          if [ -n "$GOOGLE_CLIENT_ID" ]; then
+            echo "$GOOGLE_CLIENT_ID" | wrangler secret put GOOGLE_CLIENT_ID
+          else
+            echo "GOOGLE_CLIENT_ID not set in GitHub secrets - skipping (Google sign-in needs it)"
+          fi
+          if [ -n "$GOOGLE_CLIENT_SECRET" ]; then
+            echo "$GOOGLE_CLIENT_SECRET" | wrangler secret put GOOGLE_CLIENT_SECRET
+          else
+            echo "GOOGLE_CLIENT_SECRET not set in GitHub secrets - skipping (Google sign-in needs it)"
           fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}

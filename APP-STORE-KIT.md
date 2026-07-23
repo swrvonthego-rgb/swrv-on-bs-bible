@@ -137,11 +137,16 @@ Typical review time is 1-3 days.
 - [ ] `ELEVENLABS_API_KEY` added as a Cloudflare Worker secret, so read-aloud
       uses real voices (otherwise it falls back to the device voice — still
       works, just robotic). Verify at `/api/health` → `hasElevenLabsKey: true`.
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` added as a Worker secret so in-app "Delete
-      My Account" fully removes the login record (Supabase → Project Settings
-      → API → service_role key). Without it, deletion still erases the user's
-      notes/bookmarks/progress and signs them out, but the auth record removal
-      falls back to an email request — add the key for a clean one-tap delete.
+- [ ] Cloudflare D1 database provisioned and `wrangler.jsonc`'s `database_id`
+      updated from the placeholder (one-time `wrangler d1 create swrv-bible-db`).
+      Auth, notes, bookmarks, and reading progress all live here now — no
+      third-party auth vendor, and account deletion is a direct first-party
+      operation (no service-role key needed at all anymore).
+- [ ] `SESSION_SECRET`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` added as
+      Worker secrets (Google sign-in can reuse the OAuth client you already
+      created for the old Supabase-based sign-in — just add one more
+      Authorized Redirect URI in Google Cloud Console:
+      `https://swrv-on-bs-bible.swrvonthego.workers.dev/api/auth/google/callback`).
 - [ ] Account deletion is reachable: Sign in → account button → **Delete My
       Account** (Apple requires this for any app with sign-in).
 - [ ] Privacy policy live at the URL above (it deploys with the site).

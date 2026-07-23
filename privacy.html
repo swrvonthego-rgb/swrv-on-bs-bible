@@ -25,8 +25,8 @@
 
 <h2>What we collect</h2>
 <ul>
-  <li><strong>If you create an account or sign in</strong> (optional): your email address, and — if you choose Google sign-in — the name and email your Google account shares. Authentication is handled by Supabase.</li>
-  <li><strong>Your study data</strong> (only when signed in): reading progress (which book, chapter, and verse you last read), personal notes you write, and bookmarks you save. These are stored so they can sync across your devices.</li>
+  <li><strong>If you create an account or sign in</strong> (optional): your email address, and — if you choose Google sign-in — the name and email your Google account shares with us. Sign-in and passwords (hashed, never stored in plain text) are handled entirely by our own servers on Cloudflare — we do not use a third-party identity or authentication provider.</li>
+  <li><strong>Your study data</strong> (only when signed in): reading progress (which book, chapter, and verse you last read), personal notes you write, and bookmarks you save. These are stored in our own database so they can sync across your devices.</li>
   <li><strong>On-device settings</strong>: reading preferences, chosen voice, and recent searches are stored locally on your device and are not sent to us.</li>
 </ul>
 <p>We do <strong>not</strong> collect your location, contacts, photos, or advertising identifiers, and we do <strong>not</strong> use third-party analytics or tracking.</p>
@@ -35,8 +35,8 @@
 <ul>
   <li><strong>Read-aloud (text-to-speech):</strong> when you tap play, the verse text being read is sent to ElevenLabs to generate audio. It is used only to return the spoken audio.</li>
   <li><strong>AI study features:</strong> if you use an AI-assisted feature, the text of your request is relayed to Groq to generate a response.</li>
-  <li><strong>Account &amp; sync:</strong> Supabase stores your email, notes, reading progress, and bookmarks so they persist and sync.</li>
-  <li><strong>Hosting &amp; fonts:</strong> the app is served by Cloudflare; web fonts load from Google Fonts and the sign-in library from jsDelivr, which by nature receive your device's IP address to deliver those files.</li>
+  <li><strong>Google sign-in (optional):</strong> if you choose to sign in with Google, Google shares your name and email with us to create your account.</li>
+  <li><strong>Hosting &amp; fonts:</strong> the app, your account, and your data are all served and stored by Cloudflare; web fonts load from Google Fonts, which by nature receives your device's IP address to deliver those files.</li>
 </ul>
 <p>We do not sell your data, and we do not share it with anyone except the service providers named above, solely to deliver the feature you used.</p>
 
