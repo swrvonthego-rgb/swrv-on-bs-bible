@@ -33,7 +33,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260709fix1">
+<link rel="stylesheet" href="css/styles.css?v=20260721delacct1">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body data-theme="vintage">
@@ -577,6 +577,11 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <div style="margin-top:24px;">
     <button class="auth-primary-btn" onclick="authSignOut()" style="background:rgba(200,60,60,0.15);border-color:rgba(200,60,60,0.5);color:#e05050;">Sign Out</button>
   </div>
+  <div id="accountDeleteError" class="auth-error" style="display:none;margin-top:16px;"></div>
+  <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line);">
+    <button class="auth-delete-link" onclick="authDeleteAccount()" aria-label="Delete my account and all my data">Delete My Account</button>
+    <div style="font-size:11px;color:var(--fg-dim);margin-top:6px;line-height:1.4;">Permanently removes your account, notes, bookmarks, and reading progress. This cannot be undone.</div>
+  </div>
 </div>
 
 <!-- ============ FONT SIZE CONTROL ============ -->
@@ -618,7 +623,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/enrichments.js?v=20260721search1"></script>
 
 <!-- ============ AUTH + USER DATA — Supabase auth, progress, notes ============ -->
-<script src="js/auth.js?v=20260709auth3"></script>
+<script src="js/auth.js?v=20260721delacct1"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js?v=20260721appstore1"></script>

@@ -3899,6 +3899,18 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   line-height: 1.5;
   font-weight: 500;
 }
+.auth-delete-link {
+  background: none;
+  border: none;
+  color: #c85050;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.auth-delete-link:hover { color: #e05050; }
 .auth-primary-btn {
   display: block;
   width: 100%;

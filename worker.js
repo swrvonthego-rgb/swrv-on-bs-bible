@@ -131,6 +131,65 @@ export default {
       }
     }
 
+    // ============= DELETE ACCOUNT =============
+    // Apple 5.1.1(v): users who can create an account must be able to delete it
+    // in-app. The client deletes its own data rows (via RLS); this endpoint
+    // removes the auth user itself, which requires the Supabase service-role key.
+    if (url.pathname === '/api/delete-account' && request.method === 'POST') {
+      const SUPABASE_URL = env.SUPABASE_URL || 'https://lbtyfrcfwgyauzefvwqd.supabase.co';
+      if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+        return new Response(JSON.stringify({ error: 'account deletion not configured' }), {
+          status: 501, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+      const authz = request.headers.get('Authorization') || '';
+      const token = authz.replace(/^Bearer\s+/i, '').trim();
+      if (!token) {
+        return new Response(JSON.stringify({ error: 'missing bearer token' }), {
+          status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+      try {
+        // Verify the token and resolve the caller's user id
+        const who = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'apikey': env.SUPABASE_SERVICE_ROLE_KEY }
+        });
+        if (!who.ok) {
+          return new Response(JSON.stringify({ error: 'invalid session' }), {
+            status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+        const user = await who.json();
+        const uid = user && user.id;
+        if (!uid) {
+          return new Response(JSON.stringify({ error: 'could not resolve user' }), {
+            status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+        // Admin-delete the auth user (removes the login record itself)
+        const del = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${uid}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY
+          }
+        });
+        if (!del.ok) {
+          const detail = await del.text();
+          return new Response(JSON.stringify({ error: 'delete failed', detail }), {
+            status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+        return new Response(JSON.stringify({ deleted: true }), {
+          status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'delete-account failed', detail: err.message }), {
+          status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+    }
+
     // ============= STATIC ASSETS =============
     // Fall through to Cloudflare's static asset binding
     if (!env.ASSETS) {

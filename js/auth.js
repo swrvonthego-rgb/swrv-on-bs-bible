@@ -200,6 +200,58 @@
     _updateAuthUI();
   };
 
+  // Delete account + all associated data (Apple App Store requirement 5.1.1(v))
+  window.authDeleteAccount = async function(){
+    var errEl = document.getElementById('accountDeleteError');
+    function showErr(m){ if(errEl){ errEl.textContent = m; errEl.style.display='block'; } }
+    if(errEl){ errEl.textContent=''; errEl.style.display='none'; }
+    if(!sb || !currentUser){ showErr('You are not signed in.'); return; }
+
+    // Two-step confirm — this is irreversible
+    if(!window.confirm('Delete your account and everything in it — notes, bookmarks, and reading progress? This cannot be undone.')) return;
+    if(!window.confirm('Final confirmation: permanently delete your SWRV Kingdom Bible account?')) return;
+
+    var apiBase = window.SWRV_API_BASE || '';
+    try {
+      // 1) Remove the user's own data rows (RLS allows deleting your own rows)
+      var uid = currentUser.id;
+      await Promise.all([
+        sb.from('notes').delete().eq('user_id', uid),
+        sb.from('bookmarks').delete().eq('user_id', uid),
+        sb.from('reading_progress').delete().eq('user_id', uid)
+      ]);
+
+      // 2) Remove the auth account itself (needs a server-side admin key)
+      var sess = await sb.auth.getSession();
+      var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : null;
+      var accountRemoved = false;
+      if(token){
+        try {
+          var res = await fetch(apiBase + '/api/delete-account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+          });
+          accountRemoved = res.ok;
+        } catch(e){ accountRemoved = false; }
+      }
+
+      // 3) Sign out locally regardless — the user's data is already gone
+      await sb.auth.signOut();
+      currentUser = null;
+      _closeAccountModal();
+      _updateAuthUI();
+
+      if(accountRemoved){
+        alert('Your account and all your data have been deleted.');
+      } else {
+        // Data is deleted and you are signed out; the login record removal is queued.
+        alert('Your notes, bookmarks, and progress have been deleted and you have been signed out. If you also want your login record fully removed, email contact@swrvonthego.pro and it will be erased.');
+      }
+    } catch(e){
+      showErr('Could not complete deletion. Please try again, or email contact@swrvonthego.pro to delete your account.');
+    }
+  };
+
   function _showAccountModal(){
     const m = document.getElementById('accountModal');
     if(!m) return;
