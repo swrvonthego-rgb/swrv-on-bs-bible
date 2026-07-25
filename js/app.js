@@ -6767,8 +6767,9 @@ window.openAllThreadsBrowser = function(){
       desc: 'Male · Deep & Authoritative',
       icon: '📖',
       elVoiceId: 'onwK4e9ZLuTAKqWW03F9', // ElevenLabs: Daniel
-      elStability: 0.82,
+      elStability: 0.50,
       elSimilarity: 0.80,
+      elStyle: 0.25,
       rate: 0.80, pitch: 0.85,
       fallbackTargets: ['Google UK English Male','Daniel','Microsoft Mark - English (United States)','Alex'],
       gender: 'male'
@@ -6779,8 +6780,9 @@ window.openAllThreadsBrowser = function(){
       desc: 'Male · Warm & Storytelling',
       icon: '🎙️',
       elVoiceId: 'TxGEqnHWrfWFTfGW9XjX', // ElevenLabs: Josh
-      elStability: 0.65,
+      elStability: 0.42,
       elSimilarity: 0.75,
+      elStyle: 0.40,
       rate: 0.85, pitch: 0.95,
       fallbackTargets: ['Microsoft David - English (United States)','Alex','Google UK English Male','Daniel'],
       gender: 'male'
@@ -6791,8 +6793,9 @@ window.openAllThreadsBrowser = function(){
       desc: 'Female · Gentle & Calming',
       icon: '🕊️',
       elVoiceId: '21m00Tcm4TlvDq8ikWAM', // ElevenLabs: Rachel
-      elStability: 0.78,
+      elStability: 0.45,
       elSimilarity: 0.75,
+      elStyle: 0.30,
       rate: 0.78, pitch: 1.0,
       fallbackTargets: ['Google US English','Samantha','Microsoft Zira - English (United States)','Microsoft Jenny - English (United States)'],
       gender: 'female'
@@ -6803,8 +6806,9 @@ window.openAllThreadsBrowser = function(){
       desc: 'Female · Clear & Expressive',
       icon: '🔥',
       elVoiceId: 'AZnzlk1XvdvUeBnXmlld', // ElevenLabs: Domi
-      elStability: 0.60,
+      elStability: 0.38,
       elSimilarity: 0.70,
+      elStyle: 0.50,
       rate: 0.85, pitch: 0.93,
       fallbackTargets: ['Google UK English Female','Karen','Moira','Microsoft Hazel - English (Great Britain)','Tessa'],
       gender: 'female'
@@ -6942,7 +6946,8 @@ window.openAllThreadsBrowser = function(){
           text: text,
           voice_id: _persona.elVoiceId,
           stability: _persona.elStability,
-          similarity_boost: _persona.elSimilarity
+          similarity_boost: _persona.elSimilarity,
+          style: _persona.elStyle != null ? _persona.elStyle : 0.3
         })
       })
       .then(function(res){

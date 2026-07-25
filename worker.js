@@ -177,12 +177,18 @@ export default {
         return json({ error: 'ELEVENLABS_API_KEY not configured' }, 500);
       }
       try {
-        const { text, voice_id, stability = 0.75, similarity_boost = 0.75 } = await request.json();
+        const { text, voice_id, stability = 0.5, similarity_boost = 0.75, style = 0.3 } = await request.json();
         if (!text || !voice_id) return json({ error: 'text and voice_id required' }, 400);
+        // eleven_multilingual_v2, not eleven_turbo_v2: turbo is tuned for low
+        // latency over expressiveness and reads flat/monotone ("robotic").
+        // multilingual_v2 costs a bit more per character and is a little
+        // slower, but is ElevenLabs' natural-sounding model — worth it for a
+        // read-aloud feature where a verse's worth of extra generation time
+        // is invisible against how long the verse takes to speak anyway.
         const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
           method: 'POST',
           headers: { 'xi-api-key': env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-          body: JSON.stringify({ text, model_id: 'eleven_turbo_v2', voice_settings: { stability, similarity_boost, style: 0.35, use_speaker_boost: true } })
+          body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability, similarity_boost, style, use_speaker_boost: true } })
         });
         if (!elRes.ok) {
           const err = await elRes.text();
