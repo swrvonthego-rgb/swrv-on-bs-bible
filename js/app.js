@@ -6819,6 +6819,8 @@ window.openAllThreadsBrowser = function(){
   var _cursor   = 0;
   var _paused   = false;
   var _active   = false;
+  var _previewAudio  = null; // separate from the main reading _audio so a preview never interrupts an in-progress chapter
+  var _previewSample = 'In the beginning God created the heaven and the earth.'; // Genesis 1:1, KJV — public domain
   var _persona  = VOICE_PERSONAS[2]; // default: The Shepherd
   var _fbVoice  = null;              // fallback browser voice
   var _audio    = null;              // current HTMLAudioElement (ElevenLabs)
@@ -7063,16 +7065,23 @@ window.openAllThreadsBrowser = function(){
   window.ttsOpenVoicePicker = function(){
     var pop = document.getElementById('ttsVoicePopover');
     if(!pop) return;
-    var html = '<div class="tts-persona-title">Choose a Reading Voice</div>';
+    var html = '<div class="tts-persona-title">Choose a Reading Voice — tap ▶ to hear it first</div>';
     html += '<div class="tts-persona-grid">';
     VOICE_PERSONAS.forEach(function(p){
       var isActive = _persona && _persona.id === p.id;
-      html += '<button class="tts-persona-card' + (isActive ? ' active' : '') + '" onclick="ttsSelectPersona(\'' + p.id + '\')">';
+      // A native <button> can't validly contain another <button> (some
+      // browsers auto-close the outer element on invalid nesting, breaking
+      // clicks unpredictably) — so the card itself is a div acting as a
+      // button, with the real preview <button> nested inside it cleanly.
+      html += '<div class="tts-persona-card' + (isActive ? ' active' : '') + '" role="button" tabindex="0" ' +
+              'onclick="ttsSelectPersona(\'' + p.id + '\')" ' +
+              'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();ttsSelectPersona(\'' + p.id + '\');}">';
+      html += '<button class="tts-persona-preview-btn" id="ttsPreview_' + p.id + '" onclick="event.stopPropagation();ttsPreviewPersona(\'' + p.id + '\')" aria-label="Preview ' + p.label + '" title="Hear a sample">▶</button>';
       html += '<span class="tts-persona-icon">' + p.icon + '</span>';
       html += '<span class="tts-persona-name">' + p.label + '</span>';
       html += '<span class="tts-persona-desc">' + p.desc + '</span>';
       html += '<span class="tts-persona-voice">ElevenLabs neural</span>';
-      html += '</button>';
+      html += '</div>';
     });
     html += '</div>';
     pop.innerHTML = html;
@@ -7087,6 +7096,75 @@ window.openAllThreadsBrowser = function(){
     if(_active){ _stopAudio(); _speakVerse(_cursor); }
     var pop = document.getElementById('ttsVoicePopover');
     if(pop) pop.classList.remove('show');
+  };
+
+  // Play a short public-domain sample (Genesis 1:1) in the given persona's
+  // voice, without touching the active reading session or changing which
+  // voice is selected — lets a user audition a voice before committing to it.
+  window.ttsPreviewPersona = function(id){
+    var p = VOICE_PERSONAS.find(function(x){ return x.id === id; });
+    if(!p) return;
+    var btn = document.getElementById('ttsPreview_' + id);
+
+    // Toggle off if this exact preview is already playing
+    if(_previewAudio && _previewAudio._previewId === id){
+      _previewAudio.pause();
+      _previewAudio = null;
+      if(btn) btn.textContent = '▶';
+      return;
+    }
+    if(_previewAudio){
+      _previewAudio.pause();
+      _previewAudio = null;
+    }
+    // Reset every other card's button back to ▶ before starting this one
+    document.querySelectorAll('.tts-persona-preview-btn').forEach(function(b){ b.textContent = '▶'; });
+
+    if(!_elOk){
+      if(btn) btn.textContent = '✕';
+      setTimeout(function(){ if(btn) btn.textContent = '▶'; }, 1400);
+      return;
+    }
+
+    if(btn) btn.textContent = '⏳';
+    fetch((window.SWRV_API_BASE||'') + '/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: _previewSample,
+        voice_id: p.elVoiceId,
+        stability: p.elStability,
+        similarity_boost: p.elSimilarity,
+        style: p.elStyle != null ? p.elStyle : 0.3
+      })
+    })
+    .then(function(res){
+      if(!res.ok) throw new Error('preview-tts-' + res.status);
+      return res.blob();
+    })
+    .then(function(blob){
+      var blobUrl = URL.createObjectURL(blob);
+      var audio = new Audio(blobUrl);
+      audio._previewId = id;
+      _previewAudio = audio;
+      audio.onended = function(){
+        try { URL.revokeObjectURL(blobUrl); } catch(e){}
+        if(_previewAudio === audio) _previewAudio = null;
+        if(btn) btn.textContent = '▶';
+      };
+      audio.onerror = function(){
+        try { URL.revokeObjectURL(blobUrl); } catch(e){}
+        if(_previewAudio === audio) _previewAudio = null;
+        if(btn) btn.textContent = '✕';
+        setTimeout(function(){ if(btn) btn.textContent = '▶'; }, 1400);
+      };
+      audio.play();
+      if(btn) btn.textContent = '⏸';
+    })
+    .catch(function(){
+      if(btn) btn.textContent = '✕';
+      setTimeout(function(){ if(btn) btn.textContent = '▶'; }, 1400);
+    });
   };
 
   document.addEventListener('swrv-chapter-change', function(){ _done(); });
