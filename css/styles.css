@@ -4171,6 +4171,13 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   color: var(--fg-dim);
   line-height: 1.3;
 }
+.tts-persona-broken {
+  font-size: 9px;
+  color: #e0a050;
+  line-height: 1.3;
+  margin-top: 2px;
+  font-weight: 600;
+}
 .tts-persona-voice {
   font-size: 9px;
   color: rgba(212,175,55,0.5);

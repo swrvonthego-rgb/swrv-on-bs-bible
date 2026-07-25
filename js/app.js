@@ -6821,6 +6821,7 @@ window.openAllThreadsBrowser = function(){
   var _active   = false;
   var _previewAudio  = null; // separate from the main reading _audio so a preview never interrupts an in-progress chapter
   var _previewSample = 'In the beginning God created the heaven and the earth.'; // Genesis 1:1, KJV — public domain
+  var _brokenVoices  = {}; // persona.id -> true once its ElevenLabs voice_id has failed at least once (404/422/etc — not a global key problem)
   var _persona  = VOICE_PERSONAS[2]; // default: The Shepherd
   var _fbVoice  = null;              // fallback browser voice
   var _audio    = null;              // current HTMLAudioElement (ElevenLabs)
@@ -6953,11 +6954,23 @@ window.openAllThreadsBrowser = function(){
         })
       })
       .then(function(res){
-        if(!res.ok) throw new Error('tts-' + res.status);
+        if(!res.ok){
+          // Capture ElevenLabs' real error body (e.g. "voice_not_found") instead
+          // of discarding it down to a bare status code — a bad/unavailable
+          // voice_id for ONE persona was silently, permanently falling back to
+          // the robotic browser voice for that persona forever, with nothing
+          // ever logged anywhere to say why.
+          return res.text().then(function(body){
+            var e = new Error('tts-' + res.status);
+            e.status = res.status; e.body = body;
+            throw e;
+          });
+        }
         return res.blob();
       })
       .then(function(blob){
         if(!_active || _paused) return;
+        _brokenVoices[_persona.id] = false;
         var blobUrl = URL.createObjectURL(blob);
         _audio = new Audio(blobUrl);
         _audio.playbackRate = _speeds[_speedIdx];
@@ -6976,9 +6989,16 @@ window.openAllThreadsBrowser = function(){
         _pp() && (_pp().textContent = '⏸');
       })
       .catch(function(err){
-        // If key not configured yet, fall back silently to browser voice
-        if(err.message.indexOf('tts-500') !== -1 || err.message.indexOf('tts-401') !== -1){
+        console.warn('[TTS] ElevenLabs failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+        // A 500/401 means the KEY itself is broken — disable ElevenLabs globally.
+        // Any other failure (404 voice not found, 422 bad request, etc.) means
+        // THIS persona's voice_id specifically is bad — mark only that one
+        // broken so the picker can warn about it, without blacklisting voices
+        // that are actually fine.
+        if(err.status === 500 || err.status === 401){
           _elOk = false;
+        } else {
+          _brokenVoices[_persona.id] = true;
         }
         _speakVerseFallback(idx);
       });
@@ -7062,13 +7082,14 @@ window.openAllThreadsBrowser = function(){
   };
 
   /* ── Persona picker ── */
-  window.ttsOpenVoicePicker = function(){
+  function _renderVoicePicker(){
     var pop = document.getElementById('ttsVoicePopover');
     if(!pop) return;
     var html = '<div class="tts-persona-title">Choose a Reading Voice — tap ▶ to hear it first</div>';
     html += '<div class="tts-persona-grid">';
     VOICE_PERSONAS.forEach(function(p){
       var isActive = _persona && _persona.id === p.id;
+      var isBroken = !!_brokenVoices[p.id];
       // A native <button> can't validly contain another <button> (some
       // browsers auto-close the outer element on invalid nesting, breaking
       // clicks unpredictably) — so the card itself is a div acting as a
@@ -7080,11 +7101,21 @@ window.openAllThreadsBrowser = function(){
       html += '<span class="tts-persona-icon">' + p.icon + '</span>';
       html += '<span class="tts-persona-name">' + p.label + '</span>';
       html += '<span class="tts-persona-desc">' + p.desc + '</span>';
-      html += '<span class="tts-persona-voice">ElevenLabs neural</span>';
+      if(isBroken){
+        html += '<span class="tts-persona-broken" title="This voice is currently unavailable from ElevenLabs and is using your device\'s built-in voice instead">⚠ device voice (ElevenLabs unavailable)</span>';
+      } else {
+        html += '<span class="tts-persona-voice">ElevenLabs neural</span>';
+      }
       html += '</div>';
     });
     html += '</div>';
     pop.innerHTML = html;
+  }
+
+  window.ttsOpenVoicePicker = function(){
+    var pop = document.getElementById('ttsVoicePopover');
+    if(!pop) return;
+    _renderVoicePicker();
     pop.classList.toggle('show');
   };
 
@@ -7139,7 +7170,14 @@ window.openAllThreadsBrowser = function(){
       })
     })
     .then(function(res){
-      if(!res.ok) throw new Error('preview-tts-' + res.status);
+      if(!res.ok){
+        return res.text().then(function(body){
+          var e = new Error('preview-tts-' + res.status);
+          e.status = res.status; e.body = body;
+          throw e;
+        });
+      }
+      _brokenVoices[id] = false;
       return res.blob();
     })
     .then(function(blob){
@@ -7161,9 +7199,15 @@ window.openAllThreadsBrowser = function(){
       audio.play();
       if(btn) btn.textContent = '⏸';
     })
-    .catch(function(){
+    .catch(function(err){
+      console.warn('[TTS preview] ElevenLabs failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+      if(err.status && err.status !== 500 && err.status !== 401){
+        _brokenVoices[id] = true;
+        // Re-render so the warning badge shows up immediately, right on this card.
+        _renderVoicePicker();
+      }
       if(btn) btn.textContent = '✕';
-      setTimeout(function(){ if(btn) btn.textContent = '▶'; }, 1400);
+      setTimeout(function(){ var b = document.getElementById('ttsPreview_'+id); if(b) b.textContent = '▶'; }, 1400);
     });
   };
 
