@@ -6931,7 +6931,8 @@ window.openAllThreadsBrowser = function(){
   }
 
   function _speakVerse(idx){
-    if(!_active || idx >= _verses.length){ _done(); return; }
+    if(!_active){ _done(); return; }
+    if(idx >= _verses.length){ _continueToNextChapter(); return; }
     _cursor = idx;
     _highlightVerse(idx);
     _stopAudio();
@@ -7030,6 +7031,39 @@ window.openAllThreadsBrowser = function(){
     _stopAudio();
     document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
     _bar() && _bar().classList.remove('active');
+  }
+
+  // Mirrors nextChapter()'s own boundary logic with no side effects, so we
+  // can tell in advance whether auto-continuing is safe — without this,
+  // calling nextChapter() at the true end of the Bible is a silent no-op
+  // (see app.js's nextChapter(): at Revelation's last chapter it does
+  // nothing at all), which would otherwise re-read the same last chapter
+  // forever instead of stopping.
+  function _hasNextChapter(){
+    var info = (typeof _getBookInfo === 'function') ? _getBookInfo(currentBook) : null;
+    var max = info ? info.chapters : 50;
+    if(currentChapter < max) return true;
+    var idx = window.BIBLE_INDEX ? window.BIBLE_INDEX.findIndex(function(b){ return b.slug === currentBook; }) : -1;
+    return idx >= 0 && idx < window.BIBLE_INDEX.length - 1;
+  }
+
+  // Reached the end of the current chapter's verses while still actively
+  // reading. Previously this just stopped cold (_done()) — reading a
+  // chapter aloud always dead-ended, with no way to keep going except
+  // manually tapping the next-chapter button and pressing play again.
+  // Now it auto-advances and keeps reading, exactly like the manual
+  // next-chapter button already did, unless there's truly nothing left
+  // to read (end of Revelation), in which case it stops as before.
+  function _continueToNextChapter(){
+    if(!_active || !_hasNextChapter()){ _done(); return; }
+    _stopAudio();
+    if(typeof nextChapter === 'function') nextChapter();
+    setTimeout(function(){
+      if(!_active) return; // user tapped stop during the brief chapter-load pause
+      _verses = _getVerses();
+      if(!_verses.length){ _done(); return; }
+      _speakVerse(0);
+    }, 700);
   }
 
   /* ── Public API ── */

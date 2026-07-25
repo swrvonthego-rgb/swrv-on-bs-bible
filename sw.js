@@ -15,7 +15,7 @@ const CORE_ASSETS = [
   './manifest.json',
   './css/styles.css',
   // Active JS bundle
-  './js/app.js?v=20260725voicediag1',
+  './js/app.js?v=20260725continue1',
   './js/search.js?v=20260721study1',
   './js/preload-bible.js?v=20260721search1',
   './js/enrichments.js?v=20260721search1',
