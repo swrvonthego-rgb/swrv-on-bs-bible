@@ -8,7 +8,7 @@ App identity (already set in `capacitor.config.json`):
 - **App name:** SWRV Kingdom Bible
 - **Bundle ID:** `com.swrvonthego.bible`
 - **Live web app / API:** https://swrv-on-bs-bible.swrvonthego.workers.dev
-- **Publisher:** SWRV On The Go LLC — Villa Rica, GA
+- **Publisher:** SWRV On The Go LLC — Atlanta, GA
 
 ---
 

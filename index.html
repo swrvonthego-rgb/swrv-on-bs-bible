@@ -33,7 +33,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260725voicediag1">
+<link rel="stylesheet" href="css/styles.css?v=20260726tour1">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — immersive landing page (shows every visit) -->
@@ -64,6 +64,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
         <p class="landing-desc">A multi-source Bible study tool built for people who want to understand what the scripture <em>actually</em> meant to the people who first read it — original Hebrew and Greek word definitions, cultural context from the ancient Near East, accurate people profiles, and Kingdom theology. All 66 books. Every study tool. Free.</p>
         <div class="landing-cta-row">
           <button class="landing-open-btn" onclick="dismissSplash()">📖 Open Live App</button>
+          <button class="landing-share-btn" onclick="dismissSplashAndStartTour()">🎯 Take the Tour</button>
           <button class="landing-share-btn" onclick="if(navigator.share){navigator.share({title:'SWRV Kingdom Bible',url:location.href})}else{navigator.clipboard&&navigator.clipboard.writeText(location.href);alert('Link copied!')}">Share This Bible →</button>
         </div>
       </div>
@@ -127,7 +128,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <!-- Footer -->
     <footer class="landing-footer">
       <div class="landing-footer-brand">SWRV OTG</div>
-      <div class="landing-footer-sub">Full-Service Branding, Content &amp; App Development — Villa Rica, GA</div>
+      <div class="landing-footer-sub">Full-Service Branding, Content &amp; App Development — Atlanta, GA</div>
       <a class="landing-footer-link" href="https://swrvonthego.pro" target="_blank" rel="noopener">swrvonthego.pro →</a>
     </footer>
 
@@ -162,12 +163,12 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <button id="fontSizeBtn" class="icon-btn" title="Change text size" style="flex-shrink:0;">Aa M</button>
     <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
     <button id="navHideToggle" class="icon-btn nav-hide-btn" onclick="toggleNavBarHidden()" title="Hide or show the Book / Chapter / Verse / Canonical row" aria-pressed="false">Hide ▾</button>
-    <button class="icon-btn" onclick="showModal('memory')" title="Your bookmarks, highlights, and notes">📌 Memory</button>
+    <button id="memoryBtn" class="icon-btn" onclick="showModal('memory')" title="Your bookmarks, highlights, and notes">📌 Memory</button>
     <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button class="icon-btn" onclick="showModal('peoples')">👥 Peoples</button>
     <button class="icon-btn" onclick="showModal('rules')">📜 Rules</button>
-    <button class="icon-btn" onclick="showModal('library')">📚 Library</button>
+    <button id="libraryBtn" class="icon-btn" onclick="showModal('library')">📚 Library</button>
     <button class="icon-btn" onclick="showModal('glossary')" title="What does ANE mean? KJV? LXX? Tap to find out.">📖 Glossary</button>
     <button id="auditBtn" class="icon-btn" onclick="showModal('audit')">🔍 Audit</button>
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
@@ -585,6 +586,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 
 <!-- ============ FONT SIZE CONTROL ============ -->
 <button class="font-size-btn" id="fontSizeBtn" onclick="toggleFontSizePopover()" title="Adjust text size" aria-label="Text size">Aa</button>
+<button class="tour-relaunch-btn" onclick="startAppTour()" title="Replay the app tour" aria-label="Replay the app tour">🎯</button>
 <div class="font-size-popover" id="fontSizePopover">
   <div class="font-size-popover-label">Text Size</div>
   <div class="font-size-row">
@@ -626,6 +628,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js?v=20260725continue1"></script>
+<script src="js/tour.js?v=20260726tour1"></script>
 <script src="js/search.js?v=20260721study1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
@@ -647,5 +650,24 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- ============ FIRST-RUN TOUR — dimmed overlay + spotlight on real UI ============ -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  <div class="tour-card" id="tourCard">
+    <div class="tour-card-title" id="tourStepTitle"></div>
+    <div class="tour-card-body" id="tourStepBody"></div>
+    <div class="tour-card-footer">
+      <span class="tour-step-count" id="tourStepCount"></span>
+      <div class="tour-btn-row">
+        <button class="tour-btn" id="tourBackBtn" onclick="tourBack()">← Back</button>
+        <button class="tour-btn tour-btn-primary" id="tourNextBtn" onclick="tourNext()">Next →</button>
+      </div>
+    </div>
+    <div class="tour-skip-row">
+      <button class="tour-skip-link" onclick="skipTour()">Skip tour</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -3531,6 +3531,82 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   font-family: inherit;
 }
 .font-size-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── First-run interactive tour ── */
+.tour-relaunch-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 62px;
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-2, #1e1a14);
+  border: 1px solid var(--line);
+  color: var(--gold);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.tour-relaunch-btn:hover { border-color: var(--gold); transform: scale(1.06); }
+@media (max-width: 768px) { .tour-relaunch-btn { bottom: 20px; right: 62px; } }
+
+.tour-overlay { position: fixed; inset: 0; z-index: 10000; display: none; }
+.tour-overlay.show { display: block; }
+.tour-spotlight {
+  position: fixed;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(10,8,6,0.82);
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+  pointer-events: none;
+  z-index: 10001;
+}
+.tour-card {
+  position: fixed;
+  z-index: 10002;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  background: var(--bg-1, #1a140d);
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  transition: top .25s ease, left .25s ease;
+}
+.tour-card-title { font-size: 15px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+.tour-card-body { font-size: 13px; color: var(--fg, #eee); line-height: 1.5; margin-bottom: 14px; }
+.tour-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tour-step-count { font-size: 11px; color: var(--fg-dim); white-space: nowrap; }
+.tour-btn-row { display: flex; gap: 8px; }
+.tour-btn {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  color: var(--fg);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tour-btn-primary { background: var(--gold); color: #1a140d; border-color: var(--gold); font-weight: 700; }
+.tour-skip-row { text-align: center; margin-top: 10px; }
+.tour-skip-link {
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
 .font-size-popover {
   position: fixed;
   bottom: 128px;
