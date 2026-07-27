@@ -16,7 +16,7 @@ const CORE_ASSETS = [
   './css/styles.css',
   // Active JS bundle
   './js/app.js?v=20260727moremenu1',
-  './js/tour.js?v=20260726tour1',
+  './js/tour.js?v=20260728music1',
   './js/search.js?v=20260721study1',
   './js/preload-bible.js?v=20260721search1',
   './js/enrichments.js?v=20260721search1',

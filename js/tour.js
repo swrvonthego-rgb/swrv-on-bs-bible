@@ -28,6 +28,11 @@
       body: 'Tap Listen, then pick a reading voice from the 🎙 menu — you can preview each one before choosing.'
     },
     {
+      selector: '#musicMini',
+      title: 'Ambient Music, Optional',
+      body: 'This little player floats here the whole time you\'re reading. Tap it to expand — load your own tracks or an embedded station, and play it quietly behind your reading or study time.'
+    },
+    {
       selector: '#memoryBtn',
       title: 'Save Your Place',
       body: 'Bookmark verses and write your own notes. Sign in with Google or email to sync them across your devices.'
