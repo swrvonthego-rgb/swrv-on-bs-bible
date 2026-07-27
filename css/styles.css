@@ -3629,6 +3629,41 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
   color: var(--gold);
   margin-bottom: 10px;
 }
+
+/* ── "More" menu — Story, Peoples, Rules, Glossary, Audit ── */
+.more-menu-wrap { position: relative; display: inline-block; }
+.more-menu-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 201;
+  display: none;
+  flex-direction: column;
+  min-width: 180px;
+  background: var(--bg-2, #1e1a14);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.more-menu-popover.open { display: flex; }
+.more-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.more-menu-item:hover { background: rgba(212,175,55,0.1); color: var(--gold); }
+.more-menu-item span { font-size: 15px; line-height: 1; }
 .font-size-row {
   display: flex;
   align-items: center;

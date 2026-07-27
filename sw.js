@@ -8,14 +8,14 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260726-tour1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260727-moremenu1';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
   // Active JS bundle
-  './js/app.js?v=20260725continue1',
+  './js/app.js?v=20260727moremenu1',
   './js/tour.js?v=20260726tour1',
   './js/search.js?v=20260721study1',
   './js/preload-bible.js?v=20260721search1',

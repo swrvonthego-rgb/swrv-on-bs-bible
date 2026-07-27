@@ -6749,6 +6749,30 @@ window.openAllThreadsBrowser = function(){
       pop.classList.remove('open');
     }
   });
+
+  // "More" menu — consolidates Story, Peoples, Rules, Glossary, and Audit
+  // out of the main header row into one dropdown, so the header itself
+  // stays down to the handful of things a new user actually needs first.
+  window.toggleMoreMenu = function(){
+    var pop = document.getElementById('moreMenuPopover');
+    var btn = document.getElementById('moreMenuBtn');
+    if(!pop) return;
+    var open = pop.classList.toggle('open');
+    if(btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  window.closeMoreMenu = function(){
+    var pop = document.getElementById('moreMenuPopover');
+    var btn = document.getElementById('moreMenuBtn');
+    if(pop) pop.classList.remove('open');
+    if(btn) btn.setAttribute('aria-expanded', 'false');
+  };
+  document.addEventListener('click', function(e){
+    var pop = document.getElementById('moreMenuPopover');
+    var btn = document.getElementById('moreMenuBtn');
+    if(pop && pop.classList.contains('open') && !pop.contains(e.target) && e.target !== btn){
+      window.closeMoreMenu();
+    }
+  });
   // Apply saved preference immediately
   if(idx !== 3) apply();
 })();

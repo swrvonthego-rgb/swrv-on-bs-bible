@@ -33,7 +33,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260726tour1">
+<link rel="stylesheet" href="css/styles.css?v=20260727moremenu1">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — immersive landing page (shows every visit) -->
@@ -164,13 +164,18 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
     <button id="navHideToggle" class="icon-btn nav-hide-btn" onclick="toggleNavBarHidden()" title="Hide or show the Book / Chapter / Verse / Canonical row" aria-pressed="false">Hide ▾</button>
     <button id="memoryBtn" class="icon-btn" onclick="showModal('memory')" title="Your bookmarks, highlights, and notes">📌 Memory</button>
-    <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
-    <button class="icon-btn" onclick="showModal('peoples')">👥 Peoples</button>
-    <button class="icon-btn" onclick="showModal('rules')">📜 Rules</button>
     <button id="libraryBtn" class="icon-btn" onclick="showModal('library')">📚 Library</button>
-    <button class="icon-btn" onclick="showModal('glossary')" title="What does ANE mean? KJV? LXX? Tap to find out.">📖 Glossary</button>
-    <button id="auditBtn" class="icon-btn" onclick="showModal('audit')">🔍 Audit</button>
+    <div class="more-menu-wrap">
+      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More: Story, Peoples, Rules, Glossary, Audit">⋯ More</button>
+      <div class="more-menu-popover" id="moreMenuPopover">
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('story')"><span>📜</span> Story</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('peoples')"><span>👥</span> Peoples</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('rules')"><span>📜</span> Rules</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('glossary')"><span>📖</span> Glossary</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('audit')"><span>🔍</span> Audit</button>
+      </div>
+    </div>
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
     <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤 Sign In</button>
   </div>
@@ -627,7 +632,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260725continue1"></script>
+<script src="js/app.js?v=20260727moremenu1"></script>
 <script src="js/tour.js?v=20260726tour1"></script>
 <script src="js/search.js?v=20260721study1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
