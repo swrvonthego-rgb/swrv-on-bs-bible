@@ -10,10 +10,15 @@
     {
       selector: '#searchBtn',
       title: 'Find Anything Instantly',
-      body: 'Tap here to search any verse, word, person, place, event, or ancient source — even Strong\'s Hebrew and Greek numbers like H430 or G26.'
+      body: 'Tap here to search any verse, word, person, place, event, or ancient source — even Strong\'s Hebrew and Greek numbers like H430 or G26.<br><br><span style="opacity:0.75;font-size:12px;">Tip: this whole menu row scrolls left and right — swipe it to see everything.</span>'
     },
     {
-      selector: '#readingModeGroup',
+      // The reading-mode-group wrapper (New Reader/Study/Scholar/Threads) can
+      // render as a thin, collapsed sliver on narrower screens if it's been
+      // flex-shrunk in the scrollable header row — spotlighting a single real
+      // button inside it (New Reader) is both more robust and clearer to
+      // teach from than "look at this whole cluster."
+      selector: '#readingModeRead',
       title: 'Choose Your Depth',
       body: '<b>New Reader</b> keeps it simple and plain-English. <b>Study</b> opens deep context on any verse you tap. <b>Scholar</b> shows everything — lexicons, sources, translation notes.'
     },
@@ -72,19 +77,38 @@
       spotlight.style.width  = (r.width + pad*2) + 'px';
       spotlight.style.height = (r.height + pad*2) + 'px';
 
-      var cardW = 300;
-      var cardH = card.offsetHeight || 160;
-      var spaceBelow = window.innerHeight - r.bottom;
-      var top = (spaceBelow > cardH + 24) ? (r.bottom + pad + 14) : Math.max(12, r.top - pad - cardH - 14);
-      var left = Math.min(Math.max(12, r.left), window.innerWidth - cardW - 12);
-      card.style.top = top + 'px';
-      card.style.left = left + 'px';
-
+      // Content MUST be set before measuring card.offsetHeight below — this
+      // step's text can be longer or shorter than whatever was showing
+      // before. Measuring first (the old order) used the PREVIOUS step's
+      // height, so a longer card (like the music-player step) would render
+      // taller than the position was calculated for and its bottom would
+      // hang down past the target — e.g. covering the music player itself.
       $('tourStepTitle').textContent = step.title;
       $('tourStepBody').innerHTML = step.body;
       $('tourStepCount').textContent = 'Step ' + (idx+1) + ' of ' + STEPS.length;
       $('tourBackBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
       $('tourNextBtn').textContent = idx === STEPS.length - 1 ? 'Finish' : 'Next →';
+
+      var cardW = 300;
+      var cardH = card.offsetHeight || 160;
+      var spaceBelow = window.innerHeight - r.bottom;
+      var spaceAbove = r.top;
+      var top;
+      if(spaceBelow > cardH + 24){
+        top = r.bottom + pad + 14;
+      } else if(spaceAbove > cardH + 24){
+        top = r.top - pad - cardH - 14;
+      } else {
+        // Neither side has a clean gap (target near an edge, card tall) —
+        // pin to whichever edge has more room, and clamp so the card can
+        // never actually overlap the spotlighted target's own box.
+        top = spaceAbove > spaceBelow
+          ? Math.max(12, r.top - pad - cardH - 14)
+          : Math.min(window.innerHeight - cardH - 12, r.bottom + pad + 14);
+      }
+      var left = Math.min(Math.max(12, r.left), window.innerWidth - cardW - 12);
+      card.style.top = top + 'px';
+      card.style.left = left + 'px';
     }, 260);
   }
 

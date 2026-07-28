@@ -4688,14 +4688,17 @@ function _renderBookOverview(book){
   }
   window.closeStudySheet = closeStudySheet;
 
-  // ---- Header-actions scroll arrow ----
+  // ---- Header-actions scroll arrows (both edges) ----
   (function(){
     var actEl = document.querySelector('.header-actions');
     var arrEl = document.getElementById('headerActionsArrow');
+    var arrLeftEl = document.getElementById('headerActionsArrowLeft');
     function _upd(){
-      if(!actEl || !arrEl) return;
+      if(!actEl) return;
       var atEnd = actEl.scrollLeft + actEl.clientWidth >= actEl.scrollWidth - 6;
-      arrEl.classList.toggle('hidden', atEnd);
+      var atStart = actEl.scrollLeft <= 6;
+      if(arrEl) arrEl.classList.toggle('hidden', atEnd);
+      if(arrLeftEl) arrLeftEl.classList.toggle('hidden', atStart);
     }
     if(actEl){
       actEl.addEventListener('scroll', _upd, { passive:true });
