@@ -739,7 +739,7 @@
 
     // If this is a chapter reference, show that chapter first instead of broad token noise.
     if(ref && ref.chapter && !ref.verse){
-      const chapterRows = index.filter(rec => rec.action && rec.action.type === 'verse' && rec.action.book === ref.book && rec.action.chapter === ref.chapter).slice(0, 220);
+      const chapterRows = index.filter(rec => rec.action && rec.action.type === 'verse' && rec.action.book === ref.book && rec.action.chapter === ref.chapter);
       for(const r of chapterRows){
         results.push({type:r.type,category:r.category,catShort:r.catShort,catBadge:r.catBadge,title:r.title,preview:r.preview,reference:r.reference,matchedIn:'chapter reference',score:9000,action:r.action});
       }
@@ -832,10 +832,12 @@
     }
 
     // Do not let high-frequency words get trapped in the first loaded books.
-    // Example: "Jesus" appears so often that a simple top-80 cap can show
+    // Example: "Jesus" appears so often that a naive score-sort can show
     // Matthew/Mark only, making the user think Luke-Revelation are missing.
     // For large Scripture result sets, spread results across every available book
-    // while preserving score order inside each book.
+    // while preserving score order inside each book. This never drops a result —
+    // it only reorders so every book gets represented instead of the highest-
+    // scoring book crowding out everything else.
     function diversifyScriptureResults(rows){
       const scripture = rows.filter(x => x.rec && x.rec.category === 'Scripture Passages' && x.rec.action && x.rec.action.book);
       const other = rows.filter(x => !(x.rec && x.rec.category === 'Scripture Passages' && x.rec.action && x.rec.action.book));
@@ -863,22 +865,25 @@
       }
       const diversified = [];
       let added = true;
-      const maxScripture = 360;
-      while(added && diversified.length < maxScripture){
+      while(added){
         added = false;
         for(const book of order){
           const bucket = buckets[book];
-          if(bucket && bucket.length && diversified.length < maxScripture){
+          if(bucket && bucket.length){
             diversified.push(bucket.shift());
             added = true;
           }
         }
       }
-      // Keep source cards, then lower-confidence support-only Scripture hits.
-      return diversified.concat(other.slice(0, 160)).concat(supportScripture.slice(0, 80));
+      // Keep source cards, then lower-confidence support-only Scripture hits —
+      // every match is included, nothing truncated.
+      return diversified.concat(other).concat(supportScripture);
     }
 
-    const finalRows = diversifyScriptureResults(scored).slice(0, 520);
+    // No overall cap — every matching record across the whole Bible and every
+    // companion data set (definitions, lexicon, people, places, themes,
+    // events, cultural cards, etc.) is included, just score-sorted / diversified.
+    const finalRows = diversifyScriptureResults(scored);
     for(const s of finalRows){
       const r = s.rec;
       results.push({
@@ -996,12 +1001,10 @@
       if(activeCategoryFilter && cat !== activeCategoryFilter) continue;
       const list = groups.get(cat);
       if(!list || list.length === 0) continue;
-      // Show up to 12 per category when not filtered, 80 when filtered
-      const showCount = activeCategoryFilter ? 500 : (cat === 'Scripture Passages' ? 36 : 12);
-      const items = list.slice(0, showCount);
-      html.push('<div class="search-cat-header">'+items[0].catBadge+' '+_esc(cat)+
+      // No per-category cap — every match renders, every time.
+      html.push('<div class="search-cat-header">'+list[0].catBadge+' '+_esc(cat)+
                 ' <span class="search-cat-count">'+list.length+'</span></div>');
-      for(const r of items){
+      for(const r of list){
         html.push('<button class="search-result" onclick="searchOpen('+JSON.stringify(r.action).replace(/"/g,'&quot;')+')">');
         html.push('<div class="search-result-top">');
         html.push('<div class="search-result-title">'+highlight(r.title, query)+'</div>');
@@ -1011,10 +1014,6 @@
         if(r.preview) html.push('<div class="search-result-preview">'+highlight(r.preview, query)+'</div>');
         if(r.reference && r.reference !== r.title) html.push('<div class="search-result-meta">'+_esc(r.reference)+'</div>');
         html.push('</button>');
-      }
-      // "Show all N in this category" link if truncated
-      if(!activeCategoryFilter && list.length > showCount){
-        html.push('<button class="search-show-more" onclick="searchFilterCategory('+JSON.stringify(cat).replace(/"/g,'&quot;')+')">Show all '+list.length+' results in '+_esc(cat)+' →</button>');
       }
     }
     // Add unlock notice if there are locked results

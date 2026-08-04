@@ -591,8 +591,8 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 </div>
 
 <!-- ============ FONT SIZE CONTROL ============ -->
-<button class="font-size-btn" id="fontSizeBtn" onclick="toggleFontSizePopover()" title="Adjust text size" aria-label="Text size">Aa</button>
-<button class="tour-relaunch-btn" onclick="startAppTour()" title="Replay the app tour" aria-label="Replay the app tour">🎯</button>
+<button class="font-size-btn" id="floatingFontSizeBtn" title="Adjust text size — drag to move, drop at an edge to tuck it away" aria-label="Text size">Aa</button>
+<button class="tour-relaunch-btn" id="tourRelaunchBtn" title="Replay the app tour — drag to move, drop at an edge to tuck it away" aria-label="Replay the app tour">🎯</button>
 <div class="font-size-popover" id="fontSizePopover">
   <div class="font-size-popover-label">Text Size</div>
   <div class="font-size-row">
@@ -633,9 +633,10 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260729tourfix1"></script>
+<script src="js/app.js?v=20260804dock1"></script>
 <script src="js/tour.js?v=20260729tourfix1"></script>
-<script src="js/search.js?v=20260721study1"></script>
+<script src="js/floating-widgets.js?v=20260804dock1"></script>
+<script src="js/search.js?v=20260804search2"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
 <script>
