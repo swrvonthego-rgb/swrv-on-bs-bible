@@ -251,6 +251,17 @@ header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));borde
 .def-translit{font-style:italic;color:var(--fg-mute);margin-bottom:12px;font-size:14px}
 .def-strongs{display:inline-block;background:var(--bg-3);border:1px solid var(--line);color:var(--gold);padding:2px 8px;border-radius:3px;font-size:11px;font-family:-apple-system,sans-serif;margin-bottom:14px;cursor:pointer}
 .def-strongs:hover{border-color:var(--gold)}
+/* Always-visible Strong's pointer — deliberately NOT given .strongs-section
+   or .scholar-depth, which reading-mode CSS hides in Read/Study modes. This
+   is the one line guaranteed to survive in every mode so tapping a word
+   never leaves someone with no way to reach the lexicon entry. */
+.def-strongs-pointer{
+  display:block;margin-top:14px;padding:8px 12px;background:var(--bg-3);
+  border:1px solid var(--gold);border-radius:6px;color:var(--gold);
+  font-size:13px;font-weight:600;font-family:-apple-system,sans-serif;
+  cursor:pointer;text-align:center;
+}
+.def-strongs-pointer:hover{background:var(--bg-2)}
 .def-section{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .def-section-label{color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.8px;margin-bottom:5px;font-family:-apple-system,sans-serif}
 .def-section-text{color:var(--fg);font-size:14px;line-height:1.6}

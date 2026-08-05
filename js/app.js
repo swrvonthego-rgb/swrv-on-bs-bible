@@ -1521,24 +1521,32 @@ function showAutoTermCard(word){
   const gloss=(window.GLOSSARY && (window.GLOSSARY[key]||window.GLOSSARY[key.toUpperCase()]||window.GLOSSARY[lower])) || null;
   const reg=window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[lower];
   const sup=window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[lower];
-  const lex=_findLexiconMatchesForEnglish(lower,8);
+  const lex=_findLexiconMatchesForEnglish(lower,4);
   let html=[];
   html.push('<div class="def-word">'+escapeHtml(key)+'</div>');
+  // One core meaning line, not three overlapping ones — prefer whichever
+  // source actually has content, in order of how directly it answers
+  // "what does this word mean," instead of stacking all of them.
+  const core = (sup && sup.def) || reg || (gloss && (gloss.body||gloss.term));
+  if(core) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(core)+'</div></div>');
   if(sup){
-    html.push('<div class="def-section kingdom-section"><div class="def-section-label">What it means in context</div><div class="def-section-text">'+escapeHtml(sup.def||'')+'</div></div>');
     if(sup.hebrew) html.push('<div class="def-section"><div class="def-section-label">Hebrew original</div><div class="def-section-text">'+escapeHtml(sup.hebrew)+'</div></div>');
     if(sup.greek) html.push('<div class="def-section"><div class="def-section-label">Greek original</div><div class="def-section-text">'+escapeHtml(sup.greek)+'</div></div>');
-    if(sup.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(sup.warning)+'</div></div>');
+    if(sup.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up</div><div class="def-section-text">'+escapeHtml(sup.warning)+'</div></div>');
   }
-  if(reg){ html.push('<div class="def-section"><div class="def-section-label">Familiar English</div><div class="def-section-text">'+escapeHtml(reg)+'</div></div>'); }
-  if(gloss){ html.push('<div class="def-section"><div class="def-section-label">Study term</div><div class="def-section-text">'+escapeHtml(gloss.body||gloss.term||'')+'</div></div>'); }
+  // Strong's / lexicon connections — always visible in every reading mode.
+  // This used to carry the "strongs-section" class, which New Reader mode
+  // hides entirely; since most words in the Bible have no curated dictionary
+  // card and land here, that silently made Strong's info disappear for the
+  // majority of taps in New Reader mode. It's the one thing people actually
+  // came here for, so it stays visible regardless of mode.
   if(lex.length){
-    html.push('<div class="def-section strongs-section"><div class="def-section-label">Original language connections</div>');
+    html.push('<div class="def-section def-strongs-pointer"><div class="def-section-label">📔 Strong\'s / lexicon</div>');
     lex.forEach(function(hit){
       const e=hit.e||{};
       const label=hit.kind==='Greek'?(e.grk||hit.id):(e.lemma||hit.id);
       const def=e.def||e.strongs_def||e.kjv_def||'';
-      html.push('<button class="lex-link-row" onclick="showStrongs(\''+hit.id+'\')"><b>'+escapeHtml(hit.id)+' '+escapeHtml(label)+'</b><span>'+escapeHtml(def).slice(0,170)+'</span></button>');
+      html.push('<button class="lex-link-row" onclick="showStrongs(\''+hit.id+'\')"><b>'+escapeHtml(hit.id)+' '+escapeHtml(label)+'</b><span>'+escapeHtml(def).slice(0,140)+'</span></button>');
     });
     html.push('</div>');
   }
@@ -1678,74 +1686,106 @@ function showDef(word, opts){
   popup.classList.remove('people','strongs');
   const html=[];
 
-  // ── TIER 1: Plain meaning first — what this word means, right now ──
   html.push('<div class="def-word">'+escapeHtml(word)+'</div>');
 
-  // Best plain-English sentence first: prefer deep.plain (context-aware), fall back to def.plain
-  const topPlain = (deep && deep.plain) || def.plain;
-  if(topPlain) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(topPlain)+'</div></div>');
+  // Best Strong's id found anywhere below, so a single always-visible
+  // pointer can be shown near the bottom regardless of reading mode.
+  let topSId = null;
 
-  // Context-specific meaning for this exact verse (if verse strongs tags matched)
+  // Context-specific meaning for this exact verse goes first — it's the
+  // single most useful fact when the verse's own Strong's tags matched.
+  let contextGloss = null;
   if(deep){
     const picked = _contextSenseFor(word, opts);
     if(picked){
       const sId=(picked.strongs||'').match(/[HG]\d+/)?.[0] || picked.pickedStrongs;
-      html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ In this verse specifically</div>');
-      html.push('<div class="def-section-text"');
-      if(sId) html.push(' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"');
-      html.push('>');
-      html.push(escapeHtml(picked.gloss||''));
-      html.push('</div></div>');
+      if(sId) topSId = sId;
+      contextGloss = picked.gloss || null;
+      if(contextGloss){
+        html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ In this verse specifically</div>');
+        html.push('<div class="def-section-text"'+(sId?' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"':'')+'>'+escapeHtml(contextGloss)+'</div></div>');
+      }
     }
   }
 
-  // "What it means" — legacy def field
-  if(def.def) html.push('<div class="def-section"><div class="def-section-label">What it means</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
+  // One core "what this word means" section — topPlain / def.def / deep.deep
+  // used to stack as three near-duplicate blocks; show the best single one,
+  // and only add deep.deep separately below when it genuinely adds more.
+  const topPlain = (deep && deep.plain) || def.plain;
+  const core = [topPlain, def.def].filter(function(t){ return t && t !== contextGloss; })[0];
+  if(core) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(core)+'</div></div>');
+  if(deep && deep.deep && deep.deep !== core && deep.deep !== contextGloss){
+    html.push('<div class="def-section"><div class="def-section-label">Go deeper</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
+  }
 
-  // Deep dictionary: "What this word really means" (only if different from topPlain)
-  if(deep && deep.deep) html.push('<div class="def-section"><div class="def-section-label">What this word really means</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
-
-  // ── TIER 2: Enrichment — picture it, context, why it matters ──
   if(def.visual) html.push('<div class="def-section"><div class="def-section-label">Picture it like this</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
-  if(def.senses&&def.senses.length){
+
+  // One merged, deduplicated "how this word is used" list instead of two
+  // overlapping ones (def.senses / deep.rangeOfMeaning).
+  const usesRaw = (def.senses||[]).concat((deep && deep.rangeOfMeaning) || []);
+  const uses = usesRaw.filter(function(s, i){ return s && usesRaw.indexOf(s) === i; });
+  if(uses.length){
     html.push('<div class="def-section"><div class="def-section-label">All the ways this word is used</div><ul class="def-list">');
-    for(const s of def.senses)html.push('<li>'+escapeHtml(s)+'</li>');
+    for(const s of uses) html.push('<li>'+escapeHtml(s)+'</li>');
     html.push('</ul></div>');
   }
-  if(deep && deep.rangeOfMeaning && deep.rangeOfMeaning.length){
-    html.push('<div class="def-section"><div class="def-section-label">Full range of meanings</div><ul class="def-list">');
-    for(const r of deep.rangeOfMeaning) html.push('<li>'+escapeHtml(r)+'</li>');
-    html.push('</ul></div>');
-  }
-  if(def.ane) html.push('<div class="def-section"><div class="def-section-label">What life looked like back then</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
-  if(deep && deep.cultural) html.push('<div class="def-section"><div class="def-section-label">Historical background</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
-  if(def.kingdom) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters today</div><div class="def-section-text">'+escapeHtml(def.kingdom)+'</div></div>');
-  if(deep && deep.kingdomSignificance) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom significance</div><div class="def-section-text">'+escapeHtml(deep.kingdomSignificance)+'</div></div>');
-  if(deep && deep.matters) html.push('<div class="def-section"><div class="def-section-label">Why this matters</div><div class="def-section-text">'+escapeHtml(deep.matters)+'</div></div>');
+
+  // One historical-background section instead of two (def.ane / deep.cultural).
+  const background = (deep && deep.cultural) || def.ane;
+  if(background) html.push('<div class="def-section"><div class="def-section-label">Historical background</div><div class="def-section-text">'+escapeHtml(background)+'</div></div>');
+
+  // One "why this matters" section instead of three overlapping ones.
+  const matters = (deep && deep.kingdomSignificance) || def.kingdom || (deep && deep.matters);
+  if(matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters</div><div class="def-section-text">'+escapeHtml(matters)+'</div></div>');
+
   if(def.theology) html.push('<div class="def-section"><div class="def-section-label">Going deeper</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
   if(def.psychology) html.push('<div class="def-section"><div class="def-section-label">Heart, soul, and mind</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
 
-  // Warnings / mistranslations
-  if(def.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up — translation issue</div><div class="def-section-text">'+escapeHtml(def.warning)+'</div></div>');
-  if(deep && deep.notMean) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ This does NOT mean</div><div class="def-section-text">'+escapeHtml(deep.notMean)+'</div></div>');
-  if(deep && deep.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(deep.misunderstood)+'</div></div>');
-
-  // ── TIER 3: Cross-references ──
-  if(def.cross) html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
-  if(deep && deep.relatedVerses && deep.relatedVerses.length){
-    html.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  // One warnings section — every distinct heads-up actually present, inline
+  // labeled, instead of three separate stacked boxes.
+  const warningItems = [];
+  if(def.warning) warningItems.push(['Translation issue', def.warning]);
+  if(deep && deep.notMean) warningItems.push(['Does NOT mean', deep.notMean]);
+  if(deep && deep.misunderstood) warningItems.push(['Common mistake', deep.misunderstood]);
+  if(warningItems.length){
+    html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Heads up</div>'+
+      warningItems.map(function(w){return '<div class="def-section-text" style="margin-top:4px;"><b>'+escapeHtml(w[0])+':</b> '+escapeHtml(w[1])+'</div>';}).join('')+
+    '</div>');
   }
+
+  // One cross-references line instead of two overlapping ones.
+  const crossRefs = [];
+  if(def.cross) crossRefs.push(def.cross);
+  if(deep && deep.relatedVerses) crossRefs.push.apply(crossRefs, deep.relatedVerses);
+  if(crossRefs.length) html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+crossRefs.map(escapeHtml).join(' · ')+'</div></div>');
+
   if(deep && deep.relatedWords && deep.relatedWords.length){
     html.push('<div class="def-section"><div class="def-section-label">Related words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
   }
 
-  // ── TIER 4: Technical / scholarly — for those who want to go further ──
   if(def.root) html.push('<div class="def-section"><div class="def-section-label">Root word</div><div class="def-section-text">'+escapeHtml(def.root)+'</div></div>');
 
-  // Original-language words (deep.originals)
-  if(deep && deep.originals && deep.originals.length){
+  // Resolve a Strong's id from the legacy field too, in case the context
+  // match above didn't fire for this word.
+  if(!topSId && def.strongs){
+    const hId=def.strongs.match(/H\d+/)?.[0];
+    const gId=def.strongs.match(/G\d+/)?.[0];
+    topSId = hId||gId;
+  }
+  if(!topSId && deep && deep.originals && deep.originals.length){
+    const firstWithId = deep.originals.find(function(o){ return (o.strongs||'').match(/[HG]\d+/); });
+    if(firstWithId) topSId = firstWithId.strongs.match(/[HG]\d+/)[0];
+  }
+
+  // Original-language words — skip a lone entry that would just repeat the
+  // always-visible pointer below with nothing new; show the full breakdown
+  // when there's more than one, or the single entry carries its own note.
+  const originalsToShow = (deep && deep.originals) ? deep.originals.filter(function(o){
+    return deep.originals.length > 1 || o.note;
+  }) : [];
+  if(originalsToShow.length){
     html.push('<div class="def-section"><div class="def-section-label">Original words — tap to explore</div>');
-    for(const o of deep.originals){
+    for(const o of originalsToShow){
       const sId=(o.strongs||'').match(/[HG]\d+/)?.[0];
       const onclick = sId ? ' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"' : '';
       html.push('<div class="def-section-text" style="margin-top:6px;border-left:2px solid var(--gold);padding-left:8px;"'+onclick+'><b>'+escapeHtml(o.lang||'')+': '+(o.word||'')+'</b>');
@@ -1760,46 +1800,47 @@ function showDef(word, opts){
   if(def.greek) html.push('<div class="def-section"><div class="def-section-label">Greek (LXX/NT)</div><div class="def-section-text">'+escapeHtml(def.greek)+'</div></div>');
   if(def.aramaic) html.push('<div class="def-section"><div class="def-section-label">Aramaic</div><div class="def-section-text">'+escapeHtml(def.aramaic)+'</div></div>');
 
-  // Hebrew / transliteration / Strong's — technical identifiers pushed to bottom
-  if(def.hebrew || def.translit || def.strongs){
+  if(def.hebrew || def.translit){
     html.push('<div class="def-section" style="border-top:1px dashed var(--line);margin-top:8px;padding-top:8px;">');
     html.push('<div class="def-section-label" style="font-size:10px;letter-spacing:0.12em;">Original Language Reference</div>');
     if(def.hebrew) html.push('<div class="def-hebrew" style="margin-top:4px;">'+def.hebrew+'</div>');
     if(def.translit) html.push('<div class="def-translit">'+escapeHtml(def.translit)+'</div>');
-    if(def.strongs){
-      const hId=def.strongs.match(/H\d+/)?.[0];
-      const gId=def.strongs.match(/G\d+/)?.[0];
-      const sId=hId||gId;
-      if(sId) html.push('<div class="def-strongs" onclick="showStrongs(\''+sId+'\')" title="Tap for full Strong\'s entry">Strong\'s '+escapeHtml(def.strongs)+' →</div>');
-      else html.push('<div class="def-strongs">Strong\'s '+escapeHtml(def.strongs)+'</div>');
-    }
     html.push('</div>');
   }
 
-  // BDB Scholar's Dictionary
-  if(def.strongs){
-    const sId=def.strongs.match(/H\d+/)?.[0];
-    if(sId){
-      const bdbResults=lookupBDB(sId);
-      if(bdbResults.length>0){
-        html.push('<div class="def-section strongs-section scholar-depth">');
-        html.push('<div class="def-section-label">📖 Scholar\'s Dictionary — '+(bdbResults.length>1?bdbResults.length+' Senses':'Definition')+'</div>');
-        for(const r of bdbResults){
-          if(bdbResults.length>1)html.push('<div style="margin-top:6px;color:var(--gold);font-weight:700;font-size:12px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
-          if(r.entry.def){
-            const dd=r.entry.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,'<br>');
-            html.push('<div class="def-section-text" style="margin-top:4px;">'+dd+'</div>');
-          }
+  // Always-visible Strong's pointer — the one thing people actually tapped
+  // the word for. This used to only exist for words with a legacy
+  // def.strongs field, buried at the very bottom with no reading-mode
+  // exemption, while every other word's lexicon section (in
+  // showAutoTermCard) was hidden entirely in New Reader mode. Now it shows
+  // in every mode whenever ANY Strong's id was found above.
+  if(topSId){
+    html.push('<div class="def-strongs-pointer" onclick="showStrongs(\''+topSId+'\')" title="Tap for the full Strong\'s lexicon entry">📔 Strong\'s '+escapeHtml(topSId)+' →</div>');
+  }
+
+  // BDB Scholar's Dictionary — full multi-sense dive, Scholar mode only;
+  // redundant with the pointer above for lighter reading modes.
+  if(topSId && topSId.startsWith('H')){
+    const bdbResults=lookupBDB(topSId);
+    if(bdbResults.length>0){
+      html.push('<div class="def-section strongs-section scholar-depth">');
+      html.push('<div class="def-section-label">📖 Scholar\'s Dictionary — '+(bdbResults.length>1?bdbResults.length+' Senses':'Definition')+'</div>');
+      for(const r of bdbResults){
+        if(bdbResults.length>1)html.push('<div style="margin-top:6px;color:var(--gold);font-weight:700;font-size:12px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
+        if(r.entry.def){
+          const dd=r.entry.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,'<br>');
+          html.push('<div class="def-section-text" style="margin-top:4px;">'+dd+'</div>');
         }
-        html.push('</div>');
       }
+      html.push('</div>');
     }
   }
 
-  // Strong's Concise (1894)
+  // Strong's Concise (1894) raw fields — Scholar mode only; the pointer +
+  // BDB block above already cover this for lighter reading modes.
   if(def.strongsData){
     const sd=def.strongsData;
-    html.push('<div class="def-section">');
+    html.push('<div class="def-section scholar-depth">');
     html.push('<div class="def-section-label">📚 Strong\'s Concise (1894)</div>');
     if(sd.strongs_def)html.push('<div class="def-section-text">'+escapeHtml(sd.strongs_def)+'</div>');
     if(sd.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>King James Version:</b> <i>'+escapeHtml(sd.kjv_def)+'</i></div>');
