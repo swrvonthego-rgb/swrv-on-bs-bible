@@ -980,23 +980,37 @@ function _definitionExists(word){
   return !!(window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]));
 }
 
+// ENGLISH_BIBLE_DICT is keyed by both canonical English headwords ("love") and
+// transliteration aliases ("ahab", "agape", "chesed") that redirect to them.
+// Only headwords may be auto-underlined: "Ahab" in the text is the king, not
+// the Hebrew verb, and tagging it would mislabel ~280 occurrences.
+function _deepDictHeadword(word){
+  if(!word || !window.ENGLISH_BIBLE_DICT) return false;
+  if(SWRV_STOP_WORDS.has(String(word).toLowerCase())) return false;
+  const e = window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[String(word).toLowerCase()];
+  if(!e) return false;
+  return String(e.word||'').toLowerCase() === String(word).toLowerCase();
+}
+
 function getAugmentedDefinables(v, displayText){
   const out = new Set((v.definableWords||[]).filter(Boolean));
   const text = String(displayText||'');
   // Exact word-to-definition saturation from approved in-app dictionary.
   text.split(/\s+/).forEach(function(tok){
     const cleaned=_normalizeWordToken(tok);
-    if(_definitionExists(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
+    if(_definitionExists(cleaned)||_deepDictHeadword(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
   });
   // People remain clickable through the people profile layer. Places/themes are shown as chips below the verse.
   // Phrase-level terms: add source definitions whose phrase occurs in verse text.
-  if(window.DEFINITIONS){
-    const lower=' '+text.toLowerCase()+' ';
-    Object.keys(window.DEFINITIONS).forEach(function(k){
+  const lower=' '+text.toLowerCase()+' ';
+  [window.DEFINITIONS, window.ENGLISH_BIBLE_DICT].forEach(function(dict){
+    if(!dict) return;
+    Object.keys(dict).forEach(function(k){
       if(!k || k.length<4 || !/\s/.test(k) || k.length>42) return;
+      if(dict===window.ENGLISH_BIBLE_DICT && !_deepDictHeadword(k)) return;
       if(lower.indexOf(' '+k.toLowerCase()+' ')>=0) out.add(k);
     });
-  }
+  });
   return Array.from(out);
 }
 
@@ -1077,6 +1091,7 @@ function _hasAnyDefinition(cleaned){
   if(!cleaned) return false;
   const key=cleaned.toLowerCase();
   return _definitionExists(cleaned) ||
+    _deepDictHeadword(cleaned) ||
     (window.GLOSSARY && (window.GLOSSARY[cleaned]||window.GLOSSARY[key]||window.GLOSSARY[cleaned.toUpperCase()])) ||
     (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[key]) ||
     (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key]);
@@ -1163,6 +1178,21 @@ function renderVerseText(text,definables,peopleNames,verseRef){
     }
     return escapeHtml(token);
   }).join('');
+}
+
+// Library readers (Apocrypha, 1 Enoch) hold plain {chapter:{verse:text}} data
+// with no per-verse definableWords/people tagging, so they used to print raw
+// escaped text and lost every underline. Deriving the definable set from the
+// text itself gives those books the same tappable dictionary as the main
+// reader. Falls back to plain escaped text if anything is unavailable.
+function _tagLibraryText(text, ref){
+  const t=String(text||'');
+  try{
+    return renderVerseText(t, getAugmentedDefinables({definableWords:[]}, t), [], ref||'');
+  }catch(e){
+    console.warn('library text tagging failed:',e);
+    return escapeHtml(t);
+  }
 }
 
 function getAmpStyleNote(v){
@@ -1311,17 +1341,19 @@ function renderVerse(v){
   }
   verseHtml.push(renderUniversalDeepStudy(v));
   verseHtml.push('</div>');
-  // Genesis 1-4 enrichments (Pre-history, plot panels, heartbeat, culture deep)
-  if(currentBook==='Genesis'){
-    try{
-      const vnum=parseInt(v.ref.match(/:(\d+)$/)[1]);
-      const ch=parseInt(v.ref.match(/^Genesis (\d+)/i)[1]||v.ref.match(/^Gen (\d+)/i)[1]||0);
-      if(ch>=1&&ch<=4){
-        const enrichments=renderGen14Enrichments(ch,vnum);
-        if(enrichments)return verseHtml.join('')+enrichments;
-      }
-    }catch(e){console.warn('Gen 1-4 enrichment error:',e);}
-  }
+  // Deep enrichments: pre-history, plot panels, heartbeat callouts, culture
+  // boxes, cross-source parallels. renderGen14Enrichments picks its data pool
+  // from window.currentBook and returns '' for books and chapters it has no
+  // layer for, so the book list lives with the data rather than being repeated
+  // here — Exodus and Leviticus layers stayed invisible while this was gated
+  // to Genesis 1-4.
+  try{
+    const m=v.ref.match(/^(.+)\s+(\d+):(\d+)$/);
+    if(m && typeof renderGen14Enrichments==='function'){
+      const enrichments=renderGen14Enrichments(parseInt(m[2],10),parseInt(m[3],10));
+      if(enrichments)return verseHtml.join('')+enrichments;
+    }
+  }catch(e){console.warn('enrichment error:',e);}
   return verseHtml.join('');
 }
 
@@ -3318,7 +3350,7 @@ function openEnochReader(section, chapter){
   for(const v of verses){
     h += '<div style="margin-bottom:14px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
     h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">v.'+v+'</span>';
-    h += '<span style="line-height:1.6;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '<span style="line-height:1.6;">'+_tagLibraryText(chData[v]||'', '1 Enoch '+chapter+':'+v)+'</span>';
     h += '</div>';
   }
   // prev/next chapter nav
@@ -3458,7 +3490,7 @@ function openApocryphaReader(bookKey, chapter){
     var v = verses[j];
     h += '<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
     h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">'+v+'</span>';
-    h += '<span style="line-height:1.65;font-size:15px;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '<span style="line-height:1.65;font-size:15px;">'+_tagLibraryText(chData[v]||'', meta.title+' '+chapter+':'+v)+'</span>';
     h += '</div>';
   }
 
@@ -6395,11 +6427,14 @@ window._renderChapterIntro = function(book, chapterNum) {
           <div style="margin-top:12px;font-size:12px;color:var(--fg-dim,#8a7a60);cursor:pointer;" id="swrvOnboardSkip">Skip intro</div>
         </div>
       `;
-      document.getElementById('swrvOnboardNext').onclick = function(){
+      // Scope the lookups to `overlay`: the first render() runs before the
+      // overlay is appended, so document.getElementById returned null and threw,
+      // which aborted buildOnboarding and meant new readers never saw the intro.
+      overlay.querySelector('#swrvOnboardNext').onclick = function(){
         if(current < cards.length - 1){ current++; render(); }
         else { dismiss(); }
       };
-      document.getElementById('swrvOnboardSkip').onclick = dismiss;
+      overlay.querySelector('#swrvOnboardSkip').onclick = dismiss;
     }
 
     function dismiss(){
