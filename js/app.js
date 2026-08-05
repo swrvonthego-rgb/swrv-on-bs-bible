@@ -6487,9 +6487,21 @@ window._renderChapterIntro = function(book, chapterNum) {
     document.documentElement.style.setProperty('--bible-text-size', currentSize+'px');
     document.documentElement.style.setProperty('--bible-line-height', Math.max(1.45, 1.78 - (currentSize-17)*0.012).toFixed(3));
     const fam = FAMILIES.find(function(f){ return f.id===currentFamily; }) || FAMILIES[0];
+    // Every theme rule in styles.css is written as ":root, [data-theme='x']" —
+    // that second selector also matches <body data-theme="x">, so it redeclares
+    // --font-body directly on body with the theme's hardcoded stack. That
+    // redeclaration sits closer to the verse text than our inline override on
+    // <html>, so it always won and the font picker looked like a no-op. Setting
+    // the property on body too, where the theme rule itself lives, wins the tie.
     document.documentElement.style.setProperty('--font-body', fam.stack);
+    if(document.body) document.body.style.setProperty('--font-body', fam.stack);
     const btn = document.getElementById('fontSizeBtn');
     if(btn) btn.textContent = 'Aa ' + currentSize;
+    // The floating quick-access "Aa" widget (js/floating-widgets.js) is a second
+    // entry point onto this same size setting, not a separate one — keep its
+    // percentage label in sync whichever control the reader actually used.
+    const floatingPct = document.getElementById('fontSizeCurrent');
+    if(floatingPct) floatingPct.textContent = Math.round(currentSize/17*100) + '%';
     try {
       localStorage.setItem(SIZE_KEY, currentSize);
       localStorage.setItem(FAMILY_KEY, currentFamily);
@@ -6557,6 +6569,7 @@ window._renderChapterIntro = function(book, chapterNum) {
   window._typoInputSize  = function(v){ var n=parseInt(v,10); if(!isNaN(n)) setSize(n); };
   window._typoSetFamily  = function(fid){ currentFamily=fid; applyTypography(); };
   window._typoClose      = function(){ _closePanel(); };
+  window._typoGetSize    = function(){ return currentSize; };
 
   function togglePanel(){
     if(panelOpen){ _closePanel(); return; }
@@ -6790,33 +6803,30 @@ window.openAllThreadsBrowser = function(){
 };
 
 /* ============================================================
-   FONT SIZE CONTROL
+   FONT SIZE CONTROL — floating quick-access widget
+   Drives the same --bible-text-size engine as the header Typography
+   panel (window._typoSetSize/_typoGetSize) rather than its own separate
+   state. It used to set document.documentElement.style.fontSize and an
+   unread --user-font-scale custom property directly: with zero rem/em
+   sizing in styles.css tied to the root, that changed the displayed
+   percentage but never touched a single pixel of visible text.
    ============================================================ */
 (function(){
   var STEPS = [70, 80, 90, 100, 110, 120, 135, 150];
-  var idx = 3; // default = 100%
-  function apply(){
-    var pct = STEPS[idx];
-    document.documentElement.style.setProperty('--user-font-scale', pct/100);
-    // Apply directly to key reading elements
-    var base = pct / 100;
-    document.documentElement.style.fontSize = (16 * base) + 'px';
-    var el = document.getElementById('fontSizeCurrent');
-    if(el) el.textContent = pct + '%';
-    try{ localStorage.setItem('swrv_font_idx', idx); } catch(e){}
+  var BASE = 17; // matches the Typography panel's own 100% reference size
+  function nearestStepIdx(){
+    var pct = Math.round(((window._typoGetSize ? window._typoGetSize() : BASE) / BASE) * 100);
+    var closest = 0, diff = Infinity;
+    for(var i=0;i<STEPS.length;i++){ var d=Math.abs(STEPS[i]-pct); if(d<diff){diff=d;closest=i;} }
+    return closest;
   }
-  try{
-    var saved = parseInt(localStorage.getItem('swrv_font_idx'));
-    if(!isNaN(saved) && saved >= 0 && saved < STEPS.length) idx = saved;
-  } catch(e){}
-  window.changeFontSize = function(dir){
-    idx = Math.max(0, Math.min(STEPS.length - 1, idx + dir));
-    apply();
-  };
-  window.resetFontSize = function(){
-    idx = 3;
-    apply();
-  };
+  function apply(idx){
+    var pct = STEPS[Math.max(0, Math.min(STEPS.length-1, idx))];
+    if(typeof window._typoSetSize === 'function') window._typoSetSize(Math.round(BASE*pct/100));
+    // applyTypography() (run inside _typoSetSize) already refreshes #fontSizeCurrent.
+  }
+  window.changeFontSize = function(dir){ apply(nearestStepIdx()+dir); };
+  window.resetFontSize  = function(){ apply(3); };
   window.toggleFontSizePopover = function(){
     var pop = document.getElementById('fontSizePopover');
     if(pop) pop.classList.toggle('open');
@@ -6852,8 +6862,6 @@ window.openAllThreadsBrowser = function(){
       window.closeMoreMenu();
     }
   });
-  // Apply saved preference immediately
-  if(idx !== 3) apply();
 })();
 
 /* ============================================================
