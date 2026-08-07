@@ -2001,8 +2001,12 @@ function auditPeopleContextCoverage(){
 window.auditPeopleContextCoverage = auditPeopleContextCoverage;
 
 function lookupBDB(id){
-  // Smart lookup: try exact match first, then try a/b/c disambiguated senses
+  // Smart lookup: try exact match first, then try a/b/c disambiguated senses.
+  // BDB_HEB now loads in the background (see js/preload-lexicons.js) rather
+  // than blocking first paint, so it may genuinely be undefined for the first
+  // moment after load — this must degrade to "no results yet," not throw.
   const results=[];
+  if(!window.BDB_HEB) return results;
   if(window.BDB_HEB[id])results.push({key:id,entry:window.BDB_HEB[id]});
   for(const suffix of ['a','b','c','d','e']){
     if(window.BDB_HEB[id+suffix])results.push({key:id+suffix,entry:window.BDB_HEB[id+suffix]});
