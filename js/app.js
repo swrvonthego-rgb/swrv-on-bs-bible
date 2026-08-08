@@ -980,23 +980,37 @@ function _definitionExists(word){
   return !!(window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]));
 }
 
+// ENGLISH_BIBLE_DICT is keyed by both canonical English headwords ("love") and
+// transliteration aliases ("ahab", "agape", "chesed") that redirect to them.
+// Only headwords may be auto-underlined: "Ahab" in the text is the king, not
+// the Hebrew verb, and tagging it would mislabel ~280 occurrences.
+function _deepDictHeadword(word){
+  if(!word || !window.ENGLISH_BIBLE_DICT) return false;
+  if(SWRV_STOP_WORDS.has(String(word).toLowerCase())) return false;
+  const e = window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[String(word).toLowerCase()];
+  if(!e) return false;
+  return String(e.word||'').toLowerCase() === String(word).toLowerCase();
+}
+
 function getAugmentedDefinables(v, displayText){
   const out = new Set((v.definableWords||[]).filter(Boolean));
   const text = String(displayText||'');
   // Exact word-to-definition saturation from approved in-app dictionary.
   text.split(/\s+/).forEach(function(tok){
     const cleaned=_normalizeWordToken(tok);
-    if(_definitionExists(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
+    if(_definitionExists(cleaned)||_deepDictHeadword(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
   });
   // People remain clickable through the people profile layer. Places/themes are shown as chips below the verse.
   // Phrase-level terms: add source definitions whose phrase occurs in verse text.
-  if(window.DEFINITIONS){
-    const lower=' '+text.toLowerCase()+' ';
-    Object.keys(window.DEFINITIONS).forEach(function(k){
+  const lower=' '+text.toLowerCase()+' ';
+  [window.DEFINITIONS, window.ENGLISH_BIBLE_DICT].forEach(function(dict){
+    if(!dict) return;
+    Object.keys(dict).forEach(function(k){
       if(!k || k.length<4 || !/\s/.test(k) || k.length>42) return;
+      if(dict===window.ENGLISH_BIBLE_DICT && !_deepDictHeadword(k)) return;
       if(lower.indexOf(' '+k.toLowerCase()+' ')>=0) out.add(k);
     });
-  }
+  });
   return Array.from(out);
 }
 
@@ -1077,6 +1091,7 @@ function _hasAnyDefinition(cleaned){
   if(!cleaned) return false;
   const key=cleaned.toLowerCase();
   return _definitionExists(cleaned) ||
+    _deepDictHeadword(cleaned) ||
     (window.GLOSSARY && (window.GLOSSARY[cleaned]||window.GLOSSARY[key]||window.GLOSSARY[cleaned.toUpperCase()])) ||
     (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[key]) ||
     (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key]);
@@ -1163,6 +1178,21 @@ function renderVerseText(text,definables,peopleNames,verseRef){
     }
     return escapeHtml(token);
   }).join('');
+}
+
+// Library readers (Apocrypha, 1 Enoch) hold plain {chapter:{verse:text}} data
+// with no per-verse definableWords/people tagging, so they used to print raw
+// escaped text and lost every underline. Deriving the definable set from the
+// text itself gives those books the same tappable dictionary as the main
+// reader. Falls back to plain escaped text if anything is unavailable.
+function _tagLibraryText(text, ref){
+  const t=String(text||'');
+  try{
+    return renderVerseText(t, getAugmentedDefinables({definableWords:[]}, t), [], ref||'');
+  }catch(e){
+    console.warn('library text tagging failed:',e);
+    return escapeHtml(t);
+  }
 }
 
 function getAmpStyleNote(v){
@@ -1311,17 +1341,19 @@ function renderVerse(v){
   }
   verseHtml.push(renderUniversalDeepStudy(v));
   verseHtml.push('</div>');
-  // Genesis 1-4 enrichments (Pre-history, plot panels, heartbeat, culture deep)
-  if(currentBook==='Genesis'){
-    try{
-      const vnum=parseInt(v.ref.match(/:(\d+)$/)[1]);
-      const ch=parseInt(v.ref.match(/^Genesis (\d+)/i)[1]||v.ref.match(/^Gen (\d+)/i)[1]||0);
-      if(ch>=1&&ch<=4){
-        const enrichments=renderGen14Enrichments(ch,vnum);
-        if(enrichments)return verseHtml.join('')+enrichments;
-      }
-    }catch(e){console.warn('Gen 1-4 enrichment error:',e);}
-  }
+  // Deep enrichments: pre-history, plot panels, heartbeat callouts, culture
+  // boxes, cross-source parallels. renderGen14Enrichments picks its data pool
+  // from window.currentBook and returns '' for books and chapters it has no
+  // layer for, so the book list lives with the data rather than being repeated
+  // here — Exodus and Leviticus layers stayed invisible while this was gated
+  // to Genesis 1-4.
+  try{
+    const m=v.ref.match(/^(.+)\s+(\d+):(\d+)$/);
+    if(m && typeof renderGen14Enrichments==='function'){
+      const enrichments=renderGen14Enrichments(parseInt(m[2],10),parseInt(m[3],10));
+      if(enrichments)return verseHtml.join('')+enrichments;
+    }
+  }catch(e){console.warn('enrichment error:',e);}
   return verseHtml.join('');
 }
 
@@ -1969,8 +2001,12 @@ function auditPeopleContextCoverage(){
 window.auditPeopleContextCoverage = auditPeopleContextCoverage;
 
 function lookupBDB(id){
-  // Smart lookup: try exact match first, then try a/b/c disambiguated senses
+  // Smart lookup: try exact match first, then try a/b/c disambiguated senses.
+  // BDB_HEB now loads in the background (see js/preload-lexicons.js) rather
+  // than blocking first paint, so it may genuinely be undefined for the first
+  // moment after load — this must degrade to "no results yet," not throw.
   const results=[];
+  if(!window.BDB_HEB) return results;
   if(window.BDB_HEB[id])results.push({key:id,entry:window.BDB_HEB[id]});
   for(const suffix of ['a','b','c','d','e']){
     if(window.BDB_HEB[id+suffix])results.push({key:id+suffix,entry:window.BDB_HEB[id+suffix]});
@@ -3318,7 +3354,7 @@ function openEnochReader(section, chapter){
   for(const v of verses){
     h += '<div style="margin-bottom:14px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
     h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">v.'+v+'</span>';
-    h += '<span style="line-height:1.6;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '<span style="line-height:1.6;">'+_tagLibraryText(chData[v]||'', '1 Enoch '+chapter+':'+v)+'</span>';
     h += '</div>';
   }
   // prev/next chapter nav
@@ -3458,7 +3494,7 @@ function openApocryphaReader(bookKey, chapter){
     var v = verses[j];
     h += '<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-3);border-left:3px solid var(--gold);border-radius:4px;">';
     h += '<span style="color:var(--gold);font-weight:700;font-size:11px;margin-right:8px;">'+v+'</span>';
-    h += '<span style="line-height:1.65;font-size:15px;">'+escapeHtml(chData[v]||'')+'</span>';
+    h += '<span style="line-height:1.65;font-size:15px;">'+_tagLibraryText(chData[v]||'', meta.title+' '+chapter+':'+v)+'</span>';
     h += '</div>';
   }
 
@@ -6395,11 +6431,14 @@ window._renderChapterIntro = function(book, chapterNum) {
           <div style="margin-top:12px;font-size:12px;color:var(--fg-dim,#8a7a60);cursor:pointer;" id="swrvOnboardSkip">Skip intro</div>
         </div>
       `;
-      document.getElementById('swrvOnboardNext').onclick = function(){
+      // Scope the lookups to `overlay`: the first render() runs before the
+      // overlay is appended, so document.getElementById returned null and threw,
+      // which aborted buildOnboarding and meant new readers never saw the intro.
+      overlay.querySelector('#swrvOnboardNext').onclick = function(){
         if(current < cards.length - 1){ current++; render(); }
         else { dismiss(); }
       };
-      document.getElementById('swrvOnboardSkip').onclick = dismiss;
+      overlay.querySelector('#swrvOnboardSkip').onclick = dismiss;
     }
 
     function dismiss(){
@@ -6452,9 +6491,21 @@ window._renderChapterIntro = function(book, chapterNum) {
     document.documentElement.style.setProperty('--bible-text-size', currentSize+'px');
     document.documentElement.style.setProperty('--bible-line-height', Math.max(1.45, 1.78 - (currentSize-17)*0.012).toFixed(3));
     const fam = FAMILIES.find(function(f){ return f.id===currentFamily; }) || FAMILIES[0];
+    // Every theme rule in styles.css is written as ":root, [data-theme='x']" —
+    // that second selector also matches <body data-theme="x">, so it redeclares
+    // --font-body directly on body with the theme's hardcoded stack. That
+    // redeclaration sits closer to the verse text than our inline override on
+    // <html>, so it always won and the font picker looked like a no-op. Setting
+    // the property on body too, where the theme rule itself lives, wins the tie.
     document.documentElement.style.setProperty('--font-body', fam.stack);
+    if(document.body) document.body.style.setProperty('--font-body', fam.stack);
     const btn = document.getElementById('fontSizeBtn');
     if(btn) btn.textContent = 'Aa ' + currentSize;
+    // The floating quick-access "Aa" widget (js/floating-widgets.js) is a second
+    // entry point onto this same size setting, not a separate one — keep its
+    // percentage label in sync whichever control the reader actually used.
+    const floatingPct = document.getElementById('fontSizeCurrent');
+    if(floatingPct) floatingPct.textContent = Math.round(currentSize/17*100) + '%';
     try {
       localStorage.setItem(SIZE_KEY, currentSize);
       localStorage.setItem(FAMILY_KEY, currentFamily);
@@ -6522,6 +6573,7 @@ window._renderChapterIntro = function(book, chapterNum) {
   window._typoInputSize  = function(v){ var n=parseInt(v,10); if(!isNaN(n)) setSize(n); };
   window._typoSetFamily  = function(fid){ currentFamily=fid; applyTypography(); };
   window._typoClose      = function(){ _closePanel(); };
+  window._typoGetSize    = function(){ return currentSize; };
 
   function togglePanel(){
     if(panelOpen){ _closePanel(); return; }
@@ -6755,33 +6807,30 @@ window.openAllThreadsBrowser = function(){
 };
 
 /* ============================================================
-   FONT SIZE CONTROL
+   FONT SIZE CONTROL — floating quick-access widget
+   Drives the same --bible-text-size engine as the header Typography
+   panel (window._typoSetSize/_typoGetSize) rather than its own separate
+   state. It used to set document.documentElement.style.fontSize and an
+   unread --user-font-scale custom property directly: with zero rem/em
+   sizing in styles.css tied to the root, that changed the displayed
+   percentage but never touched a single pixel of visible text.
    ============================================================ */
 (function(){
   var STEPS = [70, 80, 90, 100, 110, 120, 135, 150];
-  var idx = 3; // default = 100%
-  function apply(){
-    var pct = STEPS[idx];
-    document.documentElement.style.setProperty('--user-font-scale', pct/100);
-    // Apply directly to key reading elements
-    var base = pct / 100;
-    document.documentElement.style.fontSize = (16 * base) + 'px';
-    var el = document.getElementById('fontSizeCurrent');
-    if(el) el.textContent = pct + '%';
-    try{ localStorage.setItem('swrv_font_idx', idx); } catch(e){}
+  var BASE = 17; // matches the Typography panel's own 100% reference size
+  function nearestStepIdx(){
+    var pct = Math.round(((window._typoGetSize ? window._typoGetSize() : BASE) / BASE) * 100);
+    var closest = 0, diff = Infinity;
+    for(var i=0;i<STEPS.length;i++){ var d=Math.abs(STEPS[i]-pct); if(d<diff){diff=d;closest=i;} }
+    return closest;
   }
-  try{
-    var saved = parseInt(localStorage.getItem('swrv_font_idx'));
-    if(!isNaN(saved) && saved >= 0 && saved < STEPS.length) idx = saved;
-  } catch(e){}
-  window.changeFontSize = function(dir){
-    idx = Math.max(0, Math.min(STEPS.length - 1, idx + dir));
-    apply();
-  };
-  window.resetFontSize = function(){
-    idx = 3;
-    apply();
-  };
+  function apply(idx){
+    var pct = STEPS[Math.max(0, Math.min(STEPS.length-1, idx))];
+    if(typeof window._typoSetSize === 'function') window._typoSetSize(Math.round(BASE*pct/100));
+    // applyTypography() (run inside _typoSetSize) already refreshes #fontSizeCurrent.
+  }
+  window.changeFontSize = function(dir){ apply(nearestStepIdx()+dir); };
+  window.resetFontSize  = function(){ apply(3); };
   window.toggleFontSizePopover = function(){
     var pop = document.getElementById('fontSizePopover');
     if(pop) pop.classList.toggle('open');
@@ -6817,8 +6866,6 @@ window.openAllThreadsBrowser = function(){
       window.closeMoreMenu();
     }
   });
-  // Apply saved preference immediately
-  if(idx !== 3) apply();
 })();
 
 /* ============================================================

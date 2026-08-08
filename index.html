@@ -32,7 +32,17 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Google Fonts loaded non-blocking: every theme's --font-body/--font-display
+     already lists a real system-font fallback (Georgia, serif, etc.), so a
+     slow or unreachable third-party font host — a corporate firewall, an ad
+     blocker, this being briefly down — degrades to those instantly instead of
+     stalling first paint on css2's stylesheet request the way a plain
+     render-blocking <link rel="stylesheet"> would. media="print" makes the
+     browser fetch it without blocking render; onload flips it to screen media
+     once it's actually ready. <noscript> covers browsers with JS disabled. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="css/styles.css?v=20260729tourfix1">
 </head>
 <body data-theme="vintage">
@@ -126,11 +136,16 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     </div>
 
     <!-- Footer -->
-    <footer class="landing-footer">
+    <!-- A plain div, not <footer>: this is a small branding block within the
+         landing screen, not the page's overall footer — the app's real
+         contentinfo landmark is the <footer> further down with library
+         credits and the study rules. Two <footer> elements both mapped to
+         contentinfo, which isn't valid — only one is allowed per page. -->
+    <div class="landing-footer">
       <div class="landing-footer-brand">SWRV OTG</div>
       <div class="landing-footer-sub">Full-Service Branding, Content &amp; App Development — Atlanta, GA</div>
       <a class="landing-footer-link" href="https://swrvonthego.pro" target="_blank" rel="noopener">swrvonthego.pro →</a>
-    </footer>
+    </div>
 
   </div><!-- /landing-body -->
 </div>
@@ -183,7 +198,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <div class="header-actions-arrow" id="headerActionsArrow" aria-hidden="true">›</div>
   </div>
 </header>
-<div class="ch-picker-bar study-nav-bar" id="studyNavBar" aria-label="Bible navigation controls">
+<nav class="ch-picker-bar study-nav-bar" id="studyNavBar" aria-label="Bible navigation controls">
   <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false">
     <span id="mobileNavSummary">Genesis 1:1</span>
     <span class="mobile-nav-cue">Controls ▾</span>
@@ -206,7 +221,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <button class="ch-nav-btn" onclick="nextChapter()" title="Next chapter">→</button>
     <button class="ch-nav-btn ch-reload-btn" id="reloadChapterBtn" onclick="reloadCurrentChapter()" title="Reload chapter">↺</button>
   </div>
-</div>
+</nav>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
 </div><!-- /sticky-nav -->
@@ -264,11 +279,11 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 </div>
 
 <!-- Premium Music Player (mini + full modes) -->
-<div id="musicMini" class="music-mini">
+<aside id="musicMini" class="music-mini" aria-label="Music player">
   <button class="player-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
   <div class="player-track" id="trackName" onclick="audioPlayerExpand()" style="cursor:pointer;">Music</div>
   <button class="player-icon-btn" onclick="audioPlayerExpand()" title="Expand player">⤴</button>
-</div>
+</aside>
 
 <div id="musicFull" class="music-full" style="display:none;">
   <div class="music-full-header">
@@ -329,13 +344,13 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 
 <footer>
   <div class="footer-section">
-    <h4>Approved Library — Rule 06 / Rule 13</h4>
+    <h2>Approved Library — Rule 06 / Rule 13</h2>
     <div class="library-list">
       Tanakh JPS 1917 · Hebrew Masoretic · King James Version · Septuagint Brenton 1851 · Amplified Bible · Book of Enoch (Jay Winter) · Josephus Antiquities (Whiston) · Strong's Hebrew Lexicon (8674 entries) · Strong's Greek Dictionary · Zondervan Bible Dictionary · Tobit · Judith · Wisdom of Solomon · Sirach · 1–2 Maccabees · Baruch + Letter of Jeremiah · Prayer of Azariah · Prayer of Manasseh · Dead Sea Scrolls (key texts)
     </div>
   </div>
   <div class="footer-section">
-    <h4>SWRV Kingdom Study Protocol — All 13 Rules</h4>
+    <h2>SWRV Kingdom Study Protocol — All 13 Rules</h2>
     <div class="rules-list">
       <b>R01</b> The text is the authority. <b>R02</b> Nothing added. Nothing removed. <b>R03</b> Report what is written, not what is popular. <b>R04</b> No opinions. Zero. <b>R05</b> No whitewashing. <b>R06</b> No outside sources — the library is closed. <b>R07</b> No Greek philosophy. No Platonism. <b>R08</b> No cherry-picking. <b>R09</b> Always define the original word. <b>R10</b> Always provide cultural and historical context. <b>R11</b> Flag every translation loss. <b>R12</b> Read through Ancient Near Eastern eyes. <b>R13</b> If it cannot be sourced, it cannot be said.
     </div>
@@ -348,112 +363,95 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <audio id="audio" preload="none"></audio>
 
 <!-- ============ CORE DATA — load order doesn't matter between these ============ -->
-<script src="data/red-letters.js"></script>
-<script src="data/sources.js"></script>
-<script src="data/source-categories.js"></script>
-<script src="data/sources-manifest.js"></script>
-<script src="data/cross-source-map.js"></script>
-<script src="data/chronological-map.js"></script>
-<script src="data/chronological-events.js"></script>
-<script src="data/audio-narration.js"></script>
-<script src="data/parallel-passages.js"></script>
-<script src="data/prophecy-fulfillment.js"></script>
-<script src="data/places.js"></script>
-<script src="data/place-coords.js"></script>
-<script src="data/themes.js"></script>
-<script src="data/audit.js"></script>
-<script src="data/genesis.js"></script>
-<script src="data/definitions.js"></script>
-  <script src="data/thread-commentary.js?v=20260603threads"></script>
-<script src="data/peoples.js"></script>
-<script src="data/strongs-hebrew.js"></script>
-<script src="data/bdb-hebrew.js"></script>
-<script src="data/enoch.js"></script>
-<script src="data/jubilees.js" onerror="console.warn('Jubilees data not loaded')"></script>
-<script src="data/apocrypha-tobit.js" onerror="console.warn('Tobit data not loaded')"></script>
-<script src="data/apocrypha-judith.js" onerror="console.warn('Judith data not loaded')"></script>
-<script src="data/apocrypha-wisdom.js" onerror="console.warn('Wisdom data not loaded')"></script>
-<script src="data/apocrypha-sirach.js" onerror="console.warn('Sirach data not loaded')"></script>
-<script src="data/apocrypha-1maccabees.js" onerror="console.warn('1 Maccabees data not loaded')"></script>
-<script src="data/apocrypha-2maccabees.js" onerror="console.warn('2 Maccabees data not loaded')"></script>
-<script src="data/apocrypha-baruch.js" onerror="console.warn('Baruch data not loaded')"></script>
-<script src="data/apocrypha-azariah.js" onerror="console.warn('Azariah data not loaded')"></script>
-<script src="data/apocrypha-manasseh.js" onerror="console.warn('Manasseh data not loaded')"></script>
-<script src="data/dead-sea-scrolls.js" onerror="console.warn('DSS data not loaded')"></script>
-<script src="data/strongs-greek.js"></script>
-<script src="data/bible-index.js"></script>
+<script src="data/red-letters.js" defer></script>
+<script src="data/sources.js" defer></script>
+<script src="data/source-categories.js" defer></script>
+<script src="data/sources-manifest.js" defer></script>
+<script src="data/chronological-map.js" defer></script>
+<script src="data/chronological-events.js" defer></script>
+<script src="data/audio-narration.js" defer></script>
+<script src="data/parallel-passages.js" defer></script>
+<script src="data/prophecy-fulfillment.js" defer></script>
+<script src="data/places.js" defer></script>
+<script src="data/place-coords.js" defer></script>
+<script src="data/themes.js" defer></script>
+<script src="data/audit.js" defer></script>
+<script src="data/genesis.js" defer></script>
+<script src="data/definitions.js" defer></script>
+<script src="data/peoples.js" defer></script>
+<script src="data/bible-index.js" defer></script>
 <!-- ============ Deep Definition Bible Engine — new layers ============ -->
-<script src="data/english-bible-dictionary.js?v=20260721study1"></script>
+<script src="data/english-bible-dictionary.js?v=20260721study1" defer></script>
 <!-- Word study: Adam & Eve (Gen 2:21-24) — "bone of my bones" + the "rib" that is really a SIDE. Merges into ENGLISH_BIBLE_DICT. -->
-<script src="data/study-adam-eve.js?v=20260721study1" onerror="console.warn('Adam-Eve study not loaded')"></script>
-<script src="data/strongs-sense-map.js?v=20260603final"></script>
-<script src="data/foundational-word-families.js?v=20260603final"></script>
-<script src="data/concept-completeness-pack.js?v=20260603final"></script>
-<script src="data/contextual-sense-notes.js?v=20260603final"></script>
-<script src="data/context-sense-disambiguator.js?v=20260603final"></script>
-<script src="data/cultural-context-cards.js?v=20260603final"></script>
-<script src="data/instruction-classification.js?v=20260603final"></script>
+<script src="data/study-adam-eve.js?v=20260721study1" defer onerror="console.warn('Adam-Eve study not loaded')"></script>
+<script src="data/strongs-sense-map.js?v=20260603final" defer></script>
+<script src="data/foundational-word-families.js?v=20260603final" defer></script>
+<script src="data/concept-completeness-pack.js?v=20260603final" defer></script>
+<script src="data/contextual-sense-notes.js?v=20260603final" defer></script>
+<script src="data/context-sense-disambiguator.js?v=20260603final" defer></script>
+<script src="data/cultural-context-cards.js?v=20260603final" defer></script>
+<script src="data/instruction-classification.js?v=20260603final" defer></script>
 <!-- ============ Cultural / People / Nations / Religion context layers ============ -->
-<script src="data/person-context-cards.js?v=20260603final"></script>
-<script src="data/group-nation-cards.js?v=20260603final"></script>
-<script src="data/religion-context-cards.js?v=20260603final"></script>
+<script src="data/person-context-cards.js?v=20260603final" defer></script>
+<script src="data/group-nation-cards.js?v=20260603final" defer></script>
+<script src="data/religion-context-cards.js?v=20260603final" defer></script>
 
 <!-- ============ GENESIS 1-4 DEEP BUILD v8 DATA ============ -->
-<script src="data/pre-history.js"></script>
-<script src="data/plot-panels.js"></script>
-<script src="data/culture-boxes-deep.js"></script>
-<script src="data/heartbeat-callouts.js"></script>
-<script src="data/amp-style.js"></script>
+<script src="data/pre-history.js" defer></script>
+<script src="data/plot-panels.js" defer></script>
+<script src="data/culture-boxes-deep.js" defer></script>
+<script src="data/heartbeat-callouts.js" defer></script>
+<script src="data/amp-style.js" defer></script>
 
 <!-- ============ EXODUS 1-2 DEEP BUILD v11 ============ -->
-<script src="data/exodus-pre-history.js"></script>
-<script src="data/exodus-plot-panels.js"></script>
-<script src="data/exodus-heartbeat.js"></script>
-<script src="data/exodus-culture.js"></script>
-<script src="data/exodus-amp-style.js"></script>
-<script src="data/exodus-definitions.js"></script>
-<script src="data/exodus34-plot-panels.js"></script>
-<script src="data/exodus34-heartbeat.js"></script>
-<script src="data/exodus34-culture.js"></script>
-<script src="data/exodus34-amp-style.js"></script>
-<script src="data/exodus34-definitions.js"></script>
-<script src="data/exodus57-plot-panels.js"></script>
-<script src="data/exodus57-heartbeat.js"></script>
-<script src="data/exodus57-culture.js"></script>
-<script src="data/exodus57-amp-style.js"></script>
-<script src="data/exodus57-definitions.js"></script>
-<script src="data/exodus812-plot-panels.js"></script>
-<script src="data/exodus812-heartbeat.js"></script>
-<script src="data/exodus812-culture.js"></script>
-<script src="data/exodus812-amp-style.js"></script>
-<script src="data/exodus812-definitions.js"></script>
-<script src="data/exodus1315-plot-panels.js"></script>
-<script src="data/exodus1315-heartbeat.js"></script>
-<script src="data/exodus1315-culture.js"></script>
-<script src="data/exodus1315-amp-style.js"></script>
-<script src="data/exodus1315-definitions.js"></script>
-<script src="data/exodus1618-plot-panels.js"></script>
-<script src="data/exodus1618-heartbeat.js"></script>
-<script src="data/exodus1618-culture.js"></script>
-<script src="data/exodus1618-amp-style.js"></script>
-<script src="data/exodus1618-definitions.js"></script>
-<script src="data/exodus1924-plot-panels.js"></script>
-<script src="data/exodus1924-heartbeat.js"></script>
-<script src="data/exodus1924-culture.js"></script>
-<script src="data/exodus1924-amp-style.js"></script>
-<script src="data/exodus1924-definitions.js"></script>
-<script src="data/exodus2540-plot-panels.js"></script>
-<script src="data/exodus2540-heartbeat.js"></script>
-<script src="data/exodus2540-culture.js"></script>
-<script src="data/exodus2540-amp-style.js"></script>
-<script src="data/exodus2540-definitions.js"></script>
-  <script src="data/leviticus-pre-history.js"></script>
-  <script src="data/leviticus-plot-panels.js"></script>
-  <script src="data/leviticus-heartbeat.js"></script>
-  <script src="data/leviticus-amp-style.js"></script>
-  <script src="data/leviticus-culture.js"></script>
-  <script src="data/leviticus-definitions.js"></script>
-<script src="data/cross-refs.js"></script>
+<script src="data/exodus-pre-history.js" defer></script>
+<script src="data/exodus-plot-panels.js" defer></script>
+<script src="data/exodus-heartbeat.js" defer></script>
+<script src="data/exodus-culture.js" defer></script>
+<script src="data/exodus-amp-style.js" defer></script>
+<script src="data/exodus-definitions.js" defer></script>
+<script src="data/exodus34-plot-panels.js" defer></script>
+<script src="data/exodus34-heartbeat.js" defer></script>
+<script src="data/exodus34-culture.js" defer></script>
+<script src="data/exodus34-amp-style.js" defer></script>
+<script src="data/exodus34-definitions.js" defer></script>
+<script src="data/exodus57-plot-panels.js" defer></script>
+<script src="data/exodus57-heartbeat.js" defer></script>
+<script src="data/exodus57-culture.js" defer></script>
+<script src="data/exodus57-amp-style.js" defer></script>
+<script src="data/exodus57-definitions.js" defer></script>
+<script src="data/exodus812-plot-panels.js" defer></script>
+<script src="data/exodus812-heartbeat.js" defer></script>
+<script src="data/exodus812-culture.js" defer></script>
+<script src="data/exodus812-amp-style.js" defer></script>
+<script src="data/exodus812-definitions.js" defer></script>
+<script src="data/exodus1315-plot-panels.js" defer></script>
+<script src="data/exodus1315-heartbeat.js" defer></script>
+<script src="data/exodus1315-culture.js" defer></script>
+<script src="data/exodus1315-amp-style.js" defer></script>
+<script src="data/exodus1315-definitions.js" defer></script>
+<script src="data/exodus1618-plot-panels.js" defer></script>
+<script src="data/exodus1618-heartbeat.js" defer></script>
+<script src="data/exodus1618-culture.js" defer></script>
+<script src="data/exodus1618-amp-style.js" defer></script>
+<script src="data/exodus1618-definitions.js" defer></script>
+<script src="data/exodus1924-plot-panels.js" defer></script>
+<script src="data/exodus1924-heartbeat.js" defer></script>
+<script src="data/exodus1924-culture.js" defer></script>
+<script src="data/exodus1924-amp-style.js" defer></script>
+<script src="data/exodus1924-definitions.js" defer></script>
+<script src="data/exodus2540-plot-panels.js" defer></script>
+<script src="data/exodus2540-heartbeat.js" defer></script>
+<script src="data/exodus2540-culture.js" defer></script>
+<script src="data/exodus2540-amp-style.js" defer></script>
+<script src="data/exodus2540-definitions.js" defer></script>
+  <script src="data/leviticus-pre-history.js" defer></script>
+  <script src="data/leviticus-plot-panels.js" defer></script>
+  <script src="data/leviticus-heartbeat.js" defer></script>
+  <script src="data/leviticus-amp-style.js" defer></script>
+  <script src="data/leviticus-culture.js" defer></script>
+  <script src="data/leviticus-definitions.js" defer></script>
+<script src="data/cross-refs.js" defer></script>
 
 <!-- ============ Unified Study Sheet (mobile bottom-sheet / desktop side-panel) ============ -->
 <!-- Single source of truth for verse/word study. Replaces inline cards in Read/Study modes. -->
@@ -627,16 +625,16 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <!-- In the original monolith this came AFTER app.js, which left the first render
      unenriched (silently swallowed by try/catch). Loading it before app.js fixes
      that latent bug — Genesis 1-4 enrichments now show on initial load. -->
-<script src="js/enrichments.js?v=20260721search1"></script>
+<script src="js/enrichments.js?v=20260721search1" defer></script>
 
 <!-- ============ AUTH + USER DATA — Supabase auth, progress, notes ============ -->
-<script src="js/auth.js?v=20260721delacct1"></script>
+<script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260805defs1"></script>
-<script src="js/tour.js?v=20260729tourfix1"></script>
-<script src="js/floating-widgets.js?v=20260804dock1"></script>
-<script src="js/search.js?v=20260804search2"></script>
+<script src="js/app.js?v=20260805defs1" defer></script>
+<script src="js/tour.js?v=20260729tourfix1" defer></script>
+<script src="js/floating-widgets.js?v=20260804dock1" defer></script>
+<script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
 <script>
@@ -645,6 +643,15 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 window.isBookLocked = function(slug) { return false; };
 </script>
 <script src="js/preload-bible.js?v=20260721search1" defer></script>
+<!-- Background-load the Strong's Hebrew/Greek + BDB lexicons at idle — they're
+     lookup data (5.2MB combined), not needed to render a verse; keeping them
+     off the critical path lets the app become usable much sooner. -->
+<script src="js/preload-lexicons.js" defer></script>
+<!-- Background-load the Apocrypha books, DSS, 1 Enoch, Jubilees, cross-source
+     map, and Thread Commentary — all "open from a dedicated reader" library
+     content (~1.3MB combined) that the default Genesis reading view never
+     touches. -->
+<script src="js/preload-library.js" defer></script>
 
 
 <script>
