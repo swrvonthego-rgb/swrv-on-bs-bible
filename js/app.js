@@ -6941,7 +6941,11 @@ window.openAllThreadsBrowser = function(){
   var _fbVoice  = null;              // fallback browser voice
   var _audio    = null;              // current HTMLAudioElement (ElevenLabs)
   var _speeds   = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
-  var _speedIdx = 2;
+  // Default to 1.0x — ElevenLabs audio is already naturally paced, and any
+  // playbackRate below 1.0 makes the browser time-stretch it (preservesPitch
+  // is on by default), which smears real speech into the exact warbly,
+  // synthetic sound this feature is supposed to avoid.
+  var _speedIdx = 3;
   var _elOk     = true;             // becomes false if /api/tts is unreachable
 
   var SAVED_PERSONA_KEY = 'swrv_tts_persona';
@@ -6973,9 +6977,14 @@ window.openAllThreadsBrowser = function(){
   function _applyPersona(p){
     _persona = p;
     _fbVoice = _fbVoiceForPersona(p);
-    var best = 0, bd = Infinity;
-    _speeds.forEach(function(s, i){ var d = Math.abs(s - p.rate); if(d < bd){ bd = d; best = i; } });
-    _speedIdx = best;
+    // Deliberately does NOT touch _speedIdx. persona.rate (0.78–0.85) is a
+    // speechSynthesis tuning value: that engine *synthesizes* slower speech
+    // natively, so a low rate there is free. This used to snap the shared
+    // speed control to persona.rate, which then became the <audio>
+    // playbackRate for ElevenLabs clips — pinning the default Shepherd voice
+    // to 0.75x and time-stretching genuinely natural audio into something
+    // robotic. persona.rate now only reaches the browser fallback, where it
+    // belongs; the speed control stays the reader's own choice.
     _updateSpeedLabel();
   }
 
@@ -7087,8 +7096,14 @@ window.openAllThreadsBrowser = function(){
       .then(function(blob){
         if(!_active || _paused) return;
         _brokenVoices[_persona.id] = false;
+        var _fbNote = document.getElementById('ttsFallbackNote');
+        if(_fbNote) _fbNote.hidden = true;
         var blobUrl = URL.createObjectURL(blob);
         _audio = new Audio(blobUrl);
+        // Keep pitch stable if the reader deliberately slows playback down.
+        // At the 1.0x default this is a no-op, which is the point: untouched,
+        // unstretched audio exactly as ElevenLabs generated it.
+        try { _audio.preservesPitch = true; } catch(e){}
         _audio.playbackRate = _speeds[_speedIdx];
         _audio.onended = function(){
           try { URL.revokeObjectURL(blobUrl); } catch(e){}
@@ -7126,8 +7141,14 @@ window.openAllThreadsBrowser = function(){
   /* ── Browser speech fallback ── */
   function _speakVerseFallback(idx){
     if(!synth || !_active || idx >= _verses.length) return;
+    var _fbNote = document.getElementById('ttsFallbackNote');
+    if(_fbNote) _fbNote.hidden = false;
     var utt = new SpeechSynthesisUtterance(_prepText(_verses[idx].text));
-    utt.rate   = _speeds[_speedIdx];
+    // Fold the persona's own pacing in here (and only here): the browser
+    // engine synthesizes at this rate rather than resampling finished audio,
+    // so it costs nothing in quality and is what gives each persona a
+    // distinct feel when we're stuck on the robotic fallback voice.
+    utt.rate   = _speeds[_speedIdx] * (_persona && _persona.rate ? _persona.rate : 1);
     utt.pitch  = _persona ? _persona.pitch : 0.92;
     utt.volume = 1.0;
     if(_fbVoice) utt.voice = _fbVoice;

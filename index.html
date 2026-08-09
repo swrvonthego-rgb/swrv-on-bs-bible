@@ -606,6 +606,10 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <div class="tts-bar-top">
     <span class="tts-bar-label">▶ Listening</span>
     <span class="tts-bar-verse" id="ttsBarVerse">—</span>
+    <!-- Only shown when the neural voice request failed and we've dropped to
+         the browser's built-in robotic voice. Without this the downgrade is
+         completely silent, which is how it went unnoticed for so long. -->
+    <span class="tts-fallback-note" id="ttsFallbackNote" hidden>⚠ basic voice</span>
     <button class="tts-close-btn" onclick="ttsStop()" aria-label="Stop and close">✕</button>
   </div>
   <div class="tts-bar-controls">
