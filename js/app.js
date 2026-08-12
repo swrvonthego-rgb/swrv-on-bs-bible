@@ -7195,7 +7195,10 @@ window.openAllThreadsBrowser = function(){
     if(!_active || _paused) return;
     if(result.provider === 'edge'){
       _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
-    } else if(result.provider === 'aura'){
+    } else if(result.provider === 'aura' || result.provider === 'cache'){
+      // 'cache' means this exact (voice, verse) pair was already generated
+      // before and is being served instantly from R2 — still the real
+      // neural voice, just free and immediate the second time onward.
       _lastTtsError = null;
     }
     _brokenVoices[_persona.id] = false;
