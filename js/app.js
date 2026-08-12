@@ -6949,6 +6949,26 @@ window.openAllThreadsBrowser = function(){
   var _elOk     = true;             // becomes false if /api/tts is unreachable
   var _lastTtsError = null;         // human-readable reason the neural voice last failed
 
+  // The worker's 502 body is JSON — {error, edge_error} — when BOTH tiers
+  // failed. A naive slice(0,300) on the raw text cuts that JSON off before
+  // edge_error ever appears, silently hiding exactly the half of the story
+  // that explains why the free fallback didn't save the request. Parse it
+  // properly so neither reason is lost.
+  function _formatTtsFailure(err){
+    var status = err.status || '?';
+    var bodyText = String(err.body || err.message || '');
+    try {
+      var parsed = JSON.parse(bodyText);
+      if(parsed && (parsed.error || parsed.edge_error)){
+        var out = 'status ' + status;
+        if(parsed.error) out += ' — ElevenLabs: ' + parsed.error;
+        if(parsed.edge_error) out += ' | Edge TTS: ' + parsed.edge_error;
+        return out;
+      }
+    } catch(e){ /* not JSON — fall through to raw text below */ }
+    return 'status ' + status + ' — ' + bodyText.slice(0, 500);
+  }
+
   var SAVED_PERSONA_KEY = 'swrv_tts_persona';
 
   /* ── Fallback browser voice resolution ──
@@ -7157,7 +7177,7 @@ window.openAllThreadsBrowser = function(){
         // Keep the real reason where a person can actually read it. Console
         // logs are invisible on a phone, which is exactly where this feature
         // gets used, so the failure has to survive into the UI itself.
-        _lastTtsError = 'status ' + (err.status || '?') + ' — ' + String(err.body || err.message || '').slice(0, 300);
+        _lastTtsError = _formatTtsFailure(err);
         // A 500/401 means the KEY itself is broken — disable ElevenLabs globally.
         // Any other failure (404 voice not found, 422 bad request, etc.) means
         // THIS persona's voice_id specifically is bad — mark only that one
@@ -7328,22 +7348,29 @@ window.openAllThreadsBrowser = function(){
   // hidden — just translated when we know what it means.
   function _humanizeTtsError(raw){
     var s = String(raw || '');
-    if(/quota_exceeded/i.test(s)){
-      var m = s.match(/(\d+)\s*credits remaining/i);
+    var elPart = s;
+    var edgeNote = '';
+    var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+)$/);
+    if(edgeMatch){
+      elPart = s.slice(0, edgeMatch.index);
+      edgeNote = ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + '), which is why it dropped all the way to the basic browser voice.';
+    }
+    if(/quota_exceeded/i.test(elPart)){
+      var m = elPart.match(/(\d+)\s*credits remaining/i);
       return 'The ElevenLabs voice budget for this billing period is used up' +
         (m ? ' (' + m[1] + ' credits left, more needed for this line)' : '') +
-        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner. Not a bug — the neural voice will come back on its own once there\'s budget again.';
+        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner. Not a bug — the neural voice will come back on its own once there\'s budget again.' + edgeNote;
     }
-    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(s)){
-      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled. Edit the key in ElevenLabs and turn that permission on.';
+    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(elPart)){
+      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled. Edit the key in ElevenLabs and turn that permission on.' + edgeNote;
     }
-    if(/invalid_api_key|unauthorized/i.test(s) && !/quota/i.test(s)){
-      return 'ElevenLabs rejected this API key as invalid. It may have been revoked or mistyped when it was added to GitHub secrets.';
+    if(/invalid_api_key|unauthorized/i.test(elPart) && !/quota/i.test(elPart)){
+      return 'ElevenLabs rejected this API key as invalid. It may have been revoked, or this is the key\'s ID/name instead of the actual key value (the real key starts with "sk_" and is only shown in full when it\'s created or rotated in the ElevenLabs dashboard).' + edgeNote;
     }
-    if(/voice_not_found/i.test(s)){
-      return 'This specific voice no longer exists on the connected ElevenLabs account.';
+    if(/voice_not_found/i.test(elPart)){
+      return 'This specific voice no longer exists on the connected ElevenLabs account.' + edgeNote;
     }
-    return s || '(no error recorded yet — try pressing play once)';
+    return (s || '(no error recorded yet — try pressing play once)');
   }
 
   // Surfaces why the neural voice isn't being used. Console warnings are
@@ -7451,7 +7478,7 @@ window.openAllThreadsBrowser = function(){
     })
     .catch(function(err){
       console.warn('[TTS preview] ElevenLabs failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
-      _lastTtsError = 'status ' + (err.status || '?') + ' — ' + String(err.body || err.message || '').slice(0, 300);
+      _lastTtsError = _formatTtsFailure(err);
       if(err.status && err.status !== 500 && err.status !== 401){
         _brokenVoices[id] = true;
         // Re-render so the warning badge shows up immediately, right on this card.
