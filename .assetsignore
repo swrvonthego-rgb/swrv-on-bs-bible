@@ -3,6 +3,12 @@ worker.js
 wrangler.jsonc
 wrangler.toml.disabled
 .assetsignore
+
+# Served from R2 instead of the static-assets bundle — see worker.js's
+# /data/jubilees.js route and the "Sync library data to R2" deploy step.
+# Stays tracked in git as the source of truth; this line just stops it
+# from ALSO being uploaded as a static file.
+data/jubilees.js
 package.json
 package-lock.json
 capacitor.config.json

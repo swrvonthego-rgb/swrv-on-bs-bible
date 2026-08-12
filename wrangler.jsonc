@@ -8,12 +8,21 @@
   },
   // Cloudflare Workers AI — used for the Aura-2 (Deepgram) neural
   // text-to-speech voice, the primary tier tried before the free Edge TTS
-  // fallback and before ElevenLabs. No separate signup or key: this binding
-  // grants the Worker access to models hosted on the same Cloudflare
-  // account it already runs on.
+  // fallback. No separate signup or key: this binding grants the Worker
+  // access to models hosted on the same Cloudflare account it already
+  // runs on.
   "ai": {
     "binding": "AI"
-  }
+  },
+  // Large library texts (currently: the Book of Jubilees) are served from
+  // R2 instead of bundled as a static asset — the Worker intercepts their
+  // request path and streams from this bucket (see worker.js). The
+  // deploy workflow keeps the bucket in sync with data/jubilees.js on
+  // every push (see .github/workflows/deploy.yml), so git stays the
+  // source of truth and R2 is purely how it's served.
+  "r2_buckets": [
+    { "binding": "LIBRARY_BUCKET", "bucket_name": "swrv-bible-library" }
+  ]
   // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
   // IMPORTANT: `wrangler deploy` validates every declared binding's id at
   // deploy time and refuses to publish ANYTHING if a d1_databases entry's

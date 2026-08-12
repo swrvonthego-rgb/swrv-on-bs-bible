@@ -684,6 +684,29 @@ export default {
       }
     }
 
+    // ============= LIBRARY DATA (served from R2, not bundled) =============
+    // Large library texts live in R2 instead of the static-assets bundle —
+    // see .assetsignore (excludes data/jubilees.js from the deploy's asset
+    // upload) and the "Sync library data to R2" deploy step (keeps the R2
+    // object in sync with the git-tracked file on every push). The client
+    // still just does <script src="data/jubilees.js">, unaware anything
+    // changed — this route transparently serves that exact path from R2.
+    if (url.pathname === '/data/jubilees.js' && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) {
+        return new Response('// Library bucket not configured', { status: 500, headers: { 'Content-Type': 'application/javascript' } });
+      }
+      const obj = await env.LIBRARY_BUCKET.get('jubilees.js');
+      if (!obj) {
+        return new Response('// jubilees.js not yet synced to R2', { status: 404, headers: { 'Content-Type': 'application/javascript' } });
+      }
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set('etag', obj.httpEtag);
+      headers.set('Content-Type', 'application/javascript; charset=utf-8');
+      headers.set('Cache-Control', 'public, max-age=3600'); // short cache, not immutable — no query-string versioning on this path
+      return new Response(obj.body, { headers });
+    }
+
     // ============= STATIC ASSETS =============
     // Fall through to Cloudflare's static asset binding
     if (!env.ASSETS) {
