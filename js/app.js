@@ -647,10 +647,20 @@ function goToVerse(n){
     setTimeout(function(){el.classList.remove('verse-highlight');},1800);
   }
 }
+// /data/*.js is served with a 1-year immutable Cache-Control header (see
+// _headers). Every OTHER data/JS script tag in index.html carries a ?v=
+// query string for exactly this reason — this is the one loader that
+// builds its own URL in JS instead of a static <script> tag, so it was
+// the one place that reasoning never got applied: these 65 lazily-loaded
+// book files had NO cache-busting at all, meaning a verse-text edit could
+// be silently invisible forever to anyone whose browser had ever loaded
+// that specific book before. Bump BIBLE_BOOK_DATA_VERSION whenever any
+// data/bible/*.js file changes.
+var BIBLE_BOOK_DATA_VERSION = '20260812evilone1';
 function _loadBookScript(slug, cb){
   if(_bookScriptLoaded[slug]||(window.BIBLE&&window.BIBLE[slug])){cb();return;}
   const s=document.createElement('script');
-  s.src='data/bible/'+slug+'.js';
+  s.src='data/bible/'+slug+'.js?v='+BIBLE_BOOK_DATA_VERSION;
   s.onload=function(){_bookScriptLoaded[slug]=true;cb();};
   s.onerror=function(){console.warn('Failed to load '+slug);cb();};
   document.head.appendChild(s);

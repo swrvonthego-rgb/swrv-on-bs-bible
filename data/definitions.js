@@ -54,5 +54,16 @@ Object.assign(window.DEFINITIONS, {
 "Immanuel":{"see":"Emmanuel"},
 "tax collector":{"see":"publican"},
 "saints":{"see":"saint"},
-"Sadducees":{"see":"Sadducee"}
+"Sadducees":{"see":"Sadducee"},
+"adversary":{"hebrew":"אֹיֵב / צַר / שָׂטָן","translit":"oyev / tsar / satan","strongs":"H341 / H6862 / H7854","def":"Hebrew has several distinct words for one who opposes you, all commonly rendered 'adversary' in English: oyev (H341) is the general word for enemy; tsar (H6862) is a foe who presses in and afflicts; satan (H7854) is specifically an accuser — one who opposes in a legal or heavenly courtroom sense, the root behind 'Satan' as a title in Job and Zechariah. Greek NT uses echthros (enemy) and echthra (hostility, enmity) for the same territory. English translations spread these across 'adversary,' 'enemy,' 'foe,' 'hostility,' 'accuser,' and 'rival' depending on context — different English words for what is often the same underlying Hebrew/Greek concept of active opposition.","ane":"In the ancient Near East, an adversary could be a personal rival, a national enemy in war, or — in court and covenant settings — a formal accuser bringing charges. Job and Zechariah 3 both picture 'the satan' functioning in this last sense: an adversarial prosecutor in the heavenly court, not yet the fully personified figure later theology develops.","cross":"Job 1:6-12; Zechariah 3:1-2; Matthew 5:25; 1 Peter 5:8","plain":"Someone actively working against you — as an enemy, a rival, or a formal accuser. English uses several different words for this one family of Hebrew/Greek concepts depending on the situation."},
+"enemy":{"see":"adversary"},
+"enemies":{"see":"adversary"},
+"adversaries":{"see":"adversary"},
+"foe":{"see":"adversary"},
+"foes":{"see":"adversary"},
+"hostility":{"see":"adversary"},
+"hostile":{"see":"adversary"},
+"accuser":{"see":"adversary"},
+"rival":{"see":"adversary"},
+"oppose":{"see":"adversary"}
 });
