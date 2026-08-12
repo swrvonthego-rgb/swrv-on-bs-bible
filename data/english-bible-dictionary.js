@@ -2273,6 +2273,21 @@ window.ENGLISH_BIBLE_DICT = {
   category: "theology",
   sources: ["Strong\'s G2859", "BDAG", "Joachim Jeremias — The Parables of Jesus", "N.T. Wright — Jesus and the Victory of God", "Testament of Abraham (intertestamental)"],
   confidence: "high"
-}
+},
+
+// ── Modern-translation aliases ──
+// The app's primary reading text is the BSB (a modern translation), not
+// the KJV. These four entries below have full, real content already —
+// but were only ever reachable under the archaic KJV word BSB no longer
+// uses anywhere, making them permanently invisible to the auto-underline
+// pass. redirectTo (see _lookupEnglishBibleDict in js/app.js) points the
+// word actually printed on screen at the existing entry instead of
+// duplicating its content under a second key. Each mapping verified
+// directly against every KJV/BSB verse pair where the archaic word
+// occurs, not assumed.
+"sexual immorality": { word: "sexual immorality", redirectTo: "fornication" },
+"prostitution": { word: "prostitution", redirectTo: "whoredom" },
+"atoning sacrifice": { word: "atoning sacrifice", redirectTo: "propitiation" },
+"greed": { word: "greed", redirectTo: "covetousness" }
 
 };

@@ -1595,7 +1595,13 @@ function showAutoTermCard(word){
 // Falls back gracefully when not found. Used by showDef to enrich the popup.
 function _lookupEnglishBibleDict(word){
   if(!window.ENGLISH_BIBLE_DICT) return null;
-  return window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[(word||'').toLowerCase()] || null;
+  let e = window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[(word||'').toLowerCase()] || null;
+  // Mirrors window.DEFINITIONS' existing `.see` redirect — lets a modern-
+  // translation word (e.g. "sexual immorality") point at an existing
+  // archaic-KJV-wording entry (e.g. "fornication") instead of duplicating
+  // its full 17-field content under a second key.
+  if(e && e.redirectTo && window.ENGLISH_BIBLE_DICT[e.redirectTo]) e = window.ENGLISH_BIBLE_DICT[e.redirectTo];
+  return e;
 }
 // Find a context-sense entry matching the verse's strongsTags if any.
 function _contextSenseFor(word, opts){
