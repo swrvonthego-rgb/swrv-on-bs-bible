@@ -6951,23 +6951,43 @@ window.openAllThreadsBrowser = function(){
 
   var SAVED_PERSONA_KEY = 'swrv_tts_persona';
 
-  /* ── Fallback browser voice resolution ── */
+  /* ── Fallback browser voice resolution ──
+     This is the free, unlimited path with real weight on it whenever the
+     neural voice is out of budget, so it's worth picking the best system
+     voice available rather than the first English one. Modern browsers ship
+     genuinely good voices under specific naming patterns — Edge/Windows'
+     cloud-backed "... Online (Natural)" voices, Safari/macOS/iOS's
+     "Premium"/"Enhanced" voices — that sound nothing like the classic
+     Alex/Zira/Samantha era. Prefer those tiers first, matched to the
+     persona's gender; only fall through to the old named list, then a bare
+     gender guess, then whatever's left, on browsers that don't have them. */
   function _fbVoiceForPersona(p){
     if(!synth) return null;
     var voices = synth.getVoices().filter(function(v){ return /en/i.test(v.lang); });
     if(!voices.length) return null;
+
+    var maleRe   = /\bmale\b|david|mark|alex|daniel|tom|fred|ralph|guy|davis|evan|nathan|ryan/;
+    var femaleRe = /\bfemale\b|samantha|karen|moira|victoria|zira|jenny|aria|ava|zoe|susan|emma/;
+    var genderRe = p.gender === 'male' ? maleRe : femaleRe;
+    var byGender = function(list){ return list.filter(function(v){ return genderRe.test(v.name.toLowerCase()); }); };
+
+    // Tier 1: modern high-quality voices, gender-matched.
+    var premium = voices.filter(function(v){ return /online \(natural\)|neural|premium|enhanced/i.test(v.name); });
+    var premiumGendered = byGender(premium);
+    if(premiumGendered.length) return premiumGendered[0];
+    if(premium.length) return premium[0]; // right quality tier beats exact gender match
+
+    // Tier 2: this persona's specific named targets, in priority order.
     for(var i = 0; i < p.fallbackTargets.length; i++){
       var t = p.fallbackTargets[i].toLowerCase();
       var m = voices.find(function(v){ return v.name.toLowerCase() === t; }) ||
               voices.find(function(v){ return v.name.toLowerCase().indexOf(t) !== -1; });
       if(m) return m;
     }
-    var maleRe   = /\bmale\b|david|mark|alex|daniel|tom|fred|ralph/;
-    var femaleRe = /\bfemale\b|samantha|karen|moira|victoria|zira|jenny|aria/;
-    var g = voices.filter(function(v){
-      return p.gender === 'male' ? maleRe.test(v.name.toLowerCase()) : femaleRe.test(v.name.toLowerCase());
-    });
-    return g.length ? g[0] : voices[0];
+
+    // Tier 3: any voice matching the persona's gender by name.
+    var gendered = byGender(voices);
+    return gendered.length ? gendered[0] : voices[0];
   }
 
   function _updateSpeedLabel(){
@@ -7290,16 +7310,40 @@ window.openAllThreadsBrowser = function(){
     pop.innerHTML = html;
   }
 
+  // Turns ElevenLabs' raw JSON error body into one plain sentence for a
+  // reader who isn't going to parse a stack trace. Falls back to showing the
+  // raw text untouched for anything not recognized, so nothing is ever
+  // hidden — just translated when we know what it means.
+  function _humanizeTtsError(raw){
+    var s = String(raw || '');
+    if(/quota_exceeded/i.test(s)){
+      var m = s.match(/(\d+)\s*credits remaining/i);
+      return 'The ElevenLabs voice budget for this billing period is used up' +
+        (m ? ' (' + m[1] + ' credits left, more needed for this line)' : '') +
+        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner. Not a bug — the neural voice will come back on its own once there\'s budget again.';
+    }
+    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(s)){
+      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled. Edit the key in ElevenLabs and turn that permission on.';
+    }
+    if(/invalid_api_key|unauthorized/i.test(s) && !/quota/i.test(s)){
+      return 'ElevenLabs rejected this API key as invalid. It may have been revoked or mistyped when it was added to GitHub secrets.';
+    }
+    if(/voice_not_found/i.test(s)){
+      return 'This specific voice no longer exists on the connected ElevenLabs account.';
+    }
+    return s || '(no error recorded yet — try pressing play once)';
+  }
+
   // Surfaces why the neural voice isn't being used. Console warnings are
-  // unreachable on a phone, so this puts the actual HTTP status and the
-  // provider's own error text in front of the reader (and anyone debugging).
+  // unreachable on a phone, so this puts a plain-English reason (plus the
+  // raw detail) in front of the reader, and anyone debugging.
   window.ttsShowVoiceDiagnostic = function(){
     var lines = [
       'Reading voice: using the browser\'s built-in voice.',
       '',
-      'Neural voice (ElevenLabs) is not being used because the request failed:',
-      _lastTtsError || '(no error recorded yet — try pressing play once)',
+      _humanizeTtsError(_lastTtsError),
       '',
+      'Raw detail: ' + (_lastTtsError || '(none yet)'),
       'Voice: ' + (_persona ? _persona.label + ' (' + _persona.elVoiceId + ')' : 'unknown'),
       'Endpoint: ' + ((window.SWRV_API_BASE || '') + '/api/tts')
     ];
