@@ -10,6 +10,7 @@ wrangler.toml.disabled
 # Stays tracked in git as the source of truth; this line just stops it
 # from ALSO being uploaded as a static file.
 data/jubilees.js
+data/tts-manifest.json
 package.json
 package-lock.json
 capacitor.config.json

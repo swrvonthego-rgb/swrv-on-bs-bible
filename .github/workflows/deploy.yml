@@ -64,6 +64,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
+      # Feeds worker.js's scheduled() TTS pre-cache cron — the canonical-order
+      # verse manifest it walks Genesis -> Revelation. Only re-uploaded when
+      # the manifest content actually changes (verse text edits), so this
+      # never resets the warm cursor on unrelated deploys.
+      - name: Sync TTS pre-cache manifest to R2
+        run: wrangler r2 object put swrv-bible-library/tts-manifest.json --file=data/tts-manifest.json --content-type=application/json --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
+
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
       # unset is skipped so the deploy never fails on a missing key, and the
