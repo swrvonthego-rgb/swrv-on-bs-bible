@@ -54,7 +54,12 @@ jobs:
       # changes, so a content edit to data/jubilees.js takes effect the same
       # way any other data file's does: push to main, done.
       - name: Sync library data to R2
-        run: wrangler r2 object put swrv-bible-library/jubilees.js --file=data/jubilees.js --content-type=application/javascript
+        # --remote is required: without it, this wrangler version silently
+        # writes to a throwaway LOCAL simulation instead of the real bucket
+        # ("Resource location: local... Upload complete." with nothing
+        # actually reaching Cloudflare) — caught in the very first run of
+        # this step via the job logs.
+        run: wrangler r2 object put swrv-bible-library/jubilees.js --file=data/jubilees.js --content-type=application/javascript --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
