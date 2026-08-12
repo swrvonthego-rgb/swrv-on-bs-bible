@@ -7,7 +7,7 @@
  * Routes:
  *   /api/health                 -> GET:  health check
  *   /api/groq                   -> POST: relay to Groq API with server-side key
- *   /api/tts                    -> POST: relay to ElevenLabs TTS
+ *   /api/tts                    -> POST: TTS relay — ElevenLabs, else free Edge TTS fallback
  *   /api/auth/signup            -> POST: email + password signup
  *   /api/auth/login             -> POST: email + password login
  *   /api/auth/google/start      -> GET:  begin Google OAuth
@@ -105,6 +105,212 @@ async function verifyPassword(password, saltHex, hashHex) {
 
 function uuid() { return crypto.randomUUID(); }
 
+// ============= EDGE TTS =============
+// Free, no API key, no quota — taps the same cloud neural voices Microsoft
+// Edge's own "Read Aloud" feature uses internally. Not an official
+// third-party API (there's no public documentation and no one at Microsoft
+// "issued" the client token below — it's the same fixed value the Edge
+// browser itself sends), but it's the same reverse-engineered protocol
+// widely used in production by rany2/edge-tts (Python) and
+// DIYgod/cloudflare-edge-tts (this Worker's implementation is ported from
+// that project) — actively maintained, large community, currently stable.
+// Used automatically below whenever ElevenLabs is unavailable, so a reader
+// only ever hears the browser's true robotic fallback if BOTH of these fail.
+const EDGE_TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
+const EDGE_SYNTHESIS_URL = 'https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
+const EDGE_CHROMIUM_FULL_VERSION = '124.0.0.0';
+const EDGE_CHROMIUM_MAJOR_VERSION = EDGE_CHROMIUM_FULL_VERSION.split('.')[0];
+const EDGE_SEC_MS_GEC_VERSION = `1-${EDGE_CHROMIUM_FULL_VERSION}`;
+const EDGE_UPGRADE_HEADERS = {
+  'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${EDGE_CHROMIUM_MAJOR_VERSION}.0.0.0 Safari/537.36 Edg/${EDGE_CHROMIUM_MAJOR_VERSION}.0.0.0`,
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Pragma': 'no-cache',
+  'Cache-Control': 'no-cache',
+  'Sec-WebSocket-Version': '13',
+  'Upgrade': 'websocket',
+};
+// Maps this app's ElevenLabs persona voice_ids to a comparable Edge neural
+// voice, so the fallback still matches each persona's intended character
+// instead of reading every persona in the same generic voice.
+const EDGE_VOICE_MAP = {
+  'onwK4e9ZLuTAKqWW03F9': 'en-US-GuyNeural',                // Teacher: deep, authoritative male
+  'TxGEqnHWrfWFTfGW9XjX': 'en-US-AndrewMultilingualNeural',  // Narrator: warm, storytelling male
+  '21m00Tcm4TlvDq8ikWAM': 'en-US-AvaMultilingualNeural',     // Shepherd: gentle, calming female (default)
+  'AZnzlk1XvdvUeBnXmlld': 'en-US-EmmaMultilingualNeural',    // Prophet: clear, expressive female
+};
+const EDGE_DEFAULT_VOICE = 'en-US-AvaMultilingualNeural';
+
+function edgeEscapeXml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+function edgeRemoveInvalidXmlChars(text) {
+  var out = '';
+  for (var i = 0; i < text.length; i++) {
+    var c = text.charCodeAt(i);
+    var bad = (c <= 8) || (c === 11) || (c === 12) || (c >= 14 && c <= 31) || (c >= 127 && c <= 159);
+    out += bad ? ' ' : text[i];
+  }
+  return out;
+}
+function edgeMakeConnectionId() { return crypto.randomUUID().replace(/-/g, ''); }
+function edgeMakeMuid() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+async function edgeMakeSecMsGec() {
+  // Microsoft buckets the token to the current 5-minute window (300s) in
+  // "Windows ticks" (100ns units since 1601-01-01) — not a secret computed
+  // from anything private, just a timestamp hash both sides can derive.
+  const winEpoch = 11644473600;
+  const secondsToNs = 1e9;
+  let ticks = Date.now() / 1000;
+  ticks += winEpoch;
+  ticks -= ticks % 300;
+  ticks *= secondsToNs / 100;
+  const payload = `${ticks.toFixed(0)}${EDGE_TRUSTED_CLIENT_TOKEN}`;
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+function edgeBuildSynthesisUrl(secMsGec, connectionId) {
+  const u = new URL(EDGE_SYNTHESIS_URL);
+  u.searchParams.set('TrustedClientToken', EDGE_TRUSTED_CLIENT_TOKEN);
+  u.searchParams.set('Sec-MS-GEC', secMsGec);
+  u.searchParams.set('Sec-MS-GEC-Version', EDGE_SEC_MS_GEC_VERSION);
+  u.searchParams.set('ConnectionId', connectionId);
+  return u.toString();
+}
+function edgeTimestamp() { return new Date().toISOString().replace(/[-:.]/g, '').slice(0, -1); }
+function edgeBuildSpeechConfigMessage() {
+  return `X-Timestamp:${edgeTimestamp()}\r\n` +
+    'Content-Type:application/json; charset=utf-8\r\n' +
+    'Path:speech.config\r\n\r\n' +
+    '{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}\r\n';
+}
+function edgeBuildSsmlMessage(requestId, voice, text) {
+  const ssml = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>" +
+    `<voice name='${voice}'><prosody pitch='+0Hz' rate='+0%' volume='+0%'>${edgeEscapeXml(edgeRemoveInvalidXmlChars(text))}</prosody></voice></speak>`;
+  return `X-RequestId:${requestId}\r\n` +
+    'Content-Type:application/ssml+xml\r\n' +
+    `X-Timestamp:${edgeTimestamp()}Z\r\n` +
+    'Path:ssml\r\n\r\n' + ssml;
+}
+function edgeParseTextHeaders(message) {
+  const sep = message.indexOf('\r\n\r\n');
+  const headerText = sep >= 0 ? message.slice(0, sep) : message;
+  const headers = {};
+  for (const line of headerText.split('\r\n')) {
+    const i = line.indexOf(':');
+    if (i <= 0) continue;
+    headers[line.slice(0, i)] = line.slice(i + 1).trim();
+  }
+  return headers;
+}
+function edgeParseBinaryAudioFrame(data) {
+  if (data.length < 2) throw new Error('binary websocket frame missing header length');
+  const headerLength = (data[0] << 8) | data[1];
+  if (data.length < 2 + headerLength) throw new Error('binary websocket frame truncated');
+  const headerText = new TextDecoder().decode(data.slice(2, 2 + headerLength));
+  const headers = {};
+  for (const line of headerText.split('\r\n')) {
+    const i = line.indexOf(':');
+    if (i <= 0) continue;
+    headers[line.slice(0, i)] = line.slice(i + 1).trim();
+  }
+  return { headers, body: data.slice(2 + headerLength) };
+}
+function edgeToUint8Array(data) {
+  if (data instanceof Uint8Array) return data;
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  if (typeof Blob !== 'undefined' && data instanceof Blob) return data.arrayBuffer().then(b => new Uint8Array(b));
+  return null;
+}
+function edgeCreateReadableAudioStream(socket, text, voice, requestId) {
+  let controllerRef = null, audioReceived = false, settled = false;
+  const cleanup = () => {
+    socket.removeEventListener('message', onMessage);
+    socket.removeEventListener('close', onClose);
+    socket.removeEventListener('error', onError);
+  };
+  const finishWithError = (error) => {
+    if (settled) return;
+    settled = true; cleanup();
+    controllerRef && controllerRef.error(error instanceof Error ? error : new Error(String(error)));
+  };
+  const finish = () => {
+    if (settled) return;
+    settled = true; cleanup();
+    controllerRef && controllerRef.close();
+  };
+  const onMessage = (event) => {
+    if (settled) return;
+    const data = event.data;
+    if (typeof data === 'string') {
+      const headers = edgeParseTextHeaders(data);
+      const path = headers.Path;
+      if (path === 'turn.end') {
+        try { socket.close(); } catch (e) { finish(); }
+        return;
+      }
+      if (path === 'response' || path === 'turn.start' || path === 'audio.metadata') return;
+      finishWithError(new Error(`unexpected websocket text path: ${path}`));
+      return;
+    }
+    const maybeBinary = edgeToUint8Array(data);
+    if (!maybeBinary) { finishWithError(new Error('unsupported websocket message type')); return; }
+    const handleBinary = (binary) => {
+      if (settled) return;
+      const { headers, body } = edgeParseBinaryAudioFrame(binary);
+      if (headers.Path !== 'audio') throw new Error(`unexpected websocket binary path: ${headers.Path}`);
+      if (headers['Content-Type'] !== 'audio/mpeg') {
+        if (body.length === 0) return;
+        throw new Error(`unexpected websocket binary content type: ${headers['Content-Type']}`);
+      }
+      audioReceived = true;
+      controllerRef && controllerRef.enqueue(body);
+    };
+    if (maybeBinary instanceof Promise) {
+      maybeBinary.then(handleBinary).catch(finishWithError);
+    } else {
+      try { handleBinary(maybeBinary); } catch (error) { finishWithError(error); }
+    }
+  };
+  const onClose = () => {
+    if (!audioReceived) { finishWithError(new Error('no audio received')); return; }
+    finish();
+  };
+  const onError = (event) => { finishWithError(event); };
+  return new ReadableStream({
+    start(controller) {
+      controllerRef = controller;
+      socket.addEventListener('message', onMessage);
+      socket.addEventListener('close', onClose);
+      socket.addEventListener('error', onError);
+      socket.accept();
+      socket.send(edgeBuildSpeechConfigMessage());
+      socket.send(edgeBuildSsmlMessage(requestId, voice, text));
+    },
+    cancel(reason) {
+      cleanup(); settled = true;
+      try { socket.close(1000, typeof reason === 'string' ? reason : 'cancelled'); } catch (e) {}
+    }
+  });
+}
+async function edgeCreateAudioStream(text, elevenLabsVoiceId) {
+  const voice = EDGE_VOICE_MAP[elevenLabsVoiceId] || EDGE_DEFAULT_VOICE;
+  const secMsGec = await edgeMakeSecMsGec();
+  const connectionId = edgeMakeConnectionId();
+  const websocketUrl = edgeBuildSynthesisUrl(secMsGec, connectionId);
+  const response = await fetch(websocketUrl, {
+    headers: { ...EDGE_UPGRADE_HEADERS, 'Cookie': `muid=${edgeMakeMuid()};` }
+  });
+  if (response.status !== 101 || !response.webSocket) {
+    throw new Error(`Edge TTS WebSocket upgrade failed with status ${response.status}`);
+  }
+  return edgeCreateReadableAudioStream(response.webSocket, text, voice, edgeMakeConnectionId());
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -171,32 +377,63 @@ export default {
       }
     }
 
-    // ============= ELEVENLABS TTS RELAY =============
+    // ============= TTS RELAY: ElevenLabs, then Edge TTS, then give up =============
+    // Two independent tiers before this ever tells the client to fall back to
+    // the browser's robotic built-in voice. ElevenLabs is tried first when
+    // configured — it's the better voice when it's working. Any failure
+    // (no key, exhausted quota, bad voice_id, upstream outage) falls through
+    // to Edge TTS: free, no key, no quota, genuinely neural. Only if that
+    // ALSO fails does the client ever see an error and drop to speechSynthesis.
     if (url.pathname === '/api/tts' && request.method === 'POST') {
-      if (!env.ELEVENLABS_API_KEY) {
-        return json({ error: 'ELEVENLABS_API_KEY not configured' }, 500);
-      }
+      let text, voice_id, stability, similarity_boost, style;
       try {
-        const { text, voice_id, stability = 0.5, similarity_boost = 0.75, style = 0.3 } = await request.json();
-        if (!text || !voice_id) return json({ error: 'text and voice_id required' }, 400);
-        // eleven_multilingual_v2, not eleven_turbo_v2: turbo is tuned for low
-        // latency over expressiveness and reads flat/monotone ("robotic").
-        // multilingual_v2 costs a bit more per character and is a little
-        // slower, but is ElevenLabs' natural-sounding model — worth it for a
-        // read-aloud feature where a verse's worth of extra generation time
-        // is invisible against how long the verse takes to speak anyway.
-        const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
-          method: 'POST',
-          headers: { 'xi-api-key': env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-          body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability, similarity_boost, style, use_speaker_boost: true } })
-        });
-        if (!elRes.ok) {
-          const err = await elRes.text();
-          return json({ error: err }, elRes.status);
-        }
-        return new Response(elRes.body, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', ...corsHeaders } });
+        const body = await request.json();
+        text = body.text; voice_id = body.voice_id;
+        stability = body.stability != null ? body.stability : 0.5;
+        similarity_boost = body.similarity_boost != null ? body.similarity_boost : 0.75;
+        style = body.style != null ? body.style : 0.3;
       } catch (err) {
-        return json({ error: 'TTS relay failed', detail: err.message }, 500);
+        return json({ error: 'invalid request body' }, 400);
+      }
+      if (!text || !voice_id) return json({ error: 'text and voice_id required' }, 400);
+
+      let elError = null;
+      if (env.ELEVENLABS_API_KEY) {
+        try {
+          // eleven_multilingual_v2, not eleven_turbo_v2: turbo is tuned for low
+          // latency over expressiveness and reads flat/monotone ("robotic").
+          // multilingual_v2 costs a bit more per character and is a little
+          // slower, but is ElevenLabs' natural-sounding model — worth it for a
+          // read-aloud feature where a verse's worth of extra generation time
+          // is invisible against how long the verse takes to speak anyway.
+          const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+            method: 'POST',
+            headers: { 'xi-api-key': env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+            body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability, similarity_boost, style, use_speaker_boost: true } })
+          });
+          if (elRes.ok) {
+            return new Response(elRes.body, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', 'X-TTS-Provider': 'elevenlabs', ...corsHeaders } });
+          }
+          elError = `status ${elRes.status} — ${await elRes.text()}`;
+        } catch (err) {
+          elError = 'ElevenLabs request failed: ' + err.message;
+        }
+      } else {
+        elError = 'ELEVENLABS_API_KEY not configured';
+      }
+
+      try {
+        const stream = await edgeCreateAudioStream(text, voice_id);
+        return new Response(stream, {
+          status: 200,
+          headers: {
+            'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store',
+            'X-TTS-Provider': 'edge', 'X-ElevenLabs-Error': elError.slice(0, 300),
+            ...corsHeaders
+          }
+        });
+      } catch (edgeErr) {
+        return json({ error: elError, edge_error: edgeErr.message }, 502);
       }
     }
 

@@ -7112,6 +7112,18 @@ window.openAllThreadsBrowser = function(){
             throw e;
           });
         }
+        // The worker tries ElevenLabs first, then a free Edge TTS voice
+        // before ever failing this request — a real (non-robotic) voice can
+        // come back even when ElevenLabs itself is down. Keep that visible
+        // for the tap-to-diagnose flow: still worth knowing why the *better*
+        // voice isn't the one playing, even though something good is.
+        var provider = res.headers.get('X-TTS-Provider');
+        if(provider === 'edge'){
+          var elErr = res.headers.get('X-ElevenLabs-Error');
+          _lastTtsError = 'Using free Edge voice — ElevenLabs unavailable: ' + (elErr || '(reason not recorded)');
+        } else if(provider === 'elevenlabs'){
+          _lastTtsError = null;
+        }
         return res.blob();
       })
       .then(function(blob){
