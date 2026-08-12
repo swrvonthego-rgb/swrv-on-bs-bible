@@ -7189,11 +7189,82 @@ window.openAllThreadsBrowser = function(){
   // sitting ready — no fetch, no hourglass, no wait between verses.
   // TTS generation for one verse (a second or two) is almost always
   // faster than it takes to actually speak the current one out loud.
+  //
+  // Tracks {result, error} alongside the promise, filled in the instant it
+  // settles — NOT just the raw promise. `.then()` on an already-resolved
+  // promise still always defers to a microtask; it is never truly
+  // synchronous. Reaching _speakVerse from inside the previous clip's
+  // 'ended' handler and then going through even one more .then() hop before
+  // calling play() is exactly the kind of gap that can make a strict
+  // autoplay policy stop honoring the chain again. When the entry's result
+  // is already sitting there, _speakVerse uses it directly — no promise
+  // indirection between the trusted 'ended' event and the play() call.
   function _prefetchVerseAudio(idx){
     if(!_elOk || idx >= _verses.length || _prefetchCache[idx]) return;
+    var entry = { result: null, error: null };
     var p = _fetchVerseAudio(idx);
-    p.catch(function(){}); // avoid a spurious unhandled-rejection console warning; _speakVerse still sees the real rejection below
-    _prefetchCache[idx] = p;
+    p.then(function(r){ entry.result = r; }).catch(function(e){ entry.error = e; });
+    entry.promise = p;
+    _prefetchCache[idx] = entry;
+  }
+
+  // Does the actual audio-element setup and playback. Called either
+  // synchronously (an already-settled prefetch, the common case from verse
+  // 2 onward) or from a .then()/.catch() callback (first verse of a
+  // chapter, or a prefetch that hadn't finished yet).
+  function _playFetchedVerseAudio(idx, result){
+    if(!_active || _paused) return;
+    if(result.provider === 'edge'){
+      _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
+    } else if(result.provider === 'aura' || result.provider === 'elevenlabs'){
+      _lastTtsError = null;
+    }
+    _brokenVoices[_persona.id] = false;
+    var _fbNote = document.getElementById('ttsFallbackNote');
+    if(_fbNote) _fbNote.hidden = true;
+
+    var blobUrl = URL.createObjectURL(result.blob);
+    var el = _getAudioEl();
+    el.playbackRate = _speeds[_speedIdx];
+    el.src = blobUrl;
+    el.onended = function(){
+      try { URL.revokeObjectURL(blobUrl); } catch(e){}
+      _audio = null;
+      if(_active && !_paused) _speakVerse(_cursor + 1);
+    };
+    el.onerror = function(){
+      try { URL.revokeObjectURL(blobUrl); } catch(e){}
+      _audio = null;
+      if(_active) _speakVerse(_cursor + 1);
+    };
+    _audio = el;
+    el.play();
+    _pp() && (_pp().textContent = '⏸');
+
+    _prefetchVerseAudio(idx + 1);
+  }
+
+  function _handleVerseAudioFailure(idx, err){
+    console.warn('[TTS] failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+    // Keep the real reason where a person can actually read it. Console
+    // logs are invisible on a phone, which is exactly where this feature
+    // gets used, so the failure has to survive into the UI itself.
+    _lastTtsError = _formatTtsFailure(err);
+    // The worker never passes the upstream status through — it wraps a
+    // total failure (Aura-2, Edge TTS, AND ElevenLabs all down) as its own
+    // 502. Checking for 500/401 here was checking for a shape the client
+    // can never actually receive, so this never once fired: every single
+    // verse re-attempted a doomed round trip to every server tier from
+    // scratch, forever, for the rest of the session. Stop retrying server
+    // TTS at all once the worker reports total failure — go straight to
+    // the free local voice for the rest of this reading session instead
+    // of paying that latency on every single verse.
+    if(err.status === 502){
+      _elOk = false;
+    } else {
+      _brokenVoices[_persona.id] = true;
+    }
+    _speakVerseFallback(idx);
   }
 
   function _speakVerse(idx){
@@ -7204,72 +7275,28 @@ window.openAllThreadsBrowser = function(){
     _stopAudio();
 
     if(_elOk){
-      // Show loading pulse while waiting for audio (skipped almost every
-      // time once prefetching is warmed up — the promise is often already
-      // resolved by the time we get here).
-      _pp() && (_pp().textContent = '⏳');
-
-      var audioPromise = _prefetchCache[idx] || _fetchVerseAudio(idx);
+      var entry = _prefetchCache[idx];
       delete _prefetchCache[idx];
 
-      audioPromise.then(function(result){
-        if(!_active || _paused) return;
-        if(result.provider === 'edge'){
-          _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
-        } else if(result.provider === 'aura' || result.provider === 'elevenlabs'){
-          _lastTtsError = null;
-        }
-        _brokenVoices[_persona.id] = false;
-        var _fbNote = document.getElementById('ttsFallbackNote');
-        if(_fbNote) _fbNote.hidden = true;
+      if(entry && entry.result){
+        // Already settled — go straight to playback with no promise hop
+        // between this (possibly still-synchronous, chained straight from
+        // the previous clip's 'ended' event) call and el.play().
+        _playFetchedVerseAudio(idx, entry.result);
+        return;
+      }
+      if(entry && entry.error){
+        _handleVerseAudioFailure(idx, entry.error);
+        return;
+      }
 
-        var blobUrl = URL.createObjectURL(result.blob);
-        var el = _getAudioEl();
-        el.playbackRate = _speeds[_speedIdx];
-        el.src = blobUrl;
-        el.onended = function(){
-          try { URL.revokeObjectURL(blobUrl); } catch(e){}
-          _audio = null;
-          // No setTimeout here on purpose: continuing synchronously inside
-          // the 'ended' handler is both faster (no dead pause between
-          // verses) and more reliable (Safari is likelier to keep honoring
-          // autoplay when play() is called right from a trusted media
-          // event, not after a timer breaks that chain).
-          if(_active && !_paused) _speakVerse(_cursor + 1);
-        };
-        el.onerror = function(){
-          try { URL.revokeObjectURL(blobUrl); } catch(e){}
-          _audio = null;
-          if(_active) _speakVerse(_cursor + 1);
-        };
-        _audio = el;
-        el.play();
-        _pp() && (_pp().textContent = '⏸');
-
-        _prefetchVerseAudio(idx + 1);
-      })
-      .catch(function(err){
-        console.warn('[TTS] failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
-        // Keep the real reason where a person can actually read it. Console
-        // logs are invisible on a phone, which is exactly where this feature
-        // gets used, so the failure has to survive into the UI itself.
-        _lastTtsError = _formatTtsFailure(err);
-        // The worker never passes the upstream status through — it wraps a
-        // total failure (Aura-2, Edge TTS, AND ElevenLabs all down) as its
-        // own 502. Checking for 500/401 here was checking for a shape the
-        // client can never actually receive, so this never once fired: every
-        // single verse re-attempted a doomed round trip to every server tier
-        // from scratch, forever, for the rest of the session. Stop retrying
-        // server TTS at all once the worker reports total failure — go
-        // straight to the free local voice for the rest of this reading
-        // session instead of paying that latency on every single verse.
-        if(err.status === 502){
-          _elOk = false;
-        } else {
-          _brokenVoices[_persona.id] = true;
-        }
-        _speakVerseFallback(idx);
-      });
+      // Not prefetched yet, or prefetch still in flight: show the loading
+      // pulse and fall back to a normal async .then()/.catch() chain.
+      _pp() && (_pp().textContent = '⏳');
+      var audioPromise = entry ? entry.promise : _fetchVerseAudio(idx);
+      audioPromise
+        .then(function(result){ _playFetchedVerseAudio(idx, result); })
+        .catch(function(err){ _handleVerseAudioFailure(idx, err); });
     } else {
       _speakVerseFallback(idx);
     }
