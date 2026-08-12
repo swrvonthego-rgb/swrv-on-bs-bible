@@ -6947,6 +6947,7 @@ window.openAllThreadsBrowser = function(){
   // synthetic sound this feature is supposed to avoid.
   var _speedIdx = 3;
   var _elOk     = true;             // becomes false if /api/tts is unreachable
+  var _lastTtsError = null;         // human-readable reason the neural voice last failed
 
   var SAVED_PERSONA_KEY = 'swrv_tts_persona';
 
@@ -7121,6 +7122,10 @@ window.openAllThreadsBrowser = function(){
       })
       .catch(function(err){
         console.warn('[TTS] ElevenLabs failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+        // Keep the real reason where a person can actually read it. Console
+        // logs are invisible on a phone, which is exactly where this feature
+        // gets used, so the failure has to survive into the UI itself.
+        _lastTtsError = 'status ' + (err.status || '?') + ' — ' + String(err.body || err.message || '').slice(0, 300);
         // A 500/401 means the KEY itself is broken — disable ElevenLabs globally.
         // Any other failure (404 voice not found, 422 bad request, etc.) means
         // THIS persona's voice_id specifically is bad — mark only that one
@@ -7142,7 +7147,10 @@ window.openAllThreadsBrowser = function(){
   function _speakVerseFallback(idx){
     if(!synth || !_active || idx >= _verses.length) return;
     var _fbNote = document.getElementById('ttsFallbackNote');
-    if(_fbNote) _fbNote.hidden = false;
+    if(_fbNote){
+      _fbNote.hidden = false;
+      _fbNote.title = _lastTtsError || 'Neural voice unavailable';
+    }
     var utt = new SpeechSynthesisUtterance(_prepText(_verses[idx].text));
     // Fold the persona's own pacing in here (and only here): the browser
     // engine synthesizes at this rate rather than resampling finished audio,
@@ -7282,6 +7290,22 @@ window.openAllThreadsBrowser = function(){
     pop.innerHTML = html;
   }
 
+  // Surfaces why the neural voice isn't being used. Console warnings are
+  // unreachable on a phone, so this puts the actual HTTP status and the
+  // provider's own error text in front of the reader (and anyone debugging).
+  window.ttsShowVoiceDiagnostic = function(){
+    var lines = [
+      'Reading voice: using the browser\'s built-in voice.',
+      '',
+      'Neural voice (ElevenLabs) is not being used because the request failed:',
+      _lastTtsError || '(no error recorded yet — try pressing play once)',
+      '',
+      'Voice: ' + (_persona ? _persona.label + ' (' + _persona.elVoiceId + ')' : 'unknown'),
+      'Endpoint: ' + ((window.SWRV_API_BASE || '') + '/api/tts')
+    ];
+    alert(lines.join('\n'));
+  };
+
   window.ttsOpenVoicePicker = function(){
     var pop = document.getElementById('ttsVoicePopover');
     if(!pop) return;
@@ -7371,6 +7395,7 @@ window.openAllThreadsBrowser = function(){
     })
     .catch(function(err){
       console.warn('[TTS preview] ElevenLabs failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+      _lastTtsError = 'status ' + (err.status || '?') + ' — ' + String(err.body || err.message || '').slice(0, 300);
       if(err.status && err.status !== 500 && err.status !== 401){
         _brokenVoices[id] = true;
         // Re-render so the warning badge shows up immediately, right on this card.
