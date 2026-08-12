@@ -127,6 +127,11 @@ const EDGE_UPGRADE_HEADERS = {
   'Accept-Encoding': 'gzip, deflate, br',
   'Pragma': 'no-cache',
   'Cache-Control': 'no-cache',
+  // Microsoft's speech service checks this Origin as part of its client
+  // fingerprint and 403s the handshake without it — it's the extension ID
+  // of Edge's own "Read Aloud" feature, not a real website. Every working
+  // reverse-engineered Edge-TTS client sends this exact value.
+  'Origin': 'chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold',
   'Sec-WebSocket-Version': '13',
   'Upgrade': 'websocket',
 };
