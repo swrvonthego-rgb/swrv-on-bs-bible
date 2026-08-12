@@ -7178,12 +7178,17 @@ window.openAllThreadsBrowser = function(){
         // logs are invisible on a phone, which is exactly where this feature
         // gets used, so the failure has to survive into the UI itself.
         _lastTtsError = _formatTtsFailure(err);
-        // A 500/401 means the KEY itself is broken — disable ElevenLabs globally.
-        // Any other failure (404 voice not found, 422 bad request, etc.) means
-        // THIS persona's voice_id specifically is bad — mark only that one
-        // broken so the picker can warn about it, without blacklisting voices
-        // that are actually fine.
-        if(err.status === 500 || err.status === 401){
+        // The worker never passes ElevenLabs' raw status through — it wraps a
+        // total failure (both ElevenLabs AND the free Edge fallback down) as
+        // its own 502. Checking for 500/401 here was checking for a shape the
+        // client can never actually receive, so this never once fired: every
+        // single verse re-attempted a doomed round trip to ElevenLabs (plus a
+        // doomed Edge TTS attempt) from scratch, forever, for the rest of the
+        // session. Stop retrying server TTS at all once the worker reports
+        // total failure — go straight to the free local voice for the rest
+        // of this reading session instead of paying that latency (and, while
+        // the key is bad, hammering ElevenLabs) on every single verse.
+        if(err.status === 502){
           _elOk = false;
         } else {
           _brokenVoices[_persona.id] = true;
@@ -7479,7 +7484,12 @@ window.openAllThreadsBrowser = function(){
     .catch(function(err){
       console.warn('[TTS preview] ElevenLabs failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
       _lastTtsError = _formatTtsFailure(err);
-      if(err.status && err.status !== 500 && err.status !== 401){
+      // Same distinction as the main playback path: a 502 means server TTS
+      // is down entirely (not this persona's voice specifically), so stop
+      // hitting it and don't mislabel every other persona's card as broken.
+      if(err.status === 502){
+        _elOk = false;
+      } else if(err.status){
         _brokenVoices[id] = true;
         // Re-render so the warning badge shows up immediately, right on this card.
         _renderVoicePicker();
