@@ -118,7 +118,10 @@ function uuid() { return crypto.randomUUID(); }
 // only ever hears the browser's true robotic fallback if BOTH of these fail.
 const EDGE_TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
 const EDGE_SYNTHESIS_URL = 'https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
-const EDGE_CHROMIUM_FULL_VERSION = '124.0.0.0';
+// Kept close to the actual current Edge/Chromium release train — a
+// UA/token pair years stale is itself a plausible signal Microsoft's
+// service flags when rejecting a handshake.
+const EDGE_CHROMIUM_FULL_VERSION = '131.0.0.0';
 const EDGE_CHROMIUM_MAJOR_VERSION = EDGE_CHROMIUM_FULL_VERSION.split('.')[0];
 const EDGE_SEC_MS_GEC_VERSION = `1-${EDGE_CHROMIUM_FULL_VERSION}`;
 const EDGE_UPGRADE_HEADERS = {

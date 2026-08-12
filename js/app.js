@@ -6885,7 +6885,15 @@ window.openAllThreadsBrowser = function(){
       elStability: 0.50,
       elSimilarity: 0.80,
       elStyle: 0.25,
-      rate: 0.80, pitch: 0.85,
+      // Pitch/rate spread widened deliberately: on most phones the Web
+      // Speech API only exposes ONE good voice per gender, so two male (or
+      // two female) personas land on the exact same underlying device
+      // voice. A ~0.1 pitch gap between them was audibly "the same person,"
+      // which is what "all four voices sound the same" was reporting. These
+      // wider gaps (still inside the 0.7–1.3 range that stays natural
+      // rather than cartoonish) are what actually separates personas when
+      // the device can't give them different voices to begin with.
+      rate: 0.82, pitch: 0.72,
       fallbackTargets: ['Google UK English Male','Daniel','Microsoft Mark - English (United States)','Alex'],
       gender: 'male'
     },
@@ -6898,7 +6906,7 @@ window.openAllThreadsBrowser = function(){
       elStability: 0.42,
       elSimilarity: 0.75,
       elStyle: 0.40,
-      rate: 0.85, pitch: 0.95,
+      rate: 0.95, pitch: 1.0,
       fallbackTargets: ['Microsoft David - English (United States)','Alex','Google UK English Male','Daniel'],
       gender: 'male'
     },
@@ -6911,7 +6919,7 @@ window.openAllThreadsBrowser = function(){
       elStability: 0.45,
       elSimilarity: 0.75,
       elStyle: 0.30,
-      rate: 0.78, pitch: 1.0,
+      rate: 0.80, pitch: 1.05,
       fallbackTargets: ['Google US English','Samantha','Microsoft Zira - English (United States)','Microsoft Jenny - English (United States)'],
       gender: 'female'
     },
@@ -6924,7 +6932,7 @@ window.openAllThreadsBrowser = function(){
       elStability: 0.38,
       elSimilarity: 0.70,
       elStyle: 0.50,
-      rate: 0.85, pitch: 0.93,
+      rate: 1.05, pitch: 1.28,
       fallbackTargets: ['Google UK English Female','Karen','Moira','Microsoft Hazel - English (Great Britain)','Tessa'],
       gender: 'female'
     }
