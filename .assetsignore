@@ -1,5 +1,6 @@
 # Cloudflare Workers Assets — exclude non-public files
 worker.js
+_worker.js
 wrangler.jsonc
 wrangler.toml.disabled
 .assetsignore
