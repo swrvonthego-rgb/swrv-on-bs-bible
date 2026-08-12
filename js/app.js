@@ -6957,20 +6957,22 @@ window.openAllThreadsBrowser = function(){
   var _elOk     = true;             // becomes false if /api/tts is unreachable
   var _lastTtsError = null;         // human-readable reason the neural voice last failed
 
-  // The worker's 502 body is JSON — {error, edge_error} — when BOTH tiers
-  // failed. A naive slice(0,300) on the raw text cuts that JSON off before
-  // edge_error ever appears, silently hiding exactly the half of the story
-  // that explains why the free fallback didn't save the request. Parse it
-  // properly so neither reason is lost.
+  // The worker's 502 body is JSON — {error, edge_error, elevenlabs_error} —
+  // one reason per tier (Aura-2, Edge TTS, ElevenLabs) when ALL THREE
+  // failed. A naive slice(0,300) on the raw text cuts that JSON off partway
+  // through, silently hiding whichever reasons come after the cut — exactly
+  // the part of the story that explains why the free/cheap tiers didn't
+  // save the request. Parse it properly so none of the three are lost.
   function _formatTtsFailure(err){
     var status = err.status || '?';
     var bodyText = String(err.body || err.message || '');
     try {
       var parsed = JSON.parse(bodyText);
-      if(parsed && (parsed.error || parsed.edge_error)){
+      if(parsed && (parsed.error || parsed.edge_error || parsed.elevenlabs_error)){
         var out = 'status ' + status;
-        if(parsed.error) out += ' — ElevenLabs: ' + parsed.error;
+        if(parsed.error) out += ' — Aura: ' + parsed.error;
         if(parsed.edge_error) out += ' | Edge TTS: ' + parsed.edge_error;
+        if(parsed.elevenlabs_error) out += ' | ElevenLabs: ' + parsed.elevenlabs_error;
         return out;
       }
     } catch(e){ /* not JSON — fall through to raw text below */ }
@@ -7140,16 +7142,17 @@ window.openAllThreadsBrowser = function(){
             throw e;
           });
         }
-        // The worker tries ElevenLabs first, then a free Edge TTS voice
-        // before ever failing this request — a real (non-robotic) voice can
-        // come back even when ElevenLabs itself is down. Keep that visible
-        // for the tap-to-diagnose flow: still worth knowing why the *better*
-        // voice isn't the one playing, even though something good is.
+        // The worker tries Aura-2 first, then a free Edge TTS voice, then
+        // ElevenLabs, before ever failing this request — a real
+        // (non-robotic) voice can come back even when Aura-2 itself is
+        // down. Keep that visible for the tap-to-diagnose flow: still worth
+        // knowing why the *primary* voice isn't the one playing, even
+        // though something good is.
         var provider = res.headers.get('X-TTS-Provider');
         if(provider === 'edge'){
-          var elErr = res.headers.get('X-ElevenLabs-Error');
-          _lastTtsError = 'Using free Edge voice — ElevenLabs unavailable: ' + (elErr || '(reason not recorded)');
-        } else if(provider === 'elevenlabs'){
+          var auraErr = res.headers.get('X-Aura-Error');
+          _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (auraErr || '(reason not recorded)');
+        } else if(provider === 'aura' || provider === 'elevenlabs'){
           _lastTtsError = null;
         }
         return res.blob();
@@ -7361,27 +7364,37 @@ window.openAllThreadsBrowser = function(){
   // hidden — just translated when we know what it means.
   function _humanizeTtsError(raw){
     var s = String(raw || '');
-    var elPart = s;
-    var edgeNote = '';
-    var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+)$/);
-    if(edgeMatch){
-      elPart = s.slice(0, edgeMatch.index);
-      edgeNote = ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + '), which is why it dropped all the way to the basic browser voice.';
+    // Split "status 502 — Aura: X | Edge TTS: Y | ElevenLabs: Z" into its
+    // up-to-three parts. Each tier's reason is optional (only present when
+    // that tier was actually attempted and failed).
+    var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+?)(?:\s*\|\s*ElevenLabs:|$)/);
+    var elMatch = s.match(/\|\s*ElevenLabs:\s*(.+)$/);
+    var auraPart = s.split(/\s*\|\s*Edge TTS:/)[0];
+    var extraNote = '';
+    if(edgeMatch) extraNote += ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + ').';
+    if(elMatch) extraNote += ' ElevenLabs was tried last and also failed (' + elMatch[1].trim() + ').';
+    if(extraNote) extraNote += ' That\'s why it dropped all the way to the basic browser voice.';
+
+    if(/AI binding not configured/i.test(auraPart)){
+      return 'The Aura-2 neural voice (Cloudflare Workers AI) isn\'t wired up on this deployment yet — its binding hasn\'t propagated.' + extraNote;
     }
-    if(/quota_exceeded/i.test(elPart)){
-      var m = elPart.match(/(\d+)\s*credits remaining/i);
+    if(/quota_exceeded/i.test(auraPart)){
+      var m = auraPart.match(/(\d+)\s*credits remaining/i);
       return 'The ElevenLabs voice budget for this billing period is used up' +
         (m ? ' (' + m[1] + ' credits left, more needed for this line)' : '') +
-        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner. Not a bug — the neural voice will come back on its own once there\'s budget again.' + edgeNote;
+        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner.' + extraNote;
     }
-    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(elPart)){
-      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled. Edit the key in ElevenLabs and turn that permission on.' + edgeNote;
+    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(auraPart)){
+      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled.' + extraNote;
     }
-    if(/invalid_api_key|unauthorized/i.test(elPart) && !/quota/i.test(elPart)){
-      return 'ElevenLabs rejected this API key as invalid. It may have been revoked, or this is the key\'s ID/name instead of the actual key value (the real key starts with "sk_" and is only shown in full when it\'s created or rotated in the ElevenLabs dashboard).' + edgeNote;
+    if(/invalid_api_key|unauthorized/i.test(auraPart) && !/quota/i.test(auraPart)){
+      return 'The connected voice API key was rejected as invalid.' + extraNote;
     }
-    if(/voice_not_found/i.test(elPart)){
-      return 'This specific voice no longer exists on the connected ElevenLabs account.' + edgeNote;
+    if(/voice_not_found/i.test(auraPart)){
+      return 'This specific voice no longer exists on the connected account.' + extraNote;
+    }
+    if(extraNote){
+      return 'The primary neural voice failed (' + auraPart.trim() + ').' + extraNote;
     }
     return (s || '(no error recorded yet — try pressing play once)');
   }

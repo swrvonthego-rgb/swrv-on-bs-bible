@@ -5,6 +5,14 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS"
+  },
+  // Cloudflare Workers AI — used for the Aura-2 (Deepgram) neural
+  // text-to-speech voice, the primary tier tried before the free Edge TTS
+  // fallback and before ElevenLabs. No separate signup or key: this binding
+  // grants the Worker access to models hosted on the same Cloudflare
+  // account it already runs on.
+  "ai": {
+    "binding": "AI"
   }
   // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
   // IMPORTANT: `wrangler deploy` validates every declared binding's id at
