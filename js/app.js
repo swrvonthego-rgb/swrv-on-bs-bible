@@ -6947,7 +6947,9 @@ window.openAllThreadsBrowser = function(){
   var _brokenVoices  = {}; // persona.id -> true once its ElevenLabs voice_id has failed at least once (404/422/etc — not a global key problem)
   var _persona  = VOICE_PERSONAS[2]; // default: The Shepherd
   var _fbVoice  = null;              // fallback browser voice
-  var _audio    = null;              // current HTMLAudioElement (ElevenLabs)
+  var _audio    = null;              // set to _audioEl while a network voice clip is the active playback source, else null
+  var _audioEl  = null;              // the ONE <audio> element reused for the whole reading session — see _getAudioEl()
+  var _prefetchCache = {};           // verse idx -> in-flight/settled Promise from _fetchVerseAudio, started early
   var _speeds   = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
   // Default to 1.0x — ElevenLabs audio is already naturally paced, and any
   // playbackRate below 1.0 makes the browser time-stretch it (preservesPitch
@@ -7025,9 +7027,16 @@ window.openAllThreadsBrowser = function(){
     _speedEl() && (_speedEl().textContent = (s === 1.0 ? '1×' : s + '×'));
   }
 
+  function _clearPrefetchCache(){ _prefetchCache = {}; }
+
   function _applyPersona(p){
     _persona = p;
     _fbVoice = _fbVoiceForPersona(p);
+    // A prefetched clip is generated for a specific voice — if the reader
+    // switches persona mid-chapter, any clip already fetched (or in
+    // flight) for the OLD voice must not play for the next verse instead
+    // of the new one they just picked.
+    _clearPrefetchCache();
     // Deliberately does NOT touch _speedIdx. persona.rate (0.78–0.85) is a
     // speechSynthesis tuning value: that engine *synthesizes* slower speech
     // natively, so a low rate there is free. This used to snap the shared
@@ -7094,7 +7103,24 @@ window.openAllThreadsBrowser = function(){
     if(vEl) vEl.textContent = _verses[idx] ? (_verses[idx].num ? 'v. '+_verses[idx].num : '') : '';
   }
 
-  /* ── ElevenLabs audio playback ── */
+  /* ── Network voice playback (Aura-2 / Edge TTS / ElevenLabs) ── */
+  // One <audio> element for the whole reading session, reused verse after
+  // verse instead of `new Audio()` each time. Safari only remembers "this
+  // element is allowed to autoplay" per-element after a real user tap —
+  // a fresh element built inside an onended/fetch chain (no direct tap
+  // behind it) loses that permission, which is exactly why every verse
+  // after the first needed a manual press of Play before.
+  function _getAudioEl(){
+    if(!_audioEl){
+      _audioEl = new Audio();
+      // Keep pitch stable if the reader deliberately slows playback down.
+      // At the 1.0x default this is a no-op — untouched audio exactly as
+      // the voice engine generated it.
+      try { _audioEl.preservesPitch = true; } catch(e){}
+    }
+    return _audioEl;
+  }
+
   function _stopAudio(){
     if(_audio){
       _audio.onended = null; _audio.onerror = null;
@@ -7105,6 +7131,55 @@ window.openAllThreadsBrowser = function(){
     if(synth) synth.cancel();
   }
 
+  function _fetchVerseAudio(idx){
+    var text = _prepText(_verses[idx].text);
+    return fetch((window.SWRV_API_BASE||'') + '/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        voice_id: _persona.elVoiceId,
+        stability: _persona.elStability,
+        similarity_boost: _persona.elSimilarity,
+        style: _persona.elStyle != null ? _persona.elStyle : 0.3
+      })
+    }).then(function(res){
+      if(!res.ok){
+        // Capture the real error body (e.g. "voice_not_found") instead of
+        // discarding it down to a bare status code — a bad/unavailable
+        // voice_id for ONE persona was silently, permanently falling back to
+        // the robotic browser voice for that persona forever, with nothing
+        // ever logged anywhere to say why.
+        return res.text().then(function(body){
+          var e = new Error('tts-' + res.status);
+          e.status = res.status; e.body = body;
+          throw e;
+        });
+      }
+      // The worker tries Aura-2 first, then a free Edge TTS voice, then
+      // ElevenLabs, before ever failing this request — a real
+      // (non-robotic) voice can come back even when Aura-2 itself is down.
+      // Keep that visible for the tap-to-diagnose flow: still worth knowing
+      // why the *primary* voice isn't the one playing, even though
+      // something good is.
+      var provider = res.headers.get('X-TTS-Provider');
+      var auraErr = res.headers.get('X-Aura-Error');
+      return res.blob().then(function(blob){ return { blob: blob, provider: provider, auraErr: auraErr }; });
+    });
+  }
+
+  // Kicks off the NEXT verse's audio generation while the current one is
+  // still playing, so by the time it ends the audio is usually already
+  // sitting ready — no fetch, no hourglass, no wait between verses.
+  // TTS generation for one verse (a second or two) is almost always
+  // faster than it takes to actually speak the current one out loud.
+  function _prefetchVerseAudio(idx){
+    if(!_elOk || idx >= _verses.length || _prefetchCache[idx]) return;
+    var p = _fetchVerseAudio(idx);
+    p.catch(function(){}); // avoid a spurious unhandled-rejection console warning; _speakVerse still sees the real rejection below
+    _prefetchCache[idx] = p;
+  }
+
   function _speakVerse(idx){
     if(!_active){ _done(); return; }
     if(idx >= _verses.length){ _continueToNextChapter(); return; }
@@ -7112,93 +7187,66 @@ window.openAllThreadsBrowser = function(){
     _highlightVerse(idx);
     _stopAudio();
 
-    var text = _prepText(_verses[idx].text);
-
     if(_elOk){
-      // Show loading pulse while waiting for audio
+      // Show loading pulse while waiting for audio (skipped almost every
+      // time once prefetching is warmed up — the promise is often already
+      // resolved by the time we get here).
       _pp() && (_pp().textContent = '⏳');
 
-      fetch((window.SWRV_API_BASE||'') + '/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: text,
-          voice_id: _persona.elVoiceId,
-          stability: _persona.elStability,
-          similarity_boost: _persona.elSimilarity,
-          style: _persona.elStyle != null ? _persona.elStyle : 0.3
-        })
-      })
-      .then(function(res){
-        if(!res.ok){
-          // Capture ElevenLabs' real error body (e.g. "voice_not_found") instead
-          // of discarding it down to a bare status code — a bad/unavailable
-          // voice_id for ONE persona was silently, permanently falling back to
-          // the robotic browser voice for that persona forever, with nothing
-          // ever logged anywhere to say why.
-          return res.text().then(function(body){
-            var e = new Error('tts-' + res.status);
-            e.status = res.status; e.body = body;
-            throw e;
-          });
-        }
-        // The worker tries Aura-2 first, then a free Edge TTS voice, then
-        // ElevenLabs, before ever failing this request — a real
-        // (non-robotic) voice can come back even when Aura-2 itself is
-        // down. Keep that visible for the tap-to-diagnose flow: still worth
-        // knowing why the *primary* voice isn't the one playing, even
-        // though something good is.
-        var provider = res.headers.get('X-TTS-Provider');
-        if(provider === 'edge'){
-          var auraErr = res.headers.get('X-Aura-Error');
-          _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (auraErr || '(reason not recorded)');
-        } else if(provider === 'aura' || provider === 'elevenlabs'){
+      var audioPromise = _prefetchCache[idx] || _fetchVerseAudio(idx);
+      delete _prefetchCache[idx];
+
+      audioPromise.then(function(result){
+        if(!_active || _paused) return;
+        if(result.provider === 'edge'){
+          _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
+        } else if(result.provider === 'aura' || result.provider === 'elevenlabs'){
           _lastTtsError = null;
         }
-        return res.blob();
-      })
-      .then(function(blob){
-        if(!_active || _paused) return;
         _brokenVoices[_persona.id] = false;
         var _fbNote = document.getElementById('ttsFallbackNote');
         if(_fbNote) _fbNote.hidden = true;
-        var blobUrl = URL.createObjectURL(blob);
-        _audio = new Audio(blobUrl);
-        // Keep pitch stable if the reader deliberately slows playback down.
-        // At the 1.0x default this is a no-op, which is the point: untouched,
-        // unstretched audio exactly as ElevenLabs generated it.
-        try { _audio.preservesPitch = true; } catch(e){}
-        _audio.playbackRate = _speeds[_speedIdx];
-        _audio.onended = function(){
+
+        var blobUrl = URL.createObjectURL(result.blob);
+        var el = _getAudioEl();
+        el.playbackRate = _speeds[_speedIdx];
+        el.src = blobUrl;
+        el.onended = function(){
           try { URL.revokeObjectURL(blobUrl); } catch(e){}
           _audio = null;
-          if(_active && !_paused)
-            setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 700);
+          // No setTimeout here on purpose: continuing synchronously inside
+          // the 'ended' handler is both faster (no dead pause between
+          // verses) and more reliable (Safari is likelier to keep honoring
+          // autoplay when play() is called right from a trusted media
+          // event, not after a timer breaks that chain).
+          if(_active && !_paused) _speakVerse(_cursor + 1);
         };
-        _audio.onerror = function(){
+        el.onerror = function(){
           try { URL.revokeObjectURL(blobUrl); } catch(e){}
           _audio = null;
           if(_active) _speakVerse(_cursor + 1);
         };
-        _audio.play();
+        _audio = el;
+        el.play();
         _pp() && (_pp().textContent = '⏸');
+
+        _prefetchVerseAudio(idx + 1);
       })
       .catch(function(err){
-        console.warn('[TTS] ElevenLabs failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+        console.warn('[TTS] failed for persona "'+_persona.id+'" (voice_id '+_persona.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
         // Keep the real reason where a person can actually read it. Console
         // logs are invisible on a phone, which is exactly where this feature
         // gets used, so the failure has to survive into the UI itself.
         _lastTtsError = _formatTtsFailure(err);
-        // The worker never passes ElevenLabs' raw status through — it wraps a
-        // total failure (both ElevenLabs AND the free Edge fallback down) as
-        // its own 502. Checking for 500/401 here was checking for a shape the
+        // The worker never passes the upstream status through — it wraps a
+        // total failure (Aura-2, Edge TTS, AND ElevenLabs all down) as its
+        // own 502. Checking for 500/401 here was checking for a shape the
         // client can never actually receive, so this never once fired: every
-        // single verse re-attempted a doomed round trip to ElevenLabs (plus a
-        // doomed Edge TTS attempt) from scratch, forever, for the rest of the
-        // session. Stop retrying server TTS at all once the worker reports
-        // total failure — go straight to the free local voice for the rest
-        // of this reading session instead of paying that latency (and, while
-        // the key is bad, hammering ElevenLabs) on every single verse.
+        // single verse re-attempted a doomed round trip to every server tier
+        // from scratch, forever, for the rest of the session. Stop retrying
+        // server TTS at all once the worker reports total failure — go
+        // straight to the free local voice for the rest of this reading
+        // session instead of paying that latency on every single verse.
         if(err.status === 502){
           _elOk = false;
         } else {
@@ -7230,7 +7278,7 @@ window.openAllThreadsBrowser = function(){
     if(_fbVoice) utt.voice = _fbVoice;
     utt.onend  = function(){
       if(!_active || _paused) return;
-      setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 700);
+      setTimeout(function(){ if(_active && !_paused) _speakVerse(_cursor + 1); }, 150);
     };
     utt.onerror = function(){ if(_active) _speakVerse(_cursor + 1); };
     synth.speak(utt);
@@ -7241,6 +7289,7 @@ window.openAllThreadsBrowser = function(){
   function _done(){
     _active = false; _paused = false;
     _stopAudio();
+    _clearPrefetchCache();
     document.querySelectorAll('.verse-tts-active').forEach(function(el){ el.classList.remove('verse-tts-active'); });
     _bar() && _bar().classList.remove('active');
   }
@@ -7269,6 +7318,10 @@ window.openAllThreadsBrowser = function(){
   function _continueToNextChapter(){
     if(!_active || !_hasNextChapter()){ _done(); return; }
     _stopAudio();
+    // Verse indices are about to refer to a completely different chapter's
+    // text — any clip still cached under those indices belongs to the
+    // chapter that's ending, not the one about to start.
+    _clearPrefetchCache();
     if(typeof nextChapter === 'function') nextChapter();
     setTimeout(function(){
       if(!_active) return; // user tapped stop during the brief chapter-load pause
