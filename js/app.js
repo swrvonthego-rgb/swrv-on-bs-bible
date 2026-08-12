@@ -6972,9 +6972,10 @@ window.openAllThreadsBrowser = function(){
     var bodyText = String(err.body || err.message || '');
     try {
       var parsed = JSON.parse(bodyText);
-      if(parsed && (parsed.error || parsed.edge_error)){
+      if(parsed && (parsed.error || parsed.freetts_error || parsed.edge_error)){
         var out = 'status ' + status;
         if(parsed.error) out += ' — Aura: ' + parsed.error;
+        if(parsed.freetts_error) out += ' | FreeTTS.org: ' + parsed.freetts_error;
         if(parsed.edge_error) out += ' | Edge TTS: ' + parsed.edge_error;
         return out;
       }
@@ -7159,7 +7160,8 @@ window.openAllThreadsBrowser = function(){
       // something good is.
       var provider = res.headers.get('X-TTS-Provider');
       var auraErr = res.headers.get('X-Aura-Error');
-      return res.blob().then(function(blob){ return { blob: blob, provider: provider, auraErr: auraErr }; });
+      var freettsErr = res.headers.get('X-FreeTTS-Error');
+      return res.blob().then(function(blob){ return { blob: blob, provider: provider, auraErr: auraErr, freettsErr: freettsErr }; });
     });
   }
 
@@ -7194,7 +7196,9 @@ window.openAllThreadsBrowser = function(){
   function _playFetchedVerseAudio(idx, result){
     if(!_active || _paused) return;
     if(result.provider === 'edge'){
-      _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
+      _lastTtsError = 'Using free Edge voice — Aura-2 (' + (result.auraErr || 'unknown reason') + ') and FreeTTS.org (' + (result.freettsErr || 'unknown reason') + ') both unavailable';
+    } else if(result.provider === 'freetts'){
+      _lastTtsError = 'Using FreeTTS.org voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
     } else if(result.provider === 'aura' || result.provider === 'cache'){
       // 'cache' means this exact (voice, verse) pair was already generated
       // before and is being served instantly from R2 — still the real
@@ -7442,15 +7446,16 @@ window.openAllThreadsBrowser = function(){
   // hidden — just translated when we know what it means.
   function _humanizeTtsError(raw){
     var s = String(raw || '');
-    // Split "status 502 — Aura: X | Edge TTS: Y" into its two parts. Edge's
-    // reason is optional (only present when it was actually attempted).
+    // Split "status 502 — Aura: X | FreeTTS.org: Y | Edge TTS: Z" into its
+    // parts. Each later tier's reason is optional (only present when that
+    // tier was actually attempted and failed).
+    var freettsMatch = s.match(/\|\s*FreeTTS\.org:\s*(.+?)(?:\s*\|\s*Edge TTS:|$)/);
     var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+)$/);
-    var auraPart = s.split(/\s*\|\s*Edge TTS:/)[0];
+    var auraPart = s.split(/\s*\|\s*FreeTTS\.org:/)[0];
     var extraNote = '';
-    if(edgeMatch){
-      extraNote = ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + ').' +
-        ' That\'s why it dropped all the way to the basic browser voice.';
-    }
+    if(freettsMatch) extraNote += ' The free FreeTTS.org voice was tried next and also failed (' + freettsMatch[1].trim() + ').';
+    if(edgeMatch) extraNote += ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + ').';
+    if(extraNote) extraNote += ' That\'s why it dropped all the way to the basic browser voice.';
 
     if(/AI binding not configured/i.test(auraPart)){
       return 'The Aura-2 neural voice (Cloudflare Workers AI) isn\'t wired up on this deployment yet — its binding hasn\'t propagated.' + extraNote;

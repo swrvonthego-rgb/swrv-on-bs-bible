@@ -467,6 +467,37 @@ export default {
         auraError = 'AI binding not configured';
       }
 
+      // FreeTTS.org: a small, independently-run (not Cloudflare, not
+      // Microsoft) free proxy in front of genuine Azure Neural TTS voices —
+      // same underlying voice catalog as the Edge TTS map below, so the
+      // same EDGE_VOICE_MAP ShortNames apply directly. No key, no daily
+      // quota — just a 20 req/min per-IP rate limit, which real reading
+      // pace (plus the R2 cache above) stays well under. Two-step REST
+      // flow: POST generates the clip and returns a file_id, then GET
+      // fetches the actual audio. Every assumption here is defensive —
+      // if the response shape is ever wrong, this just throws and falls
+      // through to Edge TTS below, same as any other tier failing.
+      let freettsError = null;
+      try {
+        const freettsVoice = EDGE_VOICE_MAP[voice_id] || EDGE_DEFAULT_VOICE;
+        const genRes = await fetch('https://freetts.org/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, voice: freettsVoice }),
+        });
+        if (!genRes.ok) throw new Error(`generate request failed: status ${genRes.status} — ${(await genRes.text()).slice(0, 200)}`);
+        const genData = await genRes.json();
+        if (!genData || !genData.file_id) throw new Error('unexpected response shape (no file_id): ' + JSON.stringify(genData).slice(0, 200));
+        const audioRes = await fetch(`https://freetts.org/api/audio/${genData.file_id}`);
+        if (!audioRes.ok) throw new Error(`audio fetch failed: status ${audioRes.status}`);
+        const audioBuf = await audioRes.arrayBuffer();
+        if (!audioBuf || audioBuf.byteLength === 0) throw new Error('empty audio response');
+        if (cacheKey) ctx.waitUntil(env.LIBRARY_BUCKET.put(cacheKey, audioBuf, { httpMetadata: { contentType: 'audio/mpeg' } }).catch(() => {}));
+        return new Response(audioBuf, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', 'X-TTS-Provider': 'freetts', 'X-Aura-Error': auraError.slice(0, 300), ...corsHeaders } });
+      } catch (err) {
+        freettsError = 'FreeTTS.org request failed: ' + err.message;
+      }
+
       try {
         const stream = await edgeCreateAudioStream(text, voice_id);
         const audioBuf = await new Response(stream).arrayBuffer();
@@ -475,12 +506,12 @@ export default {
           status: 200,
           headers: {
             'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store',
-            'X-TTS-Provider': 'edge', 'X-Aura-Error': auraError.slice(0, 300),
+            'X-TTS-Provider': 'edge', 'X-Aura-Error': auraError.slice(0, 300), 'X-FreeTTS-Error': freettsError.slice(0, 300),
             ...corsHeaders
           }
         });
       } catch (edgeErr) {
-        return json({ error: auraError, edge_error: edgeErr.message }, 502);
+        return json({ error: auraError, freetts_error: freettsError, edge_error: edgeErr.message }, 502);
       }
     }
 
