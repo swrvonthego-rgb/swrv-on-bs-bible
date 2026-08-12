@@ -6885,7 +6885,7 @@ window.openAllThreadsBrowser = function(){
 })();
 
 /* ============================================================
-   TEXT-TO-SPEECH (TTS) — ElevenLabs neural voices + browser fallback
+   TEXT-TO-SPEECH (TTS) — Cloudflare-hosted neural voices + browser fallback
    ============================================================ */
 (function(){
   var synth = window.speechSynthesis;
@@ -6897,10 +6897,7 @@ window.openAllThreadsBrowser = function(){
       label: 'The Teacher',
       desc: 'Male · Deep & Authoritative',
       icon: '📖',
-      elVoiceId: 'onwK4e9ZLuTAKqWW03F9', // ElevenLabs: Daniel
-      elStability: 0.50,
-      elSimilarity: 0.80,
-      elStyle: 0.25,
+      elVoiceId: 'onwK4e9ZLuTAKqWW03F9', // persona voice_id — mapped to an Aura-2/Edge voice on the worker
       // Pitch/rate spread widened deliberately: on most phones the Web
       // Speech API only exposes ONE good voice per gender, so two male (or
       // two female) personas land on the exact same underlying device
@@ -6918,10 +6915,7 @@ window.openAllThreadsBrowser = function(){
       label: 'The Narrator',
       desc: 'Male · Warm & Storytelling',
       icon: '🎙️',
-      elVoiceId: 'TxGEqnHWrfWFTfGW9XjX', // ElevenLabs: Josh
-      elStability: 0.42,
-      elSimilarity: 0.75,
-      elStyle: 0.40,
+      elVoiceId: 'TxGEqnHWrfWFTfGW9XjX',
       rate: 0.95, pitch: 1.0,
       fallbackTargets: ['Microsoft David - English (United States)','Alex','Google UK English Male','Daniel'],
       gender: 'male'
@@ -6931,10 +6925,7 @@ window.openAllThreadsBrowser = function(){
       label: 'The Shepherd',
       desc: 'Female · Gentle & Calming',
       icon: '🕊️',
-      elVoiceId: '21m00Tcm4TlvDq8ikWAM', // ElevenLabs: Rachel
-      elStability: 0.45,
-      elSimilarity: 0.75,
-      elStyle: 0.30,
+      elVoiceId: '21m00Tcm4TlvDq8ikWAM',
       rate: 0.80, pitch: 1.05,
       fallbackTargets: ['Google US English','Samantha','Microsoft Zira - English (United States)','Microsoft Jenny - English (United States)'],
       gender: 'female'
@@ -6944,10 +6935,7 @@ window.openAllThreadsBrowser = function(){
       label: 'The Prophet',
       desc: 'Female · Clear & Expressive',
       icon: '🔥',
-      elVoiceId: 'AZnzlk1XvdvUeBnXmlld', // ElevenLabs: Domi
-      elStability: 0.38,
-      elSimilarity: 0.70,
-      elStyle: 0.50,
+      elVoiceId: 'AZnzlk1XvdvUeBnXmlld',
       rate: 1.05, pitch: 1.28,
       fallbackTargets: ['Google UK English Female','Karen','Moira','Microsoft Hazel - English (Great Britain)','Tessa'],
       gender: 'female'
@@ -6960,14 +6948,14 @@ window.openAllThreadsBrowser = function(){
   var _active   = false;
   var _previewAudio  = null; // separate from the main reading _audio so a preview never interrupts an in-progress chapter
   var _previewSample = 'In the beginning God created the heaven and the earth.'; // Genesis 1:1, KJV — public domain
-  var _brokenVoices  = {}; // persona.id -> true once its ElevenLabs voice_id has failed at least once (404/422/etc — not a global key problem)
+  var _brokenVoices  = {}; // persona.id -> true once its voice_id has failed at least once (404/422/etc — not a global outage)
   var _persona  = VOICE_PERSONAS[2]; // default: The Shepherd
   var _fbVoice  = null;              // fallback browser voice
   var _audio    = null;              // set to _audioEl while a network voice clip is the active playback source, else null
   var _audioEl  = null;              // the ONE <audio> element reused for the whole reading session — see _getAudioEl()
   var _prefetchCache = {};           // verse idx -> in-flight/settled Promise from _fetchVerseAudio, started early
   var _speeds   = [0.6, 0.75, 0.85, 1.0, 1.15, 1.3];
-  // Default to 1.0x — ElevenLabs audio is already naturally paced, and any
+  // Default to 1.0x — the neural voice audio is already naturally paced, and any
   // playbackRate below 1.0 makes the browser time-stretch it (preservesPitch
   // is on by default), which smears real speech into the exact warbly,
   // synthetic sound this feature is supposed to avoid.
@@ -6975,22 +6963,19 @@ window.openAllThreadsBrowser = function(){
   var _elOk     = true;             // becomes false if /api/tts is unreachable
   var _lastTtsError = null;         // human-readable reason the neural voice last failed
 
-  // The worker's 502 body is JSON — {error, edge_error, elevenlabs_error} —
-  // one reason per tier (Aura-2, Edge TTS, ElevenLabs) when ALL THREE
-  // failed. A naive slice(0,300) on the raw text cuts that JSON off partway
-  // through, silently hiding whichever reasons come after the cut — exactly
-  // the part of the story that explains why the free/cheap tiers didn't
-  // save the request. Parse it properly so none of the three are lost.
+  // The worker's 502 body is JSON — {error, edge_error} — one reason per
+  // tier (Aura-2, Edge TTS) when BOTH failed. A naive slice(0,300) on the
+  // raw text cuts that JSON off partway through, silently hiding whichever
+  // reason comes after the cut. Parse it properly so neither is lost.
   function _formatTtsFailure(err){
     var status = err.status || '?';
     var bodyText = String(err.body || err.message || '');
     try {
       var parsed = JSON.parse(bodyText);
-      if(parsed && (parsed.error || parsed.edge_error || parsed.elevenlabs_error)){
+      if(parsed && (parsed.error || parsed.edge_error)){
         var out = 'status ' + status;
         if(parsed.error) out += ' — Aura: ' + parsed.error;
         if(parsed.edge_error) out += ' | Edge TTS: ' + parsed.edge_error;
-        if(parsed.elevenlabs_error) out += ' | ElevenLabs: ' + parsed.elevenlabs_error;
         return out;
       }
     } catch(e){ /* not JSON — fall through to raw text below */ }
@@ -7057,7 +7042,7 @@ window.openAllThreadsBrowser = function(){
     // speechSynthesis tuning value: that engine *synthesizes* slower speech
     // natively, so a low rate there is free. This used to snap the shared
     // speed control to persona.rate, which then became the <audio>
-    // playbackRate for ElevenLabs clips — pinning the default Shepherd voice
+    // playbackRate for neural-voice clips — pinning the default Shepherd voice
     // to 0.75x and time-stretching genuinely natural audio into something
     // robotic. persona.rate now only reaches the browser fallback, where it
     // belongs; the speed control stays the reader's own choice.
@@ -7119,7 +7104,7 @@ window.openAllThreadsBrowser = function(){
     if(vEl) vEl.textContent = _verses[idx] ? (_verses[idx].num ? 'v. '+_verses[idx].num : '') : '';
   }
 
-  /* ── Network voice playback (Aura-2 / Edge TTS / ElevenLabs) ── */
+  /* ── Network voice playback (Aura-2 / Edge TTS) ── */
   // One <audio> element for the whole reading session, reused verse after
   // verse instead of `new Audio()` each time. Safari only remembers "this
   // element is allowed to autoplay" per-element after a real user tap —
@@ -7152,13 +7137,7 @@ window.openAllThreadsBrowser = function(){
     return fetch((window.SWRV_API_BASE||'') + '/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: text,
-        voice_id: _persona.elVoiceId,
-        stability: _persona.elStability,
-        similarity_boost: _persona.elSimilarity,
-        style: _persona.elStyle != null ? _persona.elStyle : 0.3
-      })
+      body: JSON.stringify({ text: text, voice_id: _persona.elVoiceId })
     }).then(function(res){
       if(!res.ok){
         // Capture the real error body (e.g. "voice_not_found") instead of
@@ -7173,7 +7152,7 @@ window.openAllThreadsBrowser = function(){
         });
       }
       // The worker tries Aura-2 first, then a free Edge TTS voice, then
-      // ElevenLabs, before ever failing this request — a real
+      // before ever failing this request — a real
       // (non-robotic) voice can come back even when Aura-2 itself is down.
       // Keep that visible for the tap-to-diagnose flow: still worth knowing
       // why the *primary* voice isn't the one playing, even though
@@ -7216,7 +7195,7 @@ window.openAllThreadsBrowser = function(){
     if(!_active || _paused) return;
     if(result.provider === 'edge'){
       _lastTtsError = 'Using free Edge voice — Aura-2 unavailable: ' + (result.auraErr || '(reason not recorded)');
-    } else if(result.provider === 'aura' || result.provider === 'elevenlabs'){
+    } else if(result.provider === 'aura'){
       _lastTtsError = null;
     }
     _brokenVoices[_persona.id] = false;
@@ -7251,7 +7230,7 @@ window.openAllThreadsBrowser = function(){
     // gets used, so the failure has to survive into the UI itself.
     _lastTtsError = _formatTtsFailure(err);
     // The worker never passes the upstream status through — it wraps a
-    // total failure (Aura-2, Edge TTS, AND ElevenLabs all down) as its own
+    // total failure (Aura-2 AND Edge TTS both down) as its own
     // 502. Checking for 500/401 here was checking for a shape the client
     // can never actually receive, so this never once fired: every single
     // verse re-attempted a doomed round trip to every server tier from
@@ -7444,9 +7423,9 @@ window.openAllThreadsBrowser = function(){
       html += '<span class="tts-persona-name">' + p.label + '</span>';
       html += '<span class="tts-persona-desc">' + p.desc + '</span>';
       if(isBroken){
-        html += '<span class="tts-persona-broken" title="This voice is currently unavailable from ElevenLabs and is using your device\'s built-in voice instead">⚠ device voice (ElevenLabs unavailable)</span>';
+        html += '<span class="tts-persona-broken" title="This voice is currently unavailable and is using your device\'s built-in voice instead">⚠ device voice (neural voice unavailable)</span>';
       } else {
-        html += '<span class="tts-persona-voice">ElevenLabs neural</span>';
+        html += '<span class="tts-persona-voice">Neural voice</span>';
       }
       html += '</div>';
     });
@@ -7454,40 +7433,31 @@ window.openAllThreadsBrowser = function(){
     pop.innerHTML = html;
   }
 
-  // Turns ElevenLabs' raw JSON error body into one plain sentence for a
+  // Turns the worker's raw JSON error body into one plain sentence for a
   // reader who isn't going to parse a stack trace. Falls back to showing the
   // raw text untouched for anything not recognized, so nothing is ever
   // hidden — just translated when we know what it means.
   function _humanizeTtsError(raw){
     var s = String(raw || '');
-    // Split "status 502 — Aura: X | Edge TTS: Y | ElevenLabs: Z" into its
-    // up-to-three parts. Each tier's reason is optional (only present when
-    // that tier was actually attempted and failed).
-    var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+?)(?:\s*\|\s*ElevenLabs:|$)/);
-    var elMatch = s.match(/\|\s*ElevenLabs:\s*(.+)$/);
+    // Split "status 502 — Aura: X | Edge TTS: Y" into its two parts. Edge's
+    // reason is optional (only present when it was actually attempted).
+    var edgeMatch = s.match(/\|\s*Edge TTS:\s*(.+)$/);
     var auraPart = s.split(/\s*\|\s*Edge TTS:/)[0];
     var extraNote = '';
-    if(edgeMatch) extraNote += ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + ').';
-    if(elMatch) extraNote += ' ElevenLabs was tried last and also failed (' + elMatch[1].trim() + ').';
-    if(extraNote) extraNote += ' That\'s why it dropped all the way to the basic browser voice.';
+    if(edgeMatch){
+      extraNote = ' The free Edge voice was tried next and also failed (' + edgeMatch[1].trim() + ').' +
+        ' That\'s why it dropped all the way to the basic browser voice.';
+    }
 
     if(/AI binding not configured/i.test(auraPart)){
       return 'The Aura-2 neural voice (Cloudflare Workers AI) isn\'t wired up on this deployment yet — its binding hasn\'t propagated.' + extraNote;
     }
-    if(/quota_exceeded/i.test(auraPart)){
-      var m = auraPart.match(/(\d+)\s*credits remaining/i);
-      return 'The ElevenLabs voice budget for this billing period is used up' +
-        (m ? ' (' + m[1] + ' credits left, more needed for this line)' : '') +
-        '. It resets automatically next cycle, or a plan upgrade raises the limit sooner.' + extraNote;
-    }
-    if(/missing_permissions|does not have.*permission|permission.*denied/i.test(auraPart)){
-      return 'This API key is restricted and doesn\'t have Text-to-Speech permission enabled.' + extraNote;
-    }
-    if(/invalid_api_key|unauthorized/i.test(auraPart) && !/quota/i.test(auraPart)){
-      return 'The connected voice API key was rejected as invalid.' + extraNote;
+    if(/daily free allocation|10,?000 neurons|httpCode.?:.?429/i.test(auraPart)){
+      return 'Today\'s free Cloudflare voice budget (10,000 neurons/day) is used up from earlier reading today.' +
+        ' It resets automatically at midnight UTC — nothing broken, just today\'s free quota spent.' + extraNote;
     }
     if(/voice_not_found/i.test(auraPart)){
-      return 'This specific voice no longer exists on the connected account.' + extraNote;
+      return 'This specific voice no longer exists.' + extraNote;
     }
     if(extraNote){
       return 'The primary neural voice failed (' + auraPart.trim() + ').' + extraNote;
@@ -7560,13 +7530,7 @@ window.openAllThreadsBrowser = function(){
     fetch((window.SWRV_API_BASE||'') + '/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: _previewSample,
-        voice_id: p.elVoiceId,
-        stability: p.elStability,
-        similarity_boost: p.elSimilarity,
-        style: p.elStyle != null ? p.elStyle : 0.3
-      })
+      body: JSON.stringify({ text: _previewSample, voice_id: p.elVoiceId })
     })
     .then(function(res){
       if(!res.ok){
@@ -7599,7 +7563,7 @@ window.openAllThreadsBrowser = function(){
       if(btn) btn.textContent = '⏸';
     })
     .catch(function(err){
-      console.warn('[TTS preview] ElevenLabs failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
+      console.warn('[TTS preview] failed for persona "'+id+'" (voice_id '+p.elVoiceId+'): status '+(err.status||'?')+' — '+(err.body||err.message));
       _lastTtsError = _formatTtsFailure(err);
       // Same distinction as the main playback path: a 502 means server TTS
       // is down entirely (not this persona's voice specifically), so stop

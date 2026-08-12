@@ -7,7 +7,7 @@
  * Routes:
  *   /api/health                 -> GET:  health check
  *   /api/groq                   -> POST: relay to Groq API with server-side key
- *   /api/tts                    -> POST: TTS relay — ElevenLabs, else free Edge TTS fallback
+ *   /api/tts                    -> POST: TTS relay — Aura-2, else free Edge TTS fallback
  *   /api/auth/signup            -> POST: email + password signup
  *   /api/auth/login             -> POST: email + password login
  *   /api/auth/google/start      -> GET:  begin Google OAuth
@@ -114,8 +114,9 @@ function uuid() { return crypto.randomUUID(); }
 // widely used in production by rany2/edge-tts (Python) and
 // DIYgod/cloudflare-edge-tts (this Worker's implementation is ported from
 // that project) — actively maintained, large community, currently stable.
-// Used automatically below whenever ElevenLabs is unavailable, so a reader
-// only ever hears the browser's true robotic fallback if BOTH of these fail.
+// Used automatically below whenever Aura-2 is unavailable (daily quota
+// used up), so a reader only ever hears the browser's true robotic
+// fallback if BOTH of these fail.
 const EDGE_TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
 const EDGE_SYNTHESIS_URL = 'https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
 // Kept close to the actual current Edge/Chromium release train — a
@@ -138,9 +139,10 @@ const EDGE_UPGRADE_HEADERS = {
   'Sec-WebSocket-Version': '13',
   'Upgrade': 'websocket',
 };
-// Maps this app's ElevenLabs persona voice_ids to a comparable Edge neural
-// voice, so the fallback still matches each persona's intended character
-// instead of reading every persona in the same generic voice.
+// Maps this app's persona voice_ids (originally ElevenLabs voice IDs, kept
+// as the shared identifier across tiers) to a comparable Edge neural voice,
+// so the fallback still matches each persona's intended character instead
+// of reading every persona in the same generic voice.
 const EDGE_VOICE_MAP = {
   'onwK4e9ZLuTAKqWW03F9': 'en-US-GuyNeural',                // Teacher: deep, authoritative male
   'TxGEqnHWrfWFTfGW9XjX': 'en-US-AndrewMultilingualNeural',  // Narrator: warm, storytelling male
@@ -153,8 +155,8 @@ const EDGE_DEFAULT_VOICE = 'en-US-AvaMultilingualNeural';
 // real commercial TTS (not a reverse-engineered protocol), billed in
 // fractions of a cent per verse, on the same Cloudflare account this Worker
 // already runs on. No new signup, no separate key, and no dependency on
-// ElevenLabs or on Microsoft's speech service staying reachable. Tried
-// first, ahead of both of those.
+// any third-party paid service or on Microsoft's speech service staying
+// reachable. Tried first, ahead of the Edge TTS fallback.
 const AURA_VOICE_MAP = {
   'onwK4e9ZLuTAKqWW03F9': 'zeus',    // Teacher: deep, authoritative male
   'TxGEqnHWrfWFTfGW9XjX': 'orion',   // Narrator: warm, storytelling male
@@ -366,7 +368,6 @@ export default {
       return json({
         status: 'ok',
         hasGroqKey: !!env.GROQ_API_KEY,
-        hasElevenLabsKey: !!env.ELEVENLABS_API_KEY,
         hasWorkersAI: !!env.AI,
         hasDatabase: !!env.DB,
         hasAuth: !!env.SESSION_SECRET,
@@ -400,31 +401,25 @@ export default {
       }
     }
 
-    // ============= TTS RELAY: Aura-2, then Edge TTS, then ElevenLabs, then give up =============
-    // Three independent tiers before this ever tells the client to fall back
-    // to the browser's robotic built-in voice.
+    // ============= TTS RELAY: Aura-2, then Edge TTS, then give up =============
+    // ElevenLabs is deliberately NOT in this chain — this app runs entirely
+    // on Cloudflare's free tier by decision, not as a temporary workaround.
+    // Two independent free tiers before this ever tells the client to fall
+    // back to the browser's robotic built-in voice.
     //
-    // Aura-2 (Cloudflare Workers AI / Deepgram) goes first: it's a real,
-    // stable, first-party-hosted commercial TTS model on the same account
-    // this Worker already runs on — not a broken paid key, not a
-    // reverse-engineered protocol that depends on Microsoft not blocking
-    // this datacenter. Costs a fraction of a cent per verse.
+    // Aura-2 (Cloudflare Workers AI / Deepgram) goes first: a real, stable,
+    // first-party-hosted commercial TTS model on the same account this
+    // Worker already runs on, covered by the Workers AI free daily
+    // allocation (10,000 neurons/day, resets 00:00 UTC).
     //
-    // Edge TTS is second: free, no key, no quota, genuinely neural when
-    // Microsoft's service accepts the connection.
-    //
-    // ElevenLabs is last: still tried in case the account key ever gets
-    // fixed, but it's the least reliable tier right now (broken key) so it
-    // no longer costs anything to leave for last — the two tiers ahead of
-    // it should satisfy almost every request.
+    // Edge TTS is the fallback once that daily allocation is used up: free,
+    // no key, no quota, genuinely neural when Microsoft's service accepts
+    // the connection.
     if (url.pathname === '/api/tts' && request.method === 'POST') {
-      let text, voice_id, stability, similarity_boost, style;
+      let text, voice_id;
       try {
         const body = await request.json();
         text = body.text; voice_id = body.voice_id;
-        stability = body.stability != null ? body.stability : 0.5;
-        similarity_boost = body.similarity_boost != null ? body.similarity_boost : 0.75;
-        style = body.style != null ? body.style : 0.3;
       } catch (err) {
         return json({ error: 'invalid request body' }, 400);
       }
@@ -450,7 +445,6 @@ export default {
         auraError = 'AI binding not configured';
       }
 
-      let edgeError = null;
       try {
         const stream = await edgeCreateAudioStream(text, voice_id);
         return new Response(stream, {
@@ -462,29 +456,8 @@ export default {
           }
         });
       } catch (edgeErr) {
-        edgeError = edgeErr.message;
+        return json({ error: auraError, edge_error: edgeErr.message }, 502);
       }
-
-      let elError = null;
-      if (env.ELEVENLABS_API_KEY) {
-        try {
-          const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
-            method: 'POST',
-            headers: { 'xi-api-key': env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-            body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability, similarity_boost, style, use_speaker_boost: true } })
-          });
-          if (elRes.ok) {
-            return new Response(elRes.body, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', 'X-TTS-Provider': 'elevenlabs', ...corsHeaders } });
-          }
-          elError = `status ${elRes.status} — ${await elRes.text()}`;
-        } catch (err) {
-          elError = 'ElevenLabs request failed: ' + err.message;
-        }
-      } else {
-        elError = 'ELEVENLABS_API_KEY not configured';
-      }
-
-      return json({ error: auraError, edge_error: edgeError, elevenlabs_error: elError }, 502);
     }
 
     // ============= AUTH: EMAIL + PASSWORD =============
