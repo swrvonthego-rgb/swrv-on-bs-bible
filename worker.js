@@ -157,10 +157,19 @@ const EDGE_DEFAULT_VOICE = 'en-US-AvaMultilingualNeural';
 // already runs on. No new signup, no separate key, and no dependency on
 // any third-party paid service or on Microsoft's speech service staying
 // reachable. Tried first, ahead of the Edge TTS fallback.
+// Aura-1, not Aura-2: confirmed via Cloudflare's own pricing docs
+// (developers.cloudflare.com/workers-ai/platform/pricing/) that Aura-1 is
+// $0.015 per 1,000 characters vs. Aura-2's $0.03 — exactly half. Both draw
+// from the same shared 10,000-neurons/day free account allocation, so this
+// alone roughly doubles how much reading fits in a day's free budget before
+// falling back to the browser voice, at zero cost and no key/signup change.
+// zeus/orion/luna/athena all exist as speaker names on both models, so the
+// existing persona mapping below carries over unchanged.
+const AURA_MODEL = '@cf/deepgram/aura-1';
 const AURA_VOICE_MAP = {
   'onwK4e9ZLuTAKqWW03F9': 'zeus',    // Teacher: deep, authoritative male
   'TxGEqnHWrfWFTfGW9XjX': 'orion',   // Narrator: warm, storytelling male
-  '21m00Tcm4TlvDq8ikWAM': 'luna',    // Shepherd: gentle, calming female (default) — also Aura-2's own default voice
+  '21m00Tcm4TlvDq8ikWAM': 'luna',    // Shepherd: gentle, calming female (default)
   'AZnzlk1XvdvUeBnXmlld': 'athena',  // Prophet: clear, expressive female
 };
 const AURA_DEFAULT_VOICE = 'luna';
@@ -449,7 +458,7 @@ export default {
       if (env.AI) {
         try {
           const auraSpeaker = AURA_VOICE_MAP[voice_id] || AURA_DEFAULT_VOICE;
-          const auraRes = await env.AI.run('@cf/deepgram/aura-2-en', {
+          const auraRes = await env.AI.run(AURA_MODEL, {
             text,
             speaker: auraSpeaker,
             encoding: 'mp3',
@@ -839,7 +848,7 @@ async function warmTtsCache(env) {
     }
     try {
       const auraSpeaker = AURA_VOICE_MAP[TTS_WARM_VOICE_ID] || AURA_DEFAULT_VOICE;
-      const auraRes = await env.AI.run('@cf/deepgram/aura-2-en', {
+      const auraRes = await env.AI.run(AURA_MODEL, {
         text: verse.text,
         speaker: auraSpeaker,
         encoding: 'mp3',
