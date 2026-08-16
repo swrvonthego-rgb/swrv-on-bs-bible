@@ -32,17 +32,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Google Fonts loaded non-blocking: every theme's --font-body/--font-display
-     already lists a real system-font fallback (Georgia, serif, etc.), so a
-     slow or unreachable third-party font host — a corporate firewall, an ad
-     blocker, this being briefly down — degrades to those instantly instead of
-     stalling first paint on css2's stylesheet request the way a plain
-     render-blocking <link rel="stylesheet"> would. media="print" makes the
-     browser fetch it without blocking render; onload flips it to screen media
-     once it's actually ready. <noscript> covers browsers with JS disabled. -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=20260812tts5">
 </head>
 <body data-theme="vintage">
@@ -636,7 +626,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260812freetts1" defer></script>
+<script src="js/app.js?v=20260814font3opts1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>

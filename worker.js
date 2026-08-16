@@ -157,10 +157,19 @@ const EDGE_DEFAULT_VOICE = 'en-US-AvaMultilingualNeural';
 // already runs on. No new signup, no separate key, and no dependency on
 // any third-party paid service or on Microsoft's speech service staying
 // reachable. Tried first, ahead of the Edge TTS fallback.
+// Aura-1, not Aura-2: confirmed via Cloudflare's own pricing docs
+// (developers.cloudflare.com/workers-ai/platform/pricing/) that Aura-1 is
+// $0.015 per 1,000 characters vs. Aura-2's $0.03 — exactly half. Both draw
+// from the same shared 10,000-neurons/day free account allocation, so this
+// alone roughly doubles how much reading fits in a day's free budget before
+// falling back to the browser voice, at zero cost and no key/signup change.
+// zeus/orion/luna/athena all exist as speaker names on both models, so the
+// existing persona mapping below carries over unchanged.
+const AURA_MODEL = '@cf/deepgram/aura-1';
 const AURA_VOICE_MAP = {
   'onwK4e9ZLuTAKqWW03F9': 'zeus',    // Teacher: deep, authoritative male
   'TxGEqnHWrfWFTfGW9XjX': 'orion',   // Narrator: warm, storytelling male
-  '21m00Tcm4TlvDq8ikWAM': 'luna',    // Shepherd: gentle, calming female (default) — also Aura-2's own default voice
+  '21m00Tcm4TlvDq8ikWAM': 'luna',    // Shepherd: gentle, calming female (default)
   'AZnzlk1XvdvUeBnXmlld': 'athena',  // Prophet: clear, expressive female
 };
 const AURA_DEFAULT_VOICE = 'luna';
@@ -449,7 +458,7 @@ export default {
       if (env.AI) {
         try {
           const auraSpeaker = AURA_VOICE_MAP[voice_id] || AURA_DEFAULT_VOICE;
-          const auraRes = await env.AI.run('@cf/deepgram/aura-2-en', {
+          const auraRes = await env.AI.run(AURA_MODEL, {
             text,
             speaker: auraSpeaker,
             encoding: 'mp3',
@@ -467,35 +476,40 @@ export default {
         auraError = 'AI binding not configured';
       }
 
-      // FreeTTS.org: a small, independently-run (not Cloudflare, not
-      // Microsoft) free proxy in front of genuine Azure Neural TTS voices —
-      // same underlying voice catalog as the Edge TTS map below, so the
-      // same EDGE_VOICE_MAP ShortNames apply directly. No key, no daily
-      // quota — just a 20 req/min per-IP rate limit, which real reading
-      // pace (plus the R2 cache above) stays well under. Two-step REST
-      // flow: POST generates the clip and returns a file_id, then GET
-      // fetches the actual audio. Every assumption here is defensive —
-      // if the response shape is ever wrong, this just throws and falls
-      // through to Edge TTS below, same as any other tier failing.
+      // FreeTTS.org: confirmed in production (2026-08-12) that the plain
+      // /api/tts endpoint is browser-only and rejects server-to-server
+      // calls with 403 ("This endpoint is for browser use. For
+      // programmatic access use /api/v1/tts with an API key.") — so this
+      // tier is NOT actually key-less for a Worker, contrary to how it was
+      // first implemented. Confirmed directly with FreeTTS.org (2026-08-12):
+      // API key access only comes with their paid Pro plan — there is no
+      // free-tier key. Per the standing no-paid-services rule this stays
+      // permanently disabled (FREETTS_API_KEY intentionally never set); the
+      // code is left in case that ever changes, but skips cleanly and
+      // instantly rather than wasting a request on a doomed 403.
       let freettsError = null;
-      try {
-        const freettsVoice = EDGE_VOICE_MAP[voice_id] || EDGE_DEFAULT_VOICE;
-        const genRes = await fetch('https://freetts.org/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice: freettsVoice }),
-        });
-        if (!genRes.ok) throw new Error(`generate request failed: status ${genRes.status} — ${(await genRes.text()).slice(0, 200)}`);
-        const genData = await genRes.json();
-        if (!genData || !genData.file_id) throw new Error('unexpected response shape (no file_id): ' + JSON.stringify(genData).slice(0, 200));
-        const audioRes = await fetch(`https://freetts.org/api/audio/${genData.file_id}`);
-        if (!audioRes.ok) throw new Error(`audio fetch failed: status ${audioRes.status}`);
-        const audioBuf = await audioRes.arrayBuffer();
-        if (!audioBuf || audioBuf.byteLength === 0) throw new Error('empty audio response');
-        if (cacheKey) ctx.waitUntil(env.LIBRARY_BUCKET.put(cacheKey, audioBuf, { httpMetadata: { contentType: 'audio/mpeg' } }).catch(() => {}));
-        return new Response(audioBuf, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', 'X-TTS-Provider': 'freetts', 'X-Aura-Error': auraError.slice(0, 300), ...corsHeaders } });
-      } catch (err) {
-        freettsError = 'FreeTTS.org request failed: ' + err.message;
+      if (env.FREETTS_API_KEY) {
+        try {
+          const freettsVoice = EDGE_VOICE_MAP[voice_id] || EDGE_DEFAULT_VOICE;
+          const genRes = await fetch('https://freetts.org/api/v1/tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.FREETTS_API_KEY}` },
+            body: JSON.stringify({ text, voice: freettsVoice }),
+          });
+          if (!genRes.ok) throw new Error(`generate request failed: status ${genRes.status} — ${(await genRes.text()).slice(0, 200)}`);
+          const genData = await genRes.json();
+          if (!genData || !genData.file_id) throw new Error('unexpected response shape (no file_id): ' + JSON.stringify(genData).slice(0, 200));
+          const audioRes = await fetch(`https://freetts.org/api/audio/${genData.file_id}`);
+          if (!audioRes.ok) throw new Error(`audio fetch failed: status ${audioRes.status}`);
+          const audioBuf = await audioRes.arrayBuffer();
+          if (!audioBuf || audioBuf.byteLength === 0) throw new Error('empty audio response');
+          if (cacheKey) ctx.waitUntil(env.LIBRARY_BUCKET.put(cacheKey, audioBuf, { httpMetadata: { contentType: 'audio/mpeg' } }).catch(() => {}));
+          return new Response(audioBuf, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store', 'X-TTS-Provider': 'freetts', 'X-Aura-Error': auraError.slice(0, 300), ...corsHeaders } });
+        } catch (err) {
+          freettsError = 'FreeTTS.org request failed: ' + err.message;
+        }
+      } else {
+        freettsError = 'FREETTS_API_KEY not configured — the free endpoint is browser-only, confirmed 403 on server calls';
       }
 
       try {
@@ -768,5 +782,91 @@ export default {
       return new Response('Static assets binding not configured', { status: 500 });
     }
     return env.ASSETS.fetch(request);
+  },
+
+  // ============= TTS PRE-CACHE CRON =============
+  // Runs the daily-quota-limited Aura-2 budget toward permanently caching
+  // real verses (Genesis -> Revelation, in canonical order) instead of
+  // waiting for it to happen passively as people read. Uses the exact same
+  // R2 cache (tts-cache/{voice_id}/{hash}.mp3) that /api/tts checks, so
+  // every verse this warms is an instant real-neural-voice hit for readers
+  // from then on, at zero further quota cost. Progress is resumable across
+  // invocations via a cursor stored in R2 — competes for the SAME daily
+  // 10,000-neuron Aura-2 budget as live reading, so it stops the moment a
+  // request comes back quota-exceeded rather than eating into what's left
+  // for actual readers that day; the next scheduled run (today if quota
+  // frees up, otherwise after the midnight UTC reset) picks up right where
+  // this one left off.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(warmTtsCache(env));
   }
 };
+
+const TTS_WARM_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'; // Shepherd — gentle/calming female, current pick for the single pre-cached voice
+const TTS_WARM_CURSOR_KEY = 'tts-warm-cursor.json';
+const TTS_WARM_MANIFEST_KEY = 'tts-manifest.json';
+const TTS_WARM_BATCH_CAP = 40; // per-run cap — keeps well inside the 30s free-plan CPU budget and the Cloudflare-service subrequest limit
+
+async function warmTtsCache(env) {
+  if (!env.LIBRARY_BUCKET || !env.AI) {
+    console.log('TTS warm cache: R2 or AI binding missing, skipping run');
+    return;
+  }
+  let manifest;
+  try {
+    const manifestObj = await env.LIBRARY_BUCKET.get(TTS_WARM_MANIFEST_KEY);
+    if (!manifestObj) { console.log('TTS warm cache: manifest not found in R2 yet, skipping run'); return; }
+    manifest = JSON.parse(await manifestObj.text());
+  } catch (err) {
+    console.log('TTS warm cache: failed to load/parse manifest — ' + err.message);
+    return;
+  }
+
+  let cursor = { index: 0 };
+  try {
+    const cursorObj = await env.LIBRARY_BUCKET.get(TTS_WARM_CURSOR_KEY);
+    if (cursorObj) cursor = JSON.parse(await cursorObj.text());
+  } catch (err) {
+    // Corrupt/missing cursor just restarts from 0 — never fatal.
+  }
+
+  if (cursor.index >= manifest.length) {
+    console.log('TTS warm cache: already complete (' + manifest.length + ' verses)');
+    return;
+  }
+
+  let generated = 0, skippedCached = 0, i = cursor.index;
+  for (; i < manifest.length && generated < TTS_WARM_BATCH_CAP; i++) {
+    const verse = manifest[i];
+    const digest = await crypto.subtle.digest('SHA-256', utf8Encode(TTS_WARM_VOICE_ID + '::' + verse.text));
+    const cacheKey = `tts-cache/${TTS_WARM_VOICE_ID}/${bytesToHex(new Uint8Array(digest))}.mp3`;
+    try {
+      const already = await env.LIBRARY_BUCKET.head(cacheKey);
+      if (already) { skippedCached++; continue; }
+    } catch (err) {
+      // HEAD failing is never fatal — just attempt generation below.
+    }
+    try {
+      const auraSpeaker = AURA_VOICE_MAP[TTS_WARM_VOICE_ID] || AURA_DEFAULT_VOICE;
+      const auraRes = await env.AI.run(AURA_MODEL, {
+        text: verse.text,
+        speaker: auraSpeaker,
+        encoding: 'mp3',
+      }, { returnRawResponse: true });
+      if (!auraRes || auraRes.ok === false) {
+        const errText = auraRes ? await auraRes.text() : 'no response';
+        console.log('TTS warm cache: stopping at index ' + i + ' (' + verse.ref + ') — ' + errText.slice(0, 200));
+        break;
+      }
+      const audioBuf = await auraRes.arrayBuffer();
+      await env.LIBRARY_BUCKET.put(cacheKey, audioBuf, { httpMetadata: { contentType: 'audio/mpeg' } });
+      generated++;
+    } catch (err) {
+      console.log('TTS warm cache: stopping at index ' + i + ' (' + verse.ref + ') — ' + err.message);
+      break;
+    }
+  }
+
+  await env.LIBRARY_BUCKET.put(TTS_WARM_CURSOR_KEY, JSON.stringify({ index: i, updatedAt: new Date().toISOString() }));
+  console.log('TTS warm cache: generated ' + generated + ', already-cached ' + skippedCached + ', cursor now ' + i + '/' + manifest.length);
+}

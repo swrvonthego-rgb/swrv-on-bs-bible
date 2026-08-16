@@ -64,6 +64,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
+      # Feeds worker.js's scheduled() TTS pre-cache cron — the canonical-order
+      # verse manifest it walks Genesis -> Revelation. Only re-uploaded when
+      # the manifest content actually changes (verse text edits), so this
+      # never resets the warm cursor on unrelated deploys.
+      - name: Sync TTS pre-cache manifest to R2
+        run: wrangler r2 object put swrv-bible-library/tts-manifest.json --file=data/tts-manifest.json --content-type=application/json --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
+
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
       # unset is skipped so the deploy never fails on a missing key, and the
@@ -74,6 +84,11 @@ jobs:
             echo "$GROQ_API_KEY" | wrangler secret put GROQ_API_KEY
           else
             echo "GROQ_API_KEY not set in GitHub secrets - skipping"
+          fi
+          if [ -n "$FREETTS_API_KEY" ]; then
+            echo "$FREETTS_API_KEY" | wrangler secret put FREETTS_API_KEY
+          else
+            echo "FREETTS_API_KEY not set in GitHub secrets - skipping (FreeTTS.org tier stays disabled until a free key is added)"
           fi
           if [ -n "$SESSION_SECRET" ]; then
             echo "$SESSION_SECRET" | wrangler secret put SESSION_SECRET
@@ -94,6 +109,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FREETTS_API_KEY: ${{ secrets.FREETTS_API_KEY }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}

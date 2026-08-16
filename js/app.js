@@ -6494,27 +6494,42 @@ window._renderChapterIntro = function(book, chapterNum) {
   const FAMILIES = [
     { id:'serif',   label:'Serif',    stack:"'Iowan Old Style','Palatino Linotype',Georgia,serif" },
     { id:'garamond',label:'Garamond', stack:"'Cormorant Garamond','Crimson Pro',Georgia,serif" },
-    { id:'sans',    label:'Clean',    stack:"-apple-system,'Helvetica Neue',Arial,sans-serif" },
-    { id:'mono',    label:'Mono',     stack:"'Courier New',Courier,monospace" }
+    { id:'sans',    label:'Clean',    stack:"-apple-system,'Helvetica Neue',Arial,sans-serif" }
   ];
 
   let currentSize   = 17;
   let currentFamily = 'serif';
   let panelOpen     = false;
   let _panel        = null;
+  // 'serif' above is only a fallback for the picker UI's own state (which
+  // family shows selected if opened) — it must NOT be treated as something
+  // the reader chose. familyExplicitlySet only flips true when a real saved
+  // preference is loaded in init() or the reader actually taps a family in
+  // the picker. Until then, applyTypography() never touches --font-body at
+  // all, so every theme's own default font renders completely untouched —
+  // exactly as it did before the font picker existed. Earlier this was
+  // unconditional (ran FAMILIES[0]='serif' through the override on every
+  // load, for every reader, whether they'd ever opened the picker or not),
+  // which silently had no visible effect while the override only lived on
+  // <html> — but once body was added to the override so the picker could
+  // work at all, that same unconditional call started overwriting every
+  // theme's actual default font for readers who'd never touched the picker.
+  let familyExplicitlySet = false;
 
   function applyTypography(){
     document.documentElement.style.setProperty('--bible-text-size', currentSize+'px');
     document.documentElement.style.setProperty('--bible-line-height', Math.max(1.45, 1.78 - (currentSize-17)*0.012).toFixed(3));
-    const fam = FAMILIES.find(function(f){ return f.id===currentFamily; }) || FAMILIES[0];
-    // Every theme rule in styles.css is written as ":root, [data-theme='x']" —
-    // that second selector also matches <body data-theme="x">, so it redeclares
-    // --font-body directly on body with the theme's hardcoded stack. That
-    // redeclaration sits closer to the verse text than our inline override on
-    // <html>, so it always won and the font picker looked like a no-op. Setting
-    // the property on body too, where the theme rule itself lives, wins the tie.
-    document.documentElement.style.setProperty('--font-body', fam.stack);
-    if(document.body) document.body.style.setProperty('--font-body', fam.stack);
+    if(familyExplicitlySet){
+      const fam = FAMILIES.find(function(f){ return f.id===currentFamily; }) || FAMILIES[0];
+      // Every theme rule in styles.css is written as ":root, [data-theme='x']" —
+      // that second selector also matches <body data-theme="x">, so it redeclares
+      // --font-body directly on body with the theme's hardcoded stack. That
+      // redeclaration sits closer to the verse text than our inline override on
+      // <html>, so it always won and the font picker looked like a no-op. Setting
+      // the property on body too, where the theme rule itself lives, wins the tie.
+      document.documentElement.style.setProperty('--font-body', fam.stack);
+      if(document.body) document.body.style.setProperty('--font-body', fam.stack);
+    }
     const btn = document.getElementById('fontSizeBtn');
     if(btn) btn.textContent = 'Aa ' + currentSize;
     // The floating quick-access "Aa" widget (js/floating-widgets.js) is a second
@@ -6524,7 +6539,11 @@ window._renderChapterIntro = function(book, chapterNum) {
     if(floatingPct) floatingPct.textContent = Math.round(currentSize/17*100) + '%';
     try {
       localStorage.setItem(SIZE_KEY, currentSize);
-      localStorage.setItem(FAMILY_KEY, currentFamily);
+      // Only ever persist a family once the reader has actually chosen one —
+      // writing the 'serif' fallback here unconditionally would make the
+      // next page load read it back as if it were a real saved preference,
+      // permanently flipping familyExplicitlySet on by accident.
+      if(familyExplicitlySet) localStorage.setItem(FAMILY_KEY, currentFamily);
     } catch(e){}
     _syncPanel();
   }
@@ -6587,7 +6606,7 @@ window._renderChapterIntro = function(book, chapterNum) {
   window._typoSetSize    = function(sz){ setSize(sz); };
   window._typoStep       = function(d){ setSize(currentSize+d); };
   window._typoInputSize  = function(v){ var n=parseInt(v,10); if(!isNaN(n)) setSize(n); };
-  window._typoSetFamily  = function(fid){ currentFamily=fid; applyTypography(); };
+  window._typoSetFamily  = function(fid){ currentFamily=fid; familyExplicitlySet=true; applyTypography(); };
   window._typoClose      = function(){ _closePanel(); };
   window._typoGetSize    = function(){ return currentSize; };
 
@@ -6608,7 +6627,7 @@ window._renderChapterIntro = function(book, chapterNum) {
       var savedSz = localStorage.getItem(SIZE_KEY);
       if(savedSz !== null){ var n=parseInt(savedSz,10); if(n>=MIN_SIZE && n<=MAX_SIZE) currentSize=n; }
       var savedFam = localStorage.getItem(FAMILY_KEY);
-      if(savedFam && FAMILIES.some(function(f){return f.id===savedFam;})) currentFamily=savedFam;
+      if(savedFam && FAMILIES.some(function(f){return f.id===savedFam;})){ currentFamily=savedFam; familyExplicitlySet=true; }
     } catch(e){}
     applyTypography();
     var btn = document.getElementById('fontSizeBtn');
