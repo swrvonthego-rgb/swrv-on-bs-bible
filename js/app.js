@@ -6494,8 +6494,7 @@ window._renderChapterIntro = function(book, chapterNum) {
   const FAMILIES = [
     { id:'serif',   label:'Serif',    stack:"'Iowan Old Style','Palatino Linotype',Georgia,serif" },
     { id:'garamond',label:'Garamond', stack:"'Cormorant Garamond','Crimson Pro',Georgia,serif" },
-    { id:'sans',    label:'Clean',    stack:"-apple-system,'Helvetica Neue',Arial,sans-serif" },
-    { id:'mono',    label:'Mono',     stack:"'Courier New',Courier,monospace" }
+    { id:'sans',    label:'Clean',    stack:"-apple-system,'Helvetica Neue',Arial,sans-serif" }
   ];
 
   let currentSize   = 17;
