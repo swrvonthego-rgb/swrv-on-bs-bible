@@ -8,7 +8,7 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260814-fontfix1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260814-fontdefault1';
 const CORE_ASSETS = [
   './',
   './index.html',
