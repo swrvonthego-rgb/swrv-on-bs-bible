@@ -793,6 +793,29 @@ export default {
       return new Response(obj.body, { headers, status: 200 });
     }
 
+    // Per-verse alignment timings, one file per book (e.g.
+    // /data/bsb-timings/Genesis.json). Split per-book deliberately: the full
+    // set is ~31,100 verse spans, which is too much to pull on every page
+    // load, but a single book is small enough to fetch lazily when that book
+    // is opened. Produced by the alignment pipeline; absent until a book has
+    // actually been aligned, and the client treats 404 as "no per-verse sync
+    // for this book yet" rather than an error.
+    if (url.pathname.startsWith('/data/bsb-timings/') && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) return json({ error: 'Library bucket not configured' }, 500);
+      const name = decodeURIComponent(url.pathname.slice('/data/bsb-timings/'.length));
+      if (!name || name.includes('/') || name.includes('..') || !/^[A-Za-z0-9]+\.json$/.test(name)) {
+        return json({ error: 'invalid timings name' }, 400);
+      }
+      const obj = await env.LIBRARY_BUCKET.get('bsb-timings/' + name);
+      if (!obj) return json({ error: 'timings not available for this book' }, 404);
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set('etag', obj.httpEtag);
+      headers.set('Content-Type', 'application/json; charset=utf-8');
+      headers.set('Cache-Control', 'public, max-age=86400');
+      return new Response(obj.body, { status: 200, headers });
+    }
+
     // BSB audio Bible chapter files — streamed straight from R2 with Range
     // support, required for the browser's native <audio> element to be able
     // to seek/scrub rather than only ever play from the start. Key is

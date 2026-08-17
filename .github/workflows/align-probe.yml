@@ -31,11 +31,16 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq espeak libespeak-dev ffmpeg
-          python -m pip install --upgrade pip wheel
+          python -m pip install --upgrade pip wheel setuptools
           # numpy<2 is required: aeneas's C extensions predate the numpy 2 ABI
           # and fail to compile against it.
           python -m pip install "numpy<2"
-          python -m pip install aeneas
+          # --no-build-isolation is required too: aeneas's setup.py imports
+          # numpy at build time, but pip's default isolated build env does not
+          # carry the numpy just installed above, so the build aborts with
+          # "You must install numpy before installing aeneas" even though it
+          # is present. Disabling isolation builds against this environment.
+          python -m pip install --no-build-isolation aeneas
           python -c "import aeneas; print('aeneas import OK')"
 
       - name: Install Wrangler

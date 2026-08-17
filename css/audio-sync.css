@@ -1,0 +1,50 @@
+/* Per-verse audio follow-along highlight.
+ *
+ * Deliberately a separate file rather than an addition to css/styles.css,
+ * which is protected. Every colour below is an existing theme custom
+ * property — nothing new is introduced to the palette, so this inherits
+ * whatever each theme already defines and can't drift from it.
+ */
+
+.verse.verse-audio-active {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-radius: 6px;
+  box-shadow: inset 3px 0 0 var(--gold);
+  transition: background 220ms ease, box-shadow 220ms ease;
+}
+
+/* color-mix is widely supported but not universal; this fallback runs first
+   and is overridden above where it is supported. */
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .verse.verse-audio-active {
+    background: var(--bg-3);
+  }
+}
+
+/* Only advertise click-to-seek while audio is actually loaded, so verses
+   don't imply an interaction that would do nothing. */
+body.audio-bible-active .verse .verse-num {
+  cursor: pointer;
+}
+body.audio-bible-active .verse .verse-num:hover {
+  text-decoration: underline;
+}
+
+.audio-sync-toggle {
+  background: none;
+  border: 1px solid var(--line);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+.audio-sync-toggle[aria-pressed="true"] {
+  border-color: var(--gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verse.verse-audio-active { transition: none; }
+}
