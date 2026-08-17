@@ -1,0 +1,123 @@
+# Full per-verse forced alignment — every book, in parallel.
+#
+# EXPENSIVE: ~86 hours of audio. Deliberately NOT triggered by normal pushes.
+# To launch, change tools/align-run.txt. The repo is public, so Actions
+# minutes are free; the practical limit is the 20-concurrent-job cap, which
+# max-parallel matches.
+#
+# One job per book so a failure is contained to that book rather than losing
+# the whole run, and so the long tail (Psalms is 150 chapters) overlaps with
+# everything else instead of running last.
+name: Align full Bible
+
+on:
+  push:
+    paths:
+      - 'tools/align-run.txt'
+
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        book:
+          - Genesis
+          - Exodus
+          - Leviticus
+          - Numbers
+          - Deuteronomy
+          - Joshua
+          - Judges
+          - Ruth
+          - 1Samuel
+          - 2Samuel
+          - 1Kings
+          - 2Kings
+          - 1Chronicles
+          - 2Chronicles
+          - Ezra
+          - Nehemiah
+          - Esther
+          - Job
+          - Psalms
+          - Proverbs
+          - Ecclesiastes
+          - SongofSolomon
+          - Isaiah
+          - Jeremiah
+          - Lamentations
+          - Ezekiel
+          - Daniel
+          - Hosea
+          - Joel
+          - Amos
+          - Obadiah
+          - Jonah
+          - Micah
+          - Nahum
+          - Habakkuk
+          - Zephaniah
+          - Haggai
+          - Zechariah
+          - Malachi
+          - Matthew
+          - Mark
+          - Luke
+          - John
+          - Acts
+          - Romans
+          - 1Corinthians
+          - 2Corinthians
+          - Galatians
+          - Ephesians
+          - Philippians
+          - Colossians
+          - 1Thessalonians
+          - 2Thessalonians
+          - 1Timothy
+          - 2Timothy
+          - Titus
+          - Philemon
+          - Hebrews
+          - James
+          - 1Peter
+          - 2Peter
+          - 1John
+          - 2John
+          - 3John
+          - Jude
+          - Revelation
+    name: Align ${{ matrix.book }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'   # 3.12 dropped distutils, which aeneas's build needs
+
+      - name: Install aligner toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak libespeak-dev ffmpeg
+          python -m pip install --upgrade pip wheel setuptools
+          python -m pip install "numpy<2"
+          # See align-probe.yml: aeneas imports numpy at build time, which
+          # pip's isolated build env does not provide.
+          python -m pip install --no-build-isolation aeneas
+
+      - name: Align book
+        run: node tools/align-book.mjs "${{ matrix.book }}" bsb-timings
+
+      - name: Upload timings to R2
+        run: |
+          npm install -g wrangler@latest
+          wrangler r2 object put \
+            "swrv-bible-library/bsb-timings/${{ matrix.book }}.json" \
+            --file="bsb-timings/${{ matrix.book }}.json" \
+            --content-type=application/json --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
