@@ -74,6 +74,36 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
+      # TEMPORARY — remove together with worker.js's /api/debug/r2-list route.
+      # Prints the BSB audio Bible's actual R2 keys into the job log so the
+      # renaming/manifest work can be written against real file names instead
+      # of guessed ones. Runs here (rather than as its own workflow_dispatch
+      # job) because the GitHub token available for dispatching workflows
+      # lacks that permission, while push-to-main deploys run automatically.
+      # continue-on-error so a listing hiccup can never fail a real deploy.
+      - name: Inventory BSB audio in R2 (temporary)
+        continue-on-error: true
+        run: |
+          BASE="https://swrv-on-bs-bible.swrvonthego.workers.dev/api/debug/r2-list"
+          for PREFIX in "ENGBERO1DA/" "ENGBERN1DA/"; do
+            echo "=============================================="
+            echo "PREFIX: $PREFIX"
+            echo "=============================================="
+            CURSOR=""
+            for PAGE in $(seq 1 12); do
+              URL="$BASE?prefix=$(printf %s "$PREFIX" | jq -sRr @uri)"
+              [ -n "$CURSOR" ] && URL="$URL&cursor=$(printf %s "$CURSOR" | jq -sRr @uri)"
+              RESP=$(curl -sS --fail-with-body -m 60 "$URL") || { echo "request failed"; break; }
+              echo "--- page $PAGE ---"
+              echo "$RESP" | jq -r '.count as $c | "count=\($c) truncated=\(.truncated)"'
+              echo "$RESP" | jq -r '.delimitedPrefixes[]? | "DIR " + .'
+              echo "$RESP" | jq -r '.objects[]? | "\(.size)\t\(.key)"'
+              TRUNC=$(echo "$RESP" | jq -r '.truncated')
+              [ "$TRUNC" != "true" ] && break
+              CURSOR=$(echo "$RESP" | jq -r '.cursor')
+            done
+          done
+
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
       # unset is skipped so the deploy never fails on a missing key, and the
