@@ -94,6 +94,15 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
+      # Reads the published per-verse timings back out of R2 and counts them
+      # against the canon. A green align job is not proof of coverage —
+      # align-book.mjs keeps partial books on purpose — so this is the only
+      # thing that can actually answer "is the whole Bible aligned?".
+      # continue-on-error: reporting coverage must never fail a deploy.
+      - name: Verify per-verse timing coverage
+        continue-on-error: true
+        run: node tools/verify-timings.mjs
+
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
       # unset is skipped so the deploy never fails on a missing key, and the
