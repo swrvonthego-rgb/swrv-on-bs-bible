@@ -1,2 +1,7 @@
 Change this file to launch a full alignment run.
-run: (not yet launched)
+
+run: 1 — launched 2026-08-17
+Probe (run 3) passed on Genesis 1 with 31/31 fragments, 100.0% audio
+coverage, zero pacing outliers, and alignment at ~150x realtime (2s for a
+305s chapter). Toolchain pinned: Python 3.11, setuptools<70 with
+SETUPTOOLS_USE_DISTUTILS=stdlib, numpy<2, --no-build-isolation.
