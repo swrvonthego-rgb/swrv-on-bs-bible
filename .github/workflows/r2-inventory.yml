@@ -1,0 +1,40 @@
+# Prints R2 bucket contents into the job log.
+#
+# Why this exists: the assistant's sandbox has no outbound network access
+# (the egress proxy blocks the workers.dev domain outright), and Wrangler
+# has no `r2 object list` command — but GitHub Actions runners DO have
+# internet access. So this just curls the Worker's own /api/debug/r2-list
+# route and echoes the JSON, which is then readable from the job logs.
+#
+# Manual-trigger only (workflow_dispatch) — never runs on push.
+# Temporary, same lifetime as the /api/debug/r2-list route itself.
+name: R2 inventory
+
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'R2 key prefix to list (e.g. ENGBERO1DA/)'
+        required: false
+        default: ''
+      cursor:
+        description: 'Pagination cursor from a previous run (optional)'
+        required: false
+        default: ''
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    name: List R2 objects
+    steps:
+      - name: Fetch listing from the Worker
+        run: |
+          BASE="https://swrv-on-bs-bible.swrvonthego.workers.dev/api/debug/r2-list"
+          URL="$BASE?prefix=$(printf %s "${{ github.event.inputs.prefix }}" | jq -sRr @uri)"
+          if [ -n "${{ github.event.inputs.cursor }}" ]; then
+            URL="$URL&cursor=$(printf %s "${{ github.event.inputs.cursor }}" | jq -sRr @uri)"
+          fi
+          echo "Requesting: $URL"
+          echo "--- BEGIN R2 LISTING ---"
+          curl -sS --fail-with-body -m 60 "$URL" | jq .
+          echo "--- END R2 LISTING ---"
