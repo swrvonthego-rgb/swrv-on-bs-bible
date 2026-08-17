@@ -776,6 +776,55 @@ export default {
       return new Response(obj.body, { headers });
     }
 
+    // BSB audio Bible manifest — same R2-not-bundled pattern as jubilees.js.
+    // Built by tools/build-audio-manifest.mjs (deploy workflow) from the
+    // ACTUAL R2 object keys, not a guessed naming pattern, and only ever
+    // written when every book/chapter validates against the canon — so its
+    // mere presence in R2 already means the audio behind it is complete.
+    if (url.pathname === '/data/bsb-audio-manifest.json' && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) return json({ error: 'Library bucket not configured' }, 500);
+      const obj = await env.LIBRARY_BUCKET.get('bsb-audio-manifest.json');
+      if (!obj) return json({ error: 'audio manifest not yet built' }, 404);
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set('etag', obj.httpEtag);
+      headers.set('Content-Type', 'application/json; charset=utf-8');
+      headers.set('Cache-Control', 'public, max-age=3600');
+      return new Response(obj.body, { headers, status: 200 });
+    }
+
+    // BSB audio Bible chapter files — streamed straight from R2 with Range
+    // support, required for the browser's native <audio> element to be able
+    // to seek/scrub rather than only ever play from the start. Key is
+    // whatever the manifest gave the client (e.g.
+    // "ENGBERO1DA/ENGBERO1DA_A01_GEN_001.mp3"), passed through unmodified —
+    // this route never lists or guesses keys, only serves exactly what the
+    // manifest already validated exists.
+    if (url.pathname.startsWith('/api/audio-bible/') && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) return json({ error: 'Library bucket not configured' }, 500);
+      const key = decodeURIComponent(url.pathname.slice('/api/audio-bible/'.length));
+      if (!key || key.includes('..')) return json({ error: 'invalid key' }, 400);
+      const obj = await env.LIBRARY_BUCKET.get(key, { range: request.headers, onlyIf: request.headers });
+      if (!obj) return json({ error: 'audio file not found' }, 404);
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set('etag', obj.httpEtag);
+      headers.set('Accept-Ranges', 'bytes');
+      headers.set('Cache-Control', 'public, max-age=604800, immutable'); // audio files never change once uploaded
+      if (!('body' in obj)) {
+        // A conditional header (If-None-Match etc.) was satisfied — no body.
+        return new Response(null, { status: 304, headers });
+      }
+      if (obj.range) {
+        const total = obj.size;
+        const start = 'offset' in obj.range ? obj.range.offset : Math.max(0, total - (obj.range.suffix || 0));
+        const len = 'length' in obj.range ? obj.range.length : (obj.range.suffix || total - start);
+        headers.set('Content-Range', `bytes ${start}-${start + len - 1}/${total}`);
+        return new Response(obj.body, { status: 206, headers });
+      }
+      return new Response(obj.body, { status: 200, headers });
+    }
+
     // ============= TEMP DEBUG: R2 OBJECT LISTING =============
     // No R2-object-listing tool exists in this session's toolset (only
     // bucket-level create/get/delete/list), and the assistant has no
