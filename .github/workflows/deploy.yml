@@ -74,16 +74,25 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
-      # TEMPORARY — remove together with worker.js's /api/debug/r2-list route.
-      # Prints the BSB audio Bible's actual R2 keys into the job log so the
-      # renaming/manifest work can be written against real file names instead
-      # of guessed ones. Runs here (rather than as its own workflow_dispatch
-      # job) because the GitHub token available for dispatching workflows
-      # lacks that permission, while push-to-main deploys run automatically.
-      # continue-on-error so a listing hiccup can never fail a real deploy.
-      - name: Inventory BSB audio in R2 (temporary)
+      # Builds the BSB audio manifest (book -> chapter -> real R2 key) that
+      # the app's player reads, and validates every book/chapter against the
+      # standard canon while doing it — see tools/build-audio-manifest.mjs.
+      # Supersedes the standalone inventory script (same validation, plus the
+      # manifest); kept as a separate script for standalone debugging.
+      # continue-on-error: true so a listing hiccup can never fail a real
+      # deploy — the app already treats a missing/stale manifest as "audio
+      # not available yet" rather than crashing (see worker.js).
+      - name: Build + validate BSB audio manifest
+        id: audio_manifest
         continue-on-error: true
-        run: node tools/r2-audio-inventory.mjs
+        run: node tools/build-audio-manifest.mjs
+
+      - name: Sync BSB audio manifest to R2
+        if: steps.audio_manifest.outcome == 'success'
+        run: wrangler r2 object put swrv-bible-library/bsb-audio-manifest.json --file=bsb-audio-manifest.json --content-type=application/json --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
 
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left

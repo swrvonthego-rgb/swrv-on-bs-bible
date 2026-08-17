@@ -358,6 +358,10 @@ footer{background:var(--bg-2);border-top:1px solid var(--line);padding:22px 24px
 .ch-reload-btn.spinning{animation:ch-spin 0.7s linear;}
 @keyframes ch-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 @media (max-width:600px){.ch-picker-bar{padding:8px 12px}.ch-select{max-width:none}}
+.audio-bible-bar{display:flex;align-items:center;gap:10px;padding:8px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+.audio-bible-label{font-size:12px;font-weight:600;color:var(--fg-mute);white-space:nowrap}
+.audio-bible-note{font-size:11px;color:var(--fg-dim);white-space:nowrap;cursor:help}
+@media (max-width:600px){.audio-bible-bar{padding:6px 12px;flex-wrap:wrap}.audio-bible-note{flex-basis:100%}}
 
 /* Genesis 1-4 deep build UI */
 .plot-panel{background:var(--strongs-bg);border-left:4px solid var(--gold);padding:12px 16px;border-radius:6px;margin:14px 0;font-size:14px;line-height:1.6}

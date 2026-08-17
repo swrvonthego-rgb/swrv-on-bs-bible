@@ -212,6 +212,16 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <button class="ch-nav-btn ch-reload-btn" id="reloadChapterBtn" onclick="reloadCurrentChapter()" title="Reload chapter">↺</button>
   </div>
 </nav>
+<!-- BSB audio Bible chapter player — hidden until the manifest confirms this
+     chapter actually has audio (see js/audio-bible.js). Whole-chapter
+     playback with the browser's native controls (Range-request streaming
+     from R2 makes seeking work); this is NOT per-verse synced narration —
+     there is no per-verse timing data, only a chapter-level audio file. -->
+<div class="audio-bible-bar" id="audioBibleBar" style="display:none" aria-label="BSB audio Bible chapter player">
+  <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
+  <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
+  <span class="audio-bible-note" id="audioBibleNote" title=""></span>
+</div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
 </div><!-- /sticky-nav -->
@@ -629,6 +639,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/app.js?v=20260814font3opts1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
+<script src="js/audio-bible.js?v=20260817audio1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
