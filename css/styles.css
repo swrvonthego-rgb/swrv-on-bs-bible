@@ -62,6 +62,23 @@ body[data-theme="luxe"]{
 [data-theme="vintage"] .brand-sub,
 [data-theme="earth"] .brand-sub{color:#d9cbb4}
 
+/* Same hardcoded-dark-header problem, different elements: every icon button
+   in the top toolbar (Search, Before Genesis, Aa, Layers, Memory, Dictionary,
+   Library, More, Sign In), the Verse/Word mode toggle, and the hide-nav arrow
+   all use --fg-mute for their label — correct as dark text on a light theme's
+   page panels, unreadable on the header's fixed dark background. Reusing the
+   already-measured-safe #d9cbb4 (5.52:1 / 5.35:1 against the composited
+   header in vintage/earth). */
+[data-theme="vintage"] .icon-btn,
+[data-theme="earth"] .icon-btn,
+[data-theme="vintage"] .mode-toggle button,
+[data-theme="earth"] .mode-toggle button{color:#d9cbb4}
+/* .nav-hide-btn sets color:var(--gold) with !important elsewhere — the
+   .icon-btn rule above can't win against that regardless of order, so it
+   needs its own !important override here. */
+[data-theme="vintage"] .nav-hide-btn,
+[data-theme="earth"] .nav-hide-btn{color:#d9cbb4 !important}
+
 [data-theme="luxe"] .brand-title,
 [data-theme="luxe"] .chapter-title{
   background:linear-gradient(180deg,#ffd770 0%,#d4af37 60%,#8b6f1e 100%);
