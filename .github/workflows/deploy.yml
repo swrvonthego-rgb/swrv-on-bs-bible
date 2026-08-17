@@ -83,26 +83,7 @@ jobs:
       # continue-on-error so a listing hiccup can never fail a real deploy.
       - name: Inventory BSB audio in R2 (temporary)
         continue-on-error: true
-        run: |
-          BASE="https://swrv-on-bs-bible.swrvonthego.workers.dev/api/debug/r2-list"
-          for PREFIX in "ENGBERO1DA/" "ENGBERN1DA/"; do
-            echo "=============================================="
-            echo "PREFIX: $PREFIX"
-            echo "=============================================="
-            CURSOR=""
-            for PAGE in $(seq 1 12); do
-              URL="$BASE?prefix=$(printf %s "$PREFIX" | jq -sRr @uri)"
-              [ -n "$CURSOR" ] && URL="$URL&cursor=$(printf %s "$CURSOR" | jq -sRr @uri)"
-              RESP=$(curl -sS --fail-with-body -m 60 "$URL") || { echo "request failed"; break; }
-              echo "--- page $PAGE ---"
-              echo "$RESP" | jq -r '.count as $c | "count=\($c) truncated=\(.truncated)"'
-              echo "$RESP" | jq -r '.delimitedPrefixes[]? | "DIR " + .'
-              echo "$RESP" | jq -r '.objects[]? | "\(.size)\t\(.key)"'
-              TRUNC=$(echo "$RESP" | jq -r '.truncated')
-              [ "$TRUNC" != "true" ] && break
-              CURSOR=$(echo "$RESP" | jq -r '.cursor')
-            done
-          done
+        run: node tools/r2-audio-inventory.mjs
 
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
