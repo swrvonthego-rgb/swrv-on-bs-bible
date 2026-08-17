@@ -6,34 +6,16 @@
     "directory": ".",
     "binding": "ASSETS"
   },
-  // Cloudflare Workers AI — used for the Aura-2 (Deepgram) neural
-  // text-to-speech voice, the primary tier tried before the free Edge TTS
-  // fallback. No separate signup or key: this binding grants the Worker
-  // access to models hosted on the same Cloudflare account it already
-  // runs on.
-  "ai": {
-    "binding": "AI"
-  },
-  // Large library texts (currently: the Book of Jubilees) are served from
-  // R2 instead of bundled as a static asset — the Worker intercepts their
-  // request path and streams from this bucket (see worker.js). The
-  // deploy workflow keeps the bucket in sync with data/jubilees.js on
-  // every push (see .github/workflows/deploy.yml), so git stays the
-  // source of truth and R2 is purely how it's served.
+  // Large library texts (Book of Jubilees) and the full BSB audio Bible
+  // (recorded chapter audio + per-verse timing data) are served from R2
+  // instead of bundled as static assets — the Worker intercepts their
+  // request paths and streams from this bucket (see worker.js). The
+  // deploy workflow keeps the bucket in sync on every push (see
+  // .github/workflows/deploy.yml), so git stays the source of truth and
+  // R2 is purely how it's served.
   "r2_buckets": [
     { "binding": "LIBRARY_BUCKET", "bucket_name": "swrv-bible-library" }
-  ],
-  // Drives the TTS pre-cache (see worker.js's scheduled() handler) — walks
-  // Genesis -> Revelation generating and permanently caching real Aura-2
-  // audio ahead of when it's actually read, instead of only ever caching
-  // reactively. Every 15 minutes is a starting cadence, not a promise of
-  // full coverage by any date: it shares the same 10,000-neuron/day free
-  // budget as live reading and backs off the instant that's spent for the
-  // day, so how far it gets depends on how much of that budget live reading
-  // leaves behind.
-  "triggers": {
-    "crons": ["*/15 * * * *"]
-  }
+  ]
   // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
   // IMPORTANT: `wrangler deploy` validates every declared binding's id at
   // deploy time and refuses to publish ANYTHING if a d1_databases entry's

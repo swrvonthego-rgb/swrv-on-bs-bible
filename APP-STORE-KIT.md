@@ -134,9 +134,9 @@ Typical review time is 1-3 days.
 
 ## 5. Before you submit — checklist
 
-- [ ] `ELEVENLABS_API_KEY` added as a Cloudflare Worker secret, so read-aloud
-      uses real voices (otherwise it falls back to the device voice — still
-      works, just robotic). Verify at `/api/health` → `hasElevenLabsKey: true`.
+- [ ] Read-aloud uses the real recorded BSB audio Bible, streamed from R2 —
+      no API key or third-party voice service needed. Verify at `/api/health`
+      → `hasAudioBucket: true`.
 - [ ] Cloudflare D1 database provisioned and `wrangler.jsonc`'s `database_id`
       updated from the placeholder (one-time `wrangler d1 create swrv-bible-db`).
       Auth, notes, bookmarks, and reading progress all live here now — no
