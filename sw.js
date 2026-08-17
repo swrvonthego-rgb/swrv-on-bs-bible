@@ -8,14 +8,14 @@
 // after install. The 65 per-book BIBLE/*.js files still cache lazily via
 // the preloader (44 MB total) to keep install fast; everything else is
 // pre-cached at install for true install-time offline.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260817-versesync1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260818-ttscleanup1';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
   // Active JS bundle
-  './js/app.js?v=20260805defs1',
+  './js/app.js?v=20260818ttscleanup1',
   './js/tour.js?v=20260729tourfix1',
   './js/floating-widgets.js?v=20260804dock1',
   './js/search.js?v=20260804search2',
@@ -66,7 +66,6 @@ const CORE_ASSETS = [
   './data/strongs-greek.js?v=20260522deepword3',
   './data/bdb-hebrew.js?v=20260522deepword3',
   // Audio narration + media glue
-  './data/audio-narration.js?v=20260522deepword3',
   // Genesis 1-4 + Exodus + Leviticus deep-build enrichments
   './data/genesis.js?v=20260522deepword3',
   './data/pre-history.js?v=20260522deepword3',

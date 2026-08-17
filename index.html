@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <!-- API base: on the web this is same-origin (''), but inside a native
      Capacitor/iOS build the origin is capacitor://localhost, so API calls
-     (/api/tts read-aloud, /api/groq) must target the live Cloudflare Worker
-     by absolute URL or they resolve to nothing in the app bundle. -->
+     (/api/audio-bible read-aloud, /api/groq) must target the live Cloudflare
+     Worker by absolute URL or they resolve to nothing in the app bundle. -->
 <script>
 window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol === 'file:' || location.protocol === 'ionic:')
   ? 'https://swrv-on-bs-bible.swrvonthego.workers.dev'
@@ -33,7 +33,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260817hdrcontrast2">
+<link rel="stylesheet" href="css/styles.css?v=20260818ttscleanup1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 </head>
 <body data-theme="vintage">
@@ -120,7 +120,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
         <div class="landing-feat"><span class="landing-feat-icon">🏛️</span><div><strong>Cultural Context Cards</strong><p>Ancient Near East customs, honor-shame dynamics, Roman law explained per verse.</p></div></div>
         <div class="landing-feat"><span class="landing-feat-icon">👤</span><div><strong>Accurate People Profiles</strong><p>Biblical figures described from the historical record — skin, dress, food, culture.</p></div></div>
         <div class="landing-feat"><span class="landing-feat-icon">📍</span><div><strong>Map Links for Every Place</strong><p>Tap any location — Mount Hermon, Sinai, Babylon — to open it on Google or Apple Maps.</p></div></div>
-        <div class="landing-feat"><span class="landing-feat-icon">🔊</span><div><strong>Read-Aloud (TTS)</strong><p>Listen chapter by chapter with voice selection — great for driving or commuting.</p></div></div>
+        <div class="landing-feat"><span class="landing-feat-icon">🔊</span><div><strong>Real Audio Bible</strong><p>Listen chapter by chapter with the actual recorded Berean Standard Bible — the verse being read highlights as it plays.</p></div></div>
         <div class="landing-feat"><span class="landing-feat-icon">📝</span><div><strong>Personal Notes</strong><p>Sign in with Google or email. Your notes and reading progress sync across devices.</p></div></div>
         <div class="landing-feat"><span class="landing-feat-icon">📶</span><div><strong>Works Offline</strong><p>Install it to your home screen. Runs like a native app, no internet required after first load.</p></div></div>
       </div>
@@ -371,7 +371,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="data/sources-manifest.js" defer></script>
 <script src="data/chronological-map.js" defer></script>
 <script src="data/chronological-events.js" defer></script>
-<script src="data/audio-narration.js" defer></script>
 <script src="data/parallel-passages.js" defer></script>
 <script src="data/prophecy-fulfillment.js" defer></script>
 <script src="data/places.js" defer></script>
@@ -603,30 +602,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <button class="font-size-reset" onclick="resetFontSize()">Reset to default</button>
 </div>
 
-<!-- ============ TTS PLAYER BAR ============ -->
-<div class="tts-bar" id="ttsBar">
-  <div class="tts-bar-top">
-    <span class="tts-bar-label">▶ Listening</span>
-    <span class="tts-bar-verse" id="ttsBarVerse">—</span>
-    <!-- Only shown when the neural voice request failed and we've dropped to
-         the browser's built-in robotic voice. Without this the downgrade is
-         completely silent, which is how it went unnoticed for so long. -->
-    <button type="button" class="tts-fallback-note" id="ttsFallbackNote" hidden
-            onclick="ttsShowVoiceDiagnostic()">⚠ basic voice — tap</button>
-    <button class="tts-close-btn" onclick="ttsStop()" aria-label="Stop and close">✕</button>
-  </div>
-  <div class="tts-bar-controls">
-    <button class="tts-btn" onclick="ttsPrevChapter()" title="Previous chapter" aria-label="Previous chapter">⏮</button>
-    <button class="tts-btn" onclick="ttsRestart()" title="Restart chapter" aria-label="Restart">↩</button>
-    <button class="tts-btn tts-play-pause" id="ttsPlayPause" onclick="ttsToggle()" aria-label="Play / Pause">▶</button>
-    <button class="tts-btn" onclick="ttsSkipVerse(1)" title="Skip verse" aria-label="Next verse">⏭</button>
-    <button class="tts-btn" onclick="ttsNextChapter()" title="Next chapter" aria-label="Next chapter">⏭⏭</button>
-    <button class="tts-speed-btn" id="ttsSpeedBtn" onclick="ttsCycleSpeed()" title="Playback speed">1×</button>
-    <button class="tts-voice-btn" onclick="ttsOpenVoicePicker()" title="Change reading voice">🎙</button>
-  </div>
-  <div class="tts-voice-popover" id="ttsVoicePopover"></div>
-</div>
-
 <!-- ============ ENRICHMENTS — must load AFTER data, BEFORE app ============ -->
 <!-- Merges deep definitions into DEFINITIONS and defines renderGen14Enrichments. -->
 <!-- In the original monolith this came AFTER app.js, which left the first render
@@ -638,7 +613,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260814font3opts1" defer></script>
+<script src="js/app.js?v=20260818ttscleanup1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/audio-bible.js?v=20260817sync1" defer></script>

@@ -3061,7 +3061,6 @@ body[data-reading-mode="read"] .verse-study-chip{
    ============================================================ */
 @media (pointer: coarse){
   .verse-study-chip{ min-height:40px; }
-  .tts-listen-btn{ min-height:40px; padding:8px 12px; }
   .landing-launch-btn{ min-height:40px; padding:10px 18px; }
 }
 
@@ -3840,141 +3839,11 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 /* ============================================================
    TTS PLAYER BAR
    ============================================================ */
-.tts-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 300;
-  background: var(--bg-2, #1e1a14);
-  border-top: 1px solid var(--line);
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
-}
-.tts-bar.active { display: flex; }
-.tts-bar-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 /* Shown only while the neural voice is unavailable and playback has dropped
    to the browser's built-in voice — uses --warning, which is contrast-checked
    per theme, and [hidden] is respected so it stays invisible when things work. */
-.tts-fallback-note {
-  flex: 0 0 auto;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--warning);
-  white-space: nowrap;
-  background: var(--warning-bg);
-  border: 1px solid var(--warning);
-  border-radius: 999px;
-  padding: 3px 9px;
-  font-family: inherit;
-  cursor: pointer;
-}
-.tts-fallback-note[hidden] { display: none; }
-.tts-bar-verse {
-  flex: 1 1 auto;
-  font-size: 12px;
-  color: var(--fg-mute);
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.tts-bar-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tts-btn {
-  background: none;
-  border: 1px solid var(--line);
-  color: var(--fg);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 16px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.12s;
-  line-height: 1;
-}
-.tts-btn:hover { border-color: var(--gold); color: var(--gold); }
-.tts-btn.tts-play-pause {
-  background: var(--gold);
-  color: var(--gold-ink,#0e0a06);
-  border-color: var(--gold);
-  font-size: 18px;
-  padding: 7px 14px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-.tts-btn.tts-play-pause:hover { background: var(--gold-bright, #f5d060); }
-.tts-speed-btn {
-  background: var(--bg-3);
-  border: 1px solid var(--line);
-  color: var(--fg-dim);
-  border-radius: 8px;
-  padding: 5px 9px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.12s;
-  min-width: 42px;
-  text-align: center;
-}
-.tts-speed-btn:hover { border-color: var(--gold); color: var(--gold); }
-.tts-close-btn {
-  background: none;
-  border: none;
-  color: var(--fg-dim);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 6px;
-  font-family: inherit;
-}
-.tts-bar-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gold);
-}
 
-/* Listen button in chapter title */
-.tts-listen-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 12px;
-  background: rgba(212,175,55,0.12);
-  border: 1px solid rgba(212,175,55,0.4);
-  color: var(--gold);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-family: inherit;
-  vertical-align: middle;
-  transition: all 0.15s;
-  letter-spacing: 0.02em;
-}
-.tts-listen-btn:hover { background: rgba(212,175,55,0.22); }
-
-/* Highlight the verse currently being read */
-.verse-tts-active .verse-text {
-  background: rgba(212,175,55,0.12);
-  border-radius: 4px;
-  outline: 1.5px solid rgba(212,175,55,0.4);
-}
 @media (min-width: 900px) {
-  .tts-bar { padding: 12px 24px; }
   .font-size-btn { bottom: 20px; }
   .font-size-popover { bottom: 68px; }
 }
@@ -4315,132 +4184,10 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 }
 
 /* === TTS voice / persona picker === */
-.tts-voice-btn {
-  background: none;
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 6px;
-  color: var(--gold);
-  font-size: 15px;
-  padding: 4px 8px;
-  cursor: pointer;
-  margin-left: 4px;
-  line-height: 1;
-}
-.tts-voice-btn:hover { background: rgba(212,175,55,0.12); }
-.tts-voice-popover {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 12px;
-  background: var(--bg-2, #1a1610);
-  border: 1.5px solid var(--line);
-  border-radius: 14px;
-  padding: 12px;
-  min-width: 280px;
-  max-width: 340px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.7);
-  z-index: 10000;
-}
-.tts-voice-popover.show { display: block; }
 
 /* Persona picker title */
-.tts-persona-title {
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--fg-dim);
-  margin-bottom: 10px;
-  padding: 0 2px;
-}
 
 /* 2-column persona grid */
-.tts-persona-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
 
-.tts-persona-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-  padding: 10px 34px 10px 11px;
-  border: 1.5px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-  transition: border-color .15s, background .15s;
-}
-.tts-persona-card:hover {
-  border-color: rgba(212,175,55,0.35);
-  background: rgba(212,175,55,0.06);
-}
-.tts-persona-card.active {
-  border-color: var(--gold);
-  background: rgba(212,175,55,0.12);
-}
 
-.tts-persona-preview-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1px solid rgba(212,175,55,0.4);
-  background: rgba(212,175,55,0.1);
-  color: var(--gold);
-  font-size: 10px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background .15s, transform .1s;
-}
-.tts-persona-preview-btn:hover {
-  background: rgba(212,175,55,0.25);
-  transform: scale(1.08);
-}
-.tts-persona-preview-btn:active { transform: scale(0.95); }
 
-.tts-persona-icon {
-  font-size: 18px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-.tts-persona-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--fg);
-  line-height: 1.2;
-}
-.tts-persona-card.active .tts-persona-name { color: var(--gold); }
-.tts-persona-desc {
-  font-size: 10px;
-  color: var(--fg-dim);
-  line-height: 1.3;
-}
-.tts-persona-broken {
-  font-size: 9px;
-  color: #e0a050;
-  line-height: 1.3;
-  margin-top: 2px;
-  font-weight: 600;
-}
-.tts-persona-voice {
-  font-size: 9px;
-  color: rgba(212,175,55,0.5);
-  line-height: 1.2;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}

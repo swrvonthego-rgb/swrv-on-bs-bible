@@ -28,9 +28,9 @@
       body: 'Every underlined word opens the original Hebrew or Greek behind it, explained in plain English — no seminary required.'
     },
     {
-      selector: '.tts-listen-btn',
+      selector: '#audioBibleBar',
       title: 'Listen to Any Chapter',
-      body: 'Tap Listen, then pick a reading voice from the 🎙 menu — you can preview each one before choosing.'
+      body: 'Real recorded Bible audio appears automatically here — no button to press. The verse being read highlights itself as it plays, and you can tap any verse number to jump the audio there.'
     },
     {
       selector: '#musicMini',

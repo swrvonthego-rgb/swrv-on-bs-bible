@@ -5,15 +5,11 @@
 // Cloudflare Workers deploy in .github/workflows/deploy.yml. Pages only runs
 // server-side logic if it finds a file named exactly `_worker.js` at the
 // root of the deployed output — without one, Pages just serves the repo as
-// static files, which is why POST /api/tts was returning 405 Method Not
-// Allowed there (no route exists for it) even though the real fix already
-// shipped to the Workers deployment.
+// static files, so any /api/* route would 405 there with no route matching.
 //
 // Pages and Workers share the same static-assets interface (env.ASSETS),
 // so re-exporting the real worker gives the Pages deployment the identical
-// /api/tts handler, including the FreeTTS.org and Edge TTS fallback tiers
-// that need no bindings at all. Aura-2 (env.AI) and the R2 audio cache
-// (env.LIBRARY_BUCKET) will no-op gracefully until those bindings are added
-// in the Pages project's own dashboard settings — that's optional, not
-// required for voice to work.
+// routes, including /api/audio-bible/. That route needs the R2 binding
+// (env.LIBRARY_BUCKET) added in the Pages project's own dashboard settings
+// to actually serve audio there — this file alone doesn't add the binding.
 export { default } from './worker.js';
