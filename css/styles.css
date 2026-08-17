@@ -48,6 +48,20 @@ body[data-theme="vintage"]{
 body[data-theme="luxe"]{
   background:radial-gradient(ellipse at top,#1a1410 0%,#0a0908 70%);
 }
+/* The header has a hardcoded dark background (rgba(20,16,28,0.72), further
+   down) that does NOT follow the theme. The light themes' --gold/--fg-dim are
+   dark by design — correct as text on their light page panels, but invisible
+   on that dark header: measured 1.08:1 and 1.05:1, effectively unreadable.
+   luxe/cyberpunk/sonic never hit this because their golds are already bright
+   and they carry their own .brand-title overrides below. These two light
+   themes need the same treatment. Measured 5.41:1 / 5.25:1 (title) and
+   5.52:1 / 5.35:1 (subtitle) against the composited header, all above the
+   4.5:1 WCAG AA floor. */
+[data-theme="vintage"] .brand-title,
+[data-theme="earth"] .brand-title{color:#e8c86a}
+[data-theme="vintage"] .brand-sub,
+[data-theme="earth"] .brand-sub{color:#d9cbb4}
+
 [data-theme="luxe"] .brand-title,
 [data-theme="luxe"] .chapter-title{
   background:linear-gradient(180deg,#ffd770 0%,#d4af37 60%,#8b6f1e 100%);
