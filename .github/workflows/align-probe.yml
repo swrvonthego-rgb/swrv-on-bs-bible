@@ -31,16 +31,19 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq espeak libespeak-dev ffmpeg
-          python -m pip install --upgrade pip wheel setuptools
-          # numpy<2 is required: aeneas's C extensions predate the numpy 2 ABI
-          # and fail to compile against it.
-          python -m pip install "numpy<2"
-          # --no-build-isolation is required too: aeneas's setup.py imports
-          # numpy at build time, but pip's default isolated build env does not
-          # carry the numpy just installed above, so the build aborts with
-          # "You must install numpy before installing aeneas" even though it
-          # is present. Disabling isolation builds against this environment.
-          python -m pip install --no-build-isolation aeneas
+          python -m pip install --upgrade pip wheel
+          # aeneas is from 2017 and fights modern Python packaging in three
+          # separate ways; all three need handling together:
+          #  1. numpy<2   — its C extensions predate the numpy 2 ABI.
+          #  2. setuptools<70 + SETUPTOOLS_USE_DISTUTILS=stdlib — newer
+          #     setuptools vendors a rewritten distutils whose Compiler
+          #     signature changed, giving "Compiler.__init__() takes from 1 to
+          #     3 positional arguments but 4 were given". Python 3.11 still
+          #     ships the original stdlib distutils, so force that instead.
+          #  3. --no-build-isolation — setup.py imports numpy at build time,
+          #     which pip's isolated build env does not provide.
+          python -m pip install "setuptools<70" "numpy<2"
+          SETUPTOOLS_USE_DISTUTILS=stdlib python -m pip install --no-build-isolation aeneas
           python -c "import aeneas; print('aeneas import OK')"
 
       - name: Install Wrangler

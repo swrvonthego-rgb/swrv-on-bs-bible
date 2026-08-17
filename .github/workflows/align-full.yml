@@ -102,11 +102,11 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq espeak libespeak-dev ffmpeg
-          python -m pip install --upgrade pip wheel setuptools
-          python -m pip install "numpy<2"
-          # See align-probe.yml: aeneas imports numpy at build time, which
-          # pip's isolated build env does not provide.
-          python -m pip install --no-build-isolation aeneas
+          python -m pip install --upgrade pip wheel
+          # Must stay identical to align-probe.yml, or a green probe stops
+          # predicting the real run. See that file for why each pin exists.
+          python -m pip install "setuptools<70" "numpy<2"
+          SETUPTOOLS_USE_DISTUTILS=stdlib python -m pip install --no-build-isolation aeneas
 
       - name: Align book
         run: node tools/align-book.mjs "${{ matrix.book }}" bsb-timings
