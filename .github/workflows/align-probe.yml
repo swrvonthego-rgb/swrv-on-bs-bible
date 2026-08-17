@@ -1,0 +1,71 @@
+# Per-verse alignment feasibility probe — ONE chapter, not the whole Bible.
+#
+# Forced alignment of ~86 hours of audio is a large job, and the fragile part
+# is the aligner toolchain itself (aeneas is purpose-built for audiobook↔text
+# sync but is old, and its C extensions will not build against numpy 2.x).
+# This proves the install, the R2 download, the text extraction and the
+# alignment quality on a single known chapter before any of that is scaled up.
+#
+# Runs only when the probe itself changes, so it never fires on normal deploys.
+name: Align probe
+
+on:
+  push:
+    paths:
+      - '.github/workflows/align-probe.yml'
+      - 'tools/extract-verse-text.mjs'
+      - 'tools/validate-alignment.mjs'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    name: Align one chapter
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'   # 3.12 dropped distutils, which aeneas's build needs
+
+      - name: Install aligner toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak libespeak-dev ffmpeg
+          python -m pip install --upgrade pip wheel
+          # numpy<2 is required: aeneas's C extensions predate the numpy 2 ABI
+          # and fail to compile against it.
+          python -m pip install "numpy<2"
+          python -m pip install aeneas
+          python -c "import aeneas; print('aeneas import OK')"
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@latest
+
+      - name: Fetch one chapter of audio from R2
+        run: |
+          wrangler r2 object get \
+            swrv-bible-library/ENGBERO1DA/ENGBERO1DA_A01_GEN_001.mp3 \
+            --file=chapter.mp3 --remote
+          ls -la chapter.mp3
+          ffprobe -v error -show_entries format=duration -of csv=p=0 chapter.mp3 > duration.txt
+          echo "duration(s): $(cat duration.txt)"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: fa970c9a0eed2fcc60ca2d31773f6770
+
+      - name: Extract matching BSB verse text
+        run: |
+          node tools/extract-verse-text.mjs Genesis 1 --plain > verses.txt
+          echo "fragments: $(wc -l < verses.txt)"
+
+      - name: Run forced alignment
+        run: |
+          time python -m aeneas.tools.execute_task \
+            chapter.mp3 verses.txt \
+            "task_language=eng|is_text_type=plain|os_task_file_format=json" \
+            alignment.json
+          echo "--- alignment.json head ---"
+          head -c 600 alignment.json
+
+      - name: Validate alignment quality
+        run: node tools/validate-alignment.mjs alignment.json verses.txt "$(cat duration.txt)"
