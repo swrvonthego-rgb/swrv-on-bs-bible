@@ -34,6 +34,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=20260817hdrcontrast2">
+<link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — immersive landing page (shows every visit) -->
@@ -221,6 +222,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
   <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
   <span class="audio-bible-note" id="audioBibleNote" title=""></span>
+  <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">follow</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
@@ -639,7 +641,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/app.js?v=20260814font3opts1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
-<script src="js/audio-bible.js?v=20260817audio1" defer></script>
+<script src="js/audio-bible.js?v=20260817sync1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
