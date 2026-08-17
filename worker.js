@@ -776,6 +776,30 @@ export default {
       return new Response(obj.body, { headers });
     }
 
+    // ============= TEMP DEBUG: R2 OBJECT LISTING =============
+    // No R2-object-listing tool exists in this session's toolset (only
+    // bucket-level create/get/delete/list), and the assistant has no
+    // outbound internet access to hit this endpoint itself — so this exists
+    // purely so a human can visit the URL and paste the JSON back. Lists
+    // whatever's actually in the bucket (used here to inventory the BSB
+    // audio Bible upload before writing any renaming/manifest logic against
+    // guessed file names). Read-only, no bucket contents are exposed beyond
+    // key/size/upload-date — remove once the audio inventory is done.
+    if (url.pathname === '/api/debug/r2-list' && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) return json({ error: 'LIBRARY_BUCKET not configured' }, 500);
+      const prefix = url.searchParams.get('prefix') || '';
+      const cursor = url.searchParams.get('cursor') || undefined;
+      const listed = await env.LIBRARY_BUCKET.list({ prefix, cursor, limit: 200, include: [] });
+      return json({
+        prefix,
+        count: listed.objects.length,
+        truncated: listed.truncated,
+        cursor: listed.truncated ? listed.cursor : null,
+        delimitedPrefixes: listed.delimitedPrefixes || [],
+        objects: listed.objects.map(o => ({ key: o.key, size: o.size, uploaded: o.uploaded })),
+      });
+    }
+
     // ============= STATIC ASSETS =============
     // Fall through to Cloudflare's static asset binding
     if (!env.ASSETS) {
