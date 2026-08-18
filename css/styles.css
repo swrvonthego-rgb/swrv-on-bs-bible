@@ -2622,6 +2622,8 @@ body[data-reading-mode="read"] .verse-study-chip{
   border-right:1px solid var(--line) !important;
   background:transparent !important;
   padding:6px 12px;
+  color:var(--fg) !important;
+  font-weight:600;
 }
 .reading-mode-btn:last-child{ border-right:none !important; }
 .reading-mode-btn.active{ background:rgba(212,175,55,0.18) !important; color:var(--gold) !important; }
