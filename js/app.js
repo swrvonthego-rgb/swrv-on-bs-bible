@@ -2634,7 +2634,7 @@ function renderCompanionPassages(book, chapter){
       if(ref.people && Array.isArray(ref.people) && ref.people.length){
         h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
         for(const pname of ref.people){
-          h += '<button class="icon-btn" style="font-size:11px;padding:4px 10px;background:var(--bg-3);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\''+pname.replace(/\x27/g,"\\\\\x27")+'\')">👤 '+escapeHtml(pname.replace('_NT',''))+'</button>';
+          h += '<button class="icon-btn" style="font-size:11px;padding:4px 10px;background:var(--people-bg);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\''+pname.replace(/\x27/g,"\\\\\x27")+'\')">👤 '+escapeHtml(pname.replace('_NT',''))+'</button>';
         }
         h += '</div>';
       } else {
@@ -2845,7 +2845,7 @@ function renderChronologicalEvents(book, chapter){
     if(ev.people && ev.people.length){
       h += '<div style="margin-top:6px;font-size:11px;"><span style="color:var(--fg-dim);">People: </span>';
       for(const p of ev.people){
-        h += '<button class="icon-btn" style="font-size:11px;padding:2px 8px;margin-right:4px;background:var(--bg-3);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\'' + p.replace(/'/g,"\\'") + '\')">👤 ' + escapeHtml(p.replace('_NT','').replace('_Magdalene','')) + '</button>';
+        h += '<button class="icon-btn" style="font-size:11px;padding:2px 8px;margin-right:4px;background:var(--people-bg);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\'' + p.replace(/'/g,"\\'") + '\')">👤 ' + escapeHtml(p.replace('_NT','').replace('_Magdalene','')) + '</button>';
       }
       h += '</div>';
     }
@@ -6441,7 +6441,7 @@ window._renderChapterIntro = function(book, chapterNum) {
           <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">
             ${cards.map((_,i)=>`<div style="width:8px;height:8px;border-radius:50%;background:${i===current?'var(--gold,#d4af37)':'rgba(212,175,55,0.3)'};"></div>`).join('')}
           </div>
-          <button id="swrvOnboardNext" style="background:var(--gold,#d4af37);color:#0a0604;border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.04em;">
+          <button id="swrvOnboardNext" style="background:var(--gold,#d4af37);color:var(--gold-ink,#0a0604);border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.04em;">
             ${current < cards.length - 1 ? "Next →" : "Let's go →"}
           </button>
           <div style="margin-top:12px;font-size:12px;color:var(--fg-dim,#8a7a60);cursor:pointer;" id="swrvOnboardSkip">Skip intro</div>

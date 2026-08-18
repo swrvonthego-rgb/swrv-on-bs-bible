@@ -30,19 +30,34 @@ body.audio-bible-active .verse .verse-num:hover {
   text-decoration: underline;
 }
 
-.audio-sync-toggle {
+/* Both compact, fixed-size icon buttons — an icon glyph, not a text label,
+   so neither eats horizontal space in the audio bar next to the native
+   <audio> controls. */
+.audio-sync-toggle,
+.audio-bible-info {
   background: none;
   border: 1px solid var(--line);
   color: inherit;
   font: inherit;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
   cursor: pointer;
-  margin-left: 8px;
+  margin-left: 6px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .audio-sync-toggle[aria-pressed="true"] {
   border-color: var(--gold);
+  color: var(--gold);
+}
+.audio-bible-info {
+  opacity: 0.75;
 }
 
 @media (prefers-reduced-motion: reduce) {
