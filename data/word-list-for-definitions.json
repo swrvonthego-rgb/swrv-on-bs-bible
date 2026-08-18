@@ -1,0 +1,802 @@
+[
+  {
+    "rank": 1,
+    "word": "w",
+    "frequency": 416789,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 2,
+    "word": "sid",
+    "frequency": 416789,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 3,
+    "word": "text",
+    "frequency": 130071,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 4,
+    "word": "lord",
+    "frequency": 43151,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 5,
+    "word": "i",
+    "frequency": 38478,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 6,
+    "word": "sources",
+    "frequency": 29665,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 7,
+    "word": "kjv",
+    "frequency": 29570,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 8,
+    "word": "ref",
+    "frequency": 29569,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 9,
+    "word": "synthesized",
+    "frequency": 29569,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 10,
+    "word": "definablewords",
+    "frequency": 29569,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 11,
+    "word": "peopleinverse",
+    "frequency": 29569,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 12,
+    "word": "bsb",
+    "frequency": 29553,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 13,
+    "word": "strongstags",
+    "frequency": 29325,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 14,
+    "word": "god",
+    "frequency": 21488,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 15,
+    "word": "hebrew",
+    "frequency": 16832,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 16,
+    "word": "tanakh",
+    "frequency": 16700,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 17,
+    "word": "are",
+    "frequency": 14859,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 18,
+    "word": "king",
+    "frequency": 14750,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 19,
+    "word": "themesinverse",
+    "frequency": 14429,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 20,
+    "word": "son",
+    "frequency": 13780,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 21,
+    "word": "man",
+    "frequency": 13551,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 22,
+    "word": "israel",
+    "frequency": 12833,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 23,
+    "word": "people",
+    "frequency": 12025,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 24,
+    "word": "were",
+    "frequency": 10476,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 25,
+    "word": "ye",
+    "frequency": 9924,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 26,
+    "word": "day",
+    "frequency": 9758,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 27,
+    "word": "had",
+    "frequency": 9704,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 28,
+    "word": "land",
+    "frequency": 9422,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 29,
+    "word": "house",
+    "frequency": 9214,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 30,
+    "word": "men",
+    "frequency": 8701,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 31,
+    "word": "upon",
+    "frequency": 8177,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 32,
+    "word": "against",
+    "frequency": 7356,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 33,
+    "word": "come",
+    "frequency": 7318,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 34,
+    "word": "made",
+    "frequency": 6773,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 35,
+    "word": "came",
+    "frequency": 6627,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 36,
+    "word": "jesus",
+    "frequency": 6325,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 37,
+    "word": "father",
+    "frequency": 6202,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 38,
+    "word": "an",
+    "frequency": 6131,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 39,
+    "word": "go",
+    "frequency": 5954,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 40,
+    "word": "because",
+    "frequency": 5764,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 41,
+    "word": "children",
+    "frequency": 5642,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 42,
+    "word": "let",
+    "frequency": 5638,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 43,
+    "word": "make",
+    "frequency": 5590,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 44,
+    "word": "hand",
+    "frequency": 5490,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 45,
+    "word": "david",
+    "frequency": 5339,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 46,
+    "word": "o",
+    "frequency": 5290,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 47,
+    "word": "jerusalem",
+    "frequency": 5219,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 48,
+    "word": "went",
+    "frequency": 5077,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 49,
+    "word": "moses",
+    "frequency": 4999,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 50,
+    "word": "great",
+    "frequency": 4933,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 51,
+    "word": "has",
+    "frequency": 4909,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 52,
+    "word": "like",
+    "frequency": 4906,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 53,
+    "word": "sons",
+    "frequency": 4877,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 54,
+    "word": "hashem",
+    "frequency": 4773,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 55,
+    "word": "earth",
+    "frequency": 4625,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 56,
+    "word": "name",
+    "frequency": 4602,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 57,
+    "word": "heart",
+    "frequency": 4461,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 58,
+    "word": "judah",
+    "frequency": 4430,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 59,
+    "word": "word",
+    "frequency": 4382,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 60,
+    "word": "shalt",
+    "frequency": 4341,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 61,
+    "word": "am",
+    "frequency": 4306,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 62,
+    "word": "offering",
+    "frequency": 4305,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 63,
+    "word": "saying",
+    "frequency": 4233,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 64,
+    "word": "days",
+    "frequency": 4135,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 65,
+    "word": "among",
+    "frequency": 4071,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 66,
+    "word": "see",
+    "frequency": 3820,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 67,
+    "word": "way",
+    "frequency": 3809,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 68,
+    "word": "away",
+    "frequency": 3756,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 69,
+    "word": "behold",
+    "frequency": 3752,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 70,
+    "word": "things",
+    "frequency": 3717,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 71,
+    "word": "put",
+    "frequency": 3702,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 72,
+    "word": "city",
+    "frequency": 3673,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 73,
+    "word": "egypt",
+    "frequency": 3632,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 74,
+    "word": "take",
+    "frequency": 3586,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 75,
+    "word": "good",
+    "frequency": 3574,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 76,
+    "word": "holy",
+    "frequency": 3520,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 77,
+    "word": "give",
+    "frequency": 3503,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 78,
+    "word": "know",
+    "frequency": 3501,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 79,
+    "word": "brought",
+    "frequency": 3387,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 80,
+    "word": "saith",
+    "frequency": 3373,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 81,
+    "word": "kings",
+    "frequency": 3317,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 82,
+    "word": "priest",
+    "frequency": 3309,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 83,
+    "word": "place",
+    "frequency": 3292,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 84,
+    "word": "spirit",
+    "frequency": 3233,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 85,
+    "word": "light",
+    "frequency": 3164,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 86,
+    "word": "evil",
+    "frequency": 3120,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 87,
+    "word": "set",
+    "frequency": 3112,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 88,
+    "word": "bring",
+    "frequency": 3058,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 89,
+    "word": "servant",
+    "frequency": 3037,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 90,
+    "word": "christ",
+    "frequency": 3018,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 91,
+    "word": "heaven",
+    "frequency": 2941,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 92,
+    "word": "peace",
+    "frequency": 2909,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 93,
+    "word": "saw",
+    "frequency": 2909,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 94,
+    "word": "altar",
+    "frequency": 2901,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 95,
+    "word": "hear",
+    "frequency": 2890,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 96,
+    "word": "time",
+    "frequency": 2867,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 97,
+    "word": "own",
+    "frequency": 2860,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 98,
+    "word": "placesinverse",
+    "frequency": 2830,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 99,
+    "word": "according",
+    "frequency": 2741,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  },
+  {
+    "rank": 100,
+    "word": "life",
+    "frequency": 2736,
+    "needsDefinition": true,
+    "strongsNumber": null,
+    "hebrewGreek": null
+  }
+]
