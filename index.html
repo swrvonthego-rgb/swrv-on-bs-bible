@@ -224,7 +224,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <div class="audio-bible-bar" id="audioBibleBar" style="display:none" aria-label="BSB audio Bible chapter player">
   <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
   <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
-  <button type="button" class="audio-bible-info" id="audioBibleInfo" title="" aria-label="About this audio">ⓘ</button>
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
@@ -284,12 +283,11 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 </div>
 
 <!-- Premium Music Player (mini + full modes) -->
-<aside id="musicMini" class="music-mini" aria-label="Music player">
-  <button class="player-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
-  <div class="player-track" id="trackName" onclick="audioPlayerExpand()" style="cursor:pointer;">Music</div>
-  <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down" style="font-size:12px;padding:4px;">−</button>
-  <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up" style="font-size:12px;padding:4px;">+</button>
-  <button class="player-icon-btn" onclick="audioPlayerExpand()" title="Expand player">⤴</button>
+<aside id="musicMini" class="music-mini" aria-label="Music player" title="Double-tap to expand music player">
+  <button class="music-mini-arrow" onclick="audioPlayerExpand()" title="Expand" aria-label="Expand music player">▶</button>
+  <button class="player-icon-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause" style="width:40px;height:40px;">▶</button>
+  <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down" style="font-size:14px;">−</button>
+  <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up" style="font-size:14px;">+</button>
 </aside>
 
 <div id="musicFull" class="music-full" style="display:none;">
