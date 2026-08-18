@@ -214,15 +214,18 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   </div>
 </nav>
 <!-- BSB audio Bible chapter player — hidden until the manifest confirms this
-     chapter actually has audio (see js/audio-bible.js). Whole-chapter
-     playback with the browser's native controls (Range-request streaming
-     from R2 makes seeking work); this is NOT per-verse synced narration —
-     there is no per-verse timing data, only a chapter-level audio file. -->
+     chapter actually has audio (see js/audio-bible.js). Range-request
+     streaming from R2 makes native seeking work. Per-verse timing data
+     covers all 66 books (see tools/align-*.mjs), so the verse being read
+     highlights and auto-scrolls into view as it plays — see onTimeUpdate
+     in js/audio-bible.js. The OT/NT wording-match note used to render
+     here as a visible span; removed per explicit request (it was in the
+     way) — the same information is still on the "i" tooltip icon below. -->
 <div class="audio-bible-bar" id="audioBibleBar" style="display:none" aria-label="BSB audio Bible chapter player">
   <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
   <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
-  <span class="audio-bible-note" id="audioBibleNote" title=""></span>
-  <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">follow</button>
+  <button type="button" class="audio-bible-info" id="audioBibleInfo" title="" aria-label="About this audio">ⓘ</button>
+  <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>

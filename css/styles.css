@@ -68,9 +68,18 @@ body[data-theme="luxe"]{
    all use --fg-mute for their label — correct as dark text on a light theme's
    page panels, unreadable on the header's fixed dark background. Reusing the
    already-measured-safe #d9cbb4 (5.52:1 / 5.35:1 against the composited
-   header in vintage/earth). */
-[data-theme="vintage"] .icon-btn,
-[data-theme="earth"] .icon-btn,
+   header in vintage/earth).
+   EXCEPT .reading-mode-group's own buttons (New Reader/Study/Scholar/
+   Threads): that group sets its own opaque light background
+   (background:var(--bg-2) on .reading-mode-group), so those four buttons
+   sit on a light island inside the dark header, not on the header itself.
+   Applying the light-header fix there put light text on a light
+   background — measured 1.03:1/1.06:1, i.e. invisible, confirmed via a
+   real rendered-page contrast audit, not just reading the CSS. :not()
+   excludes that whole group so it keeps the theme's normal dark-on-light
+   --fg-mute, which was already correct at 5.6-5.8:1. */
+[data-theme="vintage"] .icon-btn:not(.reading-mode-group .icon-btn),
+[data-theme="earth"] .icon-btn:not(.reading-mode-group .icon-btn),
 [data-theme="vintage"] .mode-toggle button,
 [data-theme="earth"] .mode-toggle button{color:#d9cbb4}
 /* .nav-hide-btn sets color:var(--gold) with !important elsewhere — the
@@ -1100,18 +1109,21 @@ select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px r
   font-size: 12px;
   letter-spacing: -0.01em;
 }
+/* This block duplicates the earlier, more complete .player-icon-btn rule
+   (circular button, own background/border/color) — kept only for the
+   layout properties it uniquely contributes (font-family, padding,
+   border-radius, transition). Its own color/hover/background declarations
+   are removed: coming later in the file, they were silently winning over
+   the theme-aware --fg used by the real rule, which is how this button's
+   text ended up rendering in vintage's --fg-mute value regardless of the
+   active theme — measured directly (1.03-2.21:1) across every dark theme. */
 .player-icon-btn {
   font-family: var(--apple-font);
-  background: transparent;
-  border: none;
-  color: var(--fg-mute);
   cursor: pointer;
   padding: 6px;
-  border-radius: 8px;
   transition: all 180ms var(--ease-apple);
   -webkit-tap-highlight-color: transparent;
 }
-.player-icon-btn:hover { color: var(--gold); background: var(--surface-elevated); }
 .player-icon-btn:active { transform: scale(0.92); }
 
 /* === COMPANION PANEL (cross-source map) === */

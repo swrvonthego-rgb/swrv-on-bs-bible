@@ -29,7 +29,7 @@
 
   function bar()   { return document.getElementById('audioBibleBar'); }
   function audioEl(){ return document.getElementById('audioBibleEl'); }
-  function noteEl(){ return document.getElementById('audioBibleNote'); }
+  function noteEl(){ return document.getElementById('audioBibleInfo'); }
 
   function loadManifest(cb) {
     if (manifestState === 'ready' || manifestState === 'unavailable') { cb(); return; }
@@ -90,6 +90,24 @@
     });
   }
 
+  // Verse elements are found by scanning the rendered chapter and reading
+  // each verse's number, NOT by reconstructing element ids from the book
+  // key. The ids come from refs like "1 Samuel 1:1" -> "1_Samuel_1_1",
+  // while the book key is "1Samuel" — so id reconstruction silently missed
+  // every numbered book (1/2 Samuel, Kings, Chronicles, Corinthians, ...)
+  // and Song of Solomon. Genesis matched by luck, which is why the bug
+  // wasn't obvious. Scanning the DOM is format-proof.
+  function verseElementMap() {
+    var map = {};
+    var els = document.querySelectorAll('.verse');
+    for (var i = 0; i < els.length; i++) {
+      var numEl = els[i].querySelector('.verse-num');
+      var n = numEl ? parseInt(numEl.textContent, 10) : NaN;
+      if (!isNaN(n) && !map[n]) map[n] = els[i];
+    }
+    return map;
+  }
+
   function buildSpans(book, ch) {
     activeSpans = null;
     activeVerseN = null;
@@ -97,11 +115,11 @@
       if (!data || !data.chapters) return;
       var rows = data.chapters[String(ch)];
       if (!rows || !rows.length) return;
+      var els = verseElementMap();
       var spans = [];
       for (var i = 0; i < rows.length; i++) {
         var n = i + 1; // rows are verse-ordered, index 0 == verse 1
-        var el = document.getElementById(book.replace(/[^a-z0-9]/gi, '_') + '_' + ch + '_' + n);
-        spans.push({ n: n, begin: Number(rows[i][0]), end: Number(rows[i][1]), el: el });
+        spans.push({ n: n, begin: Number(rows[i][0]), end: Number(rows[i][1]), el: els[n] || null });
       }
       activeSpans = spans;
     });
@@ -134,11 +152,14 @@
     if (!s || s.n === activeVerseN) return;
     activeVerseN = s.n;
     clearHighlight();
-    // Elements are re-rendered on navigation, so re-resolve lazily rather
-    // than trusting the reference captured at build time.
+    // Elements are re-rendered on navigation and mode switches, so
+    // re-resolve lazily (same DOM scan as buildSpans) rather than trusting
+    // the reference captured at build time.
     if (!s.el || !s.el.isConnected) {
-      s.el = document.getElementById(
-        (window.currentBook || '').replace(/[^a-z0-9]/gi, '_') + '_' + window.currentChapter + '_' + s.n);
+      var els = verseElementMap();
+      for (var i = 0; i < activeSpans.length; i++) {
+        activeSpans[i].el = els[activeSpans[i].n] || null;
+      }
     }
     if (!s.el) return;
     s.el.classList.add('verse-audio-active');
@@ -192,15 +213,18 @@
     }
     document.body.classList.add('audio-bible-active');
     buildSpans(window.currentBook, window.currentChapter);
+    // The OT/NT wording-match text used to render as a visible span in the
+    // bar — removed per explicit request (it was in the way). The "i" icon
+    // always shows; only its tooltip changes, so the information survives
+    // without taking up bar space.
     var n = noteEl();
     if (n) {
-      if (testament === 'OT') {
-        n.textContent = 'ⓘ chapter-aligned only';
-        n.title = 'This app’s Old Testament text is the 1917 JPS translation; this audio is the Berean Standard Bible (BSB). Wording will differ — the chapter matches, individual words will not.';
-      } else {
-        n.textContent = 'ⓘ BSB, matches text';
-        n.title = 'This app’s New Testament text is also the Berean Standard Bible (BSB), so this audio matches the on-screen wording.';
-      }
+      // Per-verse timings exist for BOTH testaments (JPS and BSB share verse
+      // divisions even where wording differs), so the verse being read
+      // highlights everywhere — the OT note is only about wording.
+      n.title = testament === 'OT'
+        ? 'This app’s Old Testament text is the 1917 JPS translation; this audio is the Berean Standard Bible (BSB). The verse being read still highlights — but the spoken words won’t match the on-screen words exactly.'
+        : 'This app’s New Testament text is also the Berean Standard Bible (BSB), so this audio matches the on-screen wording word-for-word.';
     }
     b.style.display = '';
   }
