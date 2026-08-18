@@ -182,7 +182,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('audit')"><span>🔍</span> Audit</button>
       </div>
     </div>
-    <button class="icon-btn" onclick="cycleTheme()">🎨</button>
+    <button class="icon-btn" onclick="cycleTheme()" title="Change theme" aria-label="Change theme">🎨</button>
     <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤 Sign In</button>
   </div>
   <div class="header-actions-arrow header-actions-arrow-left hidden" id="headerActionsArrowLeft" aria-hidden="true">‹</div>
@@ -268,7 +268,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 
 <div class="def-overlay" id="defOverlay" onclick="closeDef()"></div>
 <div class="def-popup" id="defPopup">
-  <button class="def-close" onclick="closeDef()">×</button>
+  <button class="def-close" onclick="closeDef()" title="Close" aria-label="Close">×</button>
   <div id="defContent"></div>
 </div>
 
@@ -319,6 +319,10 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
       <button class="player-icon-btn" onclick="audioForward10()" title="Forward 10 seconds">⏩</button>
       <button class="player-icon-btn" onclick="audioNext()" title="Next">⏭</button>
       <button class="player-icon-btn" id="loopBtn" onclick="audioLoopCycle()" title="Loop: off / one / all">🔁</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+      <button class="player-icon-btn" id="muteBtn" onclick="audioMuteToggle()" title="Mute / unmute">🔊</button>
+      <input type="range" id="volumeBar" class="progress-bar" min="0" max="100" value="70" step="1" oninput="audioSetVolume(this.value)" title="Volume" aria-label="Volume" style="flex:1;">
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;">
       <button class="icon-btn" onclick="document.getElementById('audioUpload').click()" style="font-size:12px;">📁 Add files</button>

@@ -93,6 +93,14 @@ jobs:
         continue-on-error: true
         run: node tools/verify-timings.mjs
 
+      # Finds Bible words that already have a dictionary entry but wouldn't
+      # get underlined in a given verse (usually an inflected form like
+      # "loved" vs. the dictionary's "love") — see tools/audit-dictionary-coverage.mjs.
+      # continue-on-error: informational only, must never fail a deploy.
+      - name: Audit dictionary-underline coverage
+        continue-on-error: true
+        run: node tools/audit-dictionary-coverage.mjs
+
       # Pushes API keys from GitHub repo secrets onto the Worker. Add each key
       # once under Settings → Secrets and variables → Actions; any secret left
       # unset is skipped so the deploy never fails on a missing key, and the

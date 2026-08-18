@@ -32,6 +32,7 @@ const TRACKS = [
 ];
 let trackIdx=0;
 const audio=document.getElementById('audio'),playBtn=document.getElementById('playBtn'),trackName=document.getElementById('trackName');
+audio.volume = (function(){ const v = parseInt(localStorage.getItem('swrv_music_volume'),10); return isNaN(v) ? 0.7 : Math.min(100,Math.max(0,v))/100; })();
 audio.preload='auto';
 let _wantPlay=false;
 
@@ -246,6 +247,24 @@ function audioToggle(){
     audio.pause();
   }
 }
+
+function audioSetVolume(val){
+  const v = Math.min(100,Math.max(0,parseInt(val,10)||0));
+  audio.volume = v/100;
+  audio.muted = false;
+  localStorage.setItem('swrv_music_volume', String(v));
+  _syncVolumeUI();
+}
+function audioMuteToggle(){
+  audio.muted = !audio.muted;
+  _syncVolumeUI();
+}
+function _syncVolumeUI(){
+  const btn = document.getElementById('muteBtn'), bar = document.getElementById('volumeBar');
+  if(bar) bar.value = Math.round(audio.volume*100);
+  if(btn) btn.textContent = (audio.muted || audio.volume === 0) ? '🔇' : (audio.volume < 0.5 ? '🔉' : '🔊');
+}
+_syncVolumeUI();
 
 function audioAddFiles(input){
   const files = Array.from(input.files || []);

@@ -1,23 +1,32 @@
 // SWRV Kingdom Bible — draggable, edge-dockable floating widgets
-// The font-size button, the tour-replay button, and the mini music player
-// all sit fixed in a bottom corner and can end up stacked on top of each
-// other and on top of the reading text on smaller screens. This lets a user
-// drag any of the three anywhere on screen; dropping one near the left or
-// right edge "docks" it into a thin arrow tab that just peeks out from the
-// side instead of covering content. Tapping a docked tab slides it back out;
-// tapping it again (now undocked) fires its normal action, same as always.
+// The font-size button and the tour-replay button sit fixed in a bottom
+// corner and can end up stacked on top of each other and on top of the
+// reading text on smaller screens. This lets a user drag either one
+// anywhere on screen; dropping one near the left or right edge "docks" it
+// into a thin arrow tab that just peeks out from the side instead of
+// covering content. Tapping a docked tab slides it back out; tapping it
+// again (now undocked) fires its normal action, same as always.
+//
+// The mini music player uses the same docked-tab look and storage, but
+// doesn't drag: its shape/position must stay put (it has tappable children
+// — play, track name, expand — that need normal single taps to reach them),
+// so free-drag is disabled for it and a double-tap docks/undocks it to the
+// nearest side instead.
 (function(){
   var STORE_KEY = 'swrv_floating_positions_v1';
   var EDGE_SNAP = 46;      // px from the screen edge that triggers docking on drop
   var DRAG_THRESHOLD = 6;  // px of movement before a press counts as a drag, not a tap
+  var DOUBLE_TAP_MS = 350;
 
   function loadAll(){ try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ return {}; } }
   function saveAll(p){ try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch(e){} }
 
-  function makeFloatingWidget(el, id, onActivate){
+  function makeFloatingWidget(el, id, onActivate, opts){
     if(!el || el._swrvDockInit) return;
     el._swrvDockInit = true;
     el.classList.add('floating-widget');
+    var noDrag = !!(opts && opts.noDrag);
+    var lastTapTime = 0;
 
     var originalHTML = el.innerHTML;
     var positions = loadAll();
@@ -59,7 +68,7 @@
     }
 
     function onMove(e){
-      if(!dragging) return;
+      if(!dragging || noDrag) return;
       var p = pointFrom(e);
       var dx = p.clientX - startX, dy = p.clientY - startY;
       if(!moved && (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD)){
@@ -90,6 +99,25 @@
       el.classList.remove('widget-dragging');
 
       if(!moved){
+        if(noDrag){
+          // No free-drag on this widget — a double-tap docks/undocks it
+          // instead, so its shape and position otherwise never change.
+          var now = Date.now();
+          var isDoubleTap = (now - lastTapTime) < DOUBLE_TAP_MS;
+          lastTapTime = isDoubleTap ? 0 : now;
+          if(isDoubleTap){
+            if(state && state.docked){
+              state.docked = false;
+            } else {
+              var r2 = el.getBoundingClientRect();
+              var nearLeft2 = r2.left <= (window.innerWidth / 2);
+              state = { docked: true, side: nearLeft2 ? 'left' : 'right', y: r2.top };
+            }
+            positions[id] = state; saveAll(positions);
+            applyPosition();
+          }
+          return;
+        }
         // A plain tap, not a drag.
         if(state && state.docked){
           // First tap on a docked tab only slides it back out.
@@ -141,9 +169,10 @@
       if(typeof startAppTour === 'function') startAppTour();
     });
     // The mini music player has its own tappable children (play / track name /
-    // expand) — it gets no single onActivate. Docked, a tap just undocks it;
-    // undocked, taps pass through to whichever child the user touched.
-    makeFloatingWidget(document.getElementById('musicMini'), 'musicMini', null);
+    // expand), so it never free-drags — its shape and position stay fixed.
+    // A double-tap docks it to the nearest side or brings it back out; single
+    // taps pass through to whichever child the user touched, as always.
+    makeFloatingWidget(document.getElementById('musicMini'), 'musicMini', null, { noDrag: true });
   }
 
   if(document.readyState === 'loading'){
