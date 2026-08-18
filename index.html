@@ -287,6 +287,8 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <aside id="musicMini" class="music-mini" aria-label="Music player">
   <button class="player-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
   <div class="player-track" id="trackName" onclick="audioPlayerExpand()" style="cursor:pointer;">Music</div>
+  <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down" style="font-size:12px;padding:4px;">−</button>
+  <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up" style="font-size:12px;padding:4px;">+</button>
   <button class="player-icon-btn" onclick="audioPlayerExpand()" title="Expand player">⤴</button>
 </aside>
 
@@ -320,9 +322,11 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
       <button class="player-icon-btn" onclick="audioNext()" title="Next">⏭</button>
       <button class="player-icon-btn" id="loopBtn" onclick="audioLoopCycle()" title="Loop: off / one / all">🔁</button>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;">
       <button class="player-icon-btn" id="muteBtn" onclick="audioMuteToggle()" title="Mute / unmute">🔊</button>
-      <input type="range" id="volumeBar" class="progress-bar" min="0" max="100" value="70" step="1" oninput="audioSetVolume(this.value)" title="Volume" aria-label="Volume" style="flex:1;">
+      <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down">−</button>
+      <span id="volLabel" style="font-size:12px;color:var(--fg-mute);min-width:34px;text-align:center;">70%</span>
+      <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up">+</button>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;">
       <button class="icon-btn" onclick="document.getElementById('audioUpload').click()" style="font-size:12px;">📁 Add files</button>
