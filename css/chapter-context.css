@@ -1,0 +1,95 @@
+/* Per-chapter cultural-context card.
+   Kept in its own file so the protected css/styles.css is untouched.
+   All colour comes from existing theme variables, so it themes correctly
+   in vintage / luxe / cyberpunk / earth / sonic without redefining anything. */
+
+.chapter-context-card{
+  margin:0 0 22px;
+  padding:14px 16px 4px;
+  border:1px solid var(--line);
+  border-left:3px solid var(--gold);
+  border-radius:10px;
+  background:var(--bg-2);
+}
+
+.chapter-context-card .cc-head{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  width:100%;
+  padding:0 0 8px;
+  background:none;
+  border:none;
+  text-align:left;
+  cursor:pointer;
+  font-family:inherit;
+  color:inherit;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.chapter-context-card .cc-kicker{
+  flex:0 0 auto;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+.chapter-context-card .cc-title{
+  flex:1 1 auto;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.35;
+  color:var(--fg);
+}
+
+.chapter-context-card .cc-caret{
+  flex:0 0 auto;
+  font-size:12px;
+  color:var(--fg-mute);
+}
+
+.chapter-context-card .cc-lede{
+  margin:0 0 10px;
+  font-size:15px;
+  line-height:1.6;
+  color:var(--fg);
+}
+
+.chapter-context-card .cc-body{
+  border-top:1px solid var(--line);
+  padding-top:10px;
+}
+
+.chapter-context-card .cc-block{ margin:0 0 12px; }
+
+.chapter-context-card .cc-label{
+  display:block;
+  margin-bottom:3px;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--fg-mute);
+}
+
+.chapter-context-card .cc-block p{
+  margin:0;
+  font-size:14.5px;
+  line-height:1.62;
+  color:var(--fg-dim, var(--fg));
+}
+
+@media(max-width:680px){
+  .chapter-context-card{ padding:12px 13px 2px; margin-bottom:18px; }
+  .chapter-context-card .cc-title{ font-size:14px; }
+  .chapter-context-card .cc-lede{ font-size:14.5px; }
+  .chapter-context-card .cc-block p{ font-size:14px; }
+}
+
+/* The card is reference material, not scripture — hide it when the reader has
+   explicitly asked for a distraction-free read. */
+body[data-reading-mode="read"] .chapter-context-card .cc-body{ display:none; }
