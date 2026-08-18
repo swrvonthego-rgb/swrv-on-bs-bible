@@ -16,17 +16,30 @@
   var STORE_KEY = 'swrv_floating_positions_v1';
   var EDGE_SNAP = 46;      // px from the screen edge that triggers docking on drop
   var DRAG_THRESHOLD = 6;  // px of movement before a press counts as a drag, not a tap
-  var DOUBLE_TAP_MS = 350;
 
   function loadAll(){ try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ return {}; } }
   function saveAll(p){ try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch(e){} }
+
+  // One-time cleanup: an earlier build detected "double-tap" as any two taps
+  // anywhere in the widget within 350ms, with no check that they landed on
+  // the same spot — tapping Play then Expand (a completely normal, fast,
+  // two-button interaction) counted as a double-tap and docked the whole
+  // music mini-player into a thin edge tab, making it look like it vanished.
+  // Clear out any position that bug may have left before this widget reads
+  // its saved state, once, so nobody stays stuck on it.
+  try {
+    if(!localStorage.getItem('swrv_musicmini_dock_fix_v1')){
+      var all = loadAll();
+      if(all.musicMini){ delete all.musicMini; saveAll(all); }
+      localStorage.setItem('swrv_musicmini_dock_fix_v1', '1');
+    }
+  } catch(e){}
 
   function makeFloatingWidget(el, id, onActivate, opts){
     if(!el || el._swrvDockInit) return;
     el._swrvDockInit = true;
     el.classList.add('floating-widget');
     var noDrag = !!(opts && opts.noDrag);
-    var lastTapTime = 0;
 
     var originalHTML = el.innerHTML;
     var positions = loadAll();
@@ -99,25 +112,6 @@
       el.classList.remove('widget-dragging');
 
       if(!moved){
-        if(noDrag){
-          // No free-drag on this widget — a double-tap docks/undocks it
-          // instead, so its shape and position otherwise never change.
-          var now = Date.now();
-          var isDoubleTap = (now - lastTapTime) < DOUBLE_TAP_MS;
-          lastTapTime = isDoubleTap ? 0 : now;
-          if(isDoubleTap){
-            if(state && state.docked){
-              state.docked = false;
-            } else {
-              var r2 = el.getBoundingClientRect();
-              var nearLeft2 = r2.left <= (window.innerWidth / 2);
-              state = { docked: true, side: nearLeft2 ? 'left' : 'right', y: r2.top };
-            }
-            positions[id] = state; saveAll(positions);
-            applyPosition();
-          }
-          return;
-        }
         // A plain tap, not a drag.
         if(state && state.docked){
           // First tap on a docked tab only slides it back out.
@@ -152,6 +146,23 @@
 
     el.addEventListener('mousedown', onDown);
     el.addEventListener('touchstart', onDown, {passive:true});
+
+    if(noDrag){
+      // The browser's native dblclick only fires for two clicks/taps close
+      // together in BOTH time and position — unlike a hand-rolled timer,
+      // it won't mistake two fast taps on two different buttons (e.g. Play
+      // then Expand) for a double-tap, so this can't dock the widget by
+      // accident the way the old detection did.
+      el.addEventListener('dblclick', function(){
+        if(state && state.docked) return; // already docked — a plain tap on the tab undocks it instead
+        var r = el.getBoundingClientRect();
+        var nearLeft = r.left <= (window.innerWidth / 2);
+        state = { docked: true, side: nearLeft ? 'left' : 'right', y: r.top };
+        positions[id] = state; saveAll(positions);
+        applyPosition();
+      });
+    }
+
     window.addEventListener('resize', function(){
       if(state && !state.docked){
         state.x = Math.min(state.x, window.innerWidth - el.offsetWidth - 4);

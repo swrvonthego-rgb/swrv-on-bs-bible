@@ -255,13 +255,17 @@ function audioSetVolume(val){
   localStorage.setItem('swrv_music_volume', String(v));
   _syncVolumeUI();
 }
+function audioVolumeStep(delta){
+  audioSetVolume(Math.round(audio.volume*100) + delta);
+}
 function audioMuteToggle(){
   audio.muted = !audio.muted;
   _syncVolumeUI();
 }
 function _syncVolumeUI(){
-  const btn = document.getElementById('muteBtn'), bar = document.getElementById('volumeBar');
-  if(bar) bar.value = Math.round(audio.volume*100);
+  const btn = document.getElementById('muteBtn'), label = document.getElementById('volLabel');
+  const pct = Math.round(audio.volume*100);
+  if(label) label.textContent = (audio.muted ? 'muted' : pct + '%');
   if(btn) btn.textContent = (audio.muted || audio.volume === 0) ? '🔇' : (audio.volume < 0.5 ? '🔉' : '🔊');
 }
 _syncVolumeUI();
