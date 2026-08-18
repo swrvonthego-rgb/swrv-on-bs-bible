@@ -110,15 +110,6 @@ window.DICTIONARY_BATCH_7 = {
   confidence: "direct-source"
 },
 
-"judgment": {
-  word: "judgment",
-  // Already defined in batch 3, included here for comprehensive reference
-  plain: "God's righteous assessment and sentencing of human conduct.",
-  relatedVerses: ["Matthew 12:36-37", "Romans 14:10-12", "2 Corinthians 5:10"],
-  sources: ["Strong's H4941", "Strong's G2920"],
-  confidence: "direct-source"
-},
-
 "salvation": {
   word: "salvation",
   plain: "Deliverance from sin and its consequences; rescue by God through Christ.",

@@ -1017,12 +1017,56 @@ function _definitionExists(word){
 // transliteration aliases ("ahab", "agape", "chesed") that redirect to them.
 // Only headwords may be auto-underlined: "Ahab" in the text is the king, not
 // the Hebrew verb, and tagging it would mislabel ~280 occurrences.
+// Inflected forms of a word, base form first-ish. "priests" -> priest,
+// "loved" -> love, "cities" -> city, "sinned" -> sin. Without this the
+// dictionary only ever matched the exact headword, so ~11.5k tokens across
+// the Bible ("priests", "offerings", "hearts") stayed un-underlined even
+// though their lemma was defined. Kept deliberately small and predictable:
+// a match only counts if it lands on a real dictionary headword.
+window.SWRV_LEMMAS = function(word){
+  if(!word) return [];
+  const w = String(word).toLowerCase().replace(/^[^a-z]+|[^a-z]+$/g,'');
+  if(!w) return [];
+  const out = new Set([w]);
+  const push = s => { if(s && s.length>=3) out.add(s); };
+  if(w.endsWith('ies') && w.length>4) push(w.slice(0,-3)+'y');   // cities -> city
+  if(w.endsWith('ied') && w.length>4) push(w.slice(0,-3)+'y');   // tried -> try
+  if(w.endsWith('ed') && w.length>3){
+    const b = w.slice(0,-2);
+    push(b); push(b+'e');                                        // loved -> love
+    if(b.length>=2 && b[b.length-1]===b[b.length-2]) push(b.slice(0,-1)); // sinned -> sin
+  }
+  if(w.endsWith('ing') && w.length>5){
+    const b = w.slice(0,-3);
+    push(b); push(b+'e');                                        // loving -> love
+    if(b.length>=2 && b[b.length-1]===b[b.length-2]) push(b.slice(0,-1));
+  }
+  if(w.endsWith('eth') && w.length>4) push(w.slice(0,-3));       // walketh -> walk
+  if(w.endsWith('est') && w.length>4){ push(w.slice(0,-3)); push(w.slice(0,-2)); }
+  if(w.endsWith('es') && w.length>4){ push(w.slice(0,-2)); push(w.slice(0,-1)); }
+  else if(w.endsWith('s') && !w.endsWith('ss') && w.length>3) push(w.slice(0,-1)); // priests -> priest
+  return Array.from(out);
+};
+
+// Resolve a token to its ENGLISH_BIBLE_DICT headword entry, trying inflected
+// forms. Returns null unless the hit is a true headword — transliteration
+// aliases ("ahab", "agape") must not tag English text, because "Ahab" in the
+// text is the king, not the Hebrew verb.
+window.SWRV_RESOLVE_HEADWORD = function(word){
+  const D = window.ENGLISH_BIBLE_DICT;
+  if(!word || !D) return null;
+  for(const lemma of window.SWRV_LEMMAS(word)){
+    if(SWRV_STOP_WORDS.has(lemma)) continue;
+    const e = D[lemma] || D[lemma.charAt(0).toUpperCase()+lemma.slice(1)];
+    if(e && String(e.word||'').toLowerCase() === lemma) return e;
+  }
+  return null;
+};
+
 function _deepDictHeadword(word){
   if(!word || !window.ENGLISH_BIBLE_DICT) return false;
   if(SWRV_STOP_WORDS.has(String(word).toLowerCase())) return false;
-  const e = window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[String(word).toLowerCase()];
-  if(!e) return false;
-  return String(e.word||'').toLowerCase() === String(word).toLowerCase();
+  return !!window.SWRV_RESOLVE_HEADWORD(word);
 }
 
 function getAugmentedDefinables(v, displayText){
@@ -1109,6 +1153,12 @@ function renderChapterDeepStudyBanner(ch, verseNums){
   // The whole app is now a deep-study Bible, so we no longer burn reader
   // real estate announcing that on every chapter. Deep tools remain available
   // as collapsible verse/source panels where they actually help the reading.
+  // What does earn the space: the Ancient-Near-East context card for this
+  // specific chapter, so a reader knows what world they just walked into.
+  if(typeof window._renderChapterANEContext === 'function'){
+    try{ return window._renderChapterANEContext(window.currentBook, window.currentChapter) || ''; }
+    catch(e){ return ''; }
+  }
   return '';
 }
 
@@ -1629,6 +1679,9 @@ function showAutoTermCard(word){
 function _lookupEnglishBibleDict(word){
   if(!window.ENGLISH_BIBLE_DICT) return null;
   let e = window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[(word||'').toLowerCase()] || null;
+  // Inflected form ("priests", "loved") — fall back to the lemma's headword
+  // so a word that got underlined actually opens a definition when tapped.
+  if(!e && typeof window.SWRV_RESOLVE_HEADWORD === 'function') e = window.SWRV_RESOLVE_HEADWORD(word);
   // Mirrors window.DEFINITIONS' existing `.see` redirect — lets a modern-
   // translation word (e.g. "sexual immorality") point at an existing
   // archaic-KJV-wording entry (e.g. "fornication") instead of duplicating

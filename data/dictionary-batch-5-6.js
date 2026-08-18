@@ -52,7 +52,6 @@ window.DICTIONARY_BATCH_5_6 = {
 "water": {
   word: "water",
   plain: "Essential liquid; blessing, cleansing, life.",
-  // Already included in batch 2, but repeated for completeness in bulk dict
   originals: [
     {lang: "Hebrew", word: "מַיִם", translit: "mayim", strongs: "H4325", note: "Water; life-sustaining, covenantal blessing."}
   ],
@@ -122,7 +121,7 @@ window.DICTIONARY_BATCH_5_6 = {
 
 "father": {
   word: "father",
-  // Already defined in batch 1, but included for comprehensive reference
+  plain: "Parent; ancestor; authority figure; God the Father—the foundation of covenant relationship.",
   originals: [
     {lang: "Hebrew", word: "אָב", translit: "av", strongs: "H1", note: "Father; authority, covenantal care, lineage."}
   ],

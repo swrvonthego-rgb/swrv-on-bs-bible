@@ -35,6 +35,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=20260818ttscleanup1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
+<link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
 </head>
 <body data-theme="vintage">
 <!-- SWRV Kingdom Bible — immersive landing page (shows every visit) -->
@@ -224,7 +225,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <div class="audio-bible-bar" id="audioBibleBar" style="display:none" aria-label="BSB audio Bible chapter player">
   <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
   <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
-  <button type="button" class="audio-bible-info" id="audioBibleInfo" title="" aria-label="About this audio">ⓘ</button>
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
@@ -284,19 +284,18 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 </div>
 
 <!-- Premium Music Player (mini + full modes) -->
-<aside id="musicMini" class="music-mini" aria-label="Music player">
-  <button class="player-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
-  <div class="player-track" id="trackName" onclick="audioPlayerExpand()" style="cursor:pointer;">Music</div>
-  <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down" style="font-size:12px;padding:4px;">−</button>
-  <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up" style="font-size:12px;padding:4px;">+</button>
-  <button class="player-icon-btn" onclick="audioPlayerExpand()" title="Expand player">⤴</button>
+<aside id="musicMini" class="music-mini" aria-label="Music player" title="Double-tap to expand music player">
+  <button class="music-mini-arrow" onclick="audioPlayerExpand()" title="Open the full music player" aria-label="Open the full music player">◀</button>
+  <button class="player-icon-btn" id="playBtn" onclick="audioToggle()" title="Play / Pause" style="width:40px;height:40px;">▶</button>
+  <button class="player-icon-btn" onclick="audioVolumeStep(-10)" title="Volume down" aria-label="Volume down" style="font-size:14px;">−</button>
+  <button class="player-icon-btn" onclick="audioVolumeStep(10)" title="Volume up" aria-label="Volume up" style="font-size:14px;">+</button>
 </aside>
 
 <div id="musicFull" class="music-full" style="display:none;">
   <div class="music-full-header">
     <div style="font-weight:700;color:var(--gold);">🎵 SWRV Music</div>
     <div style="display:flex;gap:6px;">
-      <button class="player-icon-btn" onclick="audioPlayerMinimize()" title="Minimize">⤵</button>
+      <button class="player-icon-btn" onclick="audioPlayerMinimize()" title="Send the player back to the side" aria-label="Send the player back to the side">▶</button>
       <button class="player-icon-btn" onclick="audioPlayerClose()" title="Close">✕</button>
     </div>
   </div>
@@ -398,18 +397,37 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="data/high-priority-definitions.js?v=20260818priorities1" defer></script>
 <!-- High-priority definitions batch 2: offering, city, light, water, fire, sea (words 5-10 by frequency) -->
 <script src="data/high-priority-definitions-batch2.js?v=20260818priorities2" defer></script>
-<!-- High-priority definitions batch 3: blood, judgment, brother -->
-<script src="data/high-priority-definitions-batch3.js?v=20260818priorities3" defer></script>
-<!-- Comprehensive dictionary batch 4: man, woman, day, land, people, speak, heart (core cultural terms) -->
-<script src="data/dictionary-comprehensive-batch-4.js?v=20260818batch4" defer></script>
-<!-- ANE Context for Genesis: 11 chapters with cultural/historical/theological explanations -->
-<script src="data/ane-context-genesis.js?v=20260818ane-gen" defer></script>
-<!-- Dictionary Batch 5-6: Core terms (woman, child, time, israel, jerusalem, egypt, babylon, christ) -->
-<script src="data/dictionary-batch-5-6.js?v=20260818batch5-6" defer></script>
-<!-- ANE Context for Torah (Exodus, Leviticus, Numbers, Deuteronomy key chapters) -->
-<script src="data/ane-context-torah.js?v=20260818ane-torah" defer></script>
-<!-- Dictionary Batch 7: Core spiritual/emotional/action terms (love, sin, righteousness, grace, faith, hope, mercy, peace, salvation, redemption, eternal, spirit, holy) -->
-<script src="data/dictionary-batch-7-massive.js?v=20260818batch7" defer></script>
+<!-- Dictionary batch 3: blood, judgment, brother (foundational theological/relational terms) -->
+<script src="data/dictionary-comprehensive-batch-3.js?v=20260818dict3" defer></script>
+<!-- Dictionary batch 4: man, woman, day, land, people, speak, heart (essential human/relational concepts) -->
+<script src="data/dictionary-comprehensive-batch-4.js?v=20260818dict4" defer></script>
+<!-- Dictionary batches 5-6: woman, child, time, water, israel, jerusalem, egypt, babylon, father, god, christ (places, names, relational) -->
+<script src="data/dictionary-batch-5-6.js?v=20260818dict56" defer></script>
+<!-- Dictionary batch 7: MASSIVE - love, sin, righteousness, grace, faith, hope, mercy, peace, salvation, redemption, eternal, spirit, holy -->
+<script src="data/dictionary-batch-7-massive.js?v=20260818dict7" defer></script>
+<!-- Dictionary batch 8: Religious terms and practices - temple, priest, altar, pray, worship, bless, obey, believe, know -->
+<script src="data/dictionary-batch-8.js?v=20260818dict8" defer></script>
+<!-- Dictionary batch 9: Essential verbs - come, go, see, hear, give, seek, find, keep, turn -->
+<script src="data/dictionary-batch-9.js?v=20260818dict9" defer></script>
+<!-- Dictionary batch 10: Emotions and eschatology - joy, sorrow, fear, life, death, resurrection, crown, reward -->
+<script src="data/dictionary-batch-10.js?v=20260818dict10" defer></script>
+<!-- Dictionary batch 11: Covenant and law concepts - covenant, law, command, promise, oath, justice, truth -->
+<script src="data/dictionary-batch-11.js?v=20260818dict11" defer></script>
+<!-- Dictionary batch 12: Miracles, signs, kingdom, church - miracle, sign, power, authority, kingdom, church, body, flesh -->
+<script src="data/dictionary-batch-12.js?v=20260818dict12" defer></script>
+<!-- Dictionary batch 13: Soul, spirit, human nature - soul, mind, baptism, repentance, forgiveness, suffering, confession -->
+<script src="data/dictionary-batch-13.js?v=20260818dict13" defer></script>
+<!-- Dictionary batch 14: Salvation work - cross, atonement, sacrifice, justification, sanctification, glorification, inheritance, adoption -->
+<script src="data/dictionary-batch-14.js?v=20260818dict14" defer></script>
+<!-- Dictionary core A-E: Top 500 high-frequency words (shall, lord, unto, grace, holy, priest, temple, covenant, etc.) -->
+<script src="data/dictionary-core-a.js?v=20260818core" defer></script>
+<script src="data/dictionary-core-b.js?v=20260818core" defer></script>
+<script src="data/dictionary-core-c.js?v=20260818core" defer></script>
+<script src="data/dictionary-core-d.js?v=20260818core" defer></script>
+<script src="data/dictionary-core-e.js?v=20260818core" defer></script>
+<!-- ============ Per-chapter cultural context — every chapter of all 66 books ============
+     Registry MUST load before the chapter-context-0N data files, which register into it. -->
+<script src="data/chapter-context-registry.js?v=20260818ctx1" defer></script>
 <!-- Word study: Adam & Eve (Gen 2:21-24) — "bone of my bones" + the "rib" that is really a SIDE. Merges into ENGLISH_BIBLE_DICT. -->
 <script src="data/study-adam-eve.js?v=20260721study1" defer onerror="console.warn('Adam-Eve study not loaded')"></script>
 <script src="data/strongs-sense-map.js?v=20260603final" defer></script>
@@ -642,6 +660,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js?v=20260818ttscleanup1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
+<script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/audio-bible.js?v=20260817sync1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
