@@ -14,13 +14,13 @@ judges_2: {title: "Cycle of Apostasy",summary: "Israel enters Canaan but fails t
 
 ruth_3: {title: "Redemption",summary: "Ruth (Moabite foreigner) marries Boaz (Israelite). Boaz is go'el (redeemer/kinsman) who buys back Naomi's lost property and takes Ruth as wife. Ruth becomes Judah's ancestor—and thus Jesus' ancestor.",aneContext: "ANE kinsman-redeemer laws protected family property and lineage. Boaz's actions show: covenant includes outsiders (Ruth is welcomed), mercy triumphs over law.",theology: "Foreshadows Christ as Redeemer."},
 
-1samuel_8: {title: "Israel Asks for a King",summary: "Israel demands a king like other nations. Samuel warns: king will conscript sons, take daughters, seize property. Israel refuses to listen. God grants their request (against His will for their spiritual welfare).",aneContext: "ANE had kings for centuries; Israel was unique with judges (direct divine rule). Israel's request for a king is rejection of theocracy—wanting to be like other nations instead of covenant people.",theology: "God grants desires against His design when people refuse His way."},
+"1samuel_8": {title: "Israel Asks for a King",summary: "Israel demands a king like other nations. Samuel warns: king will conscript sons, take daughters, seize property. Israel refuses to listen. God grants their request (against His will for their spiritual welfare).",aneContext: "ANE had kings for centuries; Israel was unique with judges (direct divine rule). Israel's request for a king is rejection of theocracy—wanting to be like other nations instead of covenant people.",theology: "God grants desires against His design when people refuse His way."},
 
-1samuel_16: {title: "David Anointed",summary: "Samuel anoints young David (not the oldest son Eliab) as king over Israel. David becomes the standard-bearer of kingship—the line through which Messiah comes.",aneContext: "Anointing (masiah) was how ANE kings were consecrated—marking them as chosen/empowered by god. David's anointing shows: God's choice overrides human preference.",theology: "From shepherd boy to king—God raises up the lowly."},
+"1samuel_16": {title: "David Anointed",summary: "Samuel anoints young David (not the oldest son Eliab) as king over Israel. David becomes the standard-bearer of kingship—the line through which Messiah comes.",aneContext: "Anointing (masiah) was how ANE kings were consecrated—marking them as chosen/empowered by god. David's anointing shows: God's choice overrides human preference.",theology: "From shepherd boy to king—God raises up the lowly."},
 
-2samuel_7: {title: "Davidic Covenant",summary: "God promises David: His house will be established forever; his Son will build the temple; his throne will endure. This is the central OT promise—Messiah comes from David's line.",theology: "Davidic Covenant is foundation for messianic hope. Jesus is 'Son of David.'"},
+"2samuel_7": {title: "Davidic Covenant",summary: "God promises David: His house will be established forever; his Son will build the temple; his throne will endure. This is the central OT promise—Messiah comes from David's line.",theology: "Davidic Covenant is foundation for messianic hope. Jesus is 'Son of David.'"},
 
-1kings_12: {title: "Kingdom Divides",summary: "After Solomon's death, Israel splits: Rehoboam (Judah) in south, Jeroboam (Israel) in north. Northern kingdom immediately turns to idolatry (golden calves). This fracture leads to centuries of conflict.",aneContext: "Schism mirrors ANE political splits. But theologically: Israel's division shows covenant breakdown; Northern Kingdom's idolatry accelerates judgment.",theology: "Idolatry brings national judgment."},
+"1kings_12": {title: "Kingdom Divides",summary: "After Solomon's death, Israel splits: Rehoboam (Judah) in south, Jeroboam (Israel) in north. Northern kingdom immediately turns to idolatry (golden calves). This fracture leads to centuries of conflict.",aneContext: "Schism mirrors ANE political splits. But theologically: Israel's division shows covenant breakdown; Northern Kingdom's idolatry accelerates judgment.",theology: "Idolatry brings national judgment."},
 
 // WISDOM LITERATURE
 job_1: {title: "Job's Suffering",summary: "Righteous Job suffers catastrophically: loses children, wealth, health. His friends argue: suffering = punishment for sin (ANE assumption). Job maintains innocence; questions God's justice.",aneContext: "ANE wisdom assumed: good → reward, evil → punishment. Job shatters this formula—the righteous suffer; the universe is more complex than karma.",theology: "Suffering isn't always punishment. God's ways are beyond human understanding."},
@@ -56,18 +56,18 @@ john_1: {title: "The Word",summary: "Jesus is 'the Word' (logos)—God's self-ex
 // PAUL'S LETTERS
 romans_5: {title: "Justification by Faith",summary: "Paul argues: humanity is sinful (Romans 3:23); God justifies through Christ's blood; faith (not works) is the way to right standing with God.",theology: "Core gospel: salvation is by grace through faith, not earned by works."},
 
-1corinthians_13: {title: "Love (Agape)",summary: "Paul's hymn to love: patient, kind, not self-seeking, always trusts, hopes, perseveres. Love never fails (1 Corinthians 13:8).",theology: "Love is the supreme Christian virtue, greater than gifts or knowledge."},
+"1corinthians_13": {title: "Love (Agape)",summary: "Paul's hymn to love: patient, kind, not self-seeking, always trusts, hopes, perseveres. Love never fails (1 Corinthians 13:8).",theology: "Love is the supreme Christian virtue, greater than gifts or knowledge."},
 
 galatians_2: {title: "Faith vs. Works",summary: "Paul confronts Peter for withdrawing from gentiles under pressure from 'men sent by James.' Paul argues: the gospel is free; works don't add to faith.",theology: "Grace is not diluted by law; both Jew and gentile are justified by faith alone."},
 
 ephesians_1: {title: "God's Plan",summary: "Paul describes God's plan: chosen in Christ before the foundation of the world (Ephesians 1:4); redeemed through Christ's blood; sealed by the Holy Spirit (Ephesians 1:13-14).",theology: "Salvation is part of God's eternal plan, not an afterthought."},
 
-2timothy_4: {title: "Paul's Final Words",summary: "Paul, nearing death, writes: 'I have fought the good fight, I have finished the race, I have kept the faith' (2 Timothy 4:7). Charges Timothy to guard the gospel.",theology: "Faithfulness to the end; gospel deposit entrusted to the Church."},
+"2timothy_4": {title: "Paul's Final Words",summary: "Paul, nearing death, writes: 'I have fought the good fight, I have finished the race, I have kept the faith' (2 Timothy 4:7). Charges Timothy to guard the gospel.",theology: "Faithfulness to the end; gospel deposit entrusted to the Church."},
 
 // HEBREWS & REVELATION
 hebrews_4: {title: "Jesus as High Priest",summary: "Hebrews reframes Jesus: He is both priest and Lamb—offering Himself once for all. His sacrifice ends the sacrificial system; He sits at God's right hand.",theology: "Christ's sacrifice is superior to and ends the OT sacrificial system."},
 
-1john_4: {title: "God is Love",summary: "'God is love' (1 John 4:8); this love is shown in sending Jesus to be 'the atoning sacrifice for our sins' (1 John 4:10). Love is the mark of knowing God.",theology: "God's nature is love; believers are called to love one another."},
+"1john_4": {title: "God is Love",summary: "'God is love' (1 John 4:8); this love is shown in sending Jesus to be 'the atoning sacrifice for our sins' (1 John 4:10). Love is the mark of knowing God.",theology: "God's nature is love; believers are called to love one another."},
 
 revelation_19: {title: "Christ as King",summary: "Jesus appears as King of Kings, Lord of Lords, riding a white horse, judging and making war. He is victorious over all powers and authorities.",theology: "Final consummation: Christ triumphs over all evil; God's kingdom is fully realized."},
 
