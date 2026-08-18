@@ -173,12 +173,16 @@
   }
 
   function init(){
+    // All floating widgets now use double-tap to dock instead of free-drag.
+    // This prevents accidental distortion and keeps them uniform at all times.
+    // Single tap on the docked edge tab slides them back out; another tap fires
+    // the action (or for the music player, passes through to inner controls).
     makeFloatingWidget(document.getElementById('floatingFontSizeBtn'), 'floatingFontSizeBtn', function(){
       if(typeof toggleFontSizePopover === 'function') toggleFontSizePopover();
-    });
+    }, { noDrag: true });
     makeFloatingWidget(document.getElementById('tourRelaunchBtn'), 'tourRelaunchBtn', function(){
       if(typeof startAppTour === 'function') startAppTour();
-    });
+    }, { noDrag: true });
     // The mini music player has its own tappable children (play / track name /
     // expand), so it never free-drags — its shape and position stay fixed.
     // A double-tap docks it to the nearest side or brings it back out; single
