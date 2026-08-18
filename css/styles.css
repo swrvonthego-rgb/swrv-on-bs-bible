@@ -2359,12 +2359,15 @@ body{
     font-size:9.5px;
     margin:0 8px 8px;
   }
-  /* Keep the music player from covering too much scripture on narrow screens. */
+  /* Keep the music player compact on narrow screens — reduce padding/gap instead of scaling. */
   .music-mini{
-    transform:scale(.86);
-    transform-origin:bottom right;
+    padding:6px 10px;
+    gap:8px;
     right:8px;
     bottom:10px;
+  }
+  .music-mini .player-track{
+    font-size:12px;
   }
 }
 
@@ -2619,6 +2622,8 @@ body[data-reading-mode="read"] .verse-study-chip{
   border-right:1px solid var(--line) !important;
   background:transparent !important;
   padding:6px 12px;
+  color:var(--fg) !important;
+  font-weight:600;
 }
 .reading-mode-btn:last-child{ border-right:none !important; }
 .reading-mode-btn.active{ background:rgba(212,175,55,0.18) !important; color:var(--gold) !important; }
