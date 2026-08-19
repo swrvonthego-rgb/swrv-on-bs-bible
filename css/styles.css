@@ -3881,9 +3881,11 @@ body[data-reading-mode="scholar"] .chapter-intro-card {
 /* ── "More" menu — Story, Peoples, Rules, Glossary, Audit ── */
 .more-menu-wrap { position: relative; display: inline-block; }
 .more-menu-popover {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
+  /* fixed, not absolute: the button lives inside the header's
+     overflow:hidden scrolling menu row, which would otherwise clip an
+     absolutely-positioned dropdown the instant it opened. top/left are
+     set in viewport coordinates by positionMoreMenu() in app.js. */
+  position: fixed;
   z-index: 10000;
   display: none;
   flex-direction: column;

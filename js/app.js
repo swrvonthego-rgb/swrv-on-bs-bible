@@ -6967,11 +6967,30 @@ window.openAllThreadsBrowser = function(){
   // "More" menu — consolidates Story, Peoples, Rules, Glossary, and Audit
   // out of the main header row into one dropdown, so the header itself
   // stays down to the handful of things a new user actually needs first.
+  // moreMenuBtn lives inside the header's horizontally-scrolling menu
+  // row, which clips (overflow:hidden) anything that would render below
+  // its own row height — so a normally-positioned absolute dropdown was
+  // being cut off invisibly the instant it opened. Positioning it
+  // position:fixed with coordinates computed from the button's own
+  // on-screen rect escapes that clip entirely.
+  function positionMoreMenu(){
+    var pop = document.getElementById('moreMenuPopover');
+    var btn = document.getElementById('moreMenuBtn');
+    if(!pop || !btn) return;
+    var r = btn.getBoundingClientRect();
+    var top = r.bottom + 6;
+    var left = r.left;
+    var maxLeft = window.innerWidth - pop.offsetWidth - 8;
+    if(left > maxLeft) left = Math.max(8, maxLeft);
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+  }
   window.toggleMoreMenu = function(){
     var pop = document.getElementById('moreMenuPopover');
     var btn = document.getElementById('moreMenuBtn');
     if(!pop) return;
     var open = pop.classList.toggle('open');
+    if(open) positionMoreMenu();
     if(btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   };
   window.closeMoreMenu = function(){
@@ -6987,5 +7006,17 @@ window.openAllThreadsBrowser = function(){
       window.closeMoreMenu();
     }
   });
+  // The button's screen position moves if the menu row is scrolled
+  // horizontally or the window is resized while the dropdown is open —
+  // close it rather than let it drift away from the button.
+  (function(){
+    var scroller = document.querySelector('.header-actions-wrap .header-actions');
+    if(scroller) scroller.addEventListener('scroll', function(){
+      if(document.getElementById('moreMenuPopover').classList.contains('open')) window.closeMoreMenu();
+    });
+    window.addEventListener('resize', function(){
+      if(document.getElementById('moreMenuPopover').classList.contains('open')) window.closeMoreMenu();
+    });
+  })();
 })();
 
