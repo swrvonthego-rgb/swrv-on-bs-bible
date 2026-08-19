@@ -666,10 +666,9 @@ function goToVerse(n){
   const refId=v.ref.replace(/[^a-z0-9]/gi,'_');
   const el=document.getElementById(refId);
   if(el){
-    const textEl=el.querySelector('.verse-text')||el;
-    textEl.classList.add('verse-highlight');
+    el.classList.add('verse-highlight');
     el.scrollIntoView({behavior:'smooth',block:'center'});
-    setTimeout(function(){textEl.classList.remove('verse-highlight');},1800);
+    setTimeout(function(){el.classList.remove('verse-highlight');},1800);
   }
 }
 // /data/*.js is served with a 1-year immutable Cache-Control header (see
