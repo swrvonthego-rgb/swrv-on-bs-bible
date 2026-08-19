@@ -78,8 +78,24 @@ body.side-dock-music-open .music-mini{
   left:auto !important;
   transform:translateY(-50%) !important;
 }
+body.side-dock-music-open #musicFull{
+  position:fixed !important;
+  top:60px !important;
+  right:56px !important;
+  width:280px !important;
+  height:auto !important;
+  max-height:calc(100vh - 100px) !important;
+  overflow-y:auto !important;
+  bottom:auto !important;
+  left:auto !important;
+  transform:none !important;
+}
 @media (max-width:768px){
   body.side-dock-music-open .music-mini{ right:48px !important; }
+  body.side-dock-music-open #musicFull{
+    right:48px !important;
+    width:calc(100vw - 60px) !important;
+  }
 }
 
 /* ---- Font-size popover, anchored beside the dock instead of bottom-right ---- */
@@ -90,6 +106,15 @@ body.side-dock-font-open #fontSizePopover.open{
   bottom:auto !important;
   transform:translateY(-50%) !important;
 }
+/* ---- Typography panel (full font controls), anchored beside dock ---- */
+body.side-dock-font-open #typographyPanel.open{
+  position:fixed !important;
+  top:50% !important;
+  right:56px !important;
+  bottom:auto !important;
+  transform:translateY(-50%) !important;
+}
 @media (max-width:768px){
   body.side-dock-font-open #fontSizePopover.open{ right:48px !important; }
+  body.side-dock-font-open #typographyPanel.open{ right:48px !important; }
 }
