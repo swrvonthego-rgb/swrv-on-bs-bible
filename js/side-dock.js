@@ -83,7 +83,9 @@
     if(btn) {
       var isShown = document.body.classList.contains('side-dock-show');
       btn.setAttribute('aria-expanded', isShown ? 'true' : 'false');
-      btn.textContent = isShown ? '‹' : '›';
+      // When shown (open), arrow points RIGHT › to close/hide
+      // When hidden (closed), arrow points LEFT ‹ to open/show
+      btn.textContent = isShown ? '›' : '‹';
     }
     try { localStorage.setItem('swrv_side_dock_show', document.body.classList.contains('side-dock-show') ? '1' : '0'); } catch(e){}
   };
@@ -115,11 +117,16 @@
     // Restore side dock visibility state from localStorage
     try {
       var shouldShow = localStorage.getItem('swrv_side_dock_show') === '1';
+      var btn = document.getElementById('sideDockToggleBtn');
       if(shouldShow) {
         document.body.classList.add('side-dock-show');
-        var btn = document.getElementById('sideDockToggleBtn');
         if(btn) {
           btn.setAttribute('aria-expanded', 'true');
+          btn.textContent = '›';
+        }
+      } else {
+        if(btn) {
+          btn.setAttribute('aria-expanded', 'false');
           btn.textContent = '‹';
         }
       }

@@ -9,9 +9,8 @@
 
 .side-dock{
   position:fixed;
-  top:50%;
+  bottom:60px;
   right:-52px;
-  transform:translateY(-50%);
   z-index:210;
   display:flex;
   flex-direction:column;
@@ -29,9 +28,8 @@ body.side-dock-show .side-dock{
 }
 .side-dock-toggle-btn{
   position:fixed;
-  top:50%;
+  bottom:60px;
   right:0;
-  transform:translateY(-50%);
   width:40px;
   height:40px;
   padding:0;
@@ -46,7 +44,7 @@ body.side-dock-show .side-dock{
   font-size:18px;
   font-weight:bold;
   transition:background 0.15s ease, color 0.15s ease;
-  z-index:211;
+  z-index:212;
 }
 .side-dock-toggle-btn:hover{
   background:rgba(212,175,55,0.12);
