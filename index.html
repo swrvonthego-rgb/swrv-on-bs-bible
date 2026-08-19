@@ -36,7 +36,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="stylesheet" href="css/styles.css?v=20260819zindexfix1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
-<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix6">
+<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix7">
 <link rel="stylesheet" href="css/button-feel.css?v=20260819feel1">
 </head>
 <body data-theme="vintage">
@@ -655,8 +655,8 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
     <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
   </button>
+  <button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Show/hide tools" aria-label="Show/hide tools" aria-expanded="false">‹</button>
 </div>
-<button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Show/hide tools" aria-label="Show/hide tools" aria-expanded="false">‹</button>
 <button class="font-size-btn" id="floatingFontSizeBtn" title="Adjust text size" aria-label="Text size" style="display:none;">Aa</button>
 <button class="tour-relaunch-btn" id="tourRelaunchBtn" title="Replay the app tour" aria-label="Replay the app tour" style="display:none;">🎯</button>
 <div class="font-size-popover" id="fontSizePopover">
