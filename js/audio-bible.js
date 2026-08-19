@@ -103,7 +103,10 @@
     for (var i = 0; i < els.length; i++) {
       var numEl = els[i].querySelector('.verse-num');
       var n = numEl ? parseInt(numEl.textContent, 10) : NaN;
-      if (!isNaN(n) && !map[n]) map[n] = els[i];
+      if (!isNaN(n) && !map[n]) {
+        var textEl = els[i].querySelector('.verse-text');
+        map[n] = textEl || els[i];
+      }
     }
     return map;
   }
