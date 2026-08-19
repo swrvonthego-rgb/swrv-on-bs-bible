@@ -1078,6 +1078,13 @@ function getAugmentedDefinables(v, displayText){
     const cleaned=_normalizeWordToken(tok);
     if(_definitionExists(cleaned)||_deepDictHeadword(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
   });
+  // Mark words as definable if they have Strong's entries (Greek/Hebrew roots available)
+  if(v.strongsTags && v.strongsTags.length){
+    text.split(/\s+/).forEach(function(tok){
+      const cleaned=_normalizeWordToken(tok);
+      if(cleaned && cleaned.length>2) out.add(cleaned);
+    });
+  }
   // People remain clickable through the people profile layer. Places/themes are shown as chips below the verse.
   // Phrase-level terms: add source definitions whose phrase occurs in verse text.
   const lower=' '+text.toLowerCase()+' ';

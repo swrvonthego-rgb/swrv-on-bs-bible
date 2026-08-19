@@ -535,7 +535,7 @@ body.modal-open {
 .music-full{
   position:fixed;top:60px;right:0;width:340px;
   background:var(--bg-2);border-left:2px solid var(--gold);border-radius:0;
-  padding:12px;z-index:55;box-shadow:-8px 0 24px rgba(0,0,0,0.5);
+  padding:12px;z-index:10000;box-shadow:-8px 0 24px rgba(0,0,0,0.5);
   height:auto;overflow-y:visible;max-height:none;
 }
 .music-full-header{
