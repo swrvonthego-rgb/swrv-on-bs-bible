@@ -56,11 +56,9 @@
 
   function openFont(){
     closeAll();
-    if(typeof window._typoTogglePanel === 'function'){
-      window._typoTogglePanel();
-    } else {
-      var fp = fontPopover();
-      if(fp) fp.classList.add('open');
+    var btn = document.getElementById('fontSizeBtn');
+    if(btn && btn.onclick) {
+      btn.onclick();
     }
     document.body.classList.add('side-dock-font-open');
     setActiveTab('font');
