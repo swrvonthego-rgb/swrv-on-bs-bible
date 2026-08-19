@@ -33,10 +33,10 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260819audio3">
+<link rel="stylesheet" href="css/styles.css?v=20260819zindexfix1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
-<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix3">
+<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix4">
 <link rel="stylesheet" href="css/button-feel.css?v=20260819feel1">
 </head>
 <body data-theme="vintage">
@@ -655,6 +655,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
     <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
   </button>
+  <button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Hide/show tools" aria-label="Hide/show tools" aria-expanded="true">‹</button>
 </div>
 <button class="font-size-btn" id="floatingFontSizeBtn" title="Adjust text size" aria-label="Text size" style="display:none;">Aa</button>
 <button class="tour-relaunch-btn" id="tourRelaunchBtn" title="Replay the app tour" aria-label="Replay the app tour" style="display:none;">🎯</button>
@@ -683,7 +684,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
-<script src="js/side-dock.js?v=20260819musicfix1" defer></script>
+<script src="js/side-dock.js?v=20260819dockfix1" defer></script>
 <script src="js/audio-bible.js?v=20260817sync1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't

@@ -77,6 +77,17 @@
     else if(which === 'font') openFont();
   };
 
+  window.toggleSideDockCollapse = function(){
+    document.body.classList.toggle('side-dock-collapsed');
+    var btn = document.getElementById('sideDockToggleBtn');
+    if(btn) {
+      var isCollapsed = document.body.classList.contains('side-dock-collapsed');
+      btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+      btn.textContent = isCollapsed ? '›' : '‹';
+    }
+    try { localStorage.setItem('swrv_side_dock_collapsed', document.body.classList.contains('side-dock-collapsed') ? '1' : '0'); } catch(e){}
+  };
+
   // Double-tap the open panel itself sends it back to the dock. The
   // native dblclick event (not a hand-rolled timer) so two fast, separate
   // taps on two different inner controls — e.g. Play then Volume — are
@@ -101,6 +112,18 @@
     // sits permanently visible bottom-right the way the old floating pill did.
     var mm = musicMini();
     if(mm) mm.classList.add('hidden');
+    // Restore side dock collapsed state from localStorage
+    try {
+      var wasCollapsed = localStorage.getItem('swrv_side_dock_collapsed') === '1';
+      if(wasCollapsed) {
+        document.body.classList.add('side-dock-collapsed');
+        var btn = document.getElementById('sideDockToggleBtn');
+        if(btn) {
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = '›';
+        }
+      }
+    } catch(e){}
   }
 
   if(document.readyState === 'loading'){

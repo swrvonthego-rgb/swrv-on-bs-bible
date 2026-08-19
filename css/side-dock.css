@@ -10,7 +10,7 @@
 .side-dock{
   position:fixed;
   top:50%;
-  right:-52px;
+  right:0;
   transform:translateY(-50%);
   z-index:210;
   display:flex;
@@ -20,14 +20,40 @@
   border:1px solid var(--line);
   border-right:none;
   border-radius:14px 0 0 14px;
-  overflow:hidden;
+  overflow:visible;
   box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
-  transition:right 0.2s ease;
+  max-width:52px;
+  transition:max-width 0.2s ease;
 }
-.side-dock:hover,
-body.side-dock-music-open .side-dock,
-body.side-dock-font-open .side-dock{
-  right:0;
+body.side-dock-collapsed .side-dock{
+  max-width:0;
+  box-shadow:none;
+  border-right:1px solid var(--line);
+  border-left:none;
+}
+.side-dock-toggle-btn{
+  position:absolute;
+  right:-44px;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  padding:0;
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:0 8px 8px 0;
+  color:var(--fg-mute);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  transition:background 0.15s ease, color 0.15s ease;
+  z-index:211;
+}
+.side-dock-toggle-btn:hover{
+  background:rgba(212,175,55,0.12);
+  color:var(--gold);
 }
 
 .side-dock-tab{
