@@ -155,6 +155,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
       <div class="brand-sub">Multi-Source · No BS</div>
     </div>
   </div>
+  <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);flex-shrink:0;">🔎 Search</button>
   <div class="header-actions-wrap">
   <div class="header-actions">
     <div class="mode-toggle">
@@ -162,7 +163,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
-    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
     <div class="reading-mode-group" id="readingModeGroup" role="group" aria-label="Reading mode">
       <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels.">📖 New Reader</button>
       <button id="readingModeStudy" class="icon-btn reading-mode-btn" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel.">🧠 Study</button>
