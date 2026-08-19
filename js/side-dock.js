@@ -41,8 +41,18 @@
     try { localStorage.removeItem(OPEN_KEY); } catch(e){}
   }
 
+  function ensureShown(){
+    if(!document.body.classList.contains('side-dock-show')){
+      document.body.classList.add('side-dock-show');
+      var btn = document.getElementById('sideDockToggleBtn');
+      if(btn){ btn.setAttribute('aria-expanded', 'true'); btn.textContent = '›'; }
+      try { localStorage.setItem('swrv_side_dock_show', '1'); } catch(e){}
+    }
+  }
+
   function openMusic(){
     closeAll();
+    ensureShown();
     var mf = musicFull();
     if(mf) mf.style.display = '';
     if(typeof window._renderPlaylist === 'function'){
@@ -56,6 +66,7 @@
 
   function openFont(){
     closeAll();
+    ensureShown();
     var btn = document.getElementById('fontSizeBtn');
     if(btn && btn.onclick) {
       btn.onclick();

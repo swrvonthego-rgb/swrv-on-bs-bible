@@ -7,35 +7,42 @@
    back to just the tab. Kept in its own file so the protected
    css/styles.css stays untouched for this feature. */
 
+/* The whole widget — tabs + toggle button — lives in ONE fixed container
+   that never itself moves (always right:0). Only the .side-dock-tabs
+   child resizes (max-width 0 -> 52px), so the toggle button is
+   physically, permanently attached to it: there is no second element
+   whose position has to be kept in sync by matching transitions. */
 .side-dock{
   position:fixed;
   bottom:60px;
-  right:-52px;
+  right:0;
   z-index:210;
   display:flex;
+  flex-direction:row;
+  align-items:stretch;
+}
+.side-dock-tabs{
+  display:flex;
   flex-direction:column;
-  gap:2px;
+  overflow:hidden;
+  max-width:0;
   background:var(--bg-2);
   border:1px solid var(--line);
   border-right:none;
   border-radius:14px 0 0 14px;
-  overflow:hidden;
   box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
-  transition:right 0.2s ease;
+  transition:max-width 0.2s ease;
 }
-body.side-dock-show .side-dock{
-  right:0;
+body.side-dock-show .side-dock-tabs{
+  max-width:52px;
 }
 .side-dock-toggle-btn{
-  position:fixed;
-  bottom:60px;
-  right:-4px;
-  width:40px;
-  height:40px;
+  flex-shrink:0;
+  width:36px;
   padding:0;
   background:var(--bg-2);
   border:1px solid var(--line);
-  border-radius:0 8px 8px 0;
+  border-radius:8px 0 0 8px;
   color:var(--fg-mute);
   cursor:pointer;
   display:flex;
@@ -43,15 +50,11 @@ body.side-dock-show .side-dock{
   justify-content:center;
   font-size:18px;
   font-weight:bold;
-  transition:right 0.2s ease, background 0.15s ease, color 0.15s ease;
-  z-index:212;
+  transition:background 0.15s ease, color 0.15s ease;
 }
 .side-dock-toggle-btn:hover{
   background:rgba(212,175,55,0.12);
   color:var(--gold);
-}
-body.side-dock-show .side-dock-toggle-btn{
-  right:52px;
 }
 
 .side-dock-tab{
@@ -94,16 +97,19 @@ body.side-dock-show .side-dock-toggle-btn{
   .side-dock-tab{ width:44px; padding:8px 4px; }
   .side-dock-tab-icon{ font-size:15px; }
   .side-dock-tab-label{ font-size:8px; }
+  body.side-dock-show .side-dock-tabs{ max-width:44px; }
+  .side-dock-toggle-btn{ width:30px; font-size:16px; }
 }
 
 /* ---- Music panel, docked beside the rail (not floating anywhere else) ---- */
-/* The dock rail is ~52px + border wide; the mini player sits flush against
-   its left edge instead of independently positioned bottom-right, so it
-   reads as "belongs to the dock," not a separate floating object. */
+/* The dock rail is tabs (~54px incl. border) + toggle button (~38px incl.
+   border) wide when open; the mini player sits flush against its left
+   edge instead of independently positioned bottom-right, so it reads as
+   "belongs to the dock," not a separate floating object. */
 body.side-dock-music-open .music-mini{
   position:fixed !important;
   top:50% !important;
-  right:56px !important;
+  right:94px !important;
   bottom:auto !important;
   left:auto !important;
   transform:translateY(-50%) !important;
@@ -111,7 +117,7 @@ body.side-dock-music-open .music-mini{
 body.side-dock-music-open #musicFull{
   position:fixed !important;
   top:60px !important;
-  right:56px !important;
+  right:94px !important;
   width:280px !important;
   height:auto !important;
   max-height:calc(100vh - 100px) !important;
@@ -121,10 +127,10 @@ body.side-dock-music-open #musicFull{
   transform:none !important;
 }
 @media (max-width:768px){
-  body.side-dock-music-open .music-mini{ right:48px !important; }
+  body.side-dock-music-open .music-mini{ right:80px !important; }
   body.side-dock-music-open #musicFull{
-    right:48px !important;
-    width:calc(100vw - 60px) !important;
+    right:80px !important;
+    width:calc(100vw - 92px) !important;
   }
 }
 
@@ -132,7 +138,7 @@ body.side-dock-music-open #musicFull{
 body.side-dock-font-open #fontSizePopover.open{
   position:fixed !important;
   top:50% !important;
-  right:56px !important;
+  right:94px !important;
   bottom:auto !important;
   transform:translateY(-50%) !important;
 }
@@ -140,11 +146,11 @@ body.side-dock-font-open #fontSizePopover.open{
 body.side-dock-font-open #typographyPanel.open{
   position:fixed !important;
   top:50% !important;
-  right:56px !important;
+  right:94px !important;
   bottom:auto !important;
   transform:translateY(-50%) !important;
 }
 @media (max-width:768px){
-  body.side-dock-font-open #fontSizePopover.open{ right:48px !important; }
-  body.side-dock-font-open #typographyPanel.open{ right:48px !important; }
+  body.side-dock-font-open #fontSizePopover.open{ right:80px !important; }
+  body.side-dock-font-open #typographyPanel.open{ right:80px !important; }
 }

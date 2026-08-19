@@ -36,7 +36,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="stylesheet" href="css/styles.css?v=20260819zindexfix1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
-<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix8">
+<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix9">
 <link rel="stylesheet" href="css/button-feel.css?v=20260819feel1">
 </head>
 <body data-theme="vintage">
@@ -646,17 +646,19 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
      Fixed in place, never draggable. Tap a tab to open its panel beside the
      dock; tap the tab again (or double-tap the open panel) to send it back. -->
 <div class="side-dock" id="sideDock" role="group" aria-label="Quick tools">
-  <button class="side-dock-tab" id="dockMusicTab" onclick="sideDockToggle('music')" title="Music player" aria-label="Music player">
-    <span class="side-dock-tab-icon">🎵</span><span class="side-dock-tab-label">Music</span>
-  </button>
-  <button class="side-dock-tab" id="dockFontTab" onclick="sideDockToggle('font')" title="Text size" aria-label="Text size">
-    <span class="side-dock-tab-icon">Aa</span><span class="side-dock-tab-label">Font</span>
-  </button>
-  <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
-    <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
-  </button>
+  <div class="side-dock-tabs" id="sideDockTabs">
+    <button class="side-dock-tab" id="dockMusicTab" onclick="sideDockToggle('music')" title="Music player" aria-label="Music player">
+      <span class="side-dock-tab-icon">🎵</span><span class="side-dock-tab-label">Music</span>
+    </button>
+    <button class="side-dock-tab" id="dockFontTab" onclick="sideDockToggle('font')" title="Text size" aria-label="Text size">
+      <span class="side-dock-tab-icon">Aa</span><span class="side-dock-tab-label">Font</span>
+    </button>
+    <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
+      <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
+    </button>
+  </div>
+  <button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Show/hide tools" aria-label="Show/hide tools" aria-expanded="false">‹</button>
 </div>
-<button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Show/hide tools" aria-label="Show/hide tools" aria-expanded="false">‹</button>
 <button class="font-size-btn" id="floatingFontSizeBtn" title="Adjust text size" aria-label="Text size" style="display:none;">Aa</button>
 <button class="tour-relaunch-btn" id="tourRelaunchBtn" title="Replay the app tour" aria-label="Replay the app tour" style="display:none;">🎯</button>
 <div class="font-size-popover" id="fontSizePopover">
@@ -684,7 +686,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
-<script src="js/side-dock.js?v=20260819dockfix3" defer></script>
+<script src="js/side-dock.js?v=20260819dockfix4" defer></script>
 <script src="js/audio-bible.js?v=20260817sync1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
