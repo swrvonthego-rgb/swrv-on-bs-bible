@@ -6969,10 +6969,22 @@ window.openAllThreadsBrowser = function(){
   // stays down to the handful of things a new user actually needs first.
   // moreMenuBtn lives inside the header's horizontally-scrolling menu
   // row, which clips (overflow:hidden) anything that would render below
-  // its own row height — so a normally-positioned absolute dropdown was
-  // being cut off invisibly the instant it opened. Positioning it
-  // position:fixed with coordinates computed from the button's own
-  // on-screen rect escapes that clip entirely.
+  // its own row height. position:fixed alone isn't enough to escape that:
+  // .sticky-nav (an ancestor) sets backdrop-filter, and per spec any
+  // backdrop-filter/filter/transform other than 'none' makes an element
+  // the containing block for its position:fixed descendants too — so the
+  // popover was still being clipped by .header-actions-wrap's
+  // overflow:hidden on browsers that honor that (confirmed: it rendered
+  // fine in Chromium during testing, but stayed invisible on the actual
+  // device, which is the telltale sign of exactly this engine-specific
+  // containing-block quirk). Reparenting the popover to be a direct
+  // child of <body> removes every one of those ancestors from its box
+  // tree entirely, so there is nothing left that can clip or re-anchor
+  // it, regardless of browser engine.
+  (function reparentMoreMenuToBody(){
+    var pop = document.getElementById('moreMenuPopover');
+    if(pop && pop.parentElement !== document.body) document.body.appendChild(pop);
+  })();
   function positionMoreMenu(){
     var pop = document.getElementById('moreMenuPopover');
     var btn = document.getElementById('moreMenuBtn');
