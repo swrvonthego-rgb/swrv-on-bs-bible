@@ -78,14 +78,14 @@
   };
 
   window.toggleSideDockCollapse = function(){
-    document.body.classList.toggle('side-dock-collapsed');
+    document.body.classList.toggle('side-dock-show');
     var btn = document.getElementById('sideDockToggleBtn');
     if(btn) {
-      var isCollapsed = document.body.classList.contains('side-dock-collapsed');
-      btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
-      btn.textContent = isCollapsed ? '›' : '‹';
+      var isShown = document.body.classList.contains('side-dock-show');
+      btn.setAttribute('aria-expanded', isShown ? 'true' : 'false');
+      btn.textContent = isShown ? '‹' : '›';
     }
-    try { localStorage.setItem('swrv_side_dock_collapsed', document.body.classList.contains('side-dock-collapsed') ? '1' : '0'); } catch(e){}
+    try { localStorage.setItem('swrv_side_dock_show', document.body.classList.contains('side-dock-show') ? '1' : '0'); } catch(e){}
   };
 
   // Double-tap the open panel itself sends it back to the dock. The
@@ -112,15 +112,15 @@
     // sits permanently visible bottom-right the way the old floating pill did.
     var mm = musicMini();
     if(mm) mm.classList.add('hidden');
-    // Restore side dock collapsed state from localStorage
+    // Restore side dock visibility state from localStorage
     try {
-      var wasCollapsed = localStorage.getItem('swrv_side_dock_collapsed') === '1';
-      if(wasCollapsed) {
-        document.body.classList.add('side-dock-collapsed');
+      var shouldShow = localStorage.getItem('swrv_side_dock_show') === '1';
+      if(shouldShow) {
+        document.body.classList.add('side-dock-show');
         var btn = document.getElementById('sideDockToggleBtn');
         if(btn) {
-          btn.setAttribute('aria-expanded', 'false');
-          btn.textContent = '›';
+          btn.setAttribute('aria-expanded', 'true');
+          btn.textContent = '‹';
         }
       }
     } catch(e){}
