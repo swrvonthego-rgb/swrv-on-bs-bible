@@ -45,6 +45,9 @@
     closeAll();
     var mf = musicFull();
     if(mf) mf.style.display = '';
+    if(typeof window._renderPlaylist === 'function'){
+      window._renderPlaylist();
+    }
     document.body.classList.add('side-dock-music-open');
     setActiveTab('music');
     current = 'music';

@@ -434,6 +434,7 @@ function _renderPlaylist(){
   }
   c.innerHTML = h;
 }
+window._renderPlaylist = _renderPlaylist;
 
 // Update play button icons + progress on audio events
 audio.addEventListener('play', function(){
