@@ -173,21 +173,11 @@
   }
 
   function init(){
-    // All floating widgets now use double-tap to dock instead of free-drag.
-    // This prevents accidental distortion and keeps them uniform at all times.
-    // Single tap on the docked edge tab slides them back out; another tap fires
-    // the action (or for the music player, passes through to inner controls).
-    makeFloatingWidget(document.getElementById('floatingFontSizeBtn'), 'floatingFontSizeBtn', function(){
-      if(typeof toggleFontSizePopover === 'function') toggleFontSizePopover();
-    }, { noDrag: true });
-    makeFloatingWidget(document.getElementById('tourRelaunchBtn'), 'tourRelaunchBtn', function(){
-      if(typeof startAppTour === 'function') startAppTour();
-    }, { noDrag: true });
-    // The mini music player has its own tappable children (play / track name /
-    // expand), so it never free-drags — its shape and position stay fixed.
-    // A double-tap docks it to the nearest side or brings it back out; single
-    // taps pass through to whichever child the user touched, as always.
-    makeFloatingWidget(document.getElementById('musicMini'), 'musicMini', null, { noDrag: true });
+    // The font-size button, tour-replay button, and mini music player used
+    // to live here as independently draggable/dockable widgets. They now
+    // live in the fixed right-side tool dock (js/side-dock.js) instead —
+    // one permanent rail rather than three things that could each end up
+    // anywhere on screen. Nothing left to manage here.
   }
 
   if(document.readyState === 'loading'){

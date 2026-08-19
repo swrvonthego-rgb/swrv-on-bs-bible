@@ -6949,7 +6949,8 @@ window.openAllThreadsBrowser = function(){
   document.addEventListener('click', function(e){
     var pop = document.getElementById('fontSizePopover');
     var btn = document.getElementById('floatingFontSizeBtn');
-    if(pop && pop.classList.contains('open') && !pop.contains(e.target) && e.target !== btn){
+    var dockBtn = document.getElementById('dockFontTab');
+    if(pop && pop.classList.contains('open') && !pop.contains(e.target) && e.target !== btn && !(dockBtn && dockBtn.contains(e.target))){
       pop.classList.remove('open');
     }
   });

@@ -1,0 +1,95 @@
+/* Right-side tool dock — Music / Font / Tour.
+   Replaces the old free-floating, individually-draggable versions of these
+   three controls. This rail never moves: it is always fixed to the right
+   edge, vertically centered. Tapping a tab opens that tool's panel right
+   beside the rail (never covering it, never distorting its own shape);
+   tapping the same tab again — or double-tapping the open panel — sends it
+   back to just the tab. Kept in its own file so the protected
+   css/styles.css stays untouched for this feature. */
+
+.side-dock{
+  position:fixed;
+  top:50%;
+  right:0;
+  transform:translateY(-50%);
+  z-index:210;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-right:none;
+  border-radius:14px 0 0 14px;
+  overflow:hidden;
+  box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
+}
+
+.side-dock-tab{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  width:52px;
+  padding:10px 6px;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--line);
+  color:var(--fg-mute);
+  cursor:pointer;
+  font-family:inherit;
+  transition:background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.side-dock-tab:last-child{ border-bottom:none; }
+.side-dock-tab-icon{ font-size:17px; line-height:1; }
+.side-dock-tab-label{
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.4px;
+  text-transform:uppercase;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+}
+.side-dock-tab:hover{ background:rgba(212,175,55,0.12); color:var(--gold); }
+/* Active state: this tool's panel is currently open beside the dock. A
+   solid gold fill reads unambiguously as "on," matching the rest of the
+   app's selected-state language. */
+.side-dock-tab.is-open{
+  background:var(--gold);
+  color:var(--gold-ink,#0e0a06);
+}
+.side-dock-tab.is-open:hover{ background:var(--gold); color:var(--gold-ink,#0e0a06); }
+
+@media (max-width:768px){
+  .side-dock-tab{ width:44px; padding:8px 4px; }
+  .side-dock-tab-icon{ font-size:15px; }
+  .side-dock-tab-label{ font-size:8px; }
+}
+
+/* ---- Music panel, docked beside the rail (not floating anywhere else) ---- */
+/* The dock rail is ~52px + border wide; the mini player sits flush against
+   its left edge instead of independently positioned bottom-right, so it
+   reads as "belongs to the dock," not a separate floating object. */
+body.side-dock-music-open .music-mini{
+  position:fixed !important;
+  top:50% !important;
+  right:56px !important;
+  bottom:auto !important;
+  left:auto !important;
+  transform:translateY(-50%) !important;
+}
+@media (max-width:768px){
+  body.side-dock-music-open .music-mini{ right:48px !important; }
+}
+
+/* ---- Font-size popover, anchored beside the dock instead of bottom-right ---- */
+body.side-dock-font-open #fontSizePopover.open{
+  position:fixed !important;
+  top:50% !important;
+  right:56px !important;
+  bottom:auto !important;
+  transform:translateY(-50%) !important;
+}
+@media (max-width:768px){
+  body.side-dock-font-open #fontSizePopover.open{ right:48px !important; }
+}

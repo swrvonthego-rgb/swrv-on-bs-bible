@@ -88,6 +88,28 @@ body[data-theme="luxe"]{
 [data-theme="vintage"] .nav-hide-btn,
 [data-theme="earth"] .nav-hide-btn{color:#d9cbb4 !important}
 
+/* Header icon buttons were still hard to read even after the color fix
+   above — measured contrast passed, but rendered legibility didn't, on a
+   background that's nearly identical in value to the header itself.
+   .nav-hide-btn's own solid, gold-tinted background reads clearly at a
+   glance every time, so every header button (outside the reading-mode
+   group, which already has its own solid light pill) gets that same
+   treatment instead of guessing at more color-only tweaks. */
+.header-actions .icon-btn:not(.reading-mode-group .icon-btn){
+  background:rgba(212,175,55,0.10) !important;
+  border-color:rgba(212,175,55,0.35) !important;
+  color:var(--gold) !important;
+  font-weight:700 !important;
+}
+[data-theme="vintage"] .header-actions .icon-btn:not(.reading-mode-group .icon-btn),
+[data-theme="earth"] .header-actions .icon-btn:not(.reading-mode-group .icon-btn){
+  color:#d9cbb4 !important;
+}
+.header-actions .icon-btn:not(.reading-mode-group .icon-btn):hover{
+  background:rgba(212,175,55,0.20) !important;
+  border-color:var(--gold) !important;
+}
+
 [data-theme="luxe"] .brand-title,
 [data-theme="luxe"] .chapter-title{
   background:linear-gradient(180deg,#ffd770 0%,#d4af37 60%,#8b6f1e 100%);
@@ -620,10 +642,16 @@ body{
 }
 
 /* === HEADER: Frosted-glass iOS feel === */
+/* Solid, not translucent: the previous rgba() background paired with
+   saturate()+blur() backdrop-filter let whatever verse text/highlights sat
+   behind the sticky header bleed into its effective color as the page
+   scrolled, which is what caused the header's own buttons to blend in —
+   contrast was only ever measured against a flat, unscrolled backdrop, not
+   the constantly-shifting one backdrop-filter was actually compositing. An
+   opaque background removes that dependency entirely so contrast holds at
+   every scroll position. */
 header.app-header {
-  background: rgba(20,16,28,0.72);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: #14101c;
   border-bottom: 0.5px solid var(--hairline);
   padding: 12px 16px;
   font-family: var(--apple-font);
