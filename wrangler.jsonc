@@ -15,20 +15,13 @@
   // R2 is purely how it's served.
   "r2_buckets": [
     { "binding": "LIBRARY_BUCKET", "bucket_name": "swrv-bible-library" }
-  ]
+  ],
   // D1 replaces Supabase for auth + notes/bookmarks/reading_progress.
-  // IMPORTANT: `wrangler deploy` validates every declared binding's id at
-  // deploy time and refuses to publish ANYTHING if a d1_databases entry's
-  // database_id isn't a real, existing database — a placeholder string here
-  // breaks every future deploy, not just the D1 feature. So this binding
-  // stays fully absent until `wrangler d1 create swrv-bible-db` has run once
-  // and produced a real id. Add this block back in then, with that real id:
-  //
-  // "d1_databases": [
-  //   { "binding": "DB", "database_name": "swrv-bible-db", "database_id": "<real-id-here>" }
-  // ]
-  //
-  // Until it's added, env.DB is undefined and every /api/auth, /api/notes,
-  // /api/bookmarks, /api/progress, /api/delete-account route safely responds
-  // 501 "not configured yet" instead of crashing (see worker.js).
+  // Real database, created via the Cloudflare D1 API (name: swrv-bible-db).
+  // deploy.yml's "Apply D1 schema" step runs schema.sql against this on
+  // every push — every statement there is CREATE TABLE/INDEX IF NOT
+  // EXISTS, so that's a safe no-op once the tables already exist.
+  "d1_databases": [
+    { "binding": "DB", "database_name": "swrv-bible-db", "database_id": "4f4be675-aab0-49b4-a520-9bb0158c287e" }
+  ]
 }
