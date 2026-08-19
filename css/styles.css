@@ -1277,6 +1277,8 @@ body.splash-active { overflow: hidden; }
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
+  padding-right: max(24px, env(safe-area-inset-right));
+  padding-left: max(24px, env(safe-area-inset-left));
   background: rgba(13, 17, 23, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -1304,12 +1306,17 @@ body.splash-active { overflow: hidden; }
   background: transparent;
   color: #d4af37;
   border: 1px solid rgba(212, 175, 55, 0.5);
-  padding: 8px 18px;
+  padding: 10px 20px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 100px;
   cursor: pointer;
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .landing-launch-btn:hover,
 .landing-launch-btn:active {
@@ -1325,6 +1332,9 @@ body.splash-active { overflow: hidden; }
   width: 100%;
   margin: 0 auto;
   padding: 48px 24px 72px;
+  padding-right: max(24px, env(safe-area-inset-right));
+  padding-left: max(24px, env(safe-area-inset-left));
+  padding-bottom: max(72px, calc(72px + env(safe-area-inset-bottom)));
 }
 
 /* Portfolio label */
@@ -1381,6 +1391,10 @@ body.splash-active { overflow: hidden; }
   color: #0d1117;
   border: none;
   padding: 14px 32px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 100px;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
@@ -1398,6 +1412,10 @@ body.splash-active { overflow: hidden; }
   color: #8b949e;
   border: 1px solid rgba(255,255,255,0.12);
   padding: 13px 22px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 100px;
   cursor: pointer;
   transition: color 160ms ease, border-color 160ms ease;
@@ -1557,8 +1575,17 @@ body.splash-active { overflow: hidden; }
 
 /* ── Mobile ── */
 @media (max-width: 600px) {
-  .landing-body { padding: 32px 16px 60px; }
-  .landing-nav { padding: 12px 16px; }
+  .landing-body {
+    padding: 32px 16px 60px;
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-bottom: max(60px, calc(60px + env(safe-area-inset-bottom)));
+  }
+  .landing-nav {
+    padding: 12px 16px;
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
   .landing-brand-name { font-size: 15px; }
   .landing-hero { flex-direction: column; gap: 32px; }
   .landing-mockup-wrap { width: 100%; }
@@ -1566,6 +1593,7 @@ body.splash-active { overflow: hidden; }
   .landing-cards { grid-template-columns: 1fr; gap: 10px; }
   .landing-cta-row { flex-direction: column; align-items: flex-start; }
   .landing-open-btn { width: 100%; text-align: center; }
+  .landing-share-btn { width: 100%; }
 }
 
 /* === SWRV Global Search Drawer === */
