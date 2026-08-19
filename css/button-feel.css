@@ -1,0 +1,37 @@
+/* Universal button feel: depth + press feedback everywhere in the app.
+   Loaded last, but every rule here is a plain `button` element selector —
+   the lowest possible specificity — so any component's own button styling
+   (`.icon-btn`, `.side-dock-tab`, `.player-icon-btn`, etc.) always wins for
+   whichever properties it already sets. This file only fills the gaps: a
+   button that never defined its own shadow or press state gets one: a
+   button that already did keeps exactly what it had. Kept separate from
+   the protected css/styles.css. */
+
+button{
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 1px 3px rgba(0,0,0,0.35);
+  transition: transform 110ms cubic-bezier(.2,.8,.3,1),
+              box-shadow 110ms cubic-bezier(.2,.8,.3,1),
+              background-color 150ms ease,
+              border-color 150ms ease;
+}
+
+button:active{
+  transform: scale(0.96);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) inset;
+}
+
+@media (prefers-reduced-motion: reduce){
+  button{ transition: none; }
+  button:active{ transform: none; }
+}
+
+/* Elements styled as buttons via role/class but not a <button> tag (rare in
+   this app, but the reading-mode group and a few chip-style controls use
+   them) get the same press feedback. */
+[role="button"]:active,
+.icon-btn:active,
+.side-dock-tab:active{
+  transform: scale(0.96);
+}
