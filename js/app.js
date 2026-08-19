@@ -6685,6 +6685,7 @@ window._renderChapterIntro = function(book, chapterNum) {
   window._typoSetFamily  = function(fid){ currentFamily=fid; familyExplicitlySet=true; applyTypography(); };
   window._typoClose      = function(){ _closePanel(); };
   window._typoGetSize    = function(){ return currentSize; };
+  window._typoTogglePanel = function(){ togglePanel(); };
 
   function togglePanel(){
     if(panelOpen){ _closePanel(); return; }

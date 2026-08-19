@@ -32,6 +32,9 @@
     }
     var fp = fontPopover();
     if(fp) fp.classList.remove('open');
+    if(typeof window._typoClose === 'function'){
+      window._typoClose();
+    }
     document.body.classList.remove('side-dock-music-open', 'side-dock-font-open');
     setActiveTab(null);
     current = null;
@@ -40,8 +43,8 @@
 
   function openMusic(){
     closeAll();
-    var mm = musicMini();
-    if(mm) mm.classList.remove('hidden');
+    var mf = musicFull();
+    if(mf) mf.style.display = '';
     document.body.classList.add('side-dock-music-open');
     setActiveTab('music');
     current = 'music';
@@ -50,8 +53,12 @@
 
   function openFont(){
     closeAll();
-    var fp = fontPopover();
-    if(fp) fp.classList.add('open');
+    if(typeof window._typoTogglePanel === 'function'){
+      window._typoTogglePanel();
+    } else {
+      var fp = fontPopover();
+      if(fp) fp.classList.add('open');
+    }
     document.body.classList.add('side-dock-font-open');
     setActiveTab('font');
     current = 'font';
