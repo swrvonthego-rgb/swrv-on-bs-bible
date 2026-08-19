@@ -10,7 +10,7 @@
 .side-dock{
   position:fixed;
   top:50%;
-  right:0;
+  right:-52px;
   transform:translateY(-50%);
   z-index:210;
   display:flex;
@@ -22,6 +22,12 @@
   border-radius:14px 0 0 14px;
   overflow:hidden;
   box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
+  transition:right 0.2s ease;
+}
+.side-dock:hover,
+body.side-dock-music-open .side-dock,
+body.side-dock-font-open .side-dock{
+  right:0;
 }
 
 .side-dock-tab{
