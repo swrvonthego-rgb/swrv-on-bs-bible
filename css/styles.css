@@ -204,7 +204,7 @@ header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));borde
 .icon-btn{background:var(--bg-3);border:1px solid var(--line);color:var(--fg-mute);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.2s}
 .icon-btn:hover{color:var(--gold);border-color:var(--gold)}
 .icon-btn.active{color:var(--gold-ink,#0e0a06);background:var(--gold);border-color:var(--gold)}
-.mode-toggle{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.mode-toggle{display:flex;flex-shrink:0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .mode-toggle button{background:var(--bg-3);border:none;color:var(--fg-mute);padding:8px 12px;cursor:pointer;font-size:12px;font-family:-apple-system,sans-serif;font-weight:600;letter-spacing:0.3px;border-right:1px solid var(--line)}
 .mode-toggle button:last-child{border-right:none}
 .mode-toggle button.active{background:var(--gold);color:var(--gold-ink,#0e0a06)}
@@ -718,16 +718,6 @@ header.app-header {
   display: flex;
   overflow: hidden;
 }
-/* .mode-toggle sets its own overflow:hidden (to clip the segmented
-   control's rounded corners), which under flexbox's overflow-triggered
-   automatic-minimum-size rule makes it the one item this scrolling row
-   is willing to squeeze toward 0 width when space runs short — it
-   collapses to an unusable, unclickable sliver instead of just letting
-   the row scroll like its siblings do. That dead sliver was also what
-   pushed the first real pill (Before Genesis) out of alignment with the
-   logo/Search row above it. Hidden here (this row only) so the row's
-   left edge lines up with the row above. */
-.header-actions-wrap .mode-toggle{ display:none; }
 .header-actions-wrap .header-actions {
   margin-left: 0;
   flex-wrap: nowrap;
