@@ -194,8 +194,8 @@ body[data-theme="sonic"]{
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body, 'Iowan Old Style','Palatino Linotype',Georgia,serif);line-height:1.65;font-size:16px;min-height:100vh;overflow-x:hidden}
 .sticky-nav{position:sticky;top:0;z-index:100}
-header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px}
+header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .brand-logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#8a6d2e);color:#0e0a06;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:0.5px;font-family:-apple-system,sans-serif}
 .brand-text{display:flex;flex-direction:column}
 .brand-title{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:0.3px;font-family:var(--font-display,inherit)}
