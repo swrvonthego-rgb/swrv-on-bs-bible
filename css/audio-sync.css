@@ -9,6 +9,8 @@
 .verse.verse-audio-active {
   background: color-mix(in srgb, var(--gold) 22%, transparent);
   border-radius: 6px;
+  margin-left: 0;
+  padding-left: 0;
   transition: background 220ms ease;
 }
 
