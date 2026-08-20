@@ -7,10 +7,9 @@
  */
 
 .verse.verse-audio-active {
-  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
   border-radius: 6px;
-  box-shadow: inset 3px 0 0 var(--gold);
-  transition: background 220ms ease, box-shadow 220ms ease;
+  transition: background 220ms ease;
 }
 
 /* color-mix is widely supported but not universal; this fallback runs first
