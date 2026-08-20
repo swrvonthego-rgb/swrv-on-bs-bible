@@ -33,10 +33,10 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260819headerfix2">
+<link rel="stylesheet" href="css/styles.css?v=20260819mobiletop1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260817sync1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
-<link rel="stylesheet" href="css/side-dock.css?v=20260819dock1">
+<link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix10">
 <link rel="stylesheet" href="css/button-feel.css?v=20260819feel1">
 </head>
 <body data-theme="vintage">
@@ -157,12 +157,12 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   </div>
   <div class="header-actions-wrap">
   <div class="header-actions">
+    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
     <div class="mode-toggle">
       <button id="modeChapterBtn" class="active" onclick="setMode('chapter')">Chapter</button>
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
-    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
     <div class="reading-mode-group" id="readingModeGroup" role="group" aria-label="Reading mode">
       <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels.">📖 New Reader</button>
       <button id="readingModeStudy" class="icon-btn reading-mode-btn" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel.">🧠 Study</button>
@@ -646,15 +646,18 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
      Fixed in place, never draggable. Tap a tab to open its panel beside the
      dock; tap the tab again (or double-tap the open panel) to send it back. -->
 <div class="side-dock" id="sideDock" role="group" aria-label="Quick tools">
-  <button class="side-dock-tab" id="dockMusicTab" onclick="sideDockToggle('music')" title="Music player" aria-label="Music player">
-    <span class="side-dock-tab-icon">🎵</span><span class="side-dock-tab-label">Music</span>
-  </button>
-  <button class="side-dock-tab" id="dockFontTab" onclick="sideDockToggle('font')" title="Text size" aria-label="Text size">
-    <span class="side-dock-tab-icon">Aa</span><span class="side-dock-tab-label">Font</span>
-  </button>
-  <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
-    <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
-  </button>
+  <div class="side-dock-tabs" id="sideDockTabs">
+    <button class="side-dock-tab" id="dockMusicTab" onclick="sideDockToggle('music')" title="Music player" aria-label="Music player">
+      <span class="side-dock-tab-icon">🎵</span><span class="side-dock-tab-label">Music</span>
+    </button>
+    <button class="side-dock-tab" id="dockFontTab" onclick="sideDockToggle('font')" title="Text size" aria-label="Text size">
+      <span class="side-dock-tab-icon">Aa</span><span class="side-dock-tab-label">Font</span>
+    </button>
+    <button class="side-dock-tab" id="dockTourTab" onclick="sideDockToggle('tour')" title="Replay the app tour" aria-label="Replay the app tour">
+      <span class="side-dock-tab-icon">🎯</span><span class="side-dock-tab-label">Tour</span>
+    </button>
+  </div>
+  <button class="side-dock-toggle-btn" id="sideDockToggleBtn" onclick="toggleSideDockCollapse()" title="Show/hide tools" aria-label="Show/hide tools" aria-expanded="false">‹</button>
 </div>
 <button class="font-size-btn" id="floatingFontSizeBtn" title="Adjust text size" aria-label="Text size" style="display:none;">Aa</button>
 <button class="tour-relaunch-btn" id="tourRelaunchBtn" title="Replay the app tour" aria-label="Replay the app tour" style="display:none;">🎯</button>
@@ -679,11 +682,11 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260818ttscleanup1" defer></script>
+<script src="js/app.js?v=20260819moremenu2" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
-<script src="js/side-dock.js?v=20260819dock1" defer></script>
+<script src="js/side-dock.js?v=20260819dockfix4" defer></script>
 <script src="js/audio-bible.js?v=20260817sync1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't

@@ -1989,7 +1989,7 @@ body{
   .reading-order-btn,.nav-field-chapter,.nav-field-verse,.nav-arrows{grid-column:1 / -1}
   .nav-arrows{justify-self:stretch;display:grid;grid-template-columns:1fr 1fr}
   .ch-select{min-height:46px;font-size:15px}
-  .main{padding:18px 16px 84px}
+  .main{padding:calc(24px + max(0px, env(safe-area-inset-top))) 16px 84px}
   .chapter-title{font-size:31px}
   .verse-text{font-size:var(--bible-text-size)!important;line-height:var(--bible-line-height)!important}
   .sources,.crossrefs,.source-content,.kingdom-lens,.cultural-panel,.translation-flag,.xref-content,.numbering-note,.universal-study-card{margin-left:0}
@@ -2156,7 +2156,7 @@ body{
     margin:0;
   }
 
-  .main{padding:12px 15px 92px!important}
+  .main{padding:calc(24px + max(0px, env(safe-area-inset-top))) 15px 92px!important}
   .chapter-title{font-size:26px!important;line-height:1.12;margin:12px 0 14px!important}
   .verse{padding:12px 0 20px!important;margin-bottom:22px!important;scroll-margin-top:86px!important}
   .verse-num{font-size:17px;min-width:24px;margin-right:8px}
