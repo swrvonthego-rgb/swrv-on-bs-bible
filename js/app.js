@@ -80,6 +80,7 @@ window.GLOSSARY = {
   "KJV": {term:"King James Version",body:"The 1611 English translation of the Bible commissioned by King James I of England. Public domain. Kept in this app as a comparison source tab. The primary on-screen reading text is the Berean Standard Bible (BSB) — modern, plain English, freely usable with attribution — chosen so the base text is easy to understand."},
   "LXX": {term:"Septuagint",body:"The Greek translation of the Hebrew Old Testament, produced approximately 250-100 BC by 70 (Latin: septuaginta) Jewish scholars in Alexandria. Used by the writers of the New Testament — most quotations of the OT in the NT match the LXX wording, not the Hebrew. Brenton's 1851 English of the LXX is in the public domain and is the version this app references."},
   "BDB": {term:"Brown-Driver-Briggs Hebrew Lexicon",body:"The 1906 unabridged Hebrew lexicon by Francis Brown, S.R. Driver, and Charles Briggs. ~9,345 entries with full etymology, comparative Semitic linguistics, and biblical citation. Standard scholarly Hebrew reference in the Christian and Jewish academic world. Public domain."},
+  "Historical Dictionary": {term:"Easton's (1897) / Smith's (1863) Bible Dictionaries",body:"Two classic 19th-century Bible dictionaries, both public domain: Easton's Bible Dictionary (Matthew George Easton, 1897) and Smith's Bible Dictionary (William Smith, 1863). Nearly 6,000 entries covering biblical words, names, places, and customs. Used in this app as the historical-dictionary layer for word definitions — a second, older source alongside the app's modern plain-English explanations. This merged dataset was compiled by NEUU (github.com/neuu-org/bible-dictionary-dataset), licensed CC BY 4.0."},
   "TNK": {term:"Tanakh",body:"The Jewish three-part name for what Christians call the Old Testament: Torah (Law), Nevi'im (Prophets), Ketuvim (Writings). T-N-K = TaNaKh. This app uses the 1917 JPS (Jewish Publication Society) Tanakh as one of its primary reference translations."},
   "DSS": {term:"Dead Sea Scrolls",body:"Ancient Jewish manuscripts discovered between 1947 and 1956 in caves near Qumran by the Dead Sea. Date from roughly 250 BC to 70 AD. Include the oldest known biblical manuscripts — over 1,000 years older than any complete Masoretic Hebrew text. Translations by García Martínez and others are referenced in this app's approved library."},
   "AMP": {term:"Amplified Bible",body:"Modern translation by The Lockman Foundation (1965+) that expands key Hebrew and Greek words into their full meaning-range in English. NOTE: This app's AMP-style verses are NOT the Lockman AMP — they are ORIGINAL Hebrew-audited paraphrases written for this study, marked clearly as such."},
@@ -1181,11 +1182,49 @@ function _isUsefulDefinitionToken(cleaned){
 function _hasAnyDefinition(cleaned){
   if(!cleaned) return false;
   const key=cleaned.toLowerCase();
+  // Deliberately NOT checking window.HISTORICAL_DICT here — it now covers
+  // ~6,000 words, and using it to decide which words get the "definable"
+  // underline would underline nearly every word on the page. It's still
+  // used as real definition CONTENT for any word that's already definable
+  // by the checks below (see _honestContextualFallback / _buildDeepContext),
+  // just not as a trigger for adding new underlines.
   return _definitionExists(cleaned) ||
     _deepDictHeadword(cleaned) ||
     (window.GLOSSARY && (window.GLOSSARY[cleaned]||window.GLOSSARY[key]||window.GLOSSARY[cleaned.toUpperCase()])) ||
     (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[key]) ||
     (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key]);
+}
+
+// Look up the Historical Bible Dictionary (Easton's 1897 + Smith's 1863) for
+// a word. Lazy-loaded in the background by historical-dict-loader.js, so it
+// may not be populated yet on very early taps — callers handle a null return
+// the same as "no entry."
+function _lookupHistoricalDict(word){
+  if(!window.HISTORICAL_DICT) return null;
+  const key=String(word||'').toLowerCase();
+  if(window.HISTORICAL_DICT[key]) return window.HISTORICAL_DICT[key];
+  // Easton's/Smith's are keyed by singular headword ("beast", "sea"), but
+  // Bible text is full of plurals ("beasts", "seas") — try basic singular
+  // forms before giving up, same idea as the ENGLISH_BIBLE_DICT lemmatizer.
+  const tries=[];
+  if(key.endsWith('ies') && key.length>4) tries.push(key.slice(0,-3)+'y');
+  if(key.endsWith('es') && key.length>3) tries.push(key.slice(0,-2));
+  if(key.endsWith('s') && key.length>2) tries.push(key.slice(0,-1));
+  for(const t of tries){ if(window.HISTORICAL_DICT[t]) return window.HISTORICAL_DICT[t]; }
+  return null;
+}
+// Render the Historical Dictionary block. Caller appends to popup HTML array.
+function _renderHistoricalDictBlock(hist){
+  if(!hist || !hist.defs || !hist.defs.length) return '';
+  const out=['<div class="def-section" style="opacity:0.92;"><div class="def-section-label">📚 Historical Dictionary (older source)</div>'];
+  hist.defs.forEach(function(d){
+    out.push('<div class="def-section-text" style="margin-top:6px;"><b style="color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:0.04em;">'+escapeHtml(d.source)+'</b><br>'+escapeHtml(d.text)+'</div>');
+  });
+  if(hist.refs && hist.refs.length){
+    out.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;font-style:italic;opacity:0.85;">See also: '+hist.refs.map(escapeHtml).join(' · ')+'</div>');
+  }
+  out.push('</div>');
+  return out.join('');
 }
 
 // Per-verse strongsTags lookup. Populated lazily by renderVerse so the click
@@ -1632,7 +1671,11 @@ function _findLexiconMatchesForEnglish(word, limit){
     });
   }
   hits.sort(function(a,b){return b.score-a.score;});
-  return hits.slice(0,limit||8);
+  // Prefer exact token matches (score>=80) over loose substring matches —
+  // mixing in weak substring hits (e.g. "man" matching inside "commandment")
+  // when real exact matches already exist just adds noise, not information.
+  const exact = hits.filter(function(h){ return h.score>=80; });
+  return (exact.length ? exact : hits).slice(0,limit||8);
 }
 
 function showAutoTermCard(word){
@@ -1644,14 +1687,19 @@ function showAutoTermCard(word){
   const gloss=(window.GLOSSARY && (window.GLOSSARY[key]||window.GLOSSARY[key.toUpperCase()]||window.GLOSSARY[lower])) || null;
   const reg=window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[lower];
   const sup=window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[lower];
+  const hist=_lookupHistoricalDict(lower);
   const lex=_findLexiconMatchesForEnglish(lower,4);
   let html=[];
   html.push('<div class="def-word">'+escapeHtml(key)+'</div>');
   // One core meaning line, not three overlapping ones — prefer whichever
   // source actually has content, in order of how directly it answers
-  // "what does this word mean," instead of stacking all of them.
+  // "what does this word mean," instead of stacking all of them. The
+  // Historical Dictionary (Easton's/Smith's) covers the vast majority of
+  // words that have no hand-curated SWRV card, so it's the last resort
+  // before the fuzzy lexicon scan / "no source yet" message.
   const core = (sup && sup.def) || reg || (gloss && (gloss.body||gloss.term));
   if(core) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(core)+'</div></div>');
+  if(hist) html.push(_renderHistoricalDictBlock(hist));
   if(sup){
     if(sup.hebrew) html.push('<div class="def-section"><div class="def-section-label">Hebrew original</div><div class="def-section-text">'+escapeHtml(sup.hebrew)+'</div></div>');
     if(sup.greek) html.push('<div class="def-section"><div class="def-section-label">Greek original</div><div class="def-section-text">'+escapeHtml(sup.greek)+'</div></div>');
@@ -1673,7 +1721,7 @@ function showAutoTermCard(word){
     });
     html.push('</div>');
   }
-  if(!sup && !reg && !gloss && !lex.length){
+  if(!sup && !reg && !gloss && !hist && !lex.length){
     html.push('<div class="def-section warning-section"><div class="def-section-label">Still finding sources for this</div><div class="def-section-text">This word is readable English, but no project source has a dedicated card for it yet. It has been flagged for the next dictionary/source expansion pass instead of pretending.</div></div>');
   }
   html.push('<div class="def-section"><div class="def-section-label">A note on sources</div><div class="def-section-text">This app may explain and connect sources, but it must not invent doctrine. Use the lexicon/source rows where available and the verse context to decide meaning.</div></div>');
@@ -1849,6 +1897,12 @@ function showDef(word, opts){
   if(deep && deep.deep && deep.deep !== core && deep.deep !== contextGloss){
     html.push('<div class="def-section"><div class="def-section-label">Go deeper</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
   }
+
+  // Second layer: what the 19th-century historical dictionaries (Easton's/
+  // Smith's) say, alongside the modern plain-English explanation above —
+  // the reader can compare old and new side by side instead of only seeing one.
+  const histEntry = _lookupHistoricalDict(word);
+  if(histEntry) html.push(_renderHistoricalDictBlock(histEntry));
 
   if(def.visual) html.push('<div class="def-section"><div class="def-section-label">Picture it like this</div><div class="def-section-text">'+escapeHtml(def.visual)+'</div></div>');
 
@@ -5261,6 +5315,14 @@ function _renderBookOverview(book){
         }
       }
     }
+    // Historical Dictionary (Easton's 1897 / Smith's 1863) — shown here as
+    // a second, older-source layer alongside whatever modern explanation
+    // is above, so the reader can compare old and new definitions directly.
+    const hist = (typeof _lookupHistoricalDict==='function') ? _lookupHistoricalDict(word) : null;
+    if(hist && hist.defs && hist.defs.length){
+      const histText = hist.defs.map(function(d){ return d.source+' — '+d.text; }).join(' ');
+      parts.push('Historical Dictionary: '+(histText.length>900 ? histText.slice(0,900).replace(/\s+\S*$/,'')+'…' : histText));
+    }
     if(!parts.length){
       const genre=_bookGenreSummary(book);
       if(phrase) parts.push('In this passage, "'+word+'" appears within the phrase "'+phrase+'".');
@@ -5636,6 +5698,19 @@ function _renderBookOverview(book){
         }
       }
     }
+    // 2e. Historical Dictionary (Easton's 1897 / Smith's 1863) — a real,
+    // written definition when nothing more precise (curated card, old
+    // DEFINITIONS entry, or a Strong's-ID-specific sense/BDB/Greek gloss)
+    // was found above. This is what most words in the Bible fall through
+    // to, so it matters that it's an actual explanation and not just a
+    // pointer to "see the Sources tab."
+    const hist = (typeof _lookupHistoricalDict==='function') ? _lookupHistoricalDict(word) : null;
+    if(hist && hist.defs && hist.defs.length){
+      let text = hist.defs[0].text;
+      if(text.length>700) text = text.slice(0,700).replace(/\s+\S*$/,'') + '…';
+      if(phrase) text += ' In '+(ref||'this verse')+', "'+word+'" appears in the phrase: "'+phrase+'."';
+      return text;
+    }
     // 3. Build clean prose from context (no developer-speak)
     const parts = [];
     if(phrase) parts.push('In the phrase "'+phrase+'" ('+ver+'), "'+word+'"');
@@ -5693,6 +5768,13 @@ function _renderBookOverview(book){
     const passageNote = _passageNotes((opts&&opts.ref)||'');
     if(passageNote){
       out.push('SWRV Curated Passage Note (data/contextual-sense-notes.js)');
+    }
+    const _histSrc = (typeof _lookupHistoricalDict==='function') ? _lookupHistoricalDict((opts&&opts.englishWord)||'') : null;
+    if(_histSrc && _histSrc.defs && _histSrc.defs.length){
+      _histSrc.defs.forEach(function(d){
+        const label = d.source+' (data/historical-dict/, compiled dataset by NEUU, CC BY 4.0)';
+        if(out.indexOf(label)<0) out.push(label);
+      });
     }
     if(!out.length){
       out.push('Contextual fallback based on displayed Bible version and passage context (no verified original-word mapping in current tagged data)');
@@ -5893,6 +5975,7 @@ function _renderBookOverview(book){
           {prefix:'Lexical senses:',     icon:'📖', accent:'var(--strongs)',bg:'rgba(155,135,210,0.09)'},
           {prefix:'BDB lexical senses:', icon:'📚', accent:'var(--enoch)',  bg:'rgba(0,170,200,0.07)'},
           {prefix:'Greek lexical range:',icon:'🇬🇷',accent:'var(--strongs)',bg:'rgba(155,135,210,0.07)'},
+          {prefix:'Historical Dictionary:',icon:'📜',accent:'#9b7644',      bg:'rgba(155,118,68,0.09)'},
         ];
         const paragraphs = card.deepContext.split(/\n\n+/);
         for(const p of paragraphs){
