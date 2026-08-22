@@ -1,9 +1,10 @@
 // Validates the BSB audio Bible in R2 and builds the manifest the app reads.
 //
 // Runs in the deploy workflow. Lists every real object key (via the Worker's
-// /api/debug/r2-list route — Wrangler has no `r2 object list`), verifies each
-// book against the standard Protestant canon, then emits
-// bsb-audio-manifest.json mapping app book name -> chapter -> R2 key.
+// /api/internal/r2-list route, gated by SESSION_SECRET — Wrangler has no
+// `r2 object list`), verifies each book against the standard Protestant
+// canon, then emits bsb-audio-manifest.json mapping app book name ->
+// chapter -> R2 key.
 //
 // The manifest is built from ACTUAL keys, never from an assumed filename
 // pattern, so a naming difference between the two testament packages can't
@@ -15,7 +16,18 @@
 import { writeFileSync } from 'node:fs';
 
 const BASE = process.env.INVENTORY_BASE
-  || 'https://swrv-on-bs-bible.swrvonthego.workers.dev/api/debug/r2-list';
+  || 'https://swrv-on-bs-bible.swrvonthego.workers.dev/api/internal/r2-list';
+// The listing route requires this same shared secret the Worker already
+// uses for session signing (see worker.js's /api/internal/r2-list) — not
+// used as a session token here, just a bearer value only the deploy
+// pipeline and the Worker both know, so bucket contents can't be listed by
+// the public. Passed in by deploy.yml from the SESSION_SECRET GitHub
+// secret; required, since the endpoint 401s without it.
+const AUTH_TOKEN = process.env.SESSION_SECRET;
+if (!AUTH_TOKEN) {
+  console.log('SESSION_SECRET not set — cannot authenticate to /api/internal/r2-list, skipping manifest build.');
+  process.exit(1);
+}
 const PREFIXES = ['ENGBERO1DA/', 'ENGBERN1DA/'];
 const OUT = process.env.MANIFEST_OUT || 'bsb-audio-manifest.json';
 
@@ -56,7 +68,7 @@ async function listAll(prefix) {
   for (let page = 0; page < 40; page++) {
     let url = `${BASE}?prefix=${encodeURIComponent(prefix)}`;
     if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${AUTH_TOKEN}` } });
     if (!res.ok) throw new Error(`listing failed for ${prefix}: HTTP ${res.status}`);
     const data = await res.json();
     objects.push(...(data.objects || []));

@@ -21,6 +21,7 @@
  *   /api/bookmarks              -> GET/POST (toggle)
  *   /api/progress               -> GET (latest) / POST (save)
  *   /api/delete-account         -> POST: delete the signed-in user + all their data
+ *   /api/internal/r2-list       -> GET:  lists R2 objects by prefix (deploy pipeline only, requires SESSION_SECRET bearer token)
  *   /*                          -> static assets
  *
  * No AI-generated ("text to speech") voice reading exists in this app —
@@ -500,6 +501,30 @@ export default {
         return new Response(obj.body, { status: 206, headers });
       }
       return new Response(obj.body, { status: 200, headers });
+    }
+
+    // Internal-only R2 object listing, used exclusively by the deploy
+    // pipeline's tools/build-audio-manifest.mjs to discover the real BSB
+    // audio file keys and build the manifest above from actual bucket
+    // contents rather than a guessed naming pattern. Gated behind
+    // SESSION_SECRET as a plain shared-secret check (not a user session
+    // token) so bucket contents can't be enumerated by the public — this
+    // is deliberately the only route in the app that lists rather than
+    // serves a specific known key.
+    if (url.pathname === '/api/internal/r2-list' && request.method === 'GET') {
+      if (!env.LIBRARY_BUCKET) return json({ error: 'Library bucket not configured' }, 500);
+      if (!env.SESSION_SECRET) return json({ error: 'listing not configured' }, 503);
+      const authz = request.headers.get('Authorization') || '';
+      const token = authz.replace(/^Bearer\s+/i, '').trim();
+      if (!token || token !== env.SESSION_SECRET) return json({ error: 'unauthorized' }, 401);
+      const prefix = url.searchParams.get('prefix') || '';
+      const cursor = url.searchParams.get('cursor') || undefined;
+      const listed = await env.LIBRARY_BUCKET.list({ prefix, cursor, limit: 1000 });
+      return json({
+        objects: listed.objects.map(o => ({ key: o.key, size: o.size })),
+        truncated: listed.truncated,
+        cursor: listed.truncated ? listed.cursor : undefined,
+      });
     }
 
     // ============= STATIC ASSETS =============

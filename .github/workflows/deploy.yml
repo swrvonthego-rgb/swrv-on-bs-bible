@@ -76,6 +76,8 @@ jobs:
         id: audio_manifest
         continue-on-error: true
         run: node tools/build-audio-manifest.mjs
+        env:
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
       - name: Sync BSB audio manifest to R2
         if: steps.audio_manifest.outcome == 'success'

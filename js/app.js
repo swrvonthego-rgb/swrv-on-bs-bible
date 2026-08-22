@@ -1211,11 +1211,30 @@ function _hasAnyDefinition(cleaned){
   // used as real definition CONTENT for any word that's already definable
   // by the checks below (see _honestContextualFallback / _buildDeepContext),
   // just not as a trigger for adding new underlines.
-  return _definitionExists(cleaned) ||
+  if(_definitionExists(cleaned) ||
     _deepDictHeadword(cleaned) ||
     (window.GLOSSARY && (window.GLOSSARY[cleaned]||window.GLOSSARY[key]||window.GLOSSARY[cleaned.toUpperCase()])) ||
     (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[key]) ||
-    (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key]);
+    (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key])) return true;
+  // Inflected forms ("priests", "loved", "cities") won't match any of the
+  // exact-key checks above even though their lemma ("priest", "love",
+  // "city") is a real dictionary headword — a whole-Bible audit
+  // (tools/audit-dictionary-coverage.mjs) found ~11,500 such tokens that
+  // would resolve to a real definition if tapped, but were never
+  // underlined in the first place. Try the same stemming _dictLookup
+  // already uses for content lookup, so underline-eligibility matches
+  // what tapping the word would actually find.
+  if(typeof window._lemmatize === 'function'){
+    for(const cand of window._lemmatize(cleaned)){
+      if(cand===key) continue;
+      if(_definitionExists(cand) ||
+        _deepDictHeadword(cand) ||
+        (window.GLOSSARY && window.GLOSSARY[cand]) ||
+        (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[cand]) ||
+        (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[cand])) return true;
+    }
+  }
+  return false;
 }
 
 // Look up the Historical Bible Dictionary (Easton's 1897 + Smith's 1863) for
@@ -5122,6 +5141,14 @@ function _renderBookOverview(book){
     if(w.endsWith('ness') && w.length>5) push(w.slice(0,-4));
     return [...out];
   }
+  // Exposed so _hasAnyDefinition (defined earlier, outside this closure) can
+  // reuse the exact same stemming used for content lookup — otherwise a word
+  // like "priests" or "loved" can successfully find a definition when tapped
+  // (via _dictLookup's own _lemmatize call) while never becoming tappable in
+  // the first place, because the underline-eligibility check only did exact
+  // key lookups. Whole-Bible audit (tools/audit-dictionary-coverage.mjs)
+  // found ~11,500 such inflected-but-never-underlined tokens.
+  window._lemmatize = _lemmatize;
   function _keyMatchesRef(cardKey, lookupKey){
     // Require word-boundary match so "Genesis 1" does NOT match "Genesis 15".
     if(!cardKey.startsWith(lookupKey)) return false;
