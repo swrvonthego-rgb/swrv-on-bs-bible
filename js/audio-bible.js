@@ -26,6 +26,13 @@
   var activeVerseN = null;
   var follow = true;
   try { follow = localStorage.getItem(FOLLOW_KEY) !== '0'; } catch (e) {}
+  var CONTINUOUS_KEY = 'swrv_audio_continuous';
+  var continuous = true;
+  try { continuous = localStorage.getItem(CONTINUOUS_KEY) !== '0'; } catch (e) {}
+  // Set right before calling nextChapter() so the next show() call (async,
+  // triggered by the refresh() poll once the new chapter's data has loaded)
+  // knows to resume playback instead of just cueing it up silently.
+  var resumeOnLoad = false;
 
   function bar()   { return document.getElementById('audioBibleBar'); }
   function audioEl(){ return document.getElementById('audioBibleEl'); }
@@ -193,6 +200,15 @@
     if (btn) btn.setAttribute('aria-pressed', follow ? 'true' : 'false');
   };
 
+  window._audioToggleContinuous = function (btn) {
+    continuous = !continuous;
+    try { localStorage.setItem(CONTINUOUS_KEY, continuous ? '1' : '0'); } catch (e) {}
+    if (btn) {
+      btn.setAttribute('aria-pressed', continuous ? 'true' : 'false');
+      btn.style.opacity = continuous ? '' : '0.45';
+    }
+  };
+
   function show(testament, r2Key) {
     var b = bar();
     var a = audioEl();
@@ -210,6 +226,22 @@
       a.addEventListener('seeked', onTimeUpdate);
       a.addEventListener('pause', function () { document.body.classList.remove('audio-bible-playing'); });
       a.addEventListener('play', function () { document.body.classList.add('audio-bible-playing'); });
+      // Continuous playback: when a chapter finishes, move on to the next
+      // one and keep going — so listening doesn't require babysitting the
+      // player after every chapter. nextChapter() already rolls over into
+      // the next book at a book's last chapter. If there's no more audio
+      // (manifest has no entry for the new chapter), show()/hide() below
+      // just won't resume anything, which is the correct stop condition.
+      a.addEventListener('ended', function () {
+        if (!continuous) return;
+        if (typeof window.nextChapter !== 'function') return;
+        resumeOnLoad = true;
+        window.nextChapter();
+      });
+    }
+    if (resumeOnLoad) {
+      resumeOnLoad = false;
+      a.play().catch(function () {});
     }
     document.body.classList.add('audio-bible-active');
     buildSpans(window.currentBook, window.currentChapter);
@@ -238,6 +270,10 @@
     clearHighlight();
     activeSpans = null;
     activeVerseN = null;
+    // The chapter we landed on (e.g. after continuous playback rolled past
+    // the end of the last book with audio) has nothing to play — don't let
+    // a stale resume request fire on some unrelated later navigation.
+    resumeOnLoad = false;
   }
 
   // No chapter-change event exists to hook (checked: app.js dispatches none
@@ -248,9 +284,20 @@
   // nothing noticeable at this interval.
   setInterval(refresh, 400);
 
+  function initButtonStates() {
+    var cbtn = document.getElementById('audioContinuousToggle');
+    if (cbtn) {
+      cbtn.setAttribute('aria-pressed', continuous ? 'true' : 'false');
+      cbtn.style.opacity = continuous ? '' : '0.45';
+    }
+    var fbtn = document.getElementById('audioFollowToggle');
+    if (fbtn) fbtn.setAttribute('aria-pressed', follow ? 'true' : 'false');
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', refresh);
+    document.addEventListener('DOMContentLoaded', function () { refresh(); initButtonStates(); });
   } else {
     refresh();
+    initButtonStates();
   }
 })();
