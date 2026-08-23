@@ -229,6 +229,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
   <button type="button" class="audio-sync-toggle" id="audioContinuousToggle" aria-pressed="true" onclick="window._audioToggleContinuous(this)" title="Keep reading into the next chapter automatically when this one ends">🔁</button>
+  <button type="button" class="audio-sync-toggle" id="audioRepeatToggle" aria-pressed="false" onclick="window._audioToggleRepeatVerse(this)" title="Repeat the verse currently playing, on loop, until you turn this off">🔂</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
@@ -688,7 +689,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/side-dock.js?v=20260819dockfix4" defer></script>
-<script src="js/audio-bible.js?v=20260822continuous1" defer></script>
+<script src="js/audio-bible.js?v=20260823repeat1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->

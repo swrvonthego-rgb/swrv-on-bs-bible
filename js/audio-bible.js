@@ -33,6 +33,13 @@
   // triggered by the refresh() poll once the new chapter's data has loaded)
   // knows to resume playback instead of just cueing it up silently.
   var resumeOnLoad = false;
+  // Repeat-this-verse: deliberately NOT persisted across page loads (unlike
+  // follow/continuous, which are steady-state preferences) — this is a
+  // "loop what I'm hearing right now" action, tied to one specific verse in
+  // one specific chapter, so it always starts off and resets whenever the
+  // chapter changes (see buildSpans below).
+  var repeatVerse = false;
+  var repeatTargetN = null; // verse number currently being looped, or null
 
   function bar()   { return document.getElementById('audioBibleBar'); }
   function audioEl(){ return document.getElementById('audioBibleEl'); }
@@ -118,6 +125,14 @@
   function buildSpans(book, ch) {
     activeSpans = null;
     activeVerseN = null;
+    // A new chapter invalidates any active repeat-loop — repeating verse 3
+    // of the chapter someone just left doesn't carry over to the next one.
+    if (repeatVerse) {
+      repeatVerse = false;
+      repeatTargetN = null;
+      var rbtn = document.getElementById('audioRepeatToggle');
+      if (rbtn) rbtn.setAttribute('aria-pressed', 'false');
+    }
     loadTimings(book, function (data) {
       if (!data || !data.chapters) return;
       var rows = data.chapters[String(ch)];
@@ -155,8 +170,26 @@
   function onTimeUpdate() {
     var a = audioEl();
     if (!a || !activeSpans) return;
+    // Repeat-this-verse: as soon as playback nears the end of the locked
+    // verse, jump back to its start instead of letting it roll into the
+    // next verse (or, for the chapter's last verse, into 'ended' and
+    // continuous-playback advancing to the next chapter — repeat always
+    // wins over continuous while it's active). A small lead (0.08s) so the
+    // loop-back fires before the boundary rather than a frame after it.
+    if (repeatVerse && repeatTargetN != null) {
+      var target = activeSpans[repeatTargetN - 1];
+      if (target && a.currentTime >= target.end - 0.08) {
+        a.currentTime = target.begin;
+        return;
+      }
+    }
     var s = verseAt(a.currentTime);
-    if (!s || s.n === activeVerseN) return;
+    if (!s) return;
+    // Repeat was just turned on with nothing/nowhere locked yet (e.g.
+    // engaged the moment playback started) — lock onto whatever verse is
+    // actually playing right now.
+    if (repeatVerse && repeatTargetN == null) repeatTargetN = s.n;
+    if (s.n === activeVerseN) return;
     activeVerseN = s.n;
     clearHighlight();
     // Elements are re-rendered on navigation and mode switches, so
@@ -191,6 +224,9 @@
     var a = audioEl();
     if (!s || !a || !a.src) return;
     a.currentTime = s.begin;
+    // Tapping a verse while repeat is on switches the loop to that verse —
+    // "whichever verse is on" should always be the one that repeats.
+    if (repeatVerse) repeatTargetN = s.n;
     if (a.paused) a.play().catch(function () {});
   });
 
@@ -207,6 +243,14 @@
       btn.setAttribute('aria-pressed', continuous ? 'true' : 'false');
       btn.style.opacity = continuous ? '' : '0.45';
     }
+  };
+
+  window._audioToggleRepeatVerse = function (btn) {
+    repeatVerse = !repeatVerse;
+    // Lock onto whatever verse is currently playing/highlighted the moment
+    // repeat is turned on; cleared when turned off so it starts fresh next time.
+    repeatTargetN = repeatVerse ? activeVerseN : null;
+    if (btn) btn.setAttribute('aria-pressed', repeatVerse ? 'true' : 'false');
   };
 
   function show(testament, r2Key) {
@@ -292,6 +336,8 @@
     }
     var fbtn = document.getElementById('audioFollowToggle');
     if (fbtn) fbtn.setAttribute('aria-pressed', follow ? 'true' : 'false');
+    var rbtn = document.getElementById('audioRepeatToggle');
+    if (rbtn) rbtn.setAttribute('aria-pressed', repeatVerse ? 'true' : 'false');
   }
 
   if (document.readyState === 'loading') {
