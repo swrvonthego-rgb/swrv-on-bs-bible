@@ -176,8 +176,9 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button id="libraryBtn" class="icon-btn" onclick="showModal('library')">📚 Library</button>
     <div class="more-menu-wrap">
-      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More: Story, Peoples, Rules, Glossary, Audit">⋯ More</button>
+      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More: A Quick Word, Story, Peoples, Rules, Glossary, Audit">⋯ More</button>
       <div class="more-menu-popover" id="moreMenuPopover">
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('about')"><span>💛</span> A Quick Word</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('story')"><span>📜</span> Story</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('peoples')"><span>👥</span> Peoples</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('rules')"><span>📜</span> Rules</button>
@@ -684,7 +685,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260822gapfix1" defer></script>
+<script src="js/app.js?v=20260823disclaimer1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
