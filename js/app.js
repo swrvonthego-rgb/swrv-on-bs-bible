@@ -38,6 +38,22 @@ function dismissSplash(){
   }
 })();
 
+// Ensure the music mini play button always remains visible and accessible
+(function(){
+  const musicMini = document.getElementById('musicMini');
+  if(!musicMini) return;
+  // Prevent widget-docking styles from ever hiding the music mini or its buttons
+  musicMini.classList.remove('widget-docked', 'widget-dragging', 'floating-widget');
+  if(musicMini.removeAttribute) musicMini.removeAttribute('style');
+  // Monitor for changes and enforce visibility
+  const observer = new MutationObserver(function(){
+    if(musicMini.classList.contains('widget-docked')){
+      musicMini.classList.remove('widget-docked', 'docked-left', 'docked-right');
+    }
+  });
+  observer.observe(musicMini, { attributes: true, attributeFilter: ['class'] });
+})();
+
 const TRACKS = [
   {name:"Peaceful Nature",url:"https://res.cloudinary.com/ddzyvfolr/video/upload/v1778186909/ROADMAP_APP_-_PEACEFUL_NATURE_suii2m.mp3"},
   {name:"Lofi Ocean Pier",url:"https://res.cloudinary.com/ddzyvfolr/video/upload/v1778186908/ROADMAP_APP_-_LOFI_OCEAN_PIER_ndlqu8.mp3"},
