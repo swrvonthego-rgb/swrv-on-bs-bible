@@ -1256,7 +1256,10 @@ small, .small { font-family: var(--apple-font); font-size: 11px; letter-spacing:
 /* === SWRV KINGDOM BIBLE — IMMERSIVE LANDING PAGE === */
 .splash-cover {
   position: fixed;
-  inset: 0;
+  top: max(0px, env(safe-area-inset-top));
+  right: env(safe-area-inset-right);
+  bottom: env(safe-area-inset-bottom);
+  left: env(safe-area-inset-left);
   z-index: 99999;
   background: #0d1117;
   color: #e6edf3;
@@ -1291,7 +1294,7 @@ body.splash-active { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: max(14px, env(safe-area-inset-top)) 24px 14px;
+  padding: 14px 24px;
   padding-right: max(24px, env(safe-area-inset-right));
   padding-left: max(24px, env(safe-area-inset-left));
   background: rgba(13, 17, 23, 0.92);
