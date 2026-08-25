@@ -231,6 +231,8 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
   <button type="button" class="audio-sync-toggle" id="audioContinuousToggle" aria-pressed="true" onclick="window._audioToggleContinuous(this)" title="Keep reading into the next chapter automatically when this one ends">🔁</button>
   <button type="button" class="audio-sync-toggle" id="audioRepeatToggle" aria-pressed="false" onclick="window._audioToggleRepeatVerse(this)" title="Repeat the verse currently playing, on loop, until you turn this off">🔂</button>
+  <button type="button" class="audio-sync-toggle" id="audioRepeatModeToggle" data-audio-repeat-mode="current" onclick="window._audioToggleRepeatMode(this)" title="Switch between repeating current verse vs. highlighted verses for meditation">↻ Repeat: Current</button>
+  <button type="button" class="audio-sync-toggle" id="audioClearHighlights" onclick="window._audioClearHighlights()" title="Clear all highlighted verses">✕ Highlights</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
