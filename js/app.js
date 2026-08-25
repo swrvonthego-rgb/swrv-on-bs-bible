@@ -1363,6 +1363,18 @@ function renderPersonContextStrip(v, text){
   return '<details class="verse-context-strip person-context-strip study-layer"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Information shown here is sourced. Where exact details are not recorded in historical texts, the card notes that.</div></details>';
 }
 
+// Make verse references clickable (e.g., "Genesis 1:1" → clickable link)
+function makeVerseRefClickable(ref){
+  if(!ref || typeof ref !== 'string') return escapeHtml(ref);
+  const m = ref.match(/^([A-Z0-9\s]+?)\s+(\d+):(\d+)$/);
+  if(!m) return escapeHtml(ref);
+  const book = m[1].trim();
+  const ch = m[2];
+  const v = m[3];
+  const bookEsc = book.replace(/"/g,'&quot;');
+  return '<span class="definable" style="cursor:pointer;" onclick="closeStudySheet(); loadChapter(&quot;'+bookEsc+'&quot;, '+ch+', '+v+');">'+escapeHtml(ref)+'</span>';
+}
+
 function renderVerseText(text,definables,peopleNames,verseRef){
   const wordSet=new Set(definables||[]);
   const lowerSet=new Set((definables||[]).map(w=>String(w).toLowerCase()));
@@ -1868,7 +1880,7 @@ function _renderEnglishDictBlock(deep){
     out.push('</div>');
   }
   if(deep.relatedVerses && deep.relatedVerses.length){
-    out.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+    out.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+deep.relatedVerses.map(makeVerseRefClickable).join(' · ')+'</div></div>');
   }
   if(deep.relatedWords && deep.relatedWords.length){
     out.push('<div class="def-section"><div class="def-section-label">Related words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
@@ -1904,7 +1916,7 @@ function showCulturalCard(passage){
   if(c.cultural) html.push('<div class="def-section"><div class="def-section-label">Cultural / Historical Setting</div><div class="def-section-text">'+escapeHtml(c.cultural)+'</div></div>');
   if(c.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Common mistake</div><div class="def-section-text">'+escapeHtml(c.misunderstood)+'</div></div>');
   if(c.matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters</div><div class="def-section-text">'+escapeHtml(c.matters)+'</div></div>');
-  if(c.relatedVerses && c.relatedVerses.length) html.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+c.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  if(c.relatedVerses && c.relatedVerses.length) html.push('<div class="def-section"><div class="def-section-label">See it used in other verses</div><div class="def-section-text">'+c.relatedVerses.map(makeVerseRefClickable).join(' · ')+'</div></div>');
   if(c.sources && c.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Where this comes from</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+c.sources.map(escapeHtml).join(' · ')+'</div></div>');
   if(c.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(c.confidence)+'</div>');
   document.getElementById('defContent').innerHTML=html.join('');
@@ -2041,7 +2053,7 @@ function showDef(word, opts){
   const crossRefs = [];
   if(def.cross) crossRefs.push(def.cross);
   if(deep && deep.relatedVerses) crossRefs.push.apply(crossRefs, deep.relatedVerses);
-  if(crossRefs.length) html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+crossRefs.map(escapeHtml).join(' · ')+'</div></div>');
+  if(crossRefs.length) html.push('<div class="def-section"><div class="def-section-label">See also in the Bible</div><div class="def-section-text">'+crossRefs.map(makeVerseRefClickable).join(' · ')+'</div></div>');
 
   if(deep && deep.relatedWords && deep.relatedWords.length){
     html.push('<div class="def-section"><div class="def-section-label">Related words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
@@ -6417,7 +6429,7 @@ function _renderBookOverview(book){
       for(const p of window.PARALLEL_PASSAGES){
         if(Array.isArray(p.passages) && p.passages.some(function(s){return s.indexOf(state.book)===0;})){
           html += '<div class="sheet-section"><div class="sheet-section-label">🔗 Parallel — '+_escape(p.title||p.id)+'</div>';
-          html += '<div class="sheet-text">'+p.passages.map(_escape).join(' · ')+'</div></div>';
+          html += '<div class="sheet-text">'+p.passages.map(makeVerseRefClickable).join(' · ')+'</div></div>';
         }
       }
     }
@@ -6426,8 +6438,8 @@ function _renderBookOverview(book){
       for(const p of window.PROPHECY_FULFILLMENT){
         if((p.prophecy && p.prophecy.indexOf(state.book)===0) || (p.fulfillment && p.fulfillment.indexOf(state.book)===0)){
           html += '<div class="sheet-section"><div class="sheet-section-label">📜 Prophecy → Fulfillment</div>';
-          if(p.prophecy) html += '<div class="sheet-text"><b>Prophecy:</b> '+_escape(p.prophecy)+'</div>';
-          if(p.fulfillment) html += '<div class="sheet-text"><b>Fulfillment:</b> '+_escape(p.fulfillment)+'</div>';
+          if(p.prophecy) html += '<div class="sheet-text"><b>Prophecy:</b> '+makeVerseRefClickable(p.prophecy)+'</div>';
+          if(p.fulfillment) html += '<div class="sheet-text"><b>Fulfillment:</b> '+makeVerseRefClickable(p.fulfillment)+'</div>';
           if(p.summary) html += '<div class="sheet-text" style="margin-top:4px;">'+_escape(p.summary)+'</div>';
           html += '</div>';
         }
