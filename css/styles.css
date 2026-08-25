@@ -1291,7 +1291,7 @@ body.splash-active { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: max(14px, env(safe-area-inset-top)) 24px 14px;
   padding-right: max(24px, env(safe-area-inset-right));
   padding-left: max(24px, env(safe-area-inset-left));
   background: rgba(13, 17, 23, 0.92);
