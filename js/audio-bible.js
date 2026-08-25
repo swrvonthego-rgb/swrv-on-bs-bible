@@ -182,11 +182,11 @@
     // verse, jump back to its start instead of letting it roll into the
     // next verse (or, for the chapter's last verse, into 'ended' and
     // continuous-playback advancing to the next chapter — repeat always
-    // wins over continuous while it's active). A small lead (0.08s) so the
-    // loop-back fires before the boundary rather than a frame after it.
+    // wins over continuous while it's active). Tight lead (0.02s) to catch
+    // the boundary without leaking into the next verse.
     if (repeatVerse && repeatTargetN != null) {
       var target = activeSpans[repeatTargetN - 1];
-      if (target && a.currentTime >= target.end - 0.08) {
+      if (target && a.currentTime >= target.end - 0.02) {
         a.currentTime = target.begin;
         return;
       }
