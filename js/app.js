@@ -18,7 +18,16 @@ function dismissSplash(){
   // someone dismisses it, it never stacks twice in the same session.
   if(!sessionStorage.getItem('swrv_disclaimer_shown')){
     sessionStorage.setItem('swrv_disclaimer_shown', '1');
-    setTimeout(function(){ if(typeof showModal === 'function') showModal('about'); }, 650);
+    setTimeout(function(){
+      if(typeof showModal === 'function') {
+        showModal('about');
+        // Ensure modal is on top by forcing render
+        const modal = document.getElementById('modal');
+        if(modal) {
+          modal.style.zIndex = '999999';
+        }
+      }
+    }, 700);
   }
 }
 // Show landing page on every new session; skip only within same tab session
