@@ -1959,13 +1959,22 @@ function showDef(word, opts){
     }
   }
 
-  // One core "what this word means" section — topPlain / def.def / deep.deep
-  // used to stack as three near-duplicate blocks; show the best single one,
-  // and only add deep.deep separately below when it genuinely adds more.
+  // Plain-English summary first, then the fuller word-study explanation
+  // (Hebrew/Greek root, grammar, ANE contrast) as its OWN section — these
+  // used to be collapsed into "show whichever one exists," which silently
+  // discarded def.def (the deep, source-grounded explanation) any time a
+  // plain summary also existed. That's exactly backwards for words like
+  // Elohim, where the plain line ("the one true God") is a gloss and def.def
+  // carries the actual grammatical/ANE substance. Show both whenever they
+  // say different things.
   const topPlain = (deep && deep.plain) || def.plain;
-  const core = [topPlain, def.def].filter(function(t){ return t && t !== contextGloss; })[0];
-  if(core) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(core)+'</div></div>');
-  if(deep && deep.deep && deep.deep !== core && deep.deep !== contextGloss){
+  if(topPlain && topPlain !== contextGloss){
+    html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(topPlain)+'</div></div>');
+  }
+  if(def.def && def.def !== topPlain && def.def !== contextGloss){
+    html.push('<div class="def-section"><div class="def-section-label">The fuller word study</div><div class="def-section-text">'+escapeHtml(def.def)+'</div></div>');
+  }
+  if(deep && deep.deep && deep.deep !== topPlain && deep.deep !== def.def && deep.deep !== contextGloss){
     html.push('<div class="def-section"><div class="def-section-label">Go deeper</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
   }
 
@@ -1987,13 +1996,24 @@ function showDef(word, opts){
     html.push('</ul></div>');
   }
 
-  // One historical-background section instead of two (def.ane / deep.cultural).
-  const background = (deep && deep.cultural) || def.ane;
-  if(background) html.push('<div class="def-section"><div class="def-section-label">Historical background</div><div class="def-section-text">'+escapeHtml(background)+'</div></div>');
+  // Historical/cultural background — def.ane (this project's own ANE-audited
+  // note) and deep.cultural (ENGLISH_BIBLE_DICT's cultural note) come from
+  // different research passes and often say different things; collapsing to
+  // "whichever exists" silently dropped whichever one lost. Show both.
+  if(def.ane) html.push('<div class="def-section"><div class="def-section-label">Historical background — Ancient Near East</div><div class="def-section-text">'+escapeHtml(def.ane)+'</div></div>');
+  if(deep && deep.cultural && deep.cultural !== def.ane) html.push('<div class="def-section"><div class="def-section-label">Cultural background</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
 
-  // One "why this matters" section instead of three overlapping ones.
-  const matters = (deep && deep.kingdomSignificance) || def.kingdom || (deep && deep.matters);
-  if(matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters</div><div class="def-section-text">'+escapeHtml(matters)+'</div></div>');
+  // "Why this matters" — same principle: don't let one source's note silently
+  // replace another's.
+  const mattersItems = [];
+  if(deep && deep.kingdomSignificance) mattersItems.push(deep.kingdomSignificance);
+  if(def.kingdom && mattersItems.indexOf(def.kingdom) === -1) mattersItems.push(def.kingdom);
+  if(deep && deep.matters && mattersItems.indexOf(deep.matters) === -1) mattersItems.push(deep.matters);
+  if(mattersItems.length){
+    html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why this matters</div>'+
+      mattersItems.map(function(m){ return '<div class="def-section-text" style="margin-top:4px;">'+escapeHtml(m)+'</div>'; }).join('')+
+    '</div>');
+  }
 
   if(def.theology) html.push('<div class="def-section"><div class="def-section-label">Going deeper</div><div class="def-section-text">'+escapeHtml(def.theology)+'</div></div>');
   if(def.psychology) html.push('<div class="def-section"><div class="def-section-label">Heart, soul, and mind</div><div class="def-section-text">'+escapeHtml(def.psychology)+'</div></div>');
