@@ -192,11 +192,11 @@
     // verse, jump back to its start instead of letting it roll into the
     // next verse (or, for the chapter's last verse, into 'ended' and
     // continuous-playback advancing to the next chapter — repeat always
-    // wins over continuous while it's active). Ultra-tight boundary (0.0005s)
-    // to catch the edge instantly without leaking any audio from the next verse.
+    // wins over continuous while it's active). Ultra-aggressive boundary (0.00001s)
+    // with 10ms pre-start offset to catch first word and prevent next-verse bleed.
     if (repeatVerse && repeatTargetN != null) {
       var target = activeSpans[repeatTargetN - 1];
-      if (target && a.currentTime >= target.end - 0.0005) {
+      if (target && a.currentTime >= target.end - 0.00001) {
         // If in highlighted-verses mode and there are highlights, move to next highlight
         if (repeatHighlightedOnly && highlightedVerses.size > 0) {
           var highlighted = Array.from(highlightedVerses).sort((a, b) => a - b);
@@ -204,10 +204,10 @@
           var nextIdx = (currentIdx + 1) % highlighted.length;
           repeatTargetN = highlighted[nextIdx];
           var nextTarget = activeSpans[repeatTargetN - 1];
-          if (nextTarget) a.currentTime = nextTarget.begin;
+          if (nextTarget) a.currentTime = Math.max(0, nextTarget.begin - 0.01);
         } else {
           // Normal mode: repeat current verse
-          a.currentTime = target.begin;
+          a.currentTime = Math.max(0, target.begin - 0.01);
         }
         return;
       }
