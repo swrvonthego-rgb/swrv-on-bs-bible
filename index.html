@@ -33,7 +33,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260825safearea1">
+<link rel="stylesheet" href="css/styles.css?v=20260825audioslider1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260820audio1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
 <link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix10">
@@ -227,7 +227,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
      way) — the same information is still on the "i" tooltip icon below. -->
 <div class="audio-bible-bar" id="audioBibleBar" style="display:none" aria-label="BSB audio Bible chapter player">
   <span class="audio-bible-label" id="audioBibleLabel">🎧 BSB Audio</span>
-  <audio id="audioBibleEl" controls preload="none" style="flex:1;min-width:0;height:32px"></audio>
+  <audio id="audioBibleEl" controls preload="none" style="height:32px"></audio>
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
   <button type="button" class="audio-sync-toggle" id="audioContinuousToggle" aria-pressed="true" onclick="window._audioToggleContinuous(this)" title="Keep reading into the next chapter automatically when this one ends">🔁</button>
   <button type="button" class="audio-sync-toggle" id="audioRepeatToggle" aria-pressed="false" onclick="window._audioToggleRepeatVerse(this)" title="Repeat the verse currently playing, on loop, until you turn this off">🔂</button>
@@ -690,7 +690,7 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/side-dock.js?v=20260819dockfix4" defer></script>
-<script src="js/audio-bible.js?v=20260823repeat1" defer></script>
+<script src="js/audio-bible.js?v=20260825synctight1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->

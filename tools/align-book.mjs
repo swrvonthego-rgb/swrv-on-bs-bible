@@ -82,12 +82,23 @@ for (const ch of chapters) {
       failures.push(`${book} ${ch}: ${frags.length} fragments vs ${verses.length} verses`);
       continue;
     }
-    const rows = frags.map(f => [Math.round(Number(f.begin) * 100) / 100, Math.round(Number(f.end) * 100) / 100]);
+    // Carry the REAL verse number `n` alongside each timing instead of a bare
+    // [begin,end] pair. verses[] can have gaps (chapterVerses() now skips any
+    // verse the BSB translation omits, since the audio never speaks it) — a
+    // positional-only format silently shifted every later verse's timing by
+    // one whenever that happened. Explicit `n` makes that class of bug
+    // structurally impossible: the client reads the verse number directly
+    // instead of assuming row i is always verse i+1.
+    const rows = frags.map((f, i) => ({
+      n: verses[i].n,
+      begin: Math.round(Number(f.begin) * 100) / 100,
+      end: Math.round(Number(f.end) * 100) / 100,
+    }));
     // Cheap ordering guard; a non-monotonic result signals a bad align.
     let bad = false;
     for (let i = 0; i < rows.length; i++) {
-      if (!(rows[i][1] > rows[i][0])) bad = true;
-      if (i > 0 && rows[i][0] + 0.01 < rows[i - 1][1]) bad = true;
+      if (!(rows[i].end > rows[i].begin)) bad = true;
+      if (i > 0 && rows[i].begin + 0.01 < rows[i - 1].end) bad = true;
     }
     if (bad) { failures.push(`${book} ${ch}: non-monotonic or empty spans`); continue; }
 

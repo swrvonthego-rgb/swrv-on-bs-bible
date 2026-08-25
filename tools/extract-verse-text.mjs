@@ -48,11 +48,20 @@ export function chapterVerses(bookKey, chapter) {
   for (const n of nums) {
     const v = ch.verses[String(n)];
     const bsb = v?.sources?.BSB?.text;
-    // No BSB for this verse: fall back rather than drop it, because a missing
-    // fragment would shift every later verse's timing by one.
-    const text = spokenText(bsb || v?.synthesized || v?.text || '');
+    // A verse with no BSB text is one the BSB translation omits outright
+    // (e.g. Mark 9:44/46, Acts 8:37 — the well-known critical-text
+    // omissions) — the BSB audio narration never speaks it either. Feeding
+    // the aligner a fallback (KJV/synthesized) line for a verse that isn't
+    // actually in the recording used to be the fix here, but that's exactly
+    // backwards: it hands the aligner text for audio that doesn't exist,
+    // which silently shifts every subsequent verse's timing by one for the
+    // rest of the chapter. Skip it — buildRows() below carries the real
+    // verse number `n` alongside each timing, so a gap here no longer
+    // corrupts anything downstream.
+    if (!bsb) continue;
+    const text = spokenText(bsb);
     if (!text) continue;
-    out.push({ n, text, bsb: !!bsb });
+    out.push({ n, text, bsb: true });
   }
   return out;
 }

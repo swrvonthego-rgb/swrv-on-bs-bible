@@ -140,8 +140,16 @@
       var els = verseElementMap();
       var spans = [];
       for (var i = 0; i < rows.length; i++) {
-        var n = i + 1; // rows are verse-ordered, index 0 == verse 1
-        spans.push({ n: n, begin: Number(rows[i][0]), end: Number(rows[i][1]), el: els[n] || null });
+        var row = rows[i];
+        // New format carries the real verse number explicitly (see
+        // tools/align-book.mjs) — a chapter with a BSB-omitted verse (Mark
+        // 9:44/46, Acts 8:37, etc.) has a gap in its rows, so "row i is verse
+        // i+1" is only safe for the legacy positional [begin,end] format
+        // still live for books not yet regenerated.
+        var n = Array.isArray(row) ? i + 1 : row.n;
+        var begin = Array.isArray(row) ? row[0] : row.begin;
+        var end = Array.isArray(row) ? row[1] : row.end;
+        spans.push({ n: n, begin: Number(begin), end: Number(end), el: els[n] || null });
       }
       activeSpans = spans;
     });
