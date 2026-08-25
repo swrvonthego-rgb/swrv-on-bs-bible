@@ -14,12 +14,12 @@
 // installed/cached can keep serving old script/style bytes indefinitely,
 // even though the server is already serving the new deploy (cache-first
 // below never re-checks the network for a URL it already has cached).
-const CACHE_NAME = 'swrv-kingdom-bible-v20260825-audioboundary1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260825-fix3';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/styles.css?v=20260825audioslider1',
+  './css/styles.css?v=20260825fontfix1',
   './css/audio-sync.css?v=20260820audio1',
   './css/chapter-context.css?v=20260818ctx1',
   './css/side-dock.css?v=20260819dockfix10',

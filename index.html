@@ -8,9 +8,7 @@
      (/api/audio-bible read-aloud, /api/groq) must target the live Cloudflare
      Worker by absolute URL or they resolve to nothing in the app bundle. -->
 <script>
-window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol === 'file:' || location.protocol === 'ionic:')
-  ? 'https://swrv-on-bs-bible.swrvonthego.workers.dev'
-  : '';
+window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 </script>
 <title>SWRV Kingdom Bible</title>
 <meta name="description" content="The SWRV Kingdom Bible — multi-source Bible study with Kingdom theology, ANE context, peoples profiles, cultural insights, Strong's Hebrew/Greek lexicons, Enoch and Josephus.">
