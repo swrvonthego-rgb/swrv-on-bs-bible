@@ -8,9 +8,7 @@
      (/api/audio-bible read-aloud, /api/groq) must target the live Cloudflare
      Worker by absolute URL or they resolve to nothing in the app bundle. -->
 <script>
-window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol === 'file:' || location.protocol === 'ionic:')
-  ? 'https://swrv-on-bs-bible.swrvonthego.workers.dev'
-  : '';
+window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 </script>
 <title>SWRV Kingdom Bible</title>
 <meta name="description" content="The SWRV Kingdom Bible — multi-source Bible study with Kingdom theology, ANE context, peoples profiles, cultural insights, Strong's Hebrew/Greek lexicons, Enoch and Josephus.">
@@ -171,7 +169,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
     </div>
     <button id="fontSizeBtn" class="icon-btn" title="Change text size" style="flex-shrink:0;">Aa M</button>
     <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
-    <button id="navHideToggle" class="icon-btn nav-hide-btn" onclick="toggleNavBarHidden()" title="Hide or show the Book / Chapter / Verse / Canonical row" aria-pressed="false">Hide ▾</button>
     <button id="memoryBtn" class="icon-btn" onclick="showModal('memory')" title="Your bookmarks, highlights, and notes">📌 Memory</button>
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button id="libraryBtn" class="icon-btn" onclick="showModal('library')">📚 Library</button>
@@ -183,7 +180,6 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('peoples')"><span>👥</span> Peoples</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('rules')"><span>📜</span> Rules</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('glossary')"><span>📖</span> Glossary</button>
-        <button class="more-menu-item" onclick="closeMoreMenu();showModal('audit')"><span>🔍</span> Audit</button>
       </div>
     </div>
     <button class="icon-btn" onclick="cycleTheme()" title="Change theme" aria-label="Change theme">🎨</button>
@@ -231,6 +227,8 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
   <button type="button" class="audio-sync-toggle" id="audioContinuousToggle" aria-pressed="true" onclick="window._audioToggleContinuous(this)" title="Keep reading into the next chapter automatically when this one ends">🔁</button>
   <button type="button" class="audio-sync-toggle" id="audioRepeatToggle" aria-pressed="false" onclick="window._audioToggleRepeatVerse(this)" title="Repeat the verse currently playing, on loop, until you turn this off">🔂</button>
+  <button type="button" class="audio-sync-toggle" id="audioRepeatModeToggle" data-audio-repeat-mode="current" onclick="window._audioToggleRepeatMode(this)" title="Switch between repeating current verse vs. highlighted verses for meditation">↻ Repeat: Current</button>
+  <button type="button" class="audio-sync-toggle" id="audioClearHighlights" onclick="window._audioClearHighlights()" title="Clear all highlighted verses">✕ Highlights</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
@@ -466,48 +464,48 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="data/exodus-heartbeat.js" defer></script>
 <script src="data/exodus-culture.js" defer></script>
 <script src="data/exodus-amp-style.js" defer></script>
-<script src="data/exodus-definitions.js" defer></script>
+<script src="data/exodus-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus34-plot-panels.js" defer></script>
 <script src="data/exodus34-heartbeat.js" defer></script>
 <script src="data/exodus34-culture.js" defer></script>
 <script src="data/exodus34-amp-style.js" defer></script>
-<script src="data/exodus34-definitions.js" defer></script>
+<script src="data/exodus34-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus57-plot-panels.js" defer></script>
 <script src="data/exodus57-heartbeat.js" defer></script>
 <script src="data/exodus57-culture.js" defer></script>
 <script src="data/exodus57-amp-style.js" defer></script>
-<script src="data/exodus57-definitions.js" defer></script>
+<script src="data/exodus57-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus812-plot-panels.js" defer></script>
 <script src="data/exodus812-heartbeat.js" defer></script>
 <script src="data/exodus812-culture.js" defer></script>
 <script src="data/exodus812-amp-style.js" defer></script>
-<script src="data/exodus812-definitions.js" defer></script>
+<script src="data/exodus812-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus1315-plot-panels.js" defer></script>
 <script src="data/exodus1315-heartbeat.js" defer></script>
 <script src="data/exodus1315-culture.js" defer></script>
 <script src="data/exodus1315-amp-style.js" defer></script>
-<script src="data/exodus1315-definitions.js" defer></script>
+<script src="data/exodus1315-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus1618-plot-panels.js" defer></script>
 <script src="data/exodus1618-heartbeat.js" defer></script>
 <script src="data/exodus1618-culture.js" defer></script>
 <script src="data/exodus1618-amp-style.js" defer></script>
-<script src="data/exodus1618-definitions.js" defer></script>
+<script src="data/exodus1618-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus1924-plot-panels.js" defer></script>
 <script src="data/exodus1924-heartbeat.js" defer></script>
 <script src="data/exodus1924-culture.js" defer></script>
 <script src="data/exodus1924-amp-style.js" defer></script>
-<script src="data/exodus1924-definitions.js" defer></script>
+<script src="data/exodus1924-definitions.js?v=20260825def1" defer></script>
 <script src="data/exodus2540-plot-panels.js" defer></script>
 <script src="data/exodus2540-heartbeat.js" defer></script>
 <script src="data/exodus2540-culture.js" defer></script>
 <script src="data/exodus2540-amp-style.js" defer></script>
-<script src="data/exodus2540-definitions.js" defer></script>
+<script src="data/exodus2540-definitions.js?v=20260825def1" defer></script>
   <script src="data/leviticus-pre-history.js" defer></script>
   <script src="data/leviticus-plot-panels.js" defer></script>
   <script src="data/leviticus-heartbeat.js" defer></script>
   <script src="data/leviticus-amp-style.js" defer></script>
   <script src="data/leviticus-culture.js" defer></script>
-  <script src="data/leviticus-definitions.js" defer></script>
+  <script src="data/leviticus-definitions.js?v=20260825def1" defer></script>
 <script src="data/cross-refs.js" defer></script>
 
 <!-- ============ Unified Study Sheet (mobile bottom-sheet / desktop side-panel) ============ -->
@@ -685,12 +683,12 @@ window.SWRV_API_BASE = (location.protocol === 'capacitor:' || location.protocol 
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260825loins1" defer></script>
+<script src="js/app.js?v=20260826disclaimerfix1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
 <script src="js/chapter-context.js?v=20260818ctx1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/side-dock.js?v=20260819dockfix4" defer></script>
-<script src="js/audio-bible.js?v=20260825synctight1" defer></script>
+<script src="js/audio-bible.js?v=20260825audioboundary1" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->

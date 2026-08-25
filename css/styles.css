@@ -2048,7 +2048,7 @@ body{
 
 /* === SWRV complete correction pass: cleaner read mode + richer definition UX === */
 .chapter-deep-banner{display:none!important;}
-.universal-study-card{margin-top:10px;opacity:.94;}
+.universal-study-card{margin-top:10px;}
 .universal-study-card:not([open]){background:transparent;border-style:dashed;}
 .universal-study-card:not([open]) summary{padding:9px 13px;color:var(--fg-dim);}
 .universal-study-card[open]{box-shadow:0 10px 24px rgba(0,0,0,.10);}

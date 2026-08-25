@@ -15,6 +15,14 @@
 // correct in both testaments. Only word-level highlighting would be wrong for
 // the OT, and that is not what this does.
 (function () {
+  // Inject verse highlighting styles
+  if (!document.getElementById('verse-highlight-styles')) {
+    var style = document.createElement('style');
+    style.id = 'verse-highlight-styles';
+    style.textContent = '.verse-highlighted{background:rgba(212,175,55,0.2);border-left:3px solid var(--gold);padding-left:8px}.verse-highlighted .verse-text{color:var(--gold)}.verse-num{cursor:pointer;user-select:none}.verse-num:hover{opacity:0.8}';
+    document.head.appendChild(style);
+  }
+
   var MANIFEST_URL = (window.SWRV_API_BASE || '') + '/data/bsb-audio-manifest.json';
   var TIMINGS_BASE = (window.SWRV_API_BASE || '') + '/data/bsb-timings/';
   var FOLLOW_KEY = 'swrv_audio_follow';
@@ -40,6 +48,8 @@
   // chapter changes (see buildSpans below).
   var repeatVerse = false;
   var repeatTargetN = null; // verse number currently being looped, or null
+  var highlightedVerses = new Set(); // verse numbers that are highlighted for meditation
+  var repeatHighlightedOnly = false; // if true, repeat only highlighted verses instead of current
 
   function bar()   { return document.getElementById('audioBibleBar'); }
   function audioEl(){ return document.getElementById('audioBibleEl'); }
@@ -182,12 +192,23 @@
     // verse, jump back to its start instead of letting it roll into the
     // next verse (or, for the chapter's last verse, into 'ended' and
     // continuous-playback advancing to the next chapter — repeat always
-    // wins over continuous while it's active). Hair-trigger (0.01s) to catch
-    // the boundary instantly without leaking a single word of the next verse.
+    // wins over continuous while it's active). Ultra-tight boundary (0.0005s)
+    // to catch the edge instantly without leaking any audio from the next verse.
     if (repeatVerse && repeatTargetN != null) {
       var target = activeSpans[repeatTargetN - 1];
-      if (target && a.currentTime >= target.end - 0.01) {
-        a.currentTime = target.begin;
+      if (target && a.currentTime >= target.end - 0.0005) {
+        // If in highlighted-verses mode and there are highlights, move to next highlight
+        if (repeatHighlightedOnly && highlightedVerses.size > 0) {
+          var highlighted = Array.from(highlightedVerses).sort((a, b) => a - b);
+          var currentIdx = highlighted.indexOf(repeatTargetN);
+          var nextIdx = (currentIdx + 1) % highlighted.length;
+          repeatTargetN = highlighted[nextIdx];
+          var nextTarget = activeSpans[repeatTargetN - 1];
+          if (nextTarget) a.currentTime = nextTarget.begin;
+        } else {
+          // Normal mode: repeat current verse
+          a.currentTime = target.begin;
+        }
         return;
       }
     }
@@ -219,7 +240,7 @@
     }
   }
 
-  // Tap a verse number to jump the audio to that verse.
+  // Tap a verse number to jump the audio to that verse; Ctrl+Click to highlight for meditation.
   document.addEventListener('click', function (e) {
     if (!activeSpans) return;
     var num = e.target.closest && e.target.closest('.verse-num');
@@ -229,8 +250,18 @@
     var m = /_(\d+)$/.exec(verseEl.id);
     if (!m) return;
     var s = activeSpans[Number(m[1]) - 1];
+    if (!s) return;
+
+    // Ctrl+Click or Cmd+Click: highlight for meditation
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      window._audioToggleHighlightVerse(verseEl);
+      return;
+    }
+
+    // Regular click: jump to verse
     var a = audioEl();
-    if (!s || !a || !a.src) return;
+    if (!a || !a.src) return;
     a.currentTime = s.begin;
     // Tapping a verse while repeat is on switches the loop to that verse —
     // "whichever verse is on" should always be the one that repeats.
@@ -251,6 +282,46 @@
       btn.setAttribute('aria-pressed', continuous ? 'true' : 'false');
       btn.style.opacity = continuous ? '' : '0.45';
     }
+  };
+
+  window._audioToggleHighlightVerse = function (verseEl) {
+    if (!verseEl) return;
+    var m = /_(\d+)$/.exec(verseEl.id);
+    if (!m) return;
+    var verseNum = Number(m[1]);
+    if (highlightedVerses.has(verseNum)) {
+      highlightedVerses.delete(verseNum);
+      verseEl.classList.remove('verse-highlighted');
+    } else {
+      highlightedVerses.add(verseNum);
+      verseEl.classList.add('verse-highlighted');
+    }
+    // Update button state if in highlighted repeat mode
+    if (repeatHighlightedOnly) {
+      var repeatBtn = document.querySelector('[data-audio-repeat-mode]');
+      if (repeatBtn) repeatBtn.textContent = '↻ Repeat: ' + highlightedVerses.size + ' verses';
+    }
+  };
+
+  window._audioToggleRepeatMode = function (btn) {
+    if (highlightedVerses.size > 0) {
+      repeatHighlightedOnly = !repeatHighlightedOnly;
+      if (btn) {
+        btn.textContent = repeatHighlightedOnly
+          ? '↻ Repeat: ' + highlightedVerses.size + ' verses'
+          : '↻ Repeat: Current';
+        btn.setAttribute('data-repeat-mode', repeatHighlightedOnly ? 'highlighted' : 'current');
+      }
+    }
+  };
+
+  window._audioClearHighlights = function () {
+    highlightedVerses.clear();
+    document.querySelectorAll('.verse-highlighted').forEach(el => {
+      el.classList.remove('verse-highlighted');
+    });
+    var repeatBtn = document.querySelector('[data-audio-repeat-mode]');
+    if (repeatBtn) repeatBtn.textContent = '↻ Repeat: Current';
   };
 
   window._audioToggleRepeatVerse = function (btn) {
