@@ -201,6 +201,54 @@ export default {
           .bind(uid, normEmail, name || null, hash, salt).run();
         const user = { id: uid, email: normEmail, name: name || null };
         const token = await issueSession(user, env.SESSION_SECRET);
+
+        // Send welcome email via Resend (fire and forget — don't block signup on email failure)
+        if (env.RESEND_API_KEY) {
+          fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: 'welcome@swrvonthego.pro',
+              to: normEmail,
+              subject: 'Welcome to SWRV Kingdom Bible',
+              html: `
+                <div style="font-family: Georgia, serif; color: #3a2810; line-height: 1.6;">
+                  <h1 style="color: #604d1d; margin-bottom: 20px;">Welcome to SWRV Kingdom Bible</h1>
+                  <p>Hello${name ? ' ' + name : ''},</p>
+                  <p>Your account has been created successfully. You're now part of a community of Bible scholars and spiritual seekers exploring the Kingdom of God through deep textual study.</p>
+
+                  <h2 style="color: #604d1d; font-size: 18px; margin-top: 25px;">Account Security</h2>
+                  <ul>
+                    <li><strong>Your password:</strong> Keep this secure and never share it. Only SWRV Kingdom Bible will ask for it.</li>
+                    <li><strong>Password reset:</strong> Forgot your password? Sign in and look for the "Forgot password?" link, or contact us at swrvonthego@gmail.com</li>
+                    <li><strong>Email verification:</strong> This email confirms your account is active and ready to use.</li>
+                  </ul>
+
+                  <h2 style="color: #604d1d; font-size: 18px; margin-top: 25px;">Getting Started</h2>
+                  <p>Your account gives you access to:</p>
+                  <ul>
+                    <li>Save your reading progress across all devices</li>
+                    <li>Create and organize notes on any verse</li>
+                    <li>Bookmark verses and passages for easy reference</li>
+                    <li>Highlight and meditate on verses in repeat mode</li>
+                  </ul>
+
+                  <h2 style="color: #604d1d; font-size: 18px; margin-top: 25px;">Visit Our Website</h2>
+                  <p>Learn more about our mission and resources at <a href="https://www.swrvonthego.pro" style="color: #604d1d; text-decoration: none; font-weight: bold;">www.swrvonthego.pro</a></p>
+
+                  <p style="margin-top: 30px; color: #5c4628; font-size: 14px;">
+                    If you have any questions or need support, reach out to us at swrvonthego@gmail.com<br>
+                    <strong>SWRV Kingdom Bible Team</strong>
+                  </p>
+                </div>
+              `
+            })
+          }).catch(e => console.error('Welcome email failed:', e));
+        }
+
         return json({ token, user });
       } catch (err) {
         return json({ error: 'Signup failed', detail: err.message }, 500);
