@@ -77,9 +77,16 @@ body[data-theme="luxe"]{
    background — measured 1.03:1/1.06:1, i.e. invisible, confirmed via a
    real rendered-page contrast audit, not just reading the CSS. :not()
    excludes that whole group so it keeps the theme's normal dark-on-light
-   --fg-mute, which was already correct at 5.6-5.8:1. */
-[data-theme="vintage"] .icon-btn:not(.reading-mode-group .icon-btn),
-[data-theme="earth"] .icon-btn:not(.reading-mode-group .icon-btn),
+   --fg-mute, which was already correct at 5.6-5.8:1.
+   MUST be scoped to .header-actions: .icon-btn is also the generic button
+   class used everywhere inside modals (chapter pills, "Back to Library",
+   chronological-period filters, layer-filter Select All/Reset, etc.) —
+   those render on the modal's light --bg-2 panel, not the dark header, so
+   this same #d9cbb4 light-cream text applied unscoped there was landing
+   light text on a light background and going invisible. A real rendered
+   screenshot of the chronological-events filter pills confirmed it. */
+[data-theme="vintage"] .header-actions .icon-btn:not(.reading-mode-group .icon-btn),
+[data-theme="earth"] .header-actions .icon-btn:not(.reading-mode-group .icon-btn),
 [data-theme="vintage"] .mode-toggle button,
 [data-theme="earth"] .mode-toggle button{color:#d9cbb4}
 /* .nav-hide-btn sets color:var(--gold) with !important elsewhere — the
