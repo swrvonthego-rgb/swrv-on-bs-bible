@@ -266,7 +266,15 @@ export default {
             redirect_uri: redirectUri, grant_type: 'authorization_code'
           })
         });
-        if (!tokenRes.ok) return errRedirect('Google sign-in failed.');
+        if (!tokenRes.ok) {
+          // Surface Google's actual OAuth error code (e.g. invalid_client,
+          // redirect_uri_mismatch) instead of a generic message — that
+          // generic message was making every failure indistinguishable,
+          // so a real misconfiguration looked identical to a fluke.
+          let detail = '';
+          try { const eb = await tokenRes.json(); detail = eb.error || ''; } catch (e) {}
+          return errRedirect('Google sign-in failed' + (detail ? ' (' + detail + ')' : '') + '.');
+        }
         const tokenData = await tokenRes.json();
         const uinfoRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
           headers: { Authorization: `Bearer ${tokenData.access_token}` }
@@ -291,7 +299,7 @@ export default {
         dest.searchParams.set('auth_token', token);
         return Response.redirect(dest.toString(), 302);
       } catch (err) {
-        return errRedirect('Google sign-in failed.');
+        return errRedirect('Google sign-in failed (' + String(err.message || err).slice(0, 120) + ').');
       }
     }
 
