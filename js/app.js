@@ -5487,7 +5487,7 @@ function _renderBookOverview(book){
     };
     const tags = Array.isArray(v.strongsTags) ? v.strongsTags : [];
     if(!tags.length){
-      result.reason = 'This verse has no Strong\'s tag data attached. Exact original-word mapping is unavailable.';
+      result.reason = 'This verse isn\'t linked to a specific original Hebrew or Greek word in our data — see the definition below.';
       return result;
     }
     // Step 1: find tags whose lexicon kjv_def actually contains the tapped word.
@@ -5562,7 +5562,7 @@ function _renderBookOverview(book){
     }
     // Step 3: honest "unavailable" path.
     result.confidence = 'unavailable';
-    result.reason = 'Exact lemma not in current tagged data for "'+ew+'" at this verse. The verse\'s tagged originals do not list "'+ew+'" as a KJV rendering, and the word-family map does not match any tag here. Engine falls back to phrase + genre context.';
+    result.reason = '"'+ew+'" isn\'t linked to a specific original Hebrew or Greek word in our data for this verse — see the definition below.';
     return result;
   }
   window.resolveContextualWordSense = resolveContextualWordSense;
@@ -5709,7 +5709,7 @@ function _renderBookOverview(book){
   //     bibleVersion: string,
   //     exactWordUsedHere: {
   //       english: string,
-  //       original: string | "Exact original-word mapping unavailable in current tagged data",
+  //       original: string | "No specific original-language word linked for this verse",
   //       strongs:  string | "Unavailable",
   //       morphology: string | "Unavailable",
   //       phrase: string
@@ -5730,11 +5730,34 @@ function _renderBookOverview(book){
   // fallback built from book/testament/genre context — explicitly NOT a
   // Strong's-def restatement. The Strong's range remains in fullWordRange.
   // ============================================================
+  // Standard literary-genre classification by book, keyed by the slugs used
+  // in data/bible-index.js. That index has no "genre" field on any of its
+  // 66 entries, so the old genre-map lookup here always missed and every
+  // fallback sentence across the whole Bible rendered as a bare " (OT)" /
+  // " (NT)" with no genre before it. This table is the fix — one static
+  // classification, defined once, used everywhere this function is called.
+  var _BOOK_GENRE = {
+    Genesis:'torah', Exodus:'torah', Leviticus:'torah', Numbers:'torah', Deuteronomy:'torah',
+    Joshua:'history', Judges:'history', Ruth:'history', '1Samuel':'history', '2Samuel':'history',
+    '1Kings':'history', '2Kings':'history', '1Chronicles':'history', '2Chronicles':'history',
+    Ezra:'history', Nehemiah:'history', Esther:'history',
+    Job:'wisdom', Psalms:'poetry', Proverbs:'wisdom', Ecclesiastes:'wisdom', SongofSolomon:'poetry',
+    Isaiah:'prophets', Jeremiah:'prophets', Lamentations:'poetry', Ezekiel:'prophets', Daniel:'prophets',
+    Hosea:'prophets', Joel:'prophets', Amos:'prophets', Obadiah:'prophets', Jonah:'prophets',
+    Micah:'prophets', Nahum:'prophets', Habakkuk:'prophets', Zephaniah:'prophets', Haggai:'prophets',
+    Zechariah:'prophets', Malachi:'prophets',
+    Matthew:'gospels', Mark:'gospels', Luke:'gospels', John:'gospels', Acts:'acts',
+    Romans:'epistles', '1Corinthians':'epistles', '2Corinthians':'epistles', Galatians:'epistles',
+    Ephesians:'epistles', Philippians:'epistles', Colossians:'epistles', '1Thessalonians':'epistles',
+    '2Thessalonians':'epistles', '1Timothy':'epistles', '2Timothy':'epistles', Titus:'epistles',
+    Philemon:'epistles', Hebrews:'epistles', James:'epistles', '1Peter':'epistles', '2Peter':'epistles',
+    '1John':'epistles', '2John':'epistles', '3John':'epistles', Jude:'epistles', Revelation:'apocalypse'
+  };
   function _bookGenreSummary(book){
     const meta = (window.BIBLE_INDEX||[]).find(function(b){return b.slug===book;});
     if(!meta) return '';
     const T = meta.testament || (meta.section==='NT'?'NT':'OT');
-    const G = (meta.genre||'').toLowerCase();
+    const G = (meta.genre||_BOOK_GENRE[book]||'').toLowerCase();
     const map = {
       torah:'Torah / Pentateuch — covenant foundation, narrative + law.',
       history:'Historical narrative — covenant in the life of Israel.',
@@ -5746,7 +5769,7 @@ function _renderBookOverview(book){
       epistles:'Apostolic letter — pastoral / doctrinal instruction to churches.',
       apocalypse:'Apocalyptic — symbolic vision of consummation.'
     };
-    return (map[G]||'') + ' (' + T + ')';
+    return map[G] ? (map[G].replace(/\.\s*$/,'') + ' (' + T + ')') : '';
   }
   function _phraseContext(verse, englishWord){
     if(!verse) return '';
@@ -5774,7 +5797,7 @@ function _renderBookOverview(book){
     const _wL=word.toLowerCase();const _wC=_wL.charAt(0).toUpperCase()+_wL.slice(1);
     const oldDef = window.DEFINITIONS&&(window.DEFINITIONS[word]||window.DEFINITIONS[_wL]||window.DEFINITIONS[_wC]);
     const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
-      && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
+      && card.exactWordUsedHere.original!=='No specific original-language word linked for this verse';
     // 1. Prefer rich curated dictionary plain meaning + verse anchor
     if(dict && dict.plain){
       let text = dict.plain;
@@ -5857,7 +5880,7 @@ function _renderBookOverview(book){
     const phrase = _phraseContext(verse, word);
     const dict = _dictLookup(word);
     const hasOriginal = card && card.exactWordUsedHere && card.exactWordUsedHere.original
-      && card.exactWordUsedHere.original!=='Exact original-word mapping unavailable in current tagged data';
+      && card.exactWordUsedHere.original!=='No specific original-language word linked for this verse';
     const bits = [];
     if(phrase) bits.push('The surrounding phrase "'+phrase+'" establishes the context for this word\'s sense in this verse.');
     if(hasOriginal){
@@ -5905,6 +5928,13 @@ function _renderBookOverview(book){
         if(out.indexOf(label)<0) out.push(label);
       });
     }
+    const _wRaw = String((opts&&opts.englishWord)||'');
+    const _wLo = _wRaw.toLowerCase();
+    const _wCa = _wLo.charAt(0).toUpperCase()+_wLo.slice(1);
+    const _oldDefSrc = window.DEFINITIONS && (window.DEFINITIONS[_wRaw]||window.DEFINITIONS[_wLo]||window.DEFINITIONS[_wCa]);
+    if(_oldDefSrc){
+      out.push('General English Glossary / Word Dictionary (data/definitions.js, data/general-english-glossary.js)');
+    }
     if(!out.length){
       out.push('Contextual fallback based on displayed Bible version and passage context (no verified original-word mapping in current tagged data)');
     }
@@ -5929,7 +5959,7 @@ function _renderBookOverview(book){
     const hasOriginal = !!(inner && inner.exactWordUsedHere && inner.exactWordUsedHere.original && String(inner.exactWordUsedHere.original).trim());
     const exact = {
       english: opts.englishWord || '',
-      original: hasOriginal ? inner.exactWordUsedHere.original : 'Exact original-word mapping unavailable in current tagged data',
+      original: hasOriginal ? inner.exactWordUsedHere.original : 'No specific original-language word linked for this verse',
       strongs:  hasOriginal && inner.exactWordUsedHere.strongs ? inner.exactWordUsedHere.strongs : 'Unavailable',
       morphology: (inner.sense && inner.sense.exactTag && inner.sense.exactTag.m) ? inner.sense.exactTag.m : 'Morphology not present in current tagged morphology dataset',
       phrase: phrase || (inner.exactWordUsedHere && inner.exactWordUsedHere.phrase) || ''
@@ -6061,7 +6091,7 @@ function _renderBookOverview(book){
       html += '<div class="sheet-section-label sheet-section-headline">EXACT WORD USED HERE</div>';
       html += '<div class="used-row"><b>English:</b> '+_escape(word)+'</div>';
       const x = card.exactWordUsedHere;
-      const _hasOriginal = x.original && x.original!=='Exact original-word mapping unavailable in current tagged data';
+      const _hasOriginal = x.original && x.original!=='No specific original-language word linked for this verse';
       if(_hasOriginal){
         html += '<div class="used-row"><b>'+_escape(x.language||'')+':</b> '+_escape(x.original)+'</div>';
         if(x.transliteration) html += '<div class="used-row"><b>Transliteration:</b> '+_escape(x.transliteration)+'</div>';
