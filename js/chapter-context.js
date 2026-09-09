@@ -73,6 +73,32 @@
     return h;
   };
 
+  // Renders the per-chapter "Questions & Answers" card — real questions a
+  // curious reader might stop and ask about this chapter, answered directly.
+  // Deliberately reuses the already-styled .universal-study-card /
+  // .study-mini-card / .mini-card-label classes from the per-verse "Study
+  // tools" card (see renderUniversalDeepStudy in app.js) instead of adding
+  // new CSS, so it matches the app's existing look everywhere automatically.
+  window._renderChapterQA = function (book, chapterNum) {
+    var list = window.SWRV_QA && window.SWRV_QA[book + ' ' + chapterNum];
+    if (!list || !list.length) return '';
+    var h = '<details class="universal-study-card qa-study-card">' +
+            '<summary><span>❓ Questions &amp; Answers</span>' +
+            '<small>' + list.length + (list.length === 1 ? ' question' : ' questions') +
+            ' about this chapter</small></summary>';
+    h += '<div class="study-card-grid">';
+    list.forEach(function (entry, i) {
+      h += '<div class="study-mini-card qa-mini">' +
+           '<div class="mini-card-label">' + (list.length > 1 ? 'Q' + (i + 1) : 'Question') + '</div>' +
+           '<h4>' + esc(entry.q) + '</h4>' +
+           '<div class="mini-card-label" style="margin-top:10px;">Answer</div>' +
+           '<p>' + esc(entry.a) + '</p>' +
+           '</div>';
+    });
+    h += '</div></details>';
+    return h;
+  };
+
   // Fold the three older ANE files into the registry once everything has
   // loaded. They only ever set a global that nothing read; this gap-fills any
   // chapter the per-chapter files left thin.

@@ -1222,12 +1222,19 @@ function renderChapterDeepStudyBanner(ch, verseNums){
   // real estate announcing that on every chapter. Deep tools remain available
   // as collapsible verse/source panels where they actually help the reading.
   // What does earn the space: the Ancient-Near-East context card for this
-  // specific chapter, so a reader knows what world they just walked into.
+  // specific chapter, so a reader knows what world they just walked into —
+  // plus, right after it, a "Questions & Answers" card for the real
+  // questions a curious reader tends to stop and ask about this chapter.
+  let out = '';
   if(typeof window._renderChapterANEContext === 'function'){
-    try{ return window._renderChapterANEContext(window.currentBook, window.currentChapter) || ''; }
-    catch(e){ return ''; }
+    try{ out += window._renderChapterANEContext(window.currentBook, window.currentChapter) || ''; }
+    catch(e){}
   }
-  return '';
+  if(typeof window._renderChapterQA === 'function'){
+    try{ out += window._renderChapterQA(window.currentBook, window.currentChapter) || ''; }
+    catch(e){}
+  }
+  return out;
 }
 
 function _isUsefulDefinitionToken(cleaned){
