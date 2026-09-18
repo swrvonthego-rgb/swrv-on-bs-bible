@@ -1528,13 +1528,22 @@ function renderVerse(v){
     verseHtml.push('</details>');
   }
   if(v.variants&&v.variants.length>0){
+    // One combined card per verse instead of one per word-choice: a reader
+    // new to this needs the concept explained once ("why am I seeing this?"),
+    // not N identical red pills each repeating "TRANSLATION LOSS" with no
+    // context. The cue names how many word choices are inside so a reader
+    // knows what they're opening before they tap.
+    const n = v.variants.length;
+    verseHtml.push('<details class="collapsible-section translation-flag study-layer">');
+    verseHtml.push('<summary><span class="flag-label">⚠ TRANSLATION LOSS</span> <span class="collapsible-cue">'+n+' word choice'+(n===1?'':'s')+' in this verse</span></summary>');
+    verseHtml.push('<div class="flag-intro">Every translation has to pick one English word for a Hebrew or Greek word that often carries more than English can hold in a single word. That\'s not a mistake — it\'s just what translation is. Below is what gets narrowed or softened in this verse when that choice is made:</div>');
     for(const variant of v.variants){
-      verseHtml.push('<details class="collapsible-section translation-flag study-layer">');
-      verseHtml.push('<summary><span class="flag-label">⚠ TRANSLATION LOSS</span> <span class="collapsible-cue">'+escapeHtml(variant.label||'')+'</span></summary>');
+      verseHtml.push('<div class="flag-item">');
       verseHtml.push('<div class="flag-title">'+escapeHtml(variant.label)+'</div>');
       verseHtml.push('<div class="flag-note">'+escapeHtml(variant.note)+'</div>');
-      verseHtml.push('</details>');
+      verseHtml.push('</div>');
     }
+    verseHtml.push('</details>');
   }
   const xrefId=refId+'_xref';
   if(v.enochRef||v.josephusRef){
