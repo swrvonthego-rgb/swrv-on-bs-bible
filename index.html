@@ -31,7 +31,7 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260826contrastfix3">
+<link rel="stylesheet" href="css/styles.css?v=20260918merge1">
 <link rel="stylesheet" href="css/audio-sync.css?v=20260820audio1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
 <link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix10">
@@ -227,8 +227,6 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
   <button type="button" class="audio-sync-toggle" id="audioFollowToggle" aria-pressed="true" onclick="window._audioToggleFollow(this)" title="Auto-scroll to keep the verse being read in view">↕</button>
   <button type="button" class="audio-sync-toggle" id="audioContinuousToggle" aria-pressed="true" onclick="window._audioToggleContinuous(this)" title="Keep reading into the next chapter automatically when this one ends">🔁</button>
   <button type="button" class="audio-sync-toggle" id="audioRepeatToggle" aria-pressed="false" onclick="window._audioToggleRepeatVerse(this)" title="Repeat the verse currently playing, on loop, until you turn this off">🔂</button>
-  <button type="button" class="audio-sync-toggle" id="audioRepeatModeToggle" data-audio-repeat-mode="current" onclick="window._audioToggleRepeatMode(this)" title="Switch between repeating current verse vs. highlighted verses for meditation">↻ Repeat: Current</button>
-  <button type="button" class="audio-sync-toggle" id="audioClearHighlights" onclick="window._audioClearHighlights()" title="Clear all highlighted verses">✕ Highlights</button>
 </div>
 <!-- Floating "Show navigation" reveal chip — visible only when the nav row is fully hidden -->
 <button id="navShowChip" class="nav-show-chip" type="button" onclick="toggleNavBarHidden()" title="Show Book / Chapter / Verse controls" aria-hidden="true">▾ Show navigation</button>
@@ -691,12 +689,12 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 <script src="js/auth.js?v=20260721delacct1" defer></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260826disclaimerfix1" defer></script>
+<script src="js/app.js?v=20260918merge1" defer></script>
 <script src="js/tour.js?v=20260729tourfix1" defer></script>
-<script src="js/chapter-context.js?v=20260818ctx1" defer></script>
+<script src="js/chapter-context.js?v=20260918merge1" defer></script>
 <script src="js/floating-widgets.js?v=20260804dock1" defer></script>
 <script src="js/side-dock.js?v=20260819dockfix4" defer></script>
-<script src="js/audio-bible.js?v=20260825audioboundary1" defer></script>
+<script src="js/audio-bible.js?v=20260825audiofixed2" defer></script>
 <script src="js/search.js?v=20260804search2" defer></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->

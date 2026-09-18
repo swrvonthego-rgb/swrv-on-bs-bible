@@ -192,11 +192,11 @@
     // verse, jump back to its start instead of letting it roll into the
     // next verse (or, for the chapter's last verse, into 'ended' and
     // continuous-playback advancing to the next chapter — repeat always
-    // wins over continuous while it's active). Ultra-tight boundary (0.0005s)
-    // to catch the edge instantly without leaking any audio from the next verse.
+    // wins over continuous while it's active). Ultra-aggressive boundary (0.00001s)
+    // with 10ms pre-start offset to catch first word and prevent next-verse bleed.
     if (repeatVerse && repeatTargetN != null) {
       var target = activeSpans[repeatTargetN - 1];
-      if (target && a.currentTime >= target.end - 0.0005) {
+      if (target && a.currentTime >= target.end - 0.00001) {
         // If in highlighted-verses mode and there are highlights, move to next highlight
         if (repeatHighlightedOnly && highlightedVerses.size > 0) {
           var highlighted = Array.from(highlightedVerses).sort((a, b) => a - b);
@@ -204,10 +204,10 @@
           var nextIdx = (currentIdx + 1) % highlighted.length;
           repeatTargetN = highlighted[nextIdx];
           var nextTarget = activeSpans[repeatTargetN - 1];
-          if (nextTarget) a.currentTime = nextTarget.begin;
+          if (nextTarget) a.currentTime = Math.max(0, nextTarget.begin - 0.01);
         } else {
           // Normal mode: repeat current verse
-          a.currentTime = target.begin;
+          a.currentTime = Math.max(0, target.begin - 0.01);
         }
         return;
       }
@@ -296,32 +296,23 @@
       highlightedVerses.add(verseNum);
       verseEl.classList.add('verse-highlighted');
     }
-    // Update button state if in highlighted repeat mode
-    if (repeatHighlightedOnly) {
-      var repeatBtn = document.querySelector('[data-audio-repeat-mode]');
-      if (repeatBtn) repeatBtn.textContent = '↻ Repeat: ' + highlightedVerses.size + ' verses';
-    }
+    updateRepeatButtonBadge();
   };
 
-  window._audioToggleRepeatMode = function (btn) {
-    if (highlightedVerses.size > 0) {
-      repeatHighlightedOnly = !repeatHighlightedOnly;
-      if (btn) {
-        btn.textContent = repeatHighlightedOnly
-          ? '↻ Repeat: ' + highlightedVerses.size + ' verses'
-          : '↻ Repeat: Current';
-        btn.setAttribute('data-repeat-mode', repeatHighlightedOnly ? 'highlighted' : 'current');
-      }
+  // Update repeat button to show highlighted verse count badge
+  function updateRepeatButtonBadge() {
+    var btn = document.getElementById('audioRepeatToggle');
+    if (!btn) return;
+    if (highlightedVerses.size > 0 && repeatVerse && repeatHighlightedOnly) {
+      btn.setAttribute('data-highlight-count', highlightedVerses.size);
+      btn.title = 'Repeating ' + highlightedVerses.size + ' highlighted verses (Ctrl+Click to select verses)';
+    } else if (highlightedVerses.size > 0) {
+      btn.setAttribute('data-highlight-count', highlightedVerses.size);
+      btn.title = 'Repeat: Current verse • ' + highlightedVerses.size + ' highlighted (Ctrl+Click to select verses)';
+    } else {
+      btn.removeAttribute('data-highlight-count');
+      btn.title = 'Repeat the verse currently playing, on loop, until you turn this off • Ctrl+Click verses to highlight for selective repeat';
     }
-  };
-
-  window._audioClearHighlights = function () {
-    highlightedVerses.clear();
-    document.querySelectorAll('.verse-highlighted').forEach(el => {
-      el.classList.remove('verse-highlighted');
-    });
-    var repeatBtn = document.querySelector('[data-audio-repeat-mode]');
-    if (repeatBtn) repeatBtn.textContent = '↻ Repeat: Current';
   };
 
   window._audioToggleRepeatVerse = function (btn) {
@@ -329,7 +320,15 @@
     // Lock onto whatever verse is currently playing/highlighted the moment
     // repeat is turned on; cleared when turned off so it starts fresh next time.
     repeatTargetN = repeatVerse ? activeVerseN : null;
+    // Smart mode: if turning on repeat and there are highlighted verses, use highlighted mode
+    if (repeatVerse && highlightedVerses.size > 0) {
+      repeatHighlightedOnly = true;
+    } else if (!repeatVerse) {
+      // Reset mode when turning off repeat
+      repeatHighlightedOnly = false;
+    }
     if (btn) btn.setAttribute('aria-pressed', repeatVerse ? 'true' : 'false');
+    updateRepeatButtonBadge();
   };
 
   function show(testament, r2Key) {

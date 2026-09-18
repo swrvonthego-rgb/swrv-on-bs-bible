@@ -14,23 +14,23 @@
 // installed/cached can keep serving old script/style bytes indefinitely,
 // even though the server is already serving the new deploy (cache-first
 // below never re-checks the network for a URL it already has cached).
-const CACHE_NAME = 'swrv-kingdom-bible-v20260826-contrastfix3';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260918-merge1';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/styles.css?v=20260826contrastfix3',
+  './css/styles.css?v=20260918merge1',
   './css/audio-sync.css?v=20260820audio1',
   './css/chapter-context.css?v=20260818ctx1',
   './css/side-dock.css?v=20260819dockfix10',
   './css/button-feel.css?v=20260819feel1',
   // Active JS bundle
-  './js/app.js?v=20260826disclaimerfix1',
+  './js/app.js?v=20260918merge1',
   './js/tour.js?v=20260729tourfix1',
-  './js/chapter-context.js?v=20260818ctx1',
+  './js/chapter-context.js?v=20260918merge1',
   './js/floating-widgets.js?v=20260804dock1',
   './js/side-dock.js?v=20260819dockfix4',
-  './js/audio-bible.js?v=20260825audioboundary1',
+  './js/audio-bible.js?v=20260825highlightui1',
   './js/search.js?v=20260804search2',
   './js/preload-bible.js?v=20260721search1',
   './js/enrichments.js?v=20260825def1',
