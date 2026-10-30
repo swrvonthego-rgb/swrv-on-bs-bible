@@ -10,31 +10,31 @@ window.STRONGS_SENSE_MAP = {
 // ═══════════════════════════════════════════════════════════════
 
 "H430": {
-  primarySense: "Elohim — the majestic plural for the one God of Israel; the Creator, Ruler, and Judge of all things.",
-  etymology: "Plural of El (H410) or Eloah (H433); the -im ending is a Hebrew masculine plural. When used of Israel's God, it takes singular verbs (bara', 'he created'), marking it as a plural of majesty, not quantity.",
+  primarySense: "Elohim — the main Hebrew word for God, used over 2,000 times in the Old Testament. It's grammatically plural (like saying \"Gods\"), but when it's talking about Israel's one God, the verb that goes with it is singular — like saying \"Gods is\" instead of \"Gods are.\" That mismatch isn't a typo; Hebrew writers used it on purpose to say \"supremely great,\" the same way a king might say \"we\" instead of \"I.\"",
+  etymology: "Elohim is built from a shorter word for God, El, plus the ending \"-im,\" which is just how Hebrew makes a word plural (like adding \"-s\" in English). So Elohim looks plural. But whenever the Bible means Israel's actual God, it pairs this plural-looking word with a singular verb — \"God created,\" not \"Gods created.\" Grammarians call that pattern a \"plural of majesty\": a bigger-sounding word used to show bigger importance, not bigger numbers.",
   senses: [
-    "The God of Israel — Creator, Lawgiver, Redeemer; the one who spoke all things into being (Gen 1:1).",
-    "Divine beings or the heavenly court — 'sons of Elohim' (Job 1:6), messengers in God's presence.",
-    "Pagan gods — idols or foreign deities referred to with this word (Exod 20:3), always contrasted with Israel's God.",
-    "Human judges or rulers — in Ps 82:6 God addresses human judges as 'elohim' because they exercise delegated divine authority.",
-    "Superlative force — occasionally adds intensity: 'a mighty wind' (ruach Elohim, Gen 1:2)."
+    "The God of Israel — the Creator, lawgiver, and rescuer who spoke everything into existence (Gen 1:1).",
+    "Divine beings in God's heavenly court — \"sons of Elohim\" (Job 1:6) refers to angels or spirit-beings who serve in God's presence, not rival gods.",
+    "Other nations' gods — idols and false deities (Exod 20:3). The Bible uses the same word for these, but always to say they're not the real thing.",
+    "Human judges or rulers — in Psalm 82:6, God calls human judges \"elohim\" because they're using authority he gave them, not because they're divine.",
+    "Extra intensity — once in a while the word just adds emphasis, like \"a mighty wind\" (literally \"a ruach of Elohim,\" Gen 1:2)."
   ],
-  contextNote: "Genesis 1:1 opens with 'In the beginning Elohim created' — the plural name with a singular verb establishes from page one that Israel's God is uniquely one yet mysteriously full. The name Elohim emphasizes power, transcendence, and cosmic authority. When the narrative shifts to covenant relationship it typically shifts to YHWH (H3068) or the compound YHWH Elohim.",
-  notMeantWhen: "Elohim does NOT imply multiple gods. The singular verb construction rules that out. It is not equivalent to 'a god' or 'divine force' — its canonical use is the personal Creator of Genesis 1."
+  contextNote: "Genesis 1:1 opens with \"In the beginning Elohim created\" — a plural-looking name paired with a singular verb, right from the first sentence. That's the Bible's first clue that Israel's God is one, but not simple — he's bigger than ordinary language can fully capture. Elohim as a name leans into God's power and his role as Creator and Judge of everything. Later, when the story shifts into a close, personal relationship with God, the text usually switches to his personal name, YHWH (see H3068).",
+  notMeantWhen: "Elohim does NOT mean there's more than one God — the singular verb rules that out every time. It's also not a vague word for \"a god\" or \"divine energy.\" In the Bible, it's a name for one specific, personal Creator."
 },
 
 "H3068": {
-  primarySense: "YHWH — the personal covenant name of Israel's God, usually rendered LORD in English. Derived from the verb 'to be': the self-existent, eternally present One.",
-  etymology: "From hayah (H1961, 'to be, to exist, to happen'). God revealed this name to Moses at the burning bush: 'I AM WHO I AM' (Exod 3:14). The Tetragrammaton YHWH was considered so sacred that Jewish tradition substituted Adonai when reading. Modern English translators follow this by writing LORD in small capitals.",
+  primarySense: "YHWH — God's actual, personal name, used over 6,800 times in the Old Testament. Most English Bibles translate it as \"LORD\" in small capital letters. It comes from the Hebrew verb \"to be,\" so the name basically means \"I exist\" or \"I am always here.\"",
+  etymology: "YHWH comes from the Hebrew verb hayah, \"to be, to exist, to happen.\" God explained the name to Moses at the burning bush by saying, \"I AM WHO I AM\" (Exodus 3:14). Jewish tradition considered the name too holy to say out loud, so readers said \"Adonai\" (\"my Lord\") instead whenever they saw it written. English translations follow that same habit by printing \"LORD\" in small capitals instead of spelling the name out.",
   senses: [
-    "The self-existent One — the God who simply IS, not contingent on anything outside himself.",
-    "The covenant God — the name used specifically in relationship with Israel, marking promises, laws, and redemption.",
-    "The God who acts in history — YHWH is the one who brought Israel out of Egypt (Exod 20:2), who speaks to prophets, who judges nations.",
-    "The God of steadfast love — YHWH is consistently paired with hesed (H2617), faithfulness, and compassion.",
-    "The God who is present — 'I AM' is not past tense; it signals perpetual, active presence."
+    "The God who simply exists — not created by anything, not dependent on anything else to keep existing.",
+    "The covenant God — the name tied specifically to God's promises and relationship with Israel.",
+    "The God who acts in real history — YHWH is the one who rescued Israel from slavery in Egypt (Exod 20:2), spoke through the prophets, and judged nations.",
+    "The God of loyal love — YHWH shows up again and again paired with the word hesed (steady, loyal love) and faithfulness.",
+    "The God who is present right now — \"I AM\" isn't past tense. It means God is actively here, not just \"was here once.\""
   ],
-  contextNote: "Every occurrence of LORD (small caps) in English OT translations represents YHWH. The name carries immense weight: to call on the name of YHWH is to enter covenant relationship (Joel 2:32). In Exodus 6 God distinguishes: 'I appeared to Abraham as El Shaddai, but by my name YHWH I was not known to them' — the name itself signals a new depth of revelation.",
-  notMeantWhen: "YHWH is not a generic word for 'god' or 'deity.' It is the personal name of Israel's God. When the text says 'the LORD your God' it is simultaneously using the name (YHWH) and the relational title (Elohim = your God)."
+  contextNote: "Every time an English Old Testament says \"LORD\" in small capitals, the Hebrew word underneath is YHWH. Calling on that name meant entering a real relationship with God, not just acknowledging he exists (Joel 2:32). In Exodus 6, God tells Moses: \"I appeared to Abraham as God Almighty, but by my name YHWH I was not known to them\" — meaning this name reveals a deeper, more personal level of who God is.",
+  notMeantWhen: "YHWH is not a generic word for \"a god\" the way \"Elohim\" can sometimes function. It's a specific person's name. When a verse says \"the LORD your God,\" it's using both the name (YHWH) and the relationship title (Elohim = \"your God\") at the same time."
 },
 
 "H136": {
@@ -154,17 +154,17 @@ window.STRONGS_SENSE_MAP = {
 },
 
 "H3722": {
-  primarySense: "Kaphar — to cover, to atone, to make propitiation; the central verb of Israel's sacrificial system. It describes the act that removes the barrier between sinful people and a holy God.",
-  etymology: "The root may be related to a word meaning 'pitch' or 'covering' (the same root covers Noah's ark with pitch, Gen 6:14). To atone is literally to cover over — the sin is covered from God's sight by the blood of sacrifice.",
+  primarySense: "Kaphar — the main verb for \"atone\" in the Old Testament. It describes what a sacrifice does: it deals with sin so that it no longer stands between a person and God. Older Bibles sometimes translate it \"propitiation,\" a fancy word that just means \"turning away anger by making things right.\"",
+  etymology: "The root is probably related to a word for \"covering\" or \"pitch\" — the same word used when Noah covered the ark with waterproof pitch (Gen 6:14). To \"atone\" is literally to cover something over. In the sacrifice system, the animal's blood symbolically covered the sin so it no longer blocked the relationship between the person and God.",
   senses: [
-    "To make atonement — the technical term for what sacrifices accomplish (Lev 1:4; 4:20, 26, 31, 35).",
-    "To cover sin so that God's wrath does not fall — 'the priest shall make atonement for him and he shall be forgiven' (Lev 4:31).",
-    "To ransom or redeem — in some contexts kaphar overlaps with paying a price to cancel a debt or penalty (Num 35:31-33).",
-    "To propitiate — to turn away divine anger by an appropriate offering.",
-    "Used metaphorically of human acts of reconciliation — Jacob's gifts to Esau to 'appease' him use this root (Gen 32:20)."
+    "To make atonement — the official term for what an animal sacrifice accomplished (Lev 1:4; 4:20, 26, 31, 35).",
+    "To cover sin so punishment doesn't fall — \"the priest shall make atonement for him and he shall be forgiven\" (Lev 4:31).",
+    "To pay a price that cancels a debt — in a few places kaphar works like paying a fine instead of facing a harsher penalty (Num 35:31-33).",
+    "To turn away anger by an offering — this is the sense older translations call \"propitiation\": doing something that causes deserved anger to be set aside.",
+    "To smooth things over between people — when Jacob sends gifts ahead to his estranged brother Esau to \"appease\" him, the Bible uses this same word (Gen 32:20)."
   ],
-  contextNote: "The Day of Atonement (Yom Kippur) gets its name from this verb. On that day, the high priest would make kaphar for himself, for the priesthood, and for all Israel — covering the accumulated sins of the entire year. The New Testament authors (especially Hebrews) argue that animal sacrifices could not truly and finally kaphar sin, but Christ's blood accomplished what the shadows pointed toward.",
-  notMeantWhen: "Kaphar in the sacrificial system does not mean sin is forgotten or that it never happened. It means it is covered — the legal consequence is set aside. The blood dealt with the problem in God's legal framework; it did not erase the moral reality."
+  contextNote: "The Day of Atonement (Yom Kippur, Israel's most solemn holiday) gets its name straight from this word. Once a year, the high priest would kaphar for himself, for the other priests, and for the whole nation — covering everyone's sins from that year in one ceremony. The New Testament book of Hebrews argues that animal sacrifices were never going to be a permanent fix — they were a preview, a shadow pointing ahead to what Jesus actually accomplished on the cross once and for all.",
+  notMeantWhen: "Kaphar does not mean the sin is forgotten or erased from history, like it never happened. It means the sin is covered — its legal penalty is set aside. The blood dealt with the consequence in God's court, not with the historical fact that it occurred."
 },
 
 "H4899": {
@@ -253,7 +253,7 @@ window.STRONGS_SENSE_MAP = {
 
 "H3820": {
   primarySense: "Lev — heart; the inner person in their totality: mind, will, emotions, and decision-making center. Hebrew thought locates the whole inner life in the heart, not just feelings.",
-  etymology: "The physical organ, but immediately extended to the center of a person's inner life. In Hebrew anthropology there is no separation between thinking and feeling — both happen in the lev. 'Thinking in the heart' is the normal Hebrew idiom for deliberate reasoning.",
+  etymology: "The physical organ, but immediately extended to the center of a person's inner life. In the Hebrew way of thinking about people, there's no separate box for \"thinking\" versus \"feeling\" the way we sometimes split them today — both happen in the lev. \"Thinking in the heart\" is just the normal Hebrew phrase for working something out in your mind.",
   senses: [
     "The seat of thought and planning — 'As a man thinks in his heart, so is he' (Prov 23:7); 'the thoughts of his heart' (Gen 6:5).",
     "The center of decision and will — to 'set your heart' is to decide; to 'harden the heart' is to refuse.",
@@ -368,17 +368,17 @@ window.STRONGS_SENSE_MAP = {
 // ═══════════════════════════════════════════════════════════════
 
 "G2316": {
-  primarySense: "Theos — God; the supreme divine being. In the NT used almost exclusively for the God of Israel, sometimes distinguished from lesser 'gods,' and applied to Jesus in key texts.",
-  etymology: "Greek common noun for deity, used in the LXX to translate Elohim and El. Cognate with Latin deus. In pagan Greek religion it could refer to any member of the pantheon; the NT appropriates the word for the biblical God and redefines it by context.",
+  primarySense: "Theos — the Greek word for \"God.\" In the New Testament it's used almost entirely for the one true God of Israel, and in a few key places it's applied directly to Jesus too.",
+  etymology: "Theos was the ordinary Greek word for a deity, used by the Greek translation of the Old Testament (the Septuagint) to translate the Hebrew words Elohim and El. In everyday pagan Greek, theos could refer to any god in the pantheon — Zeus, Apollo, any of them. The New Testament writers take that same everyday word and use it specifically for the one real God, letting the context make clear which God they mean.",
   senses: [
-    "The God of Israel, Father of Jesus — the NT's primary use: 'God so loved the world' (John 3:16); 'Grace and peace from God our Father.'",
-    "Jesus as Theos — John 1:1 ('the Word was God'), John 20:28 ('my Lord and my God'), Titus 2:13, 2 Pet 1:1; the NT carefully but definitely applies theos to Jesus.",
-    "The Holy Spirit as divine — implied in the Trinitarian formulas (Matt 28:19; 2 Cor 13:14).",
-    "Pagan deities — Acts 14:11 calls Barnabas and Paul 'gods (theoi)'; 1 Cor 8:5-6 acknowledges 'so-called gods' but asserts only one true Theos.",
-    "Human authorities — Psalm 82:6 is referenced by Jesus (John 10:34): 'you are gods' — human judges bear delegated divine authority."
+    "The God of Israel, Father of Jesus — the NT's main use: \"God so loved the world\" (John 3:16); \"Grace and peace from God our Father.\"",
+    "Jesus called Theos — a small number of key verses call Jesus God directly: John 1:1 (\"the Word was God\"), John 20:28 (\"my Lord and my God\"), Titus 2:13, 2 Peter 1:1.",
+    "The Holy Spirit treated as divine — implied whenever Father, Son, and Spirit are named together as equals (Matt 28:19; 2 Cor 13:14).",
+    "Pagan gods — Acts 14:11 has a crowd calling Paul and Barnabas \"gods (theoi)\"; 1 Corinthians 8:5-6 acknowledges people worship \"so-called gods\" while insisting there's only one real Theos.",
+    "Human authorities, as a figure of speech — Jesus quotes Psalm 82:6 (\"you are gods,\" John 10:34) to say that human judges carry authority that was handed to them by God, not that they're actually divine."
   ],
-  contextNote: "The NT's use of theos is shaped entirely by the OT's Elohim/YHWH. When NT authors say 'God,' they mean the Creator of Genesis 1, the covenant God of Israel, the Father of Jesus Christ. The Trinitarian controversies of the early church were precisely about what it means that Jesus is also called theos — the councils determined it means full ontological equality with the Father, not a lesser divinity.",
-  notMeantWhen: "Theos in a NT context does not imply polytheism. The few uses of theos for pagan deities are always contextually marked and often ironic. The NT's monotheism is strict — 'yet for us there is one God, the Father' (1 Cor 8:6)."
+  contextNote: "Whenever a New Testament writer says \"God,\" they mean the Creator from Genesis 1 — the same God who made promises to Israel and who is now revealed as the Father of Jesus. Early church leaders spent a lot of time arguing over exactly what it means for Jesus to also be called Theos. What they eventually agreed on (and what most churches still teach today) is that Jesus is fully, completely God — not God-lite, not a lesser version, not just \"godlike\" — equally and fully divine alongside the Father.",
+  notMeantWhen: "Calling Jesus theos doesn't mean the NT believes in multiple gods. The handful of times theos is used for pagan idols or even for Paul and Barnabas are clearly meant as exceptions or irony, not real claims. The New Testament's core stance is strict: \"for us there is one God, the Father\" (1 Cor 8:6) — and Jesus shares fully in that one God's identity, rather than being a second, separate deity."
 },
 
 "G2962": {
@@ -396,17 +396,17 @@ window.STRONGS_SENSE_MAP = {
 },
 
 "G5547": {
-  primarySense: "Christos — Anointed One; the Greek translation of Hebrew Mashiach (Messiah). Applied to Jesus as the fulfillment of Israel's hope for the ultimate prophet, priest, and king.",
-  etymology: "From chriō, 'to anoint with oil.' In secular Greek, a christos was simply someone smeared with oil or ointment. The LXX uses it to translate mashiach. By NT times, 'the Christ' had become a specific title for the expected deliverer.",
+  primarySense: "Christos — \"Anointed One.\" This is the Greek version of the Hebrew word Mashiach (\"Messiah\"). It's applied to Jesus because he's the one Israel had been waiting for — the ultimate prophet, priest, and king all in one.",
+  etymology: "From chriō, \"to anoint, to rub with oil.\" In everyday Greek, a christos was just someone who had oil rubbed on them — nothing religious about it. The Greek Old Testament used it to translate mashiach, and by the time of the New Testament, \"the Christ\" had become a specific title: the promised rescuer-king Israel was waiting for.",
   senses: [
-    "The Messiah of Israel — the one anointed by God to fulfill the promises to David and the prophets.",
-    "Jesus' identity — 'You are the Christ, the Son of the living God' (Matt 16:16); the central confession.",
-    "Used as a personal name — 'Jesus Christ' becomes almost a name by Paul's letters, though the title meaning is never lost.",
-    "The scope of the anointed role — prophet (speaks God's word), priest (makes atonement), king (rules and governs).",
-    "The suffering Messiah — not what first-century Jews expected; Jesus redefines the title through the cross and resurrection."
+    "The Messiah of Israel — the one God promised to send to fulfill his promises to David and the prophets.",
+    "Jesus' identity — \"You are the Christ, the Son of the living God\" (Matt 16:16) — this is the key moment the disciples recognize who Jesus really is.",
+    "Used almost like a name — by the time Paul writes his letters, \"Jesus Christ\" reads almost like a first-and-last name, though the title meaning (\"the Anointed One\") is never actually lost.",
+    "Three jobs in one person — prophet (speaks God's message), priest (deals with sin on people's behalf), and king (rules and protects).",
+    "A Messiah nobody expected — a Messiah who suffers and dies wasn't what most first-century Jews were picturing. Jesus completely redefines the title through the cross and resurrection."
   ],
-  contextNote: "In Acts 2:36, Peter says: 'God has made this Jesus, whom you crucified, both Lord and Christ.' This is the apostolic proclamation in its most compact form. 'Christ' is not Jesus' last name — it is his job title and identity. Every use of 'Christ' in Paul's letters carries the weight of the messianic office, the anointed one who fulfills all of Israel's story.",
-  notMeantWhen: "Christos is not a generic word for 'savior' or 'holy man.' It is the specific title of the one Israel waited for. When it appears in the NT it always carries the full weight of OT messianic expectation — which is one reason Paul can say that in Christ all the promises of God are 'Yes and Amen' (2 Cor 1:20)."
+  contextNote: "In Acts 2:36, Peter tells the crowd: \"God has made this Jesus, whom you crucified, both Lord and Christ.\" That's the earliest Christian message in its shortest form. \"Christ\" isn't Jesus' last name — it's his job title. Every time Paul writes \"Christ,\" he's carrying the full weight of everything Israel had been hoping for across hundreds of years.",
+  notMeantWhen: "Christos isn't a generic word for \"savior\" or \"holy teacher\" you could apply to lots of people. It's one specific title, for one specific hoped-for rescuer. When the NT uses it for Jesus, it's claiming that centuries of Jewish hope and promise land on him specifically — which is part of why Paul can say that in Christ, all of God's promises are finally \"Yes\" (2 Cor 1:20)."
 },
 
 "G26": {
