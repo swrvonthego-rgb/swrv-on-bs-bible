@@ -2294,6 +2294,33 @@ function lookupBDB(id){
   return results;
 }
 
+// Turns a KJV-style comma list ("beginning, corner, (at the, the) first
+// (estate), magistrate, power, principality, principle, rule") into one
+// readable plain-English line. Splits on top-level commas only (ignores
+// commas inside parentheses, which KJV def strings use for variant forms),
+// strips the parenthetical notes for the headline reading, and caps the
+// list so it stays a sentence, not a raw data dump.
+function _plainFromKjvDef(kjvDef){
+  if(!kjvDef) return '';
+  const terms = [];
+  let depth = 0, cur = '';
+  for(const ch of String(kjvDef)){
+    if(ch === '(' || ch === '[') depth++;
+    if(ch === ')' || ch === ']') depth = Math.max(0, depth-1);
+    if(ch === ',' && depth === 0){ terms.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  if(cur.trim()) terms.push(cur);
+  const cleaned = terms
+    .map(function(t){ return t.replace(/[()[\]]/g,'').replace(/,/g,'').replace(/\s*-/g,' ').replace(/\s+/g,' ').trim(); })
+    .filter(Boolean);
+  if(!cleaned.length) return '';
+  const first = cleaned[0];
+  const rest = cleaned.slice(1,5);
+  if(!rest.length) return 'Usually translated "'+first+'."';
+  return 'Usually translated "'+first+'" — also rendered '+rest.map(function(w){return '"'+w+'"';}).join(', ')+' depending on context.';
+}
+
 function showStrongs(id){
   // Handle both Hebrew (H1, H2, ...) and Greek (G1, G2, ... OR raw numeric)
   let entry = null;
@@ -2329,6 +2356,22 @@ function showStrongs(id){
     // Greek lexicon entry
     if(entry.grk) html.push('<div class="def-hebrew">'+entry.grk+'</div>');
     if(entry.translit || entry.xlit) html.push('<div class="def-translit">'+escapeHtml(entry.translit||entry.xlit||'')+'</div>');
+    // Plain-English line FIRST, outside .strongs-section/.scholar-depth —
+    // those two classes are hidden by New Reader Mode CSS (the default
+    // reading mode), which used to leave this popup showing nothing but
+    // the bare Greek word for most readers. This line is synthesized
+    // directly from the lexicon's own kjv_def, so it's available for
+    // every Greek entry, not just the small hand-curated subset.
+    const _plainG = _plainFromKjvDef(entry.kjv_def);
+    if(_plainG) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(_plainG)+'</div></div>');
+    const _gIdForSsm = (typeof id==='string' ? id.toUpperCase() : (isGreek?'G'+id:id));
+    const _ssmG = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_gIdForSsm];
+    if(_ssmG && (_ssmG.etymology || _ssmG.contextNote)){
+      html.push('<div class="def-section"><div class="def-section-label">🌍 Cultural / contextual background</div>');
+      if(_ssmG.etymology) html.push('<div class="def-section-text">'+escapeHtml(_ssmG.etymology)+'</div>');
+      if(_ssmG.contextNote) html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(_ssmG.contextNote)+'</div>');
+      html.push('</div>');
+    }
     html.push('<div class="def-section strongs-section">');
     html.push('<div class="def-section-label">📚 Strong\'s Greek (1894)</div>');
     if(entry.def) html.push('<div class="def-section-text">'+escapeHtml(entry.def)+'</div>');
@@ -2342,6 +2385,19 @@ function showStrongs(id){
     if(lemma)html.push('<div class="def-hebrew">'+lemma+'</div>');
     const xlit=entry?.xlit||bdbResults[0]?.entry?.xlit;
     if(xlit)html.push('<div class="def-translit">'+escapeHtml(xlit)+(entry?.pron?' — pronounced: '+escapeHtml(entry.pron):'')+'</div>');
+    // Plain-English line FIRST, outside .strongs-section — same fix as the
+    // Greek branch above. Prefer the BDB gloss (a real lexicographer's
+    // short sense) when available; otherwise synthesize from kjv_def.
+    const _plainH = (bdbResults[0] && bdbResults[0].entry && bdbResults[0].entry.gloss) || _plainFromKjvDef(entry && entry.kjv_def);
+    if(_plainH) html.push('<div class="def-section plain-section"><div class="def-section-label">What this word means</div><div class="def-section-text plain-text">'+escapeHtml(_plainH)+'</div></div>');
+    const _hIdForSsm = typeof id==='string' && id.toUpperCase().startsWith('H') ? id.toUpperCase() : null;
+    const _ssmH = _hIdForSsm && window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[_hIdForSsm];
+    if(_ssmH && (_ssmH.etymology || _ssmH.contextNote)){
+      html.push('<div class="def-section"><div class="def-section-label">🌍 Cultural / contextual background</div>');
+      if(_ssmH.etymology) html.push('<div class="def-section-text">'+escapeHtml(_ssmH.etymology)+'</div>');
+      if(_ssmH.contextNote) html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(_ssmH.contextNote)+'</div>');
+      html.push('</div>');
+    }
     if(bdbResults.length>0){
       html.push('<div class="def-section strongs-section">');
       html.push('<div class="def-section-label">📖 BDB Hebrew Lexicon — '+(bdbResults.length>1?bdbResults.length+' senses':'definition')+'</div>');
