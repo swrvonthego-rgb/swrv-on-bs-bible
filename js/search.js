@@ -8,6 +8,18 @@
 
 (function(){
 
+  // Common words that appear in almost every verse ("in", "the", "and"...).
+  // Counting these the same as a rare, meaningful word ("rooted", "love")
+  // let near-meaningless matches ("Genesis 1:1" matching only "in") outscore
+  // verses that actually match what the person is looking for. These still
+  // count toward exact-phrase and proximity matching, just not toward the
+  // per-token relevance score on their own.
+  const SEARCH_STOPWORDS = new Set(['a','an','the','and','or','but','in','on','at','to','of',
+    'is','it','its','that','this','these','those','be','was','were','are','am','as','by','for',
+    'with','he','she','they','we','you','your','his','her','their','our','my','me','him','them',
+    'i','so','if','not','no','do','did','does','will','shall','would','should','can','could',
+    'from','into','unto','upon','there','here','who','whom','which','what','when']);
+
   // --------------------------- Book name normalization ---------------------------
   // Maps abbreviations and common spellings to our canonical book slugs
   const BOOK_ALIASES = {
@@ -750,12 +762,45 @@
     const scored = [];
     const phrase = queryLower;
     const tokens = queryLower.split(/\s+/).filter(t=>t.length>=2);
+    // Stopwords still count for phrase/proximity matching, but are down-weighted
+    // for plain token-hit scoring so "in" doesn't score like "rooted" does.
+    const meaningfulTokens = tokens.filter(t => !SEARCH_STOPWORDS.has(t));
+    const scoreTokens = meaningfulTokens.length ? meaningfulTokens : tokens;
     const phraseEscaped = escapeRegex(phrase);
     const phraseRe = new RegExp('\\b'+phraseEscaped+'\\b','i');
 
     // Current chapter for context boost (per spec: boost current-chapter results)
     const curBook = window.currentBook;
     const curChapter = window.currentChapter;
+
+    // Rewards verses where the query's real (non-stopword) words all appear
+    // close together and in the same order, even when Scripture phrases them
+    // with extra words in between — e.g. query "rooted in love" should credit
+    // "being ROOTED and grounded IN LOVE" (Eph 3:17) almost as strongly as a
+    // literal substring match, instead of only full-credit exact phrases.
+    // Returns 0 if any token is missing or they appear out of order; otherwise
+    // a score that's highest when the words are adjacent and falls off as the
+    // gap between the first and last token grows.
+    function proximityScore(text){
+      if(scoreTokens.length < 2) return 0;
+      const words = text.split(/\s+/);
+      let searchFrom = 0;
+      let firstIdx = -1, lastIdx = -1;
+      for(const tok of scoreTokens){
+        let found = -1;
+        for(let i=searchFrom;i<words.length;i++){
+          if(words[i].toLowerCase().replace(/[^a-z']/g,'').indexOf(tok) !== -1){ found = i; break; }
+        }
+        if(found === -1) return 0;
+        if(firstIdx === -1) firstIdx = found;
+        lastIdx = found;
+        searchFrom = found + 1;
+      }
+      const span = lastIdx - firstIdx + 1;
+      const extraWords = Math.max(0, span - scoreTokens.length);
+      // Adjacent (no extra words) scores highest; each intervening word reduces it.
+      return Math.max(0, 260 - extraWords*45);
+    }
 
     for(const rec of index){
       let score = 0;
@@ -775,18 +820,23 @@
         matchedIn = 'phrase';
         if(phraseRe.test(txt)) score += 120;
       }
-      // Token matches. Displayed text gets full credit; support metadata gets
-      // smaller credit so definitions/roots enrich search without hijacking it.
+      // Token matches. Scored on the meaningful (non-stopword) tokens so common
+      // words like "in"/"the" can't make a weak, mostly-irrelevant match look
+      // as strong as one that actually contains the words someone is searching
+      // for. Displayed text gets full credit; support metadata gets smaller
+      // credit so definitions/roots enrich search without hijacking it.
       let tokenHits = 0;
       let displayedTokenHits = 0;
-      for(const tok of tokens){
+      for(const tok of scoreTokens){
         if(txt.indexOf(tok) !== -1) tokenHits++;
         if(displayedTxt.indexOf(tok) !== -1) displayedTokenHits++;
       }
-      if(displayedTokenHits === tokens.length && tokens.length>0){
+      if(displayedTokenHits === scoreTokens.length && scoreTokens.length>0){
         score += rec.priority * 5;
         if(!matchedIn) matchedIn = 'Bible text tokens';
-      } else if(tokenHits === tokens.length && tokens.length>0){
+        // All the real words are present — check how close together they are.
+        score += proximityScore(displayedTxt);
+      } else if(tokenHits === scoreTokens.length && scoreTokens.length>0){
         score += rec.priority * 2;
         if(!matchedIn) matchedIn = 'all tokens';
       } else if(displayedTokenHits > 0){
@@ -802,10 +852,13 @@
       if(titleLower === phrase){ score += rec.priority * 30; matchedIn = 'exact title'; }
       else if(titleLower.indexOf(phrase) !== -1){ score += rec.priority * 15; matchedIn = matchedIn || 'title'; }
 
-      // Current-chapter boost — per spec, boost (don't filter) when user is inside a chapter
-      if(curBook && curChapter && rec.action){
+      // Current-chapter boost — nudges results from the chapter someone's
+      // already reading, but only once they've matched something real; a
+      // small flat bonus so it can't make a verse that only matches a
+      // stopword ("in") outrank a strong match somewhere else in the Bible.
+      if(curBook && curChapter && rec.action && score > 0){
         if(rec.action.type === 'verse' && rec.action.book === curBook && rec.action.chapter === curChapter){
-          score += 500;  // significant boost but doesn't override exact phrase matches
+          score += 60;
           matchedIn = (matchedIn||'context') + ' • this chapter';
         }
       }
@@ -815,21 +868,16 @@
 
     scored.sort((a,b) => b.score - a.score);
 
-    // For multi-word searches, if exact phrase matches exist, show those first
-    // and avoid drowning them in common-word token noise. Example: “where art thou”.
-    const exactPhraseRows = (tokens.length >= 2 && !ref) ? scored.filter(x => {
-      const r = x.rec || {};
-      const dt = r.displayedText || r.searchText || '';
-      const tt = (r.title || '').toLowerCase();
-      return dt.indexOf(phrase) !== -1 || tt.indexOf(phrase) !== -1;
-    }) : [];
-    if(exactPhraseRows.length){
-      scored.length = 0;
-      scored.push.apply(scored, exactPhraseRows.concat(
-        // Keep non-scripture source/context matches if they phrase-match too.
-        []
-      ));
-    }
+    // Weak, low-confidence matches (a single short/common word hit somewhere
+    // in support metadata) are kept out of the user-facing list entirely once
+    // there's any real signal in the result set — otherwise a 3-word search
+    // can surface tens of thousands of rows that share nothing but "in" or
+    // "the", burying the verse someone actually wants and freezing the UI
+    // trying to render all of them. Every scored row is still produced above;
+    // this only trims the long, noisy tail before it reaches the screen.
+    const MAX_RESULTS = 300;
+    const strongRows = scored.filter(x => x.score >= 60);
+    const rowsForDisplay = (strongRows.length >= 5 ? strongRows : scored).slice(0, MAX_RESULTS);
 
     // Do not let high-frequency words get trapped in the first loaded books.
     // Example: "Jesus" appears so often that a naive score-sort can show
@@ -880,10 +928,10 @@
       return diversified.concat(other).concat(supportScripture);
     }
 
-    // No overall cap — every matching record across the whole Bible and every
-    // companion data set (definitions, lexicon, people, places, themes,
-    // events, cultural cards, etc.) is included, just score-sorted / diversified.
-    const finalRows = diversifyScriptureResults(scored);
+    // Capped above to the top MAX_RESULTS by score so a broad query can't
+    // flood the DOM with thousands of rows; diversifyScriptureResults then
+    // spreads whatever's left across books so one book can't crowd out others.
+    const finalRows = diversifyScriptureResults(rowsForDisplay);
     for(const s of finalRows){
       const r = s.rec;
       results.push({
