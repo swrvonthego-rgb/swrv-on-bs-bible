@@ -300,7 +300,16 @@
     if(window.STRONGS_HEB){
       for(const sid in window.STRONGS_HEB){
         const e = window.STRONGS_HEB[sid];
-        const bits = [sid, e.lemma, e.xlit, e.pron, e.strongs_def, e.kjv_def, e.derivation].filter(Boolean).join(' ');
+        // Fold in the curated Sense Map entry for this ID, when one exists —
+        // this is the deep, teen-readable cultural/contextual writeup (e.g.
+        // Elohim's "plural of majesty," the Dead Sea Scrolls background on
+        // ruach), not just the raw 1894 lexicon line. Without this, searching
+        // for concepts actually explained in that curated content ("plural
+        // of majesty", "atonement", "Day of Atonement") found nothing, even
+        // though the app has real written answers for them.
+        const ssm = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[sid];
+        const ssmBits = ssm ? [ssm.primarySense, ssm.etymology, (ssm.senses||[]).join(' '), ssm.contextNote, ssm.notMeantWhen].filter(Boolean).join(' ') : '';
+        const bits = [sid, e.lemma, e.xlit, e.pron, e.strongs_def, e.kjv_def, e.derivation, ssmBits].filter(Boolean).join(' ');
         idx.push({
           type:'strongs_heb',
           category:'Hebrew Words',
@@ -308,7 +317,7 @@
           catBadge:'📜',
           title: sid + (e.lemma?' — '+e.lemma:'') + (e.xlit?' ('+e.xlit+')':''),
           searchText: bits.toLowerCase(),
-          preview: (e.strongs_def || e.kjv_def || '').slice(0,140),
+          preview: ((ssm && ssm.primarySense) || e.strongs_def || e.kjv_def || '').slice(0,160),
           reference: 'Strong\'s '+sid,
           priority: 65,
           action: { type:'strongs', id:sid }
@@ -433,7 +442,9 @@
       for(const num in window.STRONGS_GRK){
         const e = window.STRONGS_GRK[num];
         const sid = 'G'+num;
-        const bits = [sid, e.grk, e.translit, e.def, e.kjv_def, e.derivation].filter(Boolean).join(' ');
+        const ssm = window.STRONGS_SENSE_MAP && window.STRONGS_SENSE_MAP[sid];
+        const ssmBits = ssm ? [ssm.primarySense, ssm.etymology, (ssm.senses||[]).join(' '), ssm.contextNote, ssm.notMeantWhen].filter(Boolean).join(' ') : '';
+        const bits = [sid, e.grk, e.translit, e.def, e.kjv_def, e.derivation, ssmBits].filter(Boolean).join(' ');
         idx.push({
           type:'strongs_grk',
           category:'Greek Words',
@@ -441,7 +452,7 @@
           catBadge:'📜',
           title: sid + (e.grk?' — '+e.grk:''),
           searchText: bits.toLowerCase(),
-          preview: (e.def || e.kjv_def || '').slice(0,140),
+          preview: ((ssm && ssm.primarySense) || e.def || e.kjv_def || '').slice(0,160),
           reference: 'Strong\'s '+sid,
           priority: 65,
           action: { type:'strongs', id:sid }
@@ -679,6 +690,196 @@
           action: { type:'instruction_card', passage: passage }
         });
         log.instruction_card = (log.instruction_card||0) + 1;
+      }
+    }
+
+    // === 13. 1 Enoch — full text (Watchers, Parables, Astronomy, Dream
+    // Visions, Epistle). Previously only short cross-reference NOTES that
+    // point at Enoch were searchable (section 5, CROSS_SOURCE_MAP) — the
+    // actual 108 chapters of translated text were invisible to search
+    // entirely, so nothing a reader typed from the book itself could ever
+    // be found. ===
+    log.enoch = 0;
+    if(window.ENOCH){
+      for(const section in window.ENOCH){
+        const sectionData = window.ENOCH[section];
+        for(const ch in sectionData){
+          for(const vn in sectionData[ch]){
+            const text = sectionData[ch][vn] || '';
+            if(!text) continue;
+            idx.push({
+              type:'enoch_text',
+              category:'Enoch',
+              catShort:'enoch',
+              catBadge:'🕯️',
+              title: '1 Enoch ' + section + ' ' + ch + ':' + vn,
+              searchText: text.toLowerCase(),
+              displayedText: text.toLowerCase(),
+              preview: text,
+              reference: '1 Enoch ' + section + ' ' + ch + ':' + vn,
+              priority: 95,
+              action: { type:'enoch', section:section, chapter:parseInt(ch) }
+            });
+            log.enoch++;
+          }
+        }
+      }
+    }
+
+    // === 14. Historical Library — the other 10 "texts uploaded to the
+    // Bible" (Jubilees, Tobit, Judith, Wisdom, Sirach, 1-2 Maccabees,
+    // Baruch, Azariah, Manasseh). Same gap as Enoch: these were readable in
+    // their own dedicated reader but their text was never indexed, so
+    // searching anything that only appears in Jubilees or Tobit (etc.)
+    // found nothing. Keys/titles mirror _APOCRYPHA_META in app.js. ===
+    log.apocrypha = 0;
+    const APOCRYPHA_SEARCH_SOURCES = [
+      {key:'jubilees', global:'JUBILEES', title:'Jubilees'},
+      {key:'tobit', global:'TOBIT', title:'Tobit'},
+      {key:'judith', global:'JUDITH', title:'Judith'},
+      {key:'wisdom', global:'WISDOM', title:'Wisdom of Solomon'},
+      {key:'sirach', global:'SIRACH', title:'Sirach'},
+      {key:'maccabees1', global:'MACCABEES1', title:'1 Maccabees'},
+      {key:'maccabees2', global:'MACCABEES2', title:'2 Maccabees'},
+      {key:'baruch', global:'BARUCH', title:'Baruch'},
+      {key:'azariah', global:'AZARIAH', title:'Prayer of Azariah'},
+      {key:'manasseh', global:'MANASSEH', title:'Prayer of Manasseh'}
+    ];
+    for(const src of APOCRYPHA_SEARCH_SOURCES){
+      const data = window[src.global];
+      if(!data) continue;
+      for(const ch in data){
+        for(const vn in data[ch]){
+          const text = data[ch][vn] || '';
+          if(!text) continue;
+          idx.push({
+            type:'apocrypha_text',
+            category:'Historical Library',
+            catShort:'library',
+            catBadge:'📜',
+            title: src.title + ' ' + ch + ':' + vn,
+            searchText: text.toLowerCase(),
+            displayedText: text.toLowerCase(),
+            preview: text,
+            reference: src.title + ' ' + ch + ':' + vn,
+            priority: 95,
+            action: { type:'apocrypha', key:src.key, chapter:parseInt(ch) }
+          });
+          log.apocrypha++;
+        }
+      }
+    }
+
+    // === 15. Contextual Sense Notes — passage + word specific writeups
+    // (e.g. "spirit" at Ephesians 2:2 explaining it is NOT the Holy Spirit,
+    // with the Dead Sea Scrolls background). These are some of the deepest,
+    // most carefully-sourced Greek/Hebrew word content in the app and were
+    // entirely unsearchable before — only reachable by already knowing to
+    // tap that exact word on that exact verse. ===
+    log.context_notes = 0;
+    if(window.CONTEXTUAL_SENSE_NOTES){
+      for(const ref in window.CONTEXTUAL_SENSE_NOTES){
+        const wordMap = window.CONTEXTUAL_SENSE_NOTES[ref];
+        const m = ref.match(/^(.+)\s+(\d+):(\d+)$/);
+        for(const word in wordMap){
+          const note = wordMap[word];
+          if(!note) continue;
+          const bits = [word, note.sense, note.notMeant, note.matters, note.why].filter(Boolean).join(' ');
+          idx.push({
+            type:'context_note',
+            category:'Dictionary / Glossary',
+            catShort:'dictionary',
+            catBadge:'📘',
+            title: '"' + word + '" in ' + ref,
+            searchText: bits.toLowerCase(),
+            preview: (note.sense || note.matters || '').slice(0,200),
+            reference: ref,
+            priority: 88,
+            action: m ? { type:'verse', book:m[1], chapter:parseInt(m[2]), verse:parseInt(m[3]) } : { type:'definition', key:word }
+          });
+          log.context_notes++;
+        }
+      }
+    }
+
+    // === 16. Historical Dictionary (Easton's 1897 / Smith's 1863) — ~6,000
+    // entries covering most proper nouns, places, and customs in the app
+    // that have no dedicated curated card. Already used as fallback CONTENT
+    // when a word is tapped (see _lookupHistoricalDict in app.js), but was
+    // never itself searchable, so the only way to reach most of these
+    // entries was to already be reading the exact verse that mentions them. ===
+    log.historical_dict = 0;
+    if(window.HISTORICAL_DICT){
+      for(const key in window.HISTORICAL_DICT){
+        const e = window.HISTORICAL_DICT[key];
+        if(!e || !e.defs || !e.defs.length) continue;
+        const defText = e.defs.map(function(d){ return d.text; }).join(' ');
+        const bits = [key, defText, (e.refs||[]).join(' ')].filter(Boolean).join(' ');
+        idx.push({
+          type:'historical_dict',
+          category:'Dictionary / Glossary',
+          catShort:'dictionary',
+          catBadge:'📔',
+          title: key,
+          searchText: bits.toLowerCase(),
+          preview: (e.defs[0] && e.defs[0].text || '').slice(0,180),
+          reference: e.defs[0] && e.defs[0].source || 'Historical Dictionary',
+          priority: 50,
+          action: { type:'definition', key:key }
+        });
+        log.historical_dict++;
+      }
+    }
+
+    // === 17. "Questions & Answers" study cards (per chapter) ===
+    log.qa = 0;
+    if(window.SWRV_QA){
+      for(const ref in window.SWRV_QA){
+        const list = window.SWRV_QA[ref];
+        const m = ref.match(/^(.+)\s+(\d+)$/);
+        if(!m || !Array.isArray(list)) continue;
+        for(const entry of list){
+          if(!entry || !entry.q) continue;
+          idx.push({
+            type:'qa_card',
+            category:'Questions & Answers',
+            catShort:'qa',
+            catBadge:'❓',
+            title: entry.q,
+            searchText: (entry.q + ' ' + (entry.a||'')).toLowerCase(),
+            preview: (entry.a||'').slice(0,200),
+            reference: ref,
+            priority: 82,
+            action: { type:'verse', book:m[1], chapter:parseInt(m[2]), verse:1 }
+          });
+          log.qa++;
+        }
+      }
+    }
+
+    // === 18. Per-chapter Ancient-Near-East / cultural context cards ===
+    log.chapter_context = 0;
+    if(window.SWRV_CHAPTER_CONTEXT){
+      for(const ref in window.SWRV_CHAPTER_CONTEXT){
+        const c = window.SWRV_CHAPTER_CONTEXT[ref];
+        if(!c) continue;
+        const m = ref.match(/^(.+)\s+(\d+)$/);
+        if(!m) continue;
+        const bits = [c.t, c.h, c.c, c.w].filter(Boolean).join(' ');
+        if(!bits) continue;
+        idx.push({
+          type:'chapter_context',
+          category:'Cultural Context',
+          catShort:'cultural',
+          catBadge:'🌍',
+          title: (c.t || ref) ,
+          searchText: bits.toLowerCase(),
+          preview: (c.h || c.c || '').slice(0,200),
+          reference: ref,
+          priority: 68,
+          action: { type:'verse', book:m[1], chapter:parseInt(m[2]), verse:1 }
+        });
+        log.chapter_context++;
       }
     }
 
@@ -1018,9 +1219,9 @@
     }
 
     // Category display order
-    const orderHint = ['Scripture Passages','Hebrew Words','Greek Words','Dictionary / Glossary',
-                       'Translation Loss Notes','People','Places','Themes',
-                       'Chronological Events','Cultural Context','Companion Sources','Enoch','Josephus'];
+    const orderHint = ['Scripture Passages','Historical Library','Enoch','Hebrew Words','Greek Words','Dictionary / Glossary',
+                       'Questions & Answers','Translation Loss Notes','People','Places','Themes',
+                       'Chronological Events','Cultural Context','Companion Sources','Josephus'];
     const ordered = [];
     for(const c of orderHint){ if(groups.has(c)) ordered.push(c); }
     for(const c of groups.keys()){ if(!ordered.includes(c)) ordered.push(c); }
@@ -1158,6 +1359,18 @@
       if(typeof showGroupCard === 'function') showGroupCard(action.key);
     } else if(action.type === 'religion_card'){
       if(typeof showReligionCard === 'function') showReligionCard(action.key);
+    } else if(action.type === 'enoch'){
+      if(typeof openEnochReader === 'function'){
+        document.getElementById('modal').classList.add('show');
+        document.body.classList.add('modal-open');
+        openEnochReader(action.section, action.chapter);
+      }
+    } else if(action.type === 'apocrypha'){
+      if(typeof openApocryphaReader === 'function'){
+        document.getElementById('modal').classList.add('show');
+        document.body.classList.add('modal-open');
+        openApocryphaReader(action.key, action.chapter);
+      }
     }
   }
 
