@@ -2401,12 +2401,37 @@ body{
     margin-right:8px;
   }
   .sources{
+    position:relative;
     margin-left:0;
     gap:5px;
     overflow-x:auto;
     flex-wrap:nowrap;
     padding-bottom:2px;
     -webkit-overflow-scrolling:touch;
+  }
+  .sources.has-h-scroll{ padding-right:22px; }
+  /* This row of source tabs (SWRV / AMP / LXX / Hebrew, etc.) can run wider
+     than the screen with nothing to show it scrolls — the last tab just
+     sits flush against the edge, easy to mistake for a layout bug rather
+     than "more sources, swipe." A fade + chevron at the trailing edge
+     (pointer-events:none so it never blocks a tap) flags that — but only
+     on rows that actually overflow (.has-h-scroll, set by JS after each
+     render): most verses' source rows fit without scrolling, and showing
+     the cue there anyway would paint over the last tab's own label. */
+  .sources.has-h-scroll::after{
+    content:'›';
+    position:absolute;
+    top:0; right:0; bottom:2px;
+    width:26px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding-right:2px;
+    background:linear-gradient(to right, transparent, var(--bg) 55%);
+    color:var(--gold);
+    font-size:15px;
+    font-weight:700;
+    pointer-events:none;
   }
   .source-tab{
     flex:0 0 auto;

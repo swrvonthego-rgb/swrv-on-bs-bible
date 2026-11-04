@@ -1639,6 +1639,25 @@ function _scheduleAutoRetry(){
     }
   },1500);
 }
+// Flags each per-verse "sources" row (SWRV/AMP/LXX/Hebrew tabs) that
+// actually runs wider than its box, so the mobile CSS can show a trailing
+// fade+chevron only where there's really more to scroll to — on rows that
+// already fit, the same cue would just paint over the last tab's label.
+// Re-run after any render that can add/remove verses or reveal the row
+// (chapter/verse navigation, reading-mode switches) and on resize, since
+// crossing the mobile breakpoint changes whether the row scrolls at all.
+function _updateSourcesScrollCues(){
+  document.querySelectorAll('.sources').forEach(function(el){
+    el.classList.remove('has-h-scroll');
+    if(el.scrollWidth > el.clientWidth + 2) el.classList.add('has-h-scroll');
+  });
+}
+window._updateSourcesScrollCues = _updateSourcesScrollCues;
+window.addEventListener('resize', function(){
+  clearTimeout(window._srcCueResizeT);
+  window._srcCueResizeT = setTimeout(_updateSourcesScrollCues, 150);
+});
+
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;window.currentChapter=n;window.currentVerse=currentVerse;localStorage.setItem('swrv_chapter',n);
@@ -1676,6 +1695,7 @@ function _loadChapterCore(n){
   }
   window.scrollTo(0,0);
   setTimeout(_applyUserAnnotations,0);
+  setTimeout(_updateSourcesScrollCues,0);
   _scheduleAutoRetry();
 }
 
@@ -4919,6 +4939,9 @@ function _renderBookOverview(book){
       const b = document.getElementById('readingMode'+m.charAt(0).toUpperCase()+m.slice(1));
       if(b){ b.classList.toggle('active', m===mode); b.setAttribute('aria-pressed', m===mode?'true':'false'); }
     });
+    // Switching mode can reveal/hide the per-verse sources row entirely —
+    // re-check which rows actually need the scroll cue now that it exists.
+    if(typeof window._updateSourcesScrollCues==='function') setTimeout(window._updateSourcesScrollCues,0);
   }
   window.setReadingMode = setReadingMode;
   // Keep legacy toggleStudyLayers as a 2-state shortcut between read and study.
