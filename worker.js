@@ -7,7 +7,6 @@
  *
  * Routes:
  *   /api/health                 -> GET:  health check
- *   /api/groq                   -> POST: relay to Groq API with server-side key
  *   /api/audio-bible/<key>      -> GET:  streams a BSB audio Bible chapter file from R2 (Range-request/seek support)
  *   /data/bsb-audio-manifest.json -> GET: book -> chapter -> audio file manifest, served from R2
  *   /data/bsb-timings/<Book>.json -> GET: per-verse timing spans for that book, served from R2
@@ -149,38 +148,12 @@ export default {
     if (url.pathname === '/api/health') {
       return json({
         status: 'ok',
-        hasGroqKey: !!env.GROQ_API_KEY,
         hasAudioBucket: !!env.LIBRARY_BUCKET,
         hasDatabase: !!env.DB,
         hasAuth: !!env.SESSION_SECRET,
         hasGoogleSignIn: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
         timestamp: new Date().toISOString()
       });
-    }
-
-    // Groq AI relay — Roadmap Experience uses this
-    if (url.pathname === '/api/groq' && request.method === 'POST') {
-      if (!env.GROQ_API_KEY) {
-        return json({ error: 'GROQ_API_KEY not configured on Worker' }, 500);
-      }
-      try {
-        const body = await request.json();
-        const payload = {
-          model: body.model || 'llama-3.3-70b-versatile',
-          messages: body.messages || [],
-          temperature: body.temperature ?? 0.7,
-          max_tokens: body.max_tokens || 1024,
-        };
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await groqResponse.json();
-        return json(data, groqResponse.status);
-      } catch (err) {
-        return json({ error: 'Groq relay failed', detail: err.message }, 500);
-      }
     }
 
 
