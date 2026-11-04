@@ -26,15 +26,23 @@
   flex-direction:column;
   overflow:hidden;
   max-width:0;
-  background:var(--bg-2);
-  border:1px solid var(--line);
+  background:transparent;
+  /* No border/background while collapsed — max-width:0 only clamps the
+     content box, so the 1px left border (plus its background-color fill)
+     was still rendering as a stray gold hairline (as tall as the hidden
+     tab list) floating off the right edge of the screen whenever the
+     dock was closed. Both come back once the rail is actually open and
+     has width to show them against. */
+  border:1px solid transparent;
   border-right:none;
   border-radius:14px 0 0 14px;
-  box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
   transition:max-width 0.2s ease;
 }
 body.side-dock-show .side-dock-tabs{
   max-width:52px;
+  background:var(--bg-2);
+  border-color:var(--line);
+  box-shadow:-4px 4px 20px rgba(0,0,0,0.35);
 }
 .side-dock-toggle-btn{
   flex-shrink:0;

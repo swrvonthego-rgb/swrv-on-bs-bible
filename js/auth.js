@@ -40,7 +40,7 @@
       btn.title = 'Signed in as ' + name + ' — tap to manage account';
       btn.classList.add('signed-in');
     } else {
-      btn.innerHTML = '👤 Sign In';
+      btn.innerHTML = '👤<span class="btn-label"> Sign In</span>';
       btn.title = 'Sign in with Google or email to save your reading progress and notes';
       btn.classList.remove('signed-in');
     }

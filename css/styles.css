@@ -2099,7 +2099,7 @@ body{
   }
   .logo{width:42px;height:42px;font-size:16px;flex:0 0 42px}
   .header-actions{
-    gap:7px;
+    gap:5px;
     overflow-x:auto;
     flex-wrap:nowrap;
     -webkit-overflow-scrolling:touch;
@@ -2114,7 +2114,31 @@ body{
     font-size:14px;
     border-radius:12px;
   }
-  .mode-toggle button{min-width:72px}
+  .mode-toggle button{min-width:0;padding:8px 10px}
+
+  /* Search / More / Sign In were full text pills ("🔎 Search", "⋯ More",
+     "👤 Sign In") alongside the Chapter/Verse toggle — together too wide
+     for a phone screen, so the row scrolled and Sign In sat hidden behind
+     an easy-to-miss swipe hint. Icon-only cuts the row's width roughly in
+     half, so everything fits in view with nothing to discover by
+     scrolling; the existing title attribute still gives each button an
+     accessible/tooltip label. */
+  .header-actions .btn-label{ display:none; }
+  .header-actions #searchBtn,
+  .header-actions #moreMenuBtn,
+  .header-actions #authHeaderBtn{
+    padding:8px 11px;
+    min-width:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  /* Everything above now fits in one row with room to spare — the 64px
+     right-padding (reserved elsewhere to clear the scroll-fade arrow for
+     wider viewports where the row still scrolls) would otherwise force
+     scrollWidth past clientWidth all by itself and keep the "this
+     scrolls" hint alive for a row that no longer scrolls. */
+  .header-actions-wrap .header-actions{ padding-right:2px; }
 
   .study-nav-bar{
     grid-template-columns:1fr 1fr;
@@ -2222,6 +2246,18 @@ body{
   .universal-study-card{margin-top:8px!important}
   .universal-study-card:not([open]) summary{padding:8px 10px!important}
   .strongs-roots-panel{margin-left:0!important}
+}
+/* Smaller phones (SE-class and narrower, and most Android phones under
+   ~380px) need a bit more squeeze than the general phone breakpoint above
+   to keep the same one-row, no-scroll header — a few px less padding per
+   button, multiplied across five of them, is the difference between
+   fitting and not. */
+@media (max-width: 380px){
+  .header-actions{ gap:4px; }
+  .header-actions #searchBtn,
+  .header-actions #moreMenuBtn,
+  .header-actions #authHeaderBtn{ padding:8px 9px; min-width:36px; }
+  .mode-toggle button{ padding:8px 8px; font-size:13px; }
 }
 
 /* === SWRV collapsible sections — keep verses readable, study optional === */

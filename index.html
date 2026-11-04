@@ -160,13 +160,13 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
   </div>
   <div class="header-actions-wrap">
   <div class="header-actions">
-    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
+    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎<span class="btn-label"> Search</span></button>
     <div class="mode-toggle">
       <button id="modeChapterBtn" class="active" onclick="setMode('chapter')">Chapter</button>
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
     <div class="more-menu-wrap">
-      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More tools: reading mode, layers, bookmarks, dictionary, library, and about">⋯ More</button>
+      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More tools: reading mode, layers, bookmarks, dictionary, library, and about">⋯<span class="btn-label"> More</span></button>
       <div class="more-menu-popover" id="moreMenuPopover">
         <div class="more-menu-section-label">Reading Mode</div>
         <button id="readingModeRead" class="more-menu-item" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels."><span>📖</span> New Reader</button>
@@ -190,7 +190,7 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('glossary')"><span>📖</span> Glossary</button>
       </div>
     </div>
-    <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤 Sign In</button>
+    <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤<span class="btn-label"> Sign In</span></button>
   </div>
   <div class="header-actions-arrow header-actions-arrow-left hidden" id="headerActionsArrowLeft" aria-hidden="true">‹</div>
   <div class="header-actions-arrow" id="headerActionsArrow" aria-hidden="true">›</div>
