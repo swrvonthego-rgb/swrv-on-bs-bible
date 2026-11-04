@@ -203,7 +203,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--font-body, 'Iowan Ol
 .sticky-nav{position:sticky;top:0;z-index:100}
 header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.brand-logo{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-logo{height:36px;width:auto;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand-text{display:flex;flex-direction:column}
 .brand-title{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:0.3px;font-family:var(--font-display,inherit)}
 .brand-sub{font-size:11px;color:var(--fg-dim);letter-spacing:0.5px;text-transform:uppercase}
@@ -691,34 +691,16 @@ header.app-header {
   font-weight: 500;
 }
 
-/* Premium brand logo — the diamond/S/road-stripe mark itself now lives in
-   the inline SVG (index.html), matching the emblem on the app icon and
-   cover art instead of a plain text-in-a-box badge. This wrapper just
-   keeps the ambient glow and the shimmer sweep that already existed. */
-.brand-logo {
-  box-shadow:
-    0 0 0 1.5px rgba(212,175,55,0.55),
-    0 0 14px rgba(212,175,55,0.30),
-    0 4px 12px rgba(0,0,0,0.45);
-  border-radius: 12px;
-  position: relative;
-  overflow: hidden;
-}
-.brand-logo::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -60%; width: 40%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
-  transform: skewX(-20deg);
-  animation: brand-shimmer 4s ease-in-out infinite;
-}
-@keyframes brand-shimmer {
-  0%,70%  { left: -60%; opacity: 0; }
-  72%     { opacity: 1; }
-  86%     { left: 130%; opacity: 0; }
-  100%    { left: 130%; opacity: 0; }
-}
-.brand-logo-text { position: relative; z-index: 1; display: block; }
+/* Premium brand logo — the real SWRV On The Go mark (assets/brand/logo-header)
+   now renders here directly: its own gold road-sign diamond, chrome
+   lettering and light-trail glow are baked into the artwork, on a
+   transparent background. No extra framing box, border-radius, glow ring
+   or shimmer sweep is layered on top of it any more — that chrome used to
+   dress up a plain text badge, but on top of artwork that already carries
+   its own dramatic lighting it just clipped the diamond's points and
+   competed with the real sparkle. */
+.brand-logo picture { display: contents; }
+.brand-logo-text { display: block; height: 100%; width: auto; }
 
 .brand-title {
   font-family: var(--apple-font);
@@ -1704,9 +1686,8 @@ body{
   padding:12px 18px;
 }
 .brand-logo{
-  width:44px;
   height:44px;
-  border-radius:12px;
+  width:auto;
   font-size:13px;
   flex:0 0 auto;
 }
