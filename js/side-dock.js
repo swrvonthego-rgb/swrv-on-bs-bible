@@ -67,9 +67,17 @@
   function openFont(){
     closeAll();
     ensureShown();
-    var btn = document.getElementById('fontSizeBtn');
-    if(btn && btn.onclick) {
-      btn.onclick();
+    // Previously looked up the header's #fontSizeBtn and called its
+    // onclick as a proxy — that button has been folded into the Tools
+    // section of the "More" menu (removing the redundant duplicate
+    // control that used to sit in the header too), so it may not exist
+    // in the DOM at all now. Call the typography panel's own exposed
+    // toggle directly instead of depending on a specific button existing.
+    if(typeof window._typoTogglePanel === 'function'){
+      window._typoTogglePanel();
+    } else {
+      var btn = document.getElementById('fontSizeBtn');
+      if(btn && btn.onclick) btn.onclick();
     }
     document.body.classList.add('side-dock-font-open');
     setActiveTab('font');

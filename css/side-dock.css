@@ -38,9 +38,18 @@ body.side-dock-show .side-dock-tabs{
 }
 .side-dock-toggle-btn{
   flex-shrink:0;
+  align-self:center;
   width:36px;
+  /* Fixed, compact height instead of stretching to match .side-dock-tabs'
+     full content height (3 stacked tab buttons, ~130px) via the parent's
+     align-items:stretch. That stretch happens even while the tabs are
+     collapsed (max-width:0 only hides width, not height), so the toggle
+     was rendering as a tall bar sitting in the middle of the page,
+     overlapping whatever verse/content happened to be at that scroll
+     position — not a small corner control at all. */
+  height:46px;
   padding:0;
-  background:transparent;
+  background:var(--bg-2);
   border:1px solid var(--line);
   border-radius:8px 0 0 8px;
   color:var(--fg-mute);
@@ -50,6 +59,7 @@ body.side-dock-show .side-dock-tabs{
   justify-content:center;
   font-size:18px;
   font-weight:bold;
+  box-shadow:-2px 2px 10px rgba(0,0,0,0.25);
   transition:background 0.15s ease, color 0.15s ease;
 }
 .side-dock-toggle-btn:hover{

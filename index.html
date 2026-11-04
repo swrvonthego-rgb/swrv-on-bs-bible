@@ -160,21 +160,24 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
       <button id="modeChapterBtn" class="active" onclick="setMode('chapter')">Chapter</button>
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
-    <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
-    <div class="reading-mode-group" id="readingModeGroup" role="group" aria-label="Reading mode">
-      <button id="readingModeRead" class="icon-btn reading-mode-btn" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels.">📖 New Reader</button>
-      <button id="readingModeStudy" class="icon-btn reading-mode-btn" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel.">🧠 Study</button>
-      <button id="readingModeScholar" class="icon-btn reading-mode-btn" onclick="setReadingMode('scholar')" aria-pressed="false" title="Scholar Mode: maximum source depth available.">🎓 Scholar</button>
-      <button class="icon-btn thread-browse-btn" onclick="openAllThreadsBrowser()" title="Browse deep commentary threads">🧵 Threads</button>
-    </div>
-    <button id="fontSizeBtn" class="icon-btn" title="Change text size" style="flex-shrink:0;">Aa M</button>
-    <button id="layerFiltersBtn" class="icon-btn" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true">🎛 Layers</button>
-    <button id="memoryBtn" class="icon-btn" onclick="showModal('memory')" title="Your bookmarks, highlights, and notes">📌 Memory</button>
-    <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
-    <button id="libraryBtn" class="icon-btn" onclick="showModal('library')">📚 Library</button>
     <div class="more-menu-wrap">
-      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More: A Quick Word, Story, Peoples, Rules, Glossary, Audit">⋯ More</button>
+      <button id="moreMenuBtn" class="icon-btn" onclick="toggleMoreMenu()" aria-haspopup="true" aria-expanded="false" title="More tools: reading mode, layers, bookmarks, dictionary, library, and about">⋯ More</button>
       <div class="more-menu-popover" id="moreMenuPopover">
+        <div class="more-menu-section-label">Reading Mode</div>
+        <button id="readingModeRead" class="more-menu-item" onclick="setReadingMode('read')" aria-pressed="false" title="New Reader mode — clean text, plain-English definitions, no scholar labels."><span>📖</span> New Reader</button>
+        <button id="readingModeStudy" class="more-menu-item" onclick="setReadingMode('study')" aria-pressed="false" title="Study Mode: tap any verse to open the study panel."><span>🧠</span> Study</button>
+        <button id="readingModeScholar" class="more-menu-item" onclick="setReadingMode('scholar')" aria-pressed="false" title="Scholar Mode: maximum source depth available."><span>🎓</span> Scholar</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();openAllThreadsBrowser()" title="Browse deep commentary threads"><span>🧵</span> Threads</button>
+        <hr class="more-menu-divider">
+        <div class="more-menu-section-label">Tools</div>
+        <button id="prehistoryBtn" class="more-menu-item" onclick="closeMoreMenu();showModal('prehistory')"><span>📜</span> Before Genesis</button>
+        <button id="layerFiltersBtn" class="more-menu-item" onclick="toggleLayerFilters()" title="Choose which study layers appear in the Study panel" aria-haspopup="true"><span>🎛</span> Layers</button>
+        <button id="memoryBtn" class="more-menu-item" onclick="closeMoreMenu();showModal('memory')" title="Your bookmarks, highlights, and notes"><span>📌</span> Memory</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();showModal('strongs')"><span>📔</span> Dictionary</button>
+        <button id="libraryBtn" class="more-menu-item" onclick="closeMoreMenu();showModal('library')"><span>📚</span> Library</button>
+        <button class="more-menu-item" onclick="closeMoreMenu();cycleTheme()" title="Cycle to the next color theme"><span>🎨</span> Change Theme</button>
+        <hr class="more-menu-divider">
+        <div class="more-menu-section-label">About</div>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('about')"><span>💛</span> A Quick Word</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('story')"><span>📜</span> Story</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('peoples')"><span>👥</span> Peoples</button>
@@ -182,7 +185,6 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('glossary')"><span>📖</span> Glossary</button>
       </div>
     </div>
-    <button class="icon-btn" onclick="cycleTheme()" title="Change theme" aria-label="Change theme">🎨</button>
     <button id="authHeaderBtn" class="icon-btn auth-header-btn" onclick="openAuthModal()" title="Sign in to save progress and notes">👤 Sign In</button>
   </div>
   <div class="header-actions-arrow header-actions-arrow-left hidden" id="headerActionsArrowLeft" aria-hidden="true">‹</div>
