@@ -147,7 +147,27 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 <div class="sticky-nav">
 <header class="app-header">
   <div class="brand">
-    <div class="brand-logo"><span class="brand-logo-text">SWRV</span></div>
+    <div class="brand-logo" aria-label="SWRV Kingdom Bible">
+      <svg class="brand-logo-text" viewBox="0 0 48 48" width="100%" height="100%" role="img" aria-hidden="true">
+        <defs>
+          <linearGradient id="swrvLogoGold" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#f7e07a"/>
+            <stop offset="45%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#8a6d2e"/>
+          </linearGradient>
+        </defs>
+        <!-- Diamond badge, echoing the road-sign emblem on the app icon / cover art -->
+        <rect x="8" y="8" width="32" height="32" rx="5" transform="rotate(45 24 24)" fill="url(#swrvLogoGold)" stroke="#1a0e00" stroke-width="1.4"/>
+        <!-- Dashed road-stripe cutting diagonally behind the S (not through its
+             spine) — a straight vertical dash through an S reads as a dollar
+             sign, so the road runs corner-to-corner instead, same motif as
+             the icon's receding highway. Drawn before the letter so the
+             glyph sits on top of it. -->
+        <line x1="13" y1="35" x2="35" y2="13" stroke="#f5eedd" stroke-width="2" stroke-dasharray="4 3.2" stroke-linecap="round" opacity="0.8"/>
+        <!-- "S" monogram -->
+        <text x="24" y="33" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="25" fill="#1a0e00">S</text>
+      </svg>
+    </div>
     <div class="brand-text">
       <div class="brand-title" id="brandTitle">Kingdom Bible</div>
       <div class="brand-sub">Multi-Source · No BS</div>

@@ -203,7 +203,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--font-body, 'Iowan Ol
 .sticky-nav{position:sticky;top:0;z-index:100}
 header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.brand-logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#8a6d2e);color:#0e0a06;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:0.5px;font-family:-apple-system,sans-serif}
+.brand-logo{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand-text{display:flex;flex-direction:column}
 .brand-title{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:0.3px;font-family:var(--font-display,inherit)}
 .brand-sub{font-size:11px;color:var(--fg-dim);letter-spacing:0.5px;text-transform:uppercase}
@@ -691,20 +691,16 @@ header.app-header {
   font-weight: 500;
 }
 
-/* Premium brand logo */
+/* Premium brand logo — the diamond/S/road-stripe mark itself now lives in
+   the inline SVG (index.html), matching the emblem on the app icon and
+   cover art instead of a plain text-in-a-box badge. This wrapper just
+   keeps the ambient glow and the shimmer sweep that already existed. */
 .brand-logo {
-  border-radius: 12px;
-  background: linear-gradient(145deg, #d4af37 0%, #f7e07a 38%, #9a6e1e 100%) !important;
   box-shadow:
     0 0 0 1.5px rgba(212,175,55,0.55),
     0 0 14px rgba(212,175,55,0.30),
-    0 4px 12px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.35);
-  font-family: var(--apple-font);
-  font-weight: 900;
-  letter-spacing: 1px;
-  font-size: 11px;
-  color: #1a0e00 !important;
+    0 4px 12px rgba(0,0,0,0.45);
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
 }
@@ -722,7 +718,7 @@ header.app-header {
   86%     { left: 130%; opacity: 0; }
   100%    { left: 130%; opacity: 0; }
 }
-.brand-logo-text { position: relative; z-index: 1; }
+.brand-logo-text { position: relative; z-index: 1; display: block; }
 
 .brand-title {
   font-family: var(--apple-font);
