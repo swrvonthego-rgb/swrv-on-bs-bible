@@ -751,15 +751,16 @@ header.app-header {
   font-weight: 500;
 }
 
-/* Premium brand logo — the real crowned-diamond "S" badge, cropped from
-   the official SWRV On BS Bible cover art (assets/brand/logo-header),
-   rather than a hand-drawn stand-in. picture{display:contents} matters
-   here: without it the <picture> wrapper has no intrinsic size, so the
-   img's height:100% has nothing to resolve against and renders at full
-   intrinsic size instead of the header's actual slot (bit us once
-   already on an earlier logo swap). */
+/* Premium brand logo — the real SWRV crest (assets/brand/logo-header):
+   crowned diamond "S" inside a laurel wreath, with the SWRV wordmark
+   underneath, on a transparent background (no framing box needed — the
+   wreath's own silhouette reads as the badge shape). picture{display:
+   contents} matters here: without it the <picture> wrapper has no
+   intrinsic size, so the img's height:100% has nothing to resolve
+   against and renders at full intrinsic size instead of the header's
+   actual slot (bit us once already on an earlier logo swap). */
 .brand-logo picture { display: contents; }
-.brand-logo-text { display: block; height: 100%; width: auto; border-radius: 4px; }
+.brand-logo-text { display: block; height: 100%; width: auto; }
 
 .brand-title {
   font-family: var(--apple-font);
