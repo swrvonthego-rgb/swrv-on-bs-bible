@@ -44,7 +44,20 @@ body[data-theme="vintage"]{
    Chapter titles get a faint warm glow, like ink slightly settled into
    old paper, instead of sitting perfectly flat. */
 [data-theme="vintage"] .main{
-  background:linear-gradient(170deg, rgba(255,252,240,0.55), rgba(255,252,240,0.12) 65%);
+  /* The actual reading surface — where the text people are reading sits —
+     needs its own visible parchment grain, not just a translucent white
+     wash over whatever faint texture happens to show through from the
+     body background behind it. Two turbulence layers: a fine one for
+     paper fiber, a coarser one for mottled, uneven aging. Kept to a low
+     enough alpha that verse text stays easily readable — this is a
+     reading app first — but a close look (or a quick glance at a mostly-
+     empty stretch between verses) now clearly reads as paper, not flat
+     color. */
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.32 0 0 0 0 0.16 0 0 0 0.16 0'/></filter><rect width='260' height='260' filter='url(%23f)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.34 0 0 0 0 0.15 0 0 0 0.1 0'/></filter><rect width='500' height='500' filter='url(%23g)'/></svg>"),
+    linear-gradient(170deg, rgba(255,252,240,0.4), rgba(255,252,240,0.08) 65%) #ede1c2;
+  background-blend-mode:multiply,multiply,normal;
   border:1px solid rgba(154,132,84,0.4);
   border-radius:4px;
   box-shadow:
