@@ -21,10 +21,42 @@
   --font-body:'Crimson Pro','Iowan Old Style','Palatino Linotype',Georgia,serif;
   --font-display:'Cormorant Garamond','Crimson Pro',Georgia,serif;
 }
+/* Deepened for the "found ancient scroll" look: the existing paper-grain
+   noise texture stays, now layered under a soft vignette (museum-lighting
+   dark at the edges) and two faint "foxing" age-spot blooms, the kind of
+   uneven staining real old parchment actually has. All multiply-blended
+   so they darken/warm the paper rather than sitting on top of it as flat
+   shapes. background-attachment:fixed keeps the vignette anchored to the
+   viewport rather than scrolling away with a long chapter, the way real
+   room lighting on a page wouldn't move as you read down it. */
 body[data-theme="vintage"]{
-  background:#e8dcc0
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.28 0 0 0 0 0.12 0 0 0 0.07 0'/></filter><rect width='280' height='280' filter='url(%23n)'/></svg>");
-  background-blend-mode:multiply;
+  background:
+    radial-gradient(ellipse 420px 320px at 14% 18%, rgba(134,98,42,0.14), transparent 70%),
+    radial-gradient(ellipse 380px 300px at 86% 82%, rgba(134,98,42,0.12), transparent 70%),
+    radial-gradient(ellipse 120% 100% at 50% 45%, transparent 45%, rgba(48,34,14,0.24) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.28 0 0 0 0 0.12 0 0 0 0.07 0'/></filter><rect width='280' height='280' filter='url(%23n)'/></svg>") #e8dcc0;
+  background-blend-mode:multiply,multiply,multiply,multiply;
+  background-attachment:fixed,fixed,fixed,fixed;
+}
+/* The reading column itself reads as a lifted page/fragment laid out on
+   that darker vignetted surface — a soft warm panel with a worn gold-ish
+   border and a real drop shadow, rather than just more flat body color.
+   Chapter titles get a faint warm glow, like ink slightly settled into
+   old paper, instead of sitting perfectly flat. */
+[data-theme="vintage"] .main{
+  background:linear-gradient(170deg, rgba(255,252,240,0.55), rgba(255,252,240,0.12) 65%);
+  border:1px solid rgba(154,132,84,0.4);
+  border-radius:4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    0 22px 55px -24px rgba(40,28,10,0.6),
+    0 2px 12px rgba(40,28,10,0.22);
+}
+[data-theme="vintage"] .chapter-title{
+  text-shadow:0 1px 0 rgba(255,252,240,0.55), 0 0 22px rgba(96,77,29,0.1);
+}
+[data-theme="vintage"] header.app-header{
+  background:linear-gradient(180deg, #241a0e, #140d06);
 }
 
 /* LUXE — onyx with gold and marble */
