@@ -691,15 +691,11 @@ header.app-header {
   font-weight: 500;
 }
 
-/* Premium brand logo — the real SWRV On The Go mark (assets/brand/logo-header)
-   now renders here directly: its own gold road-sign diamond, chrome
-   lettering and light-trail glow are baked into the artwork, on a
-   transparent background. No extra framing box, border-radius, glow ring
-   or shimmer sweep is layered on top of it any more — that chrome used to
-   dress up a plain text badge, but on top of artwork that already carries
-   its own dramatic lighting it just clipped the diamond's points and
-   competed with the real sparkle. */
-.brand-logo picture { display: contents; }
+/* Premium brand logo — an inline SVG scroll (gold-capped rollers around a
+   parchment panel) with a royal serif "S" inked on it, matching the
+   Dead Sea Scrolls feature's visual language. Square-ish viewBox, so no
+   extra framing box/border-radius is layered on top — the scroll shape
+   itself is the frame. */
 .brand-logo-text { display: block; height: 100%; width: auto; }
 
 .brand-title {
