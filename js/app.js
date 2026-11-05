@@ -1658,6 +1658,58 @@ window.addEventListener('resize', function(){
   window._srcCueResizeT = setTimeout(_updateSourcesScrollCues, 150);
 });
 
+// Dead Sea Scrolls inline placement — see data/dead-sea-scrolls-placement.js
+// for the schema and the actual entries. Off by default (window.getDSSEnabled,
+// defined further down in this file); when on, surfaces manuscript notes
+// at the chapters they bear on: 'before' entries on the book's first
+// chapter, 'inline' entries on
+// the specific chapter(s) they name, 'after' entries on the book's last
+// chapter. 'epoch' entries (Second Temple sectarian texts not tied to a
+// canonical book) are deliberately excluded here — those are already fully
+// readable via Library → Dead Sea Scrolls (openDSSReader), not duplicated
+// inline anywhere.
+function renderDSSPlacement(book, chapter, position){
+  if(typeof window.getDSSEnabled !== 'function' || !window.getDSSEnabled()) return '';
+  var all = window.DSS_PLACEMENTS;
+  if(!all || !all.length) return '';
+  var totalChapters = null;
+  if(position === 'after'){
+    var info = (typeof _getBookInfo === 'function') ? _getBookInfo(book) : null;
+    totalChapters = info ? info.chapters : null;
+  }
+  var entries = all.filter(function(e){
+    if(e.corresponding_book !== book) return false;
+    if(e.placement === 'before') return position === 'before' && chapter === 1;
+    if(e.placement === 'after') return position === 'after' && totalChapters && chapter === totalChapters;
+    if(e.placement === 'inline'){
+      if(position !== 'inline') return false;
+      var start = e.corresponding_chapter_start;
+      var end = e.corresponding_chapter_end || start;
+      return chapter >= start && chapter <= end;
+    }
+    return false;
+  });
+  if(!entries.length) return '';
+  var h = '';
+  for(var i=0;i<entries.length;i++){
+    var e = entries[i];
+    h += '<details class="dss-card">';
+    h += '<summary class="dss-card-summary">';
+    h += '<span class="dss-card-icon">📜</span>';
+    h += '<span class="dss-card-head">';
+    h += '<span class="dss-card-name">'+escapeHtml(e.name)+'</span>';
+    h += '<span class="dss-card-date">'+escapeHtml(e.date_range)+'</span>';
+    h += '</span>';
+    h += '</summary>';
+    h += '<div class="dss-card-body">';
+    h += '<p class="dss-card-text">'+escapeHtml(e.text_content)+'</p>';
+    h += '<p class="dss-card-note"><strong>Why it matters:</strong> '+escapeHtml(e.manuscript_notes)+'</p>';
+    h += '</div>';
+    h += '</details>';
+  }
+  return h;
+}
+
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
   currentChapter=n;window.currentChapter=n;window.currentVerse=currentVerse;localStorage.setItem('swrv_chapter',n);
@@ -1682,12 +1734,15 @@ function _loadChapterCore(n){
   if(mode==='chapter'){
     const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
     if(window._renderChapterIntro){ html.push(window._renderChapterIntro(currentBook, currentChapter)); }
+    html.push(renderDSSPlacement(currentBook, currentChapter, 'before'));
+    html.push(renderDSSPlacement(currentBook, currentChapter, 'inline'));
     html.push(renderChapterDeepStudyBanner(ch, verseNums));
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
     html.push(renderCompanionPassages(currentBook, currentChapter));
     html.push(renderChronologicalEvents(currentBook, currentChapter));
     html.push(renderParallelPassages(currentBook, currentChapter));
     html.push(renderProphecyLinks(currentBook, currentChapter));
+    html.push(renderDSSPlacement(currentBook, currentChapter, 'after'));
     main.innerHTML=html.join('');
   }else{
     if(!verseNums.includes(currentVerse))currentVerse=verseNums[0]||1;
@@ -4949,6 +5004,29 @@ function _renderBookOverview(book){
     setReadingMode(document.body.getAttribute('data-reading-mode')==='read' ? 'study' : 'read');
   };
 
+  // ---------- Dead Sea Scrolls inline overlay toggle ----------
+  // Off by default — this is an opt-in extra layer, not something sprung on
+  // every reader. Persisted the same way reading mode is, so it survives a
+  // reload/reopen like every other preference here.
+  const DSS_KEY = 'swrv_show_dss';
+  function getDSSEnabled(){
+    try { return localStorage.getItem(DSS_KEY) === '1'; } catch(e){ return false; }
+  }
+  window.getDSSEnabled = getDSSEnabled;
+  function _syncDSSToggleBtn(){
+    const on = getDSSEnabled();
+    const btn = document.getElementById('dssToggleBtn');
+    if(btn){ btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  }
+  window.toggleDSSOverlay = function(){
+    const on = !getDSSEnabled();
+    try { localStorage.setItem(DSS_KEY, on ? '1' : '0'); } catch(e){}
+    _syncDSSToggleBtn();
+    // Re-render so the change is visible immediately instead of waiting for
+    // the next chapter navigation.
+    if(typeof window.reloadCurrentChapter === 'function') window.reloadCurrentChapter();
+  };
+
   // ---------- Layer filters popover ----------
   function renderLayerFiltersList(){
     const lf = getLayerFilters();
@@ -6659,6 +6737,7 @@ function _renderBookOverview(book){
   // ---------- Bootstrap on load ----------
   function bootUx(){
     setReadingMode(getReadingMode());
+    _syncDSSToggleBtn();
     // Close sheet on Escape
     document.addEventListener('keydown', function(e){
       if(e.key==='Escape'){

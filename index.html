@@ -35,6 +35,7 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 <link rel="stylesheet" href="css/audio-sync.css?v=20260820audio1">
 <link rel="stylesheet" href="css/chapter-context.css?v=20260818ctx1">
 <link rel="stylesheet" href="css/side-dock.css?v=20260819dockfix10">
+<link rel="stylesheet" href="css/dead-sea-scrolls.css?v=20261105dss1">
 <link rel="stylesheet" href="css/button-feel.css?v=20260819feel1">
 </head>
 <body data-theme="vintage">
@@ -180,6 +181,7 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
         <button id="memoryBtn" class="more-menu-item" onclick="closeMoreMenu();showModal('memory')" title="Your bookmarks, highlights, and notes"><span>📌</span> Memory</button>
         <button class="more-menu-item" onclick="closeMoreMenu();showModal('strongs')"><span>📔</span> Dictionary</button>
         <button id="libraryBtn" class="more-menu-item" onclick="closeMoreMenu();showModal('library')"><span>📚</span> Library</button>
+        <button id="dssToggleBtn" class="more-menu-item" onclick="toggleDSSOverlay()" aria-pressed="false" title="Show Dead Sea Scrolls manuscript notes inline with Scripture, at the chapters they bear on"><span>📜</span> Dead Sea Scrolls</button>
         <button class="more-menu-item" onclick="closeMoreMenu();cycleTheme()" title="Cycle to the next color theme"><span>🎨</span> Change Theme</button>
         <hr class="more-menu-divider">
         <div class="more-menu-section-label">About</div>
@@ -455,6 +457,10 @@ window.SWRV_API_BASE = 'https://swrv-on-bs-bible.swrvonthego.workers.dev';
 <script src="data/chapter-context-04.js?v=20261103ctxfix1" defer></script>
 <script src="data/chapter-context-05.js?v=20261103ctxfix1" defer></script>
 <script src="data/chapter-context-06.js?v=20261103ctxfix1" defer></script>
+<!-- Dead Sea Scrolls placed at the chapters/books they bear on (not the
+     full scholarly-paraphrase texts themselves — those stay lazy-loaded
+     via js/preload-library.js as window.DSS, opened from the Library). -->
+<script src="data/dead-sea-scrolls-placement.js?v=20261105dss1" defer></script>
 <!-- ============ Per-chapter "Questions & Answers" — study-Bible-style Q&A boxes ============
      Registry MUST load before the questions-and-answers-0N data files, which register into it. -->
 <script src="data/questions-and-answers-registry.js?v=20260909qa1" defer></script>
