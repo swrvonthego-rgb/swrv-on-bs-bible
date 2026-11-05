@@ -1373,13 +1373,29 @@ function renderPersonContextStrip(v, text){
 // Make verse references clickable (e.g., "Genesis 1:1" → clickable link)
 function makeVerseRefClickable(ref){
   if(!ref || typeof ref !== 'string') return escapeHtml(ref);
-  const m = ref.match(/^([A-Z0-9\s]+?)\s+(\d+):(\d+)$/);
+  // Cross-ref data often packs more than one reference into a single string
+  // ("Luke 2:40 / Revelation 4:5") — the old regex required the WHOLE string
+  // to be exactly "Book Ch:V", so any compound ref (the common case for
+  // Fulfillment) silently fell through to plain, unclickable text. Split on
+  // "/" first and link each piece independently.
+  const parts = ref.split(/\s*\/\s*/);
+  if(parts.length > 1) return parts.map(makeVerseRefClickable).join(' / ');
+  // Same fix for verse ranges ("Isaiah 9:6-7") — "(?:-\d+)?" lets the regex
+  // match the ref at all; navigation still jumps to the range's first verse.
+  const m = ref.match(/^(.+?)\s+(\d+):(\d+)(?:-\d+)?$/);
   if(!m) return escapeHtml(ref);
-  const book = m[1].trim();
+  const book = m[1].replace(/\s+/g,'');
   const ch = m[2];
   const v = m[3];
   const bookEsc = book.replace(/"/g,'&quot;');
-  return '<span class="definable" style="cursor:pointer;" onclick="closeStudySheet(); loadChapter(&quot;'+bookEsc+'&quot;, '+ch+', '+v+');">'+escapeHtml(ref)+'</span>';
+  // event.stopPropagation(): these spans sit inside cross-ref cards that are
+  // themselves clickable (to expand an inline preview, see renderTabCrossRefs)
+  // — without this, tapping a single ref would both navigate away AND toggle
+  // the card underneath it.
+  // openVerseReference (not the old, broken loadChapter(book, ch, v) call —
+  // loadChapter only ever takes a chapter *number*, so that silently failed
+  // to navigate at all) is the same book/chapter/verse jump search results use.
+  return '<span class="definable" style="cursor:pointer;" onclick="event.stopPropagation(); closeStudySheet(); openVerseReference(&quot;'+bookEsc+'&quot;, '+ch+', '+v+');">'+escapeHtml(ref)+'</span>';
 }
 
 function renderVerseText(text,definables,peopleNames,verseRef){
@@ -5141,6 +5157,67 @@ function _renderBookOverview(book){
     return { book: m[1].replace(/\s+/g,''), ch: parseInt(m[2],10), v: parseInt(m[3],10) };
   }
 
+  // Same as parseRef but also accepts a verse range ("Isaiah 9:6-7") — used
+  // by the cross-ref inline preview (_toggleXrefPreview below), which wants
+  // the whole range's text, not just the first verse.
+  function _parseRefLoose(ref){
+    if(!ref) return null;
+    const m = String(ref).match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
+    if(!m) return null;
+    const v = parseInt(m[3],10);
+    return { book: m[1].replace(/\s+/g,''), ch: parseInt(m[2],10), v: v, vEnd: m[4] ? parseInt(m[4],10) : v };
+  }
+
+  function _verseDisplayText(vObj){
+    if(!vObj) return '';
+    return (vObj.sources && vObj.sources.BSB && vObj.sources.BSB.text) || vObj.synthesized || vObj.text || '';
+  }
+
+  function _getVerseRangeText(book, ch, vStart, vEnd){
+    const out = [];
+    for(let vn=vStart; vn<=vEnd; vn++){
+      const text = _verseDisplayText(_getVerseData(book, ch, vn));
+      if(text) out.push((vEnd>vStart ? vn+' ' : '') + text);
+    }
+    return out.join(' ');
+  }
+
+  // Expands/collapses the inline verse-text preview on a cross-ref card
+  // (see renderTabCrossRefs) — so tapping "Prophecy: Isaiah 53:3 / Fulfillment:
+  // Luke 22:44 / Matthew 26:38" shows all three passages' actual text right
+  // there, instead of making the reader navigate away (and lose their place
+  // in whatever verse they opened the Study Sheet from) just to read them.
+  window._toggleXrefPreview = function(cardEl){
+    const preview = cardEl.querySelector('.xref-preview');
+    const hint = cardEl.querySelector('.xref-expand-hint');
+    if(!preview) return;
+    const opening = preview.hidden;
+    preview.hidden = !opening;
+    cardEl.classList.toggle('open', opening);
+    if(hint) hint.textContent = opening ? 'hide ▴' : 'tap to preview ▾';
+    if(!opening || cardEl._xrefLoaded) return;
+    cardEl._xrefLoaded = true;
+    let refs = [];
+    try { refs = JSON.parse(cardEl.getAttribute('data-refs')||'[]'); } catch(e){}
+    if(!refs.length){ preview.innerHTML = ''; return; }
+    preview.innerHTML = '<div class="xref-preview-loading">Loading…</div>';
+    let loaded = 0;
+    const blocks = new Array(refs.length);
+    function finish(){ loaded++; if(loaded===refs.length) preview.innerHTML = blocks.join(''); }
+    refs.forEach(function(ref, i){
+      const parsed = _parseRefLoose(ref);
+      if(!parsed){ blocks[i]=''; finish(); return; }
+      _loadBookScript(parsed.book, function(){
+        const text = _getVerseRangeText(parsed.book, parsed.ch, parsed.v, parsed.vEnd);
+        blocks[i] = '<div class="xref-preview-item">'
+          + '<div class="xref-preview-ref">'+_escape(ref)+'</div>'
+          + '<div class="xref-preview-text">'+(text ? _escape(text) : '<em>Text not available.</em>')+'</div>'
+          + '</div>';
+        finish();
+      });
+    });
+  };
+
   function _tabHasData(tab, state, v){
     if(!v) return false;
     const tryKeys = [state.ref, state.book+' '+state.chapter+':'+state.verse, state.book+' '+state.chapter];
@@ -6624,6 +6701,22 @@ function _renderBookOverview(book){
     return html;
   }
 
+  // Every cross-ref card is clickable (not just the individual scripture
+  // refs inside it): tapping anywhere on the card toggles an inline preview
+  // showing the actual text of every reference it names, fetched on demand
+  // (see _toggleXrefPreview above) — so the reader can see all of them at
+  // once without navigating away and losing their place. The individual
+  // ref text itself stays independently clickable too (makeVerseRefClickable,
+  // with its own stopPropagation) for a reader who does want to jump there.
+  function _xrefCard(labelHtml, bodyHtml, refs){
+    const refsAttr = _escape(JSON.stringify(refs)).replace(/'/g,'&#39;');
+    return '<div class="sheet-section xref-card" data-refs=\''+refsAttr+'\' onclick="window._toggleXrefPreview(this)">'
+      + '<div class="sheet-section-label">'+labelHtml+' <span class="xref-expand-hint">tap to preview ▾</span></div>'
+      + bodyHtml
+      + '<div class="xref-preview" hidden></div>'
+      + '</div>';
+  }
+
   function renderTabCrossRefs(state, v, lf){
     if(lf.crossrefs===false) return '<div class="sheet-empty">Cross References layer is off. Enable via 🎛 Layers.</div>';
     let html = '';
@@ -6631,8 +6724,8 @@ function _renderBookOverview(book){
     if(Array.isArray(window.PARALLEL_PASSAGES)){
       for(const p of window.PARALLEL_PASSAGES){
         if(Array.isArray(p.passages) && p.passages.some(function(s){return s.indexOf(state.book)===0;})){
-          html += '<div class="sheet-section"><div class="sheet-section-label">🔗 Parallel — '+_escape(p.title||p.id)+'</div>';
-          html += '<div class="sheet-text">'+p.passages.map(makeVerseRefClickable).join(' · ')+'</div></div>';
+          const body = '<div class="sheet-text">'+p.passages.map(makeVerseRefClickable).join(' · ')+'</div>';
+          html += _xrefCard('🔗 Parallel — '+_escape(p.title||p.id), body, p.passages);
         }
       }
     }
@@ -6640,11 +6733,12 @@ function _renderBookOverview(book){
     if(Array.isArray(window.PROPHECY_FULFILLMENT)){
       for(const p of window.PROPHECY_FULFILLMENT){
         if((p.prophecy && p.prophecy.indexOf(state.book)===0) || (p.fulfillment && p.fulfillment.indexOf(state.book)===0)){
-          html += '<div class="sheet-section"><div class="sheet-section-label">📜 Prophecy → Fulfillment</div>';
-          if(p.prophecy) html += '<div class="sheet-text"><b>Prophecy:</b> '+makeVerseRefClickable(p.prophecy)+'</div>';
-          if(p.fulfillment) html += '<div class="sheet-text"><b>Fulfillment:</b> '+makeVerseRefClickable(p.fulfillment)+'</div>';
-          if(p.summary) html += '<div class="sheet-text" style="margin-top:4px;">'+_escape(p.summary)+'</div>';
-          html += '</div>';
+          let body = '';
+          const refs = [];
+          if(p.prophecy){ body += '<div class="sheet-text"><b>Prophecy:</b> '+makeVerseRefClickable(p.prophecy)+'</div>'; refs.push(p.prophecy); }
+          if(p.fulfillment){ body += '<div class="sheet-text"><b>Fulfillment:</b> '+makeVerseRefClickable(p.fulfillment)+'</div>'; refs.push.apply(refs, p.fulfillment.split(/\s*\/\s*/)); }
+          if(p.summary) body += '<div class="sheet-text" style="margin-top:4px;">'+_escape(p.summary)+'</div>';
+          html += _xrefCard('📜 Prophecy → Fulfillment', body, refs);
         }
       }
     }

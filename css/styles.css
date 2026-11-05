@@ -3006,6 +3006,47 @@ body[data-reading-mode="read"] .verse-study-chip{
   opacity:0.85;
 }
 .sheet-text{ font-size:14px; line-height:1.55; color:var(--fg); }
+/* Cross-ref cards (Parallel / Prophecy → Fulfillment) are clickable as a
+   whole — tapping anywhere on the card (that isn't one of the individual
+   scripture-ref links, which stop propagation) toggles an inline preview
+   of every reference's actual text, fetched on demand. See
+   renderTabCrossRefs / _toggleXrefPreview in js/app.js. */
+.xref-card{ cursor:pointer; transition:border-color 0.15s ease, background 0.15s ease; }
+.xref-card:hover{ border-color:rgba(212,175,55,0.5); }
+.xref-card.open{ background:var(--bg-3); }
+.xref-expand-hint{
+  float:right;
+  text-transform:none;
+  letter-spacing:normal;
+  font-weight:600;
+  font-size:10.5px;
+  color:var(--fg-dim);
+  opacity:0.8;
+}
+.xref-preview{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dashed var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.xref-preview-loading{ font-size:13px; color:var(--fg-dim); font-style:italic; }
+.xref-preview-item{
+  padding:8px 10px;
+  background:var(--bg);
+  border-left:3px solid var(--gold);
+  border-radius:6px;
+}
+.xref-preview-ref{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.04em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.xref-preview-text{ font-size:13.5px; line-height:1.55; color:var(--fg); }
 .sheet-warn{
   margin-top:8px;
   padding:8px 10px;
