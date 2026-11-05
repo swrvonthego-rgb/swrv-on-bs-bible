@@ -44,20 +44,35 @@ body[data-theme="vintage"]{
    Chapter titles get a faint warm glow, like ink slightly settled into
    old paper, instead of sitting perfectly flat. */
 [data-theme="vintage"] .main{
-  /* The actual reading surface — where the text people are reading sits —
-     needs its own visible parchment grain, not just a translucent white
-     wash over whatever faint texture happens to show through from the
-     body background behind it. Two turbulence layers: a fine one for
-     paper fiber, a coarser one for mottled, uneven aging. Kept to a low
-     enough alpha that verse text stays easily readable — this is a
-     reading app first — but a close look (or a quick glance at a mostly-
-     empty stretch between verses) now clearly reads as paper, not flat
-     color. */
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.32 0 0 0 0 0.16 0 0 0 0.16 0'/></filter><rect width='260' height='260' filter='url(%23f)'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.34 0 0 0 0 0.15 0 0 0 0.1 0'/></filter><rect width='500' height='500' filter='url(%23g)'/></svg>"),
-    linear-gradient(170deg, rgba(255,252,240,0.4), rgba(255,252,240,0.08) 65%) #ede1c2;
-  background-blend-mode:multiply,multiply,normal;
+  /* The actual reading surface now uses a real photographed sheet of
+     weathered parchment (assets/vintage/parchment) instead of a
+     CSS-generated texture — genuinely looks like paper because it is a
+     photo of paper. Cropped to a smoother central region of the source
+     photo rather than the full sheet: the full photo's dramatic
+     burnt/charred edges (great character, used as-is on body below) are
+     too high-contrast to sit directly under paragraph text everywhere —
+     caught this by actually reading verse text against the first
+     version, not just eyeballing a thumbnail. Tiling the crop at native
+     size was tried next (avoids the upscale-softening cover sizing
+     causes) but produced an obvious repeating grid — worse than the
+     softening it was meant to fix — so back to background-size:cover,
+     single image, no seams. A second, procedural fine-grain noise layer
+     on top (same technique as the
+     earlier CSS-only version) adds a bit more always-crisp texture on
+     top of the photo's own grain. image-set() picks the WebP photo when
+     supported; browsers that don't understand image-set() keep the plain
+     url() fallback layer-for-layer in the declaration right above it. */
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='220' height='220' filter='url(%23f)'/></svg>"),
+    url('../assets/vintage/parchment.jpg');
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='220' height='220' filter='url(%23f)'/></svg>"),
+    image-set(url('../assets/vintage/parchment.webp') type('image/webp'), url('../assets/vintage/parchment.jpg') type('image/jpeg'));
+  background-size: 220px 220px, cover;
+  background-position: top left, center top;
+  background-repeat: repeat, no-repeat;
+  background-blend-mode: overlay, normal;
+  background-attachment: fixed, fixed;
   border:1px solid rgba(154,132,84,0.4);
   border-radius:4px;
   box-shadow:
@@ -736,12 +751,15 @@ header.app-header {
   font-weight: 500;
 }
 
-/* Premium brand logo — an inline SVG scroll (gold-capped rollers around a
-   parchment panel) with a royal serif "S" inked on it, matching the
-   Dead Sea Scrolls feature's visual language. Square-ish viewBox, so no
-   extra framing box/border-radius is layered on top — the scroll shape
-   itself is the frame. */
-.brand-logo-text { display: block; height: 100%; width: auto; }
+/* Premium brand logo — the real crowned-diamond "S" badge, cropped from
+   the official SWRV On BS Bible cover art (assets/brand/logo-header),
+   rather than a hand-drawn stand-in. picture{display:contents} matters
+   here: without it the <picture> wrapper has no intrinsic size, so the
+   img's height:100% has nothing to resolve against and renders at full
+   intrinsic size instead of the header's actual slot (bit us once
+   already on an earlier logo swap). */
+.brand-logo picture { display: contents; }
+.brand-logo-text { display: block; height: 100%; width: auto; border-radius: 4px; }
 
 .brand-title {
   font-family: var(--apple-font);
