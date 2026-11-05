@@ -9,7 +9,10 @@ function dismissSplash(){
   sessionStorage.setItem('swrv_entered', '1');
   splash.classList.add('dismissed');
   document.body.classList.remove('splash-active');
-  setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
+  // Hidden, not removed from the DOM: some readers like this landing page
+  // and want to get back to it later (More → Welcome Page) instead of it
+  // being gone for good the instant they open the Bible.
+  setTimeout(function(){ if(splash) splash.style.display = 'none'; }, 500);
   // "A Quick Word" — shown once per session (not once ever — a returning
   // reader should still be reminded each time they open the app), the
   // moment someone actually enters the reading app (not on the marketing
@@ -38,11 +41,33 @@ function dismissSplash(){
     splash.style.transition='none';
     splash.style.display='none';
     document.body.classList.remove('splash-active');
-    if(splash.parentNode) splash.parentNode.removeChild(splash);
   } else {
     document.body.classList.add('splash-active');
   }
 })();
+
+// Reopens the landing/welcome page on demand (More → Welcome Page) — for
+// readers who want to revisit it or share it, not just the one-shot
+// first-launch screen it started as. Kept in the DOM (dismissSplash above
+// hides it with display:none rather than removing it) so there's always
+// something here to bring back.
+window.showWelcomePage = function(){
+  const splash = document.getElementById('splashCover');
+  if(!splash) return;
+  if(typeof window.closeMoreMenu === 'function') window.closeMoreMenu();
+  splash.style.transition = 'none';
+  splash.style.display = 'flex';
+  splash.classList.remove('dismissed');
+  // Force a reflow so the fade-in keyframe animation restarts instead of
+  // silently no-opping because the element never left "animation ended".
+  void splash.offsetWidth;
+  splash.style.transition = '';
+  splash.style.animation = 'none';
+  void splash.offsetWidth;
+  splash.style.animation = '';
+  document.body.classList.add('splash-active');
+  splash.scrollTop = 0;
+};
 
 // Ensure the music mini play button always remains visible and accessible
 (function(){
